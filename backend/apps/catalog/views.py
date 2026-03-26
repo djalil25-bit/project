@@ -57,7 +57,16 @@ class ProductViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
     def perform_create(self, serializer):
-        serializer.save(farmer=self.request.user)
+        catalog_product = serializer.validated_data.get('catalog_product')
+        # Automatically set category and unit if missing but catalog_product is present
+        extra_args = {'farmer': self.request.user}
+        if catalog_product:
+            if not serializer.validated_data.get('category'):
+                extra_args['category'] = catalog_product.category
+            if not serializer.validated_data.get('unit'):
+                extra_args['unit'] = catalog_product.default_unit
+        
+        serializer.save(**extra_args)
 
     def perform_update(self, serializer):
         if self.get_object().farmer != self.request.user:

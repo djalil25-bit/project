@@ -1,5 +1,4 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import { ChevronRight } from 'lucide-react';
 
 const FAQPage = () => {
   const faqs = [
@@ -24,8 +23,8 @@ const FAQPage = () => {
   return (
     <div className="public-content-page section-padding">
       <div className="container container-m">
-        <nav className="breadcrumb">
-          <Link to="/">Home</Link> <span>/</span> <span>FAQ</span>
+        <nav className="breadcrumb d-flex align-items-center mb-4">
+          <Link to="/">Home</Link> <span className="mx-2 text-muted opacity-50"><ChevronRight size={12} /></span> <span>FAQ</span>
         </nav>
         <h1 className="page-title text-center">Frequently Asked Questions</h1>
         

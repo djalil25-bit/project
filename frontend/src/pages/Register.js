@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/axiosConfig';
+import { 
+  Leaf, 
+  CheckCircle, 
+  ShoppingCart, 
+  Tractor, 
+  Truck 
+} from 'lucide-react';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -50,8 +57,10 @@ const Register = () => {
     return (
       <div className="auth-bg">
         <div className="auth-card text-center" style={{maxWidth: '500px', padding: '3rem'}}>
-          <div className="success-screen animate-fade-in">
-            <div className="success-icon" style={{fontSize: '4rem', marginBottom: '1.5rem'}}>✅</div>
+          <div className="success-screen animate-fade-in text-center">
+            <div className="success-icon text-success mb-4 d-flex justify-content-center">
+              <CheckCircle size={80} />
+            </div>
             <h2 className="fw-bold mb-3">Welcome to AgriGov!</h2>
             <div className="alert alert-info py-3 mb-4">
               <h4 className="h6 fw-bold mb-2">Registration Received</h4>
@@ -78,7 +87,9 @@ const Register = () => {
     <div className="split-auth-wrapper">
       {/* Left Panel */}
       <div className="auth-left-panel">
-        <Link to="/" className="auth-brand">🌿 AgriGov</Link>
+        <Link to="/" className="auth-brand d-flex align-items-center">
+          <Leaf size={28} className="me-2" /> AgriGov
+        </Link>
         <div className="auth-left-content">
           <h2 className="auth-quote">Grow your business with the right tools.</h2>
           <p className="lead opacity-75">Join thousands of professionals already using AgriGov to transform the agricultural marketplace.</p>
@@ -111,7 +122,7 @@ const Register = () => {
                     onChange={(e) => setFormData({...formData, role: e.target.value})}
                   />
                   <label htmlFor="role-buyer">
-                    <span className="role-option-icon">🛒</span>
+                    <span className="role-option-icon"><ShoppingCart size={24} /></span>
                     <span>Buyer</span>
                   </label>
                 </div>
@@ -122,7 +133,7 @@ const Register = () => {
                     onChange={(e) => setFormData({...formData, role: e.target.value})}
                   />
                   <label htmlFor="role-farmer">
-                    <span className="role-option-icon">🚜</span>
+                    <span className="role-option-icon"><Tractor size={24} /></span>
                     <span>Farmer</span>
                   </label>
                 </div>
@@ -133,7 +144,7 @@ const Register = () => {
                     onChange={(e) => setFormData({...formData, role: e.target.value})}
                   />
                   <label htmlFor="role-transporter">
-                    <span className="role-option-icon">🚚</span>
+                    <span className="role-option-icon"><Truck size={24} /></span>
                     <span>Transporter</span>
                   </label>
                 </div>

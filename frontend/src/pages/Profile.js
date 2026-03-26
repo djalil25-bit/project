@@ -1,6 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axiosConfig';
 import { useAuth } from '../context/AuthContext';
+import { 
+  User, 
+  Mail, 
+  Phone, 
+  MapPin, 
+  Shield, 
+  Lock, 
+  Smartphone, 
+  Save, 
+  Info,
+  CheckCircle,
+  AlertTriangle,
+  FileText
+} from 'lucide-react';
 
 const Profile = () => {
   const { user } = useAuth();
@@ -53,64 +67,98 @@ const Profile = () => {
     }
   };
 
-  if (loading) return <div className="loading-wrapper py-5"><div className="spinner" /></div>;
+  if (loading) return <div className="flex-center py-5"><div className="spinner-agr" /></div>;
 
   return (
     <div className="profile-page">
-      <div className="page-header">
+      <div className="page-header mb-4">
         <div>
-          <h1 className="page-title">Personal Account Settings</h1>
-          <p className="page-subtitle">Manage your public information and security preferences.</p>
+          <h1 className="page-title d-flex align-items-center">
+            <User className="text-primary me-3" size={32} /> Account Management
+          </h1>
+          <p className="page-subtitle text-muted">Manage your personal credentials and platform identity.</p>
         </div>
       </div>
 
       <div className="row g-4">
         <div className="col-lg-8">
           <div className="agr-card p-4 p-md-5">
-            <h3 className="h5 fw-bold mb-4">Edit Profile Info</h3>
-            {message && <div className={`alert alert-${message.type}`}>{message.text}</div>}
+            <div className="d-flex align-items-center mb-4">
+              <FileText size={20} className="text-primary me-2" />
+              <h3 className="h5 fw-bold mb-0">Identity & Contact</h3>
+            </div>
             
-            <form onSubmit={handleProfileUpdate}>
+            {message && (
+              <div className={`alert-agr alert-${message.type === 'success' ? 'success' : 'danger'}-agr mb-4 d-flex align-items-center small`}>
+                {message.type === 'success' ? <CheckCircle size={14} className="me-2" /> : <AlertTriangle size={14} className="me-2" />}
+                {message.text}
+              </div>
+            )}
+            
+            <form onSubmit={handleProfileUpdate} className="agr-form">
               <div className="row g-3">
                 <div className="col-md-6">
-                  <div className="form-group">
-                    <label className="form-label">Full Name</label>
+                  <div className="form-group mb-3">
+                    <label className="form-label d-flex align-items-center">
+                      <User size={14} className="me-2 text-muted" /> Public Name
+                    </label>
                     <input type="text" className="form-input" value={profile.full_name} onChange={e => setProfile({...profile, full_name: e.target.value})} />
                   </div>
                 </div>
                 <div className="col-md-6">
-                  <div className="form-group">
-                    <label className="form-label">Email Address (Read-only)</label>
-                    <input type="text" className="form-input bg-light" value={profile.email} disabled />
+                  <div className="form-group mb-3">
+                    <label className="form-label d-flex align-items-center">
+                      <Mail size={14} className="me-2 text-muted" /> Email Address
+                    </label>
+                    <input type="text" className="form-input bg-light border-0" value={profile.email} disabled />
+                    <p className="very-small text-muted mt-1 italic">Contact admin to change email.</p>
                   </div>
                 </div>
                 <div className="col-md-6">
-                  <div className="form-group">
-                    <label className="form-label">Phone Number</label>
+                  <div className="form-group mb-3">
+                    <label className="form-label d-flex align-items-center">
+                      <Phone size={14} className="me-2 text-muted" /> Phone Link
+                    </label>
                     <input type="text" className="form-input" value={profile.phone} onChange={e => setProfile({...profile, phone: e.target.value})} />
                   </div>
                 </div>
                 <div className="col-md-6">
-                  <div className="form-group">
-                    <label className="form-label">Account Role</label>
+                  <div className="form-group mb-3">
+                    <label className="form-label d-flex align-items-center">
+                      <Shield size={14} className="me-2 text-muted" /> Platform Identity
+                    </label>
                     <div className="pt-2"><span className={`role-badge role-${profile.role}`}>{profile.role}</span></div>
                   </div>
                 </div>
                 <div className="col-12">
-                  <div className="form-group">
-                    <label className="form-label">Bio / About You</label>
-                    <textarea className="form-input" rows="3" value={profile.bio || ''} onChange={e => setProfile({...profile, bio: e.target.value})} />
+                  <div className="form-group mb-3">
+                    <label className="form-label">Professional Summary</label>
+                    <textarea 
+                      className="form-input" 
+                      rows="3" 
+                      placeholder="Tell us about yourself or your business..."
+                      value={profile.bio || ''} 
+                      onChange={e => setProfile({...profile, bio: e.target.value})} 
+                    />
                   </div>
                 </div>
                 <div className="col-12">
-                  <div className="form-group">
-                    <label className="form-label">Main Business Address</label>
-                    <textarea className="form-input" rows="2" value={profile.address || ''} onChange={e => setProfile({...profile, address: e.target.value})} />
+                  <div className="form-group mb-2">
+                    <label className="form-label d-flex align-items-center">
+                      <MapPin size={14} className="me-2 text-muted" /> Primary Registry Address
+                    </label>
+                    <textarea 
+                      className="form-input" 
+                      rows="2" 
+                      placeholder="Enter your full business or residential address"
+                      value={profile.address || ''} 
+                      onChange={e => setProfile({...profile, address: e.target.value})} 
+                    />
                   </div>
                 </div>
               </div>
-              <button type="submit" className="btn-agr btn-primary mt-4 px-5" disabled={updating}>
-                {updating ? 'Saving...' : '💾 Save Changes'}
+              <button type="submit" className="btn-agr btn-primary mt-4 px-5 d-flex align-items-center" disabled={updating}>
+                {updating ? 'Processing...' : <><Save size={18} className="me-2" /> Sync Changes</>}
               </button>
             </form>
           </div>
@@ -118,42 +166,50 @@ const Profile = () => {
 
         <div className="col-lg-4">
           <div className="agr-card p-4 h-100">
-            <h3 className="h5 fw-bold mb-4">Security</h3>
-            <form onSubmit={handlePasswordChange}>
-              <div className="form-group">
-                <label className="form-label">Current Password</label>
+            <div className="d-flex align-items-center mb-4">
+              <Lock size={20} className="text-primary me-2" />
+              <h3 className="h5 fw-bold mb-0">Security Gate</h3>
+            </div>
+            
+            <form onSubmit={handlePasswordChange} className="agr-form">
+              <div className="form-group mb-3">
+                <label className="form-label small">Legacy Password</label>
                 <input 
                   type="password" name="old_password" className="form-input" 
                   value={passwordData.old_password} onChange={e => setPasswordData({...passwordData, old_password: e.target.value})} 
                   required
                 />
               </div>
-              <div className="form-group">
-                <label className="form-label">New Password</label>
+              <div className="form-group mb-3">
+                <label className="form-label small">New Secret Key</label>
                 <input 
                   type="password" name="new_password" className="form-input" 
                   value={passwordData.new_password} onChange={e => setPasswordData({...passwordData, new_password: e.target.value})} 
                   required
                 />
               </div>
-              <div className="form-group">
-                <label className="form-label">Confirm New Password</label>
+              <div className="form-group mb-4">
+                <label className="form-label small">Confirm New Secret</label>
                 <input 
                   type="password" name="confirm_password" className="form-input" 
                   value={passwordData.confirm_password} onChange={e => setPasswordData({...passwordData, confirm_password: e.target.value})} 
                   required
                 />
               </div>
-              <button type="submit" className="btn-agr btn-outline w-100 mt-2">🛡️ Update Password</button>
+              <button type="submit" className="btn-agr btn-outline w-100 d-flex align-items-center justify-content-center">
+                <Shield size={16} className="me-2" /> Rotate Password
+              </button>
             </form>
 
             <div className="mt-5 pt-4 border-top">
-              <h5 className="small fw-bold text-muted text-uppercase mb-3">Login Activity</h5>
-              <div className="d-flex align-items-center gap-3">
-                <div className="h1 mb-0 opacity-25">📱</div>
+              <h5 className="very-small fw-bold text-muted text-uppercase mb-3 tracking-wider">Access Monitoring</h5>
+              <div className="d-flex align-items-center gap-3 p-3 bg-light-soft rounded-lg">
+                <Smartphone size={24} className="text-muted opacity-50" />
                 <div className="small">
-                  <div className="fw-bold">Currently Signed In</div>
-                  <div className="text-muted">Algiers, Algeria • Last active now</div>
+                  <div className="fw-bold text-dark">Currently Active Session</div>
+                  <div className="text-muted very-small mt-1">
+                    <span className="text-success fw-bold">Live</span> • Algiers, Algeria • Desktop Platform
+                  </div>
                 </div>
               </div>
             </div>

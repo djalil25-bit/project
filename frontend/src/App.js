@@ -22,6 +22,7 @@ import TransporterDashboard from './pages/dashboards/TransporterDashboard';
 // Sub-pages
 import FarmForm from './pages/farmer/FarmForm';
 import ProductForm from './pages/farmer/ProductForm';
+import OrderList from './pages/farmer/OrderList';
 import HarvestRecords from './pages/farmer/HarvestRecords';
 import OrderHistory from './pages/buyer/OrderHistory';
 import CategoryManager from './pages/admin/CategoryManager';
@@ -69,6 +70,11 @@ function App() {
         <Route path="/farmer-dashboard" element={
           <ProtectedRoute allowedRoles={['farmer']}>
             <FarmerDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/farmer/orders" element={
+          <ProtectedRoute allowedRoles={['farmer']}>
+            <OrderList />
           </ProtectedRoute>
         } />
         <Route path="/farmer-dashboard/farm/new" element={

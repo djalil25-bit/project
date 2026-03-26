@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Leaf, BarChart3, ShieldCheck, Truck } from 'lucide-react';
 
 const Login = () => {
   const { login } = useAuth();
@@ -31,22 +32,24 @@ const Login = () => {
     <div className="split-auth-wrapper">
       {/* Left Panel - Branding & Info */}
       <div className="auth-left-panel">
-        <Link to="/" className="auth-brand">🌿 AgriGov</Link>
+        <Link to="/" className="auth-brand d-flex align-items-center">
+          <Leaf size={28} className="me-2" /> AgriGov
+        </Link>
         <div className="auth-left-content">
           <h2 className="auth-quote">The most trusted marketplace for modern agriculture.</h2>
           <p className="lead opacity-75">Connect with thousands of farmers and buyers across the region. Transparent pricing, reliable logistics, and fresh produce.</p>
           
           <ul className="auth-feature-list">
             <li className="auth-feature-item">
-              <div className="auth-feature-icon">📊</div>
+              <div className="auth-feature-icon"><BarChart3 size={20} /></div>
               <span>Real-time market price references</span>
             </li>
             <li className="auth-feature-item">
-              <div className="auth-feature-icon">🛡️</div>
+              <div className="auth-feature-icon"><ShieldCheck size={20} /></div>
               <span>Verified and approved user network</span>
             </li>
             <li className="auth-feature-item">
-              <div className="auth-feature-icon">🚚</div>
+              <div className="auth-feature-icon"><Truck size={20} /></div>
               <span>Integrated logistics and delivery tracking</span>
             </li>
           </ul>

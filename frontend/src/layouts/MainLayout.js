@@ -2,6 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axiosConfig';
+import { 
+  LayoutDashboard, 
+  ShoppingBag, 
+  Package, 
+  Settings, 
+  FolderTree, 
+  TrendingUp, 
+  ShoppingCart, 
+  History, 
+  Truck, 
+  MapPin, 
+  CreditCard, 
+  User, 
+  LogOut, 
+  Bell, 
+  ChevronLeft, 
+  ChevronRight,
+  ClipboardList,
+  CalendarDays
+} from 'lucide-react';
 
 const MainLayout = () => {
   const { user, logout } = useAuth();
@@ -39,24 +59,25 @@ const MainLayout = () => {
 
   const roleLinks = {
     admin: [
-      { label: 'Dashboard', path: '/admin-dashboard', icon: '📊' },
-      { label: 'Catalog', path: '/admin-dashboard/catalog', icon: '📋' },
-      { label: 'Categories', path: '/admin-dashboard/categories', icon: '📂' },
-      { label: 'Price History', path: '/admin-dashboard/prices', icon: '💰' },
+      { label: 'Dashboard', path: '/admin-dashboard', icon: <LayoutDashboard size={20} /> },
+      { label: 'Catalog', path: '/admin-dashboard/catalog', icon: <ClipboardList size={20} /> },
+      { label: 'Categories', path: '/admin-dashboard/categories', icon: <FolderTree size={20} /> },
+      { label: 'Pricing', path: '/admin-dashboard/prices', icon: <TrendingUp size={20} /> },
     ],
     farmer: [
-      { label: 'Dashboard', path: '/farmer-dashboard', icon: '🏠' },
-      { label: 'My Products', path: '/farmer-dashboard/product/new', icon: '🍎' },
-      { label: 'Harvests', path: '/farmer-dashboard/harvests', icon: '📅' },
+      { label: 'Dashboard', path: '/farmer-dashboard', icon: <LayoutDashboard size={20} /> },
+      { label: 'Orders', path: '/farmer/orders', icon: <ShoppingBag size={20} /> },
+      { label: 'Products', path: '/farmer-dashboard/product/new', icon: <Package size={20} /> },
+      { label: 'Harvests', path: '/farmer-dashboard/harvests', icon: <CalendarDays size={20} /> },
     ],
     buyer: [
-      { label: 'Marketplace', path: '/buyer-dashboard', icon: '🛒' },
-      { label: 'My Orders', path: '/buyer-dashboard/orders', icon: '📜' },
+      { label: 'Marketplace', path: '/buyer-dashboard', icon: <ShoppingCart size={20} /> },
+      { label: 'My Orders', path: '/buyer-dashboard/orders', icon: <History size={20} /> },
     ],
     transporter: [
-      { label: 'Mission Board', path: '/transporter-dashboard', icon: '🚚' },
-      { label: 'My Fleet', path: '/transporter-dashboard/vehicles', icon: '🚛' },
-      { label: 'Service Zones', path: '/transporter-dashboard/zones', icon: '📍' },
+      { label: 'Marketboard', path: '/transporter-dashboard', icon: <Truck size={20} /> },
+      { label: 'My Fleet', path: '/transporter-dashboard/vehicles', icon: <Truck size={20} /> },
+      { label: 'Zones', path: '/transporter-dashboard/zones', icon: <MapPin size={20} /> },
     ]
   };
 
@@ -67,11 +88,11 @@ const MainLayout = () => {
       <aside className="app-sidebar">
         <div className="sidebar-header">
           <Link to="/" className="sidebar-brand">
-            <span className="logo-icon">🌿</span>
+            <span className="logo-icon"><Package size={24} color="#10b981" /></span>
             <span className="brand-text">AgriGov</span>
           </Link>
           <button className="sidebar-toggle" onClick={toggleSidebar}>
-            {sidebarOpen ? '❮' : '❯'}
+            {sidebarOpen ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
           </button>
         </div>
 
@@ -88,14 +109,14 @@ const MainLayout = () => {
             </Link>
           ))}
           
-          <div className="nav-section-label mt-4">Account</div>
+          <div className="nav-section-label mt-4">Account Settings</div>
           <Link to="/profile" className={`nav-link ${location.pathname === '/profile' ? 'active' : ''}`}>
-            <span className="nav-icon">👤</span>
-            <span className="nav-label">Profile Settings</span>
+            <span className="nav-icon"><User size={20} /></span>
+            <span className="nav-label">My Profile</span>
           </Link>
           <button onClick={logout} className="nav-link logout-btn">
-            <span className="nav-icon">🚪</span>
-            <span className="nav-label">Sign Out</span>
+            <span className="nav-icon"><LogOut size={20} /></span>
+            <span className="nav-label">Logout</span>
           </button>
         </nav>
       </aside>
@@ -104,13 +125,13 @@ const MainLayout = () => {
         <header className="app-topbar">
           <div className="topbar-left">
             <h2 className="current-page-title">
-              {currentLinks.find(l => l.path === location.pathname)?.label || (location.pathname === '/profile' ? 'Profile' : 'Dashboard')}
+              {currentLinks.find(l => l.path === location.pathname)?.label || (location.pathname === '/profile' ? 'Profile' : 'AgriGov Market')}
             </h2>
           </div>
           <div className="topbar-right">
             <div className="notification-wrapper">
               <div className="notification-bell" onClick={() => setShowNotifDropdown(!showNotifDropdown)}>
-                <span className="bell-icon">🔔</span>
+                <Bell size={20} />
                 {unreadCount > 0 && <span className="notif-badge">{unreadCount}</span>}
               </div>
               

@@ -1,5 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { 
+  TrendingUp, 
+  Leaf, 
+  Banknote, 
+  Truck, 
+  ShieldCheck, 
+  BarChart3,
+  ChevronRight,
+  ArrowRight
+} from 'lucide-react';
 
 const LandingPage = () => {
   return (
@@ -14,20 +24,22 @@ const LandingPage = () => {
               Modernizing the supply chain with transparency, fair pricing, and seamless logistics.
             </p>
             <div className="hero-actions">
-              <Link to="/register" className="btn btn-primary btn-lg">Get Started</Link>
+              <Link to="/register" className="btn btn-primary btn-lg d-flex align-items-center">
+                Get Started <ChevronRight size={20} className="ms-2" />
+              </Link>
               <Link to="/about" className="btn btn-outline btn-lg">Learn More</Link>
             </div>
           </div>
           <div className="hero-image">
             <div className="floating-card stat-card">
-              <div className="icon">📈</div>
+              <div className="icon text-primary"><TrendingUp size={24} /></div>
               <div>
                 <h4>Live Market Prices</h4>
                 <p>Updated every hour</p>
               </div>
             </div>
             <div className="floating-card user-card">
-              <div className="icon">🚜</div>
+              <div className="icon text-success"><Leaf size={24} /></div>
               <div>
                 <h4>500+ Farmers</h4>
                 <p>Verified & Approved</p>
@@ -48,22 +60,22 @@ const LandingPage = () => {
           </div>
           <div className="features-grid">
             <div className="feature-card">
-              <div className="feature-icon">💰</div>
+              <div className="feature-icon"><Banknote size={32} /></div>
               <h3>Fair Pricing</h3>
               <p>Admin-regulated price ranges ensure farmers get fair value and buyers get honest prices.</p>
             </div>
             <div className="feature-card">
-              <div className="feature-icon">🚚</div>
+              <div className="feature-icon"><Truck size={32} /></div>
               <h3>Integrated Logistics</h3>
               <p>Connect with professional transporters across all service zones for reliable delivery.</p>
             </div>
             <div className="feature-card">
-              <div className="feature-icon">🛡️</div>
+              <div className="feature-icon"><ShieldCheck size={32} /></div>
               <h3>Verified Users</h3>
               <p>Strict admin approval process ensures a secure and trustworthy marketplace for everyone.</p>
             </div>
             <div className="feature-card">
-              <div className="feature-icon">📊</div>
+              <div className="feature-icon"><BarChart3 size={32} /></div>
               <h3>Real-time Analytics</h3>
               <p>Track your sales, production, and missions with professional dashboard insights.</p>
             </div>

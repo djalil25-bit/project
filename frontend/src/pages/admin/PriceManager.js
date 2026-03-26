@@ -1,6 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../api/axiosConfig';
 import { Link } from 'react-router-dom';
+import { 
+  TrendingUp, 
+  Plus, 
+  Trash2, 
+  CheckCircle, 
+  AlertCircle, 
+  Calendar, 
+  DollarSign, 
+  Info, 
+  X,
+  Send,
+  ChevronRight,
+  Database,
+  Tag
+} from 'lucide-react';
 
 function PriceManager() {
   const [publications, setPublications] = useState([]);
@@ -31,123 +46,184 @@ function PriceManager() {
     try {
       await api.post('/price-publications/', formData);
       setFormData({ category: '', effective_date: '', min_price: '', max_price: '', reference_price: '', unit: 'kg', notes: '' });
-      setSuccess('Price publication created!');
+      setSuccess('Market price index updated successfully.');
       fetchData();
     } catch (err) {
       const data = err.response?.data;
-      setError(typeof data === 'object' ? Object.values(data).flat().join(' ') : 'Failed to create publication.');
+      setError(typeof data === 'object' ? Object.values(data).flat().join(' ') : 'Failed to publish price data.');
     } finally { setSubmitting(false); }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this price publication?')) return;
+    if (!window.confirm('Are you sure? This will remove this official price index entry.')) return;
     try {
       await api.delete(`/price-publications/${id}/`);
-      setSuccess('Publication deleted.');
+      setSuccess('Publication archived.');
       fetchData();
-    } catch { setError('Failed to delete.'); }
+    } catch { setError('Failed to archive publication.'); }
   };
 
   return (
-    <div>
+    <div className="price-manager-page">
       <div className="agr-breadcrumb">
-        <Link to="/admin-dashboard">Admin Dashboard</Link>
-        <span className="agr-breadcrumb-sep">›</span>
-        <span>Official Prices</span>
+        <Link to="/admin-dashboard">Admin Hub</Link>
+        <span className="agr-breadcrumb-sep"><ChevronRight size={12} /></span>
+        <span>Price Indexing</span>
       </div>
 
-      <div className="page-header">
-        <div>
-          <h1 className="page-title">💰 Official Price Manager</h1>
-          <p className="page-subtitle">Publish official market reference prices by category</p>
+      <div className="page-header mb-4">
+        <div className="d-flex align-items-center">
+          <TrendingUp className="text-primary me-3" size={32} />
+          <div>
+            <h1 className="page-title">Market Price Surveillance</h1>
+            <p className="page-subtitle text-muted">Publish official wholesale reference prices to stabilize platform trade.</p>
+          </div>
         </div>
       </div>
 
-      {/* Form */}
-      <div className="agr-card" style={{ padding: '1.5rem', marginBottom: '1.5rem' }}>
-        <h3 style={{ fontWeight: 700, marginBottom: '1.25rem', fontSize: '0.95rem' }}>Publish New Price</h3>
-        {error && <div className="alert alert-danger">{error}</div>}
-        {success && <div className="alert alert-success">✅ {success}</div>}
-        <form onSubmit={handleSubmit}>
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label">Category *</label>
-              <select className="form-input" value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} required>
-                <option value="">Select Category...</option>
-                {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
+      <div className="agr-card p-4 p-md-5 mb-4 shadow-sm border-primary-soft">
+        <h3 className="h6 fw-bold mb-4 d-flex align-items-center text-dark">
+           <Plus size={18} className="text-primary me-2" /> New Index Publication
+        </h3>
+        
+        {error && (
+          <div className="alert-agr alert-danger mb-4 d-flex align-items-center">
+             <AlertCircle size={18} className="me-2" /> {error}
+          </div>
+        )}
+        {success && (
+          <div className="alert-agr alert-success mb-4 d-flex align-items-center">
+             <CheckCircle size={18} className="me-2" /> {success}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="agr-form overflow-hidden">
+          <div className="row g-3 mb-3">
+            <div className="col-md-6 text-start">
+              <label className="form-label small fw-bold">Target Category *</label>
+              <div className="input-group-agr">
+                <Tag size={16} className="input-icon" />
+                <select className="form-input" value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} required>
+                  <option value="">Select Classification...</option>
+                  {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
             </div>
-            <div className="form-group">
-              <label className="form-label">Effective Date *</label>
-              <input type="date" className="form-input" value={formData.effective_date} onChange={e => setFormData({ ...formData, effective_date: e.target.value })} required />
+            <div className="col-md-6 text-start">
+              <label className="form-label small fw-bold">Effective From *</label>
+              <div className="input-group-agr">
+                <Calendar size={16} className="input-icon" />
+                <input type="date" className="form-input" value={formData.effective_date} onChange={e => setFormData({ ...formData, effective_date: e.target.value })} required />
+              </div>
             </div>
           </div>
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label">Min Price *</label>
+          
+          <div className="row g-3 mb-3">
+            <div className="col-md-4 text-start">
+              <label className="form-label small fw-bold">Safety Min (DZD)</label>
               <input type="number" step="0.01" className="form-input" placeholder="0.00" value={formData.min_price} onChange={e => setFormData({ ...formData, min_price: e.target.value })} required />
             </div>
-            <div className="form-group">
-              <label className="form-label">Max Price *</label>
+            <div className="col-md-4 text-start">
+              <label className="form-label small fw-bold">Safety Max (DZD)</label>
               <input type="number" step="0.01" className="form-input" placeholder="0.00" value={formData.max_price} onChange={e => setFormData({ ...formData, max_price: e.target.value })} required />
             </div>
-            <div className="form-group">
-              <label className="form-label">Reference Price *</label>
-              <input type="number" step="0.01" className="form-input" placeholder="0.00" value={formData.reference_price} onChange={e => setFormData({ ...formData, reference_price: e.target.value })} required />
+            <div className="col-md-4 text-start">
+              <label className="form-label small fw-bold">Market Average (DZD)</label>
+              <div className="input-group-agr border-primary-soft">
+                <DollarSign size={16} className="input-icon text-primary" />
+                <input type="number" step="0.01" className="form-input fw-bold text-primary" placeholder="0.00" value={formData.reference_price} onChange={e => setFormData({ ...formData, reference_price: e.target.value })} required />
+              </div>
             </div>
           </div>
-          <div className="form-row">
-            <div className="form-group">
-              <label className="form-label">Unit</label>
+          
+          <div className="row g-3 mb-4">
+            <div className="col-md-4 text-start">
+              <label className="form-label small fw-bold">Trading Unit</label>
               <select className="form-input" value={formData.unit} onChange={e => setFormData({ ...formData, unit: e.target.value })}>
-                {['kg', 'g', 'ton', 'litre', 'unit'].map(u => <option key={u} value={u}>{u}</option>)}
+                 {['kg', 'quintal', 'ton', 'box', 'unit'].map(u => <option key={u} value={u}>{u}</option>)}
               </select>
             </div>
-            <div className="form-group">
-              <label className="form-label">Notes</label>
-              <input type="text" className="form-input" placeholder="Source, comments..." value={formData.notes} onChange={e => setFormData({ ...formData, notes: e.target.value })} />
+            <div className="col-md-8 text-start">
+              <label className="form-label small fw-bold">Publication Annotations</label>
+              <input type="text" className="form-input" placeholder="e.g. Based on Wholesale Algiers reports..." value={formData.notes} onChange={e => setFormData({ ...formData, notes: e.target.value })} />
             </div>
           </div>
-          <div className="d-flex gap-2">
-            <button className="btn-agr btn-primary" type="submit" disabled={submitting}>
-              {submitting ? 'Publishing...' : '📢 Publish Price'}
+          
+          <div className="d-flex gap-3">
+            <button className="btn-agr btn-primary px-5 py-2 d-flex align-items-center" type="submit" disabled={submitting}>
+              <Send size={18} className="me-2" /> {submitting ? 'Transmitting...' : 'Authorize Publication'}
             </button>
-            <button className="btn-agr btn-outline" type="button" onClick={() => setFormData({ category: '', effective_date: '', min_price: '', max_price: '', reference_price: '', unit: 'kg', notes: '' })}>
-              Cancel
+            <button className="btn-agr btn-outline-secondary px-4 py-2" type="button" onClick={() => setFormData({ category: '', effective_date: '', min_price: '', max_price: '', reference_price: '', unit: 'kg', notes: '' })}>
+              Clear Form
             </button>
           </div>
         </form>
       </div>
 
-      {/* Table */}
-      <div className="agr-card">
-        <div className="agr-card-header">
-          <h3 className="agr-card-title">Published Prices</h3>
+      <div className="agr-card overflow-hidden">
+        <div className="agr-card-header bg-light-soft border-bottom p-3 d-flex justify-content-between align-items-center">
+          <h3 className="h6 fw-bold mb-0 d-flex align-items-center text-dark">
+             <Database size={16} className="text-primary me-2" /> Historic Price Registry
+          </h3>
+          <span className="badge-agr badge-primary-soft">{publications.length} Indices</span>
         </div>
         {loading ? (
-          <div className="loading-wrapper"><div className="spinner" /></div>
+          <div className="flex-center py-5">
+             <div className="spinner-agr"></div>
+             <span className="ms-3 text-muted">Retrieving index data...</span>
+          </div>
         ) : (
-          <table className="agr-table">
-            <thead><tr><th>Category</th><th>Effective Date</th><th>Min</th><th>Max</th><th>Reference</th><th>Unit</th><th style={{ textAlign: 'right' }}>Actions</th></tr></thead>
-            <tbody>
-              {publications.length === 0 ? (
-                <tr><td colSpan="7"><div className="table-empty"><div className="table-empty-icon">💰</div><div className="table-empty-text">No price publications yet.</div></div></td></tr>
-              ) : publications.map(p => (
-                <tr key={p.id}>
-                  <td style={{ fontWeight: 600 }}>{categories.find(c => c.id === p.category)?.name || p.category}</td>
-                  <td>{p.effective_date}</td>
-                  <td>${p.min_price}</td>
-                  <td>${p.max_price}</td>
-                  <td style={{ fontWeight: 700, color: 'var(--primary)' }}>${p.reference_price}</td>
-                  <td>{p.unit}</td>
-                  <td style={{ textAlign: 'right' }}>
-                    <button className="btn-agr btn-danger btn-sm" onClick={() => handleDelete(p.id)}>Delete</button>
-                  </td>
+          <div className="table-responsive">
+            <table className="table-agr table-hover">
+              <thead>
+                <tr>
+                  <th className="ps-4">Classification</th>
+                  <th>Valid From</th>
+                  <th>Safe Range</th>
+                  <th>Reference</th>
+                  <th>Unit</th>
+                  <th className="text-end pe-4">Operations</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {publications.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="text-center py-5 text-muted">
+                       <TrendingUp size={40} className="mb-3 opacity-25" />
+                       <p className="small mb-0">No price publications on record.</p>
+                    </td>
+                  </tr>
+                ) : publications.map(p => (
+                  <tr key={p.id}>
+                    <td className="ps-4">
+                       <span className="fw-bold text-dark">{categories.find(c => c.id === p.category)?.name || 'Unknown'}</span>
+                    </td>
+                    <td><span className="small text-muted">{p.effective_date}</span></td>
+                    <td>
+                       <span className="very-small text-muted">{p.min_price} DZD</span>
+                       <span className="mx-1 opacity-25">→</span>
+                       <span className="very-small text-muted">{p.max_price} DZD</span>
+                    </td>
+                    <td><span className="fw-bold text-primary">{p.reference_price} DZD</span></td>
+                    <td><span className="badge-agr badge-light small">{p.unit}</span></td>
+                    <td className="text-end pe-4">
+                      <button className="btn-icon text-danger" title="Evict Publication" onClick={() => handleDelete(p.id)}>
+                        <Trash2 size={16} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
+      </div>
+      
+      <div className="mt-4 p-3 bg-light-soft rounded-lg d-flex align-items-center">
+         <Info size={18} className="text-primary me-3 opacity-50" />
+         <div className="very-small text-muted">
+           Farmers cannot list products outside the specified Min/Max range of the latest publication for each category.
+         </div>
       </div>
     </div>
   );

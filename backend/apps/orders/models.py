@@ -4,14 +4,16 @@ from apps.common.models import TimeStampedModel
 from apps.catalog.models import Product
 
 class OrderStatusChoices(models.TextChoices):
-    PENDING = 'pending_farmer_confirmation', 'Pending Farmer Confirmation'
-    CONFIRMED = 'confirmed', 'Confirmed'
-    REJECTED = 'rejected', 'Rejected'
-    CANCELLED = 'cancelled', 'Cancelled'
-    READY_FOR_DELIVERY = 'ready_for_delivery', 'Ready for Delivery'
-    IN_DELIVERY = 'in_delivery', 'In Delivery'
-    DELIVERED = 'delivered', 'Delivered'
-    COMPLETED = 'completed', 'Completed'
+    PENDING = 'PENDING', 'Pending'
+    CONFIRMED = 'CONFIRMED', 'Confirmed'
+    REJECTED = 'REJECTED', 'Rejected'
+    CANCELLED = 'CANCELLED', 'Cancelled'
+
+class DeliveryStatusChoices(models.TextChoices):
+    AWAITING_PICKUP = 'AWAITING_PICKUP', 'Awaiting Pickup'
+    PICKED_UP = 'PICKED_UP', 'Picked Up'
+    IN_TRANSIT = 'IN_TRANSIT', 'In Transit'
+    DELIVERED = 'DELIVERED', 'Delivered'
 
 class Order(TimeStampedModel):
     buyer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders')
@@ -20,6 +22,11 @@ class Order(TimeStampedModel):
         max_length=50, 
         choices=OrderStatusChoices.choices, 
         default=OrderStatusChoices.PENDING
+    )
+    delivery_status = models.CharField(
+        max_length=50,
+        choices=DeliveryStatusChoices.choices,
+        default=DeliveryStatusChoices.AWAITING_PICKUP
     )
     delivery_address = models.TextField()
 

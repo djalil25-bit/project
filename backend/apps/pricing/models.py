@@ -21,12 +21,18 @@ class PricePublication(TimeStampedModel):
         return f"Official Price for {target}: {self.official_price} per {self.unit}"
 
     @classmethod
-    def get_latest_official_price(cls, catalog_product=None):
+    def get_latest_official_price(cls, catalog_product=None, category=None):
         now = timezone.now().date()
         qs = cls.objects.filter(valid_from__lte=now)
         qs = qs.filter(models.Q(valid_until__isnull=True) | models.Q(valid_until__gte=now))
         
         if catalog_product:
-            return qs.filter(catalog_product=catalog_product).order_by('-valid_from').first()
+            res = qs.filter(catalog_product=catalog_product).order_by('-valid_from').first()
+            if res:
+                return res
+        
+        if category:
+            # Fallback to any price publication for this category if no product-specific one exists
+            return qs.filter(catalog_product__category=category).order_by('-valid_from').first()
             
         return None

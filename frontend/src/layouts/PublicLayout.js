@@ -1,5 +1,4 @@
-import React from 'react';
-import PublicNavbar from '../components/PublicNavbar';
+import { Leaf } from 'lucide-react';
 
 const PublicLayout = ({ children }) => {
   return (
@@ -12,7 +11,9 @@ const PublicLayout = ({ children }) => {
         <div className="container">
           <div className="row g-4 mb-5">
             <div className="col-lg-4 col-md-6">
-              <h4 className="fw-bold mb-4">🌿 AgriGov Market</h4>
+              <h4 className="fw-bold mb-4 d-flex align-items-center">
+                <Leaf className="text-primary me-2" size={24} /> AgriGov Market
+              </h4>
               <p className="text-muted">
                 Modernizing agriculture through technology. 
                 Connecting producers directly to consumers and logistics.

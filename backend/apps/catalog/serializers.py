@@ -26,6 +26,8 @@ class ProductSerializer(serializers.ModelSerializer):
     max_price = serializers.DecimalField(source='catalog_product.max_price', max_digits=12, decimal_places=2, read_only=True, default=None)
 
     official_price_comparison = serializers.SerializerMethodField()
+    category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), required=False)
+    unit = serializers.CharField(required=False)
 
     class Meta:
         model = Product
@@ -47,7 +49,10 @@ class ProductSerializer(serializers.ModelSerializer):
                 'difference_percentage': round(float(diff_pct), 2),
                 'status': 'above' if diff > 0 else ('below' if diff < 0 else 'equal'),
             }
-        latest = PricePublication.get_latest_official_price(category=obj.category, product=obj)
+        latest = PricePublication.get_latest_official_price(
+            catalog_product=obj.catalog_product, 
+            category=obj.category
+        )
         if not latest:
             return None
         diff = obj.price - latest.official_price
@@ -64,8 +69,28 @@ class ProductSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         if farm and farm.owner != user:
             raise serializers.ValidationError({"farm": "Product must belong to one of your own farms."})
-        if data.get('price', 0) <= 0:
+        
+        # Strict Price Validation against CatalogProduct range
+        catalog_product = data.get('catalog_product')
+        price = data.get('price')
+        
+        if catalog_product and price is not None:
+            min_p = catalog_product.min_price
+            max_p = catalog_product.max_price
+            
+            if (min_p is not None and price < min_p) or (max_p is not None and price > max_p):
+                # Return field-specific error
+                raise serializers.ValidationError({
+                    "price": "Your price is outside the admin-approved range. Please review the admin prices."
+                })
+
+        if price is not None and price <= 0:
             raise serializers.ValidationError({"price": "Price must be positive."})
         if data.get('stock', 0) < 0:
             raise serializers.ValidationError({"stock": "Stock cannot be negative."})
+        
+        # Ensure category is present if catalog_product is not
+        if not catalog_product and not data.get('category'):
+            raise serializers.ValidationError({"category": "Category is required if not selecting from catalog."})
+            
         return data

@@ -6,8 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from .models import DeliveryRequest, DeliveryStatusChoices
 from .serializers import DeliveryRequestSerializer, DeliveryStatusUpdateSerializer
 from apps.accounts.permissions import IsTransporterRole, IsFarmerRole
-from apps.orders.models import OrderStatusChoices
-from apps.payments.models import PaymentStatusChoices
+from apps.orders.models import OrderStatusChoices, DeliveryStatusChoices as OrderDeliveryStatus
 
 class DeliveryRequestViewSet(viewsets.ModelViewSet):
     serializer_class = DeliveryRequestSerializer
@@ -48,20 +47,10 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
 
         # Update order status
         order = delivery.order
-        if order.status == OrderStatusChoices.READY_FOR_DELIVERY or order.status == OrderStatusChoices.CONFIRMED:
-            order.status = OrderStatusChoices.IN_DELIVERY
-            order.save()
-
-        # --- Notifications ---
-        from apps.notifications.models import create_notification, NotificationType
-        # Notify Buyer
-        create_notification(
-            user=order.buyer,
-            message=f"Order #{order.id} is now in delivery by {request.user.full_name}.",
-            notif_type=NotificationType.DELIVERY_ACCEPTED,
-            link=f"/buyer-dashboard"
-        )
-        # ---------------------
+        order.delivery_status = OrderDeliveryStatus.AWAITING_PICKUP
+        if order.status == OrderStatusChoices.PENDING or order.status == OrderStatusChoices.CONFIRMED:
+             order.status = OrderStatusChoices.CONFIRMED # Already confirmed if delivery requested
+        order.save()
 
         return Response(DeliveryRequestSerializer(delivery).data)
 
@@ -77,25 +66,30 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
             delivery.status = new_status
             delivery.save()
             
+            # Sync with Order
             order = delivery.order
-            if new_status == DeliveryStatusChoices.DELIVERED:
-                order.status = OrderStatusChoices.DELIVERED
-                order.save()
-                # Complete the payment for Cash on Delivery
-                if hasattr(order, 'payment'):
-                    order.payment.status = PaymentStatusChoices.PAID
-                    order.payment.save()
-                
-                # --- Notifications ---
+            if new_status == DeliveryStatusChoices.PICKED_UP:
+                order.delivery_status = OrderDeliveryStatus.PICKED_UP
+            elif new_status == DeliveryStatusChoices.IN_TRANSIT:
+                order.delivery_status = OrderDeliveryStatus.IN_TRANSIT
+            elif new_status == DeliveryStatusChoices.DELIVERED:
+                order.delivery_status = OrderDeliveryStatus.DELIVERED
+                order.status = OrderStatusChoices.CONFIRMED # Keep confirmed but delivered
+            
+            order.save()
+            
+            # Trigger notifications (keeping them simplified)
+            try:
                 from apps.notifications.models import create_notification, NotificationType
-                # Notify Buyer
-                create_notification(
-                    user=order.buyer,
-                    message=f"Order #{order.id} has been delivered! Please rate your experience.",
-                    notif_type=NotificationType.DELIVERY_COMPLETED,
-                    link=f"/order-history"
-                )
-                # ---------------------
-                
+                if new_status == DeliveryStatusChoices.DELIVERED:
+                    create_notification(
+                        user=order.buyer,
+                        message=f"Order #{order.id} has been delivered!",
+                        notif_type=NotificationType.DELIVERY_COMPLETED,
+                        link=f"/buyer-dashboard/orders"
+                    )
+            except ImportError:
+                pass
+
             return Response(DeliveryRequestSerializer(delivery).data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
