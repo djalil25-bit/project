@@ -1,0 +1,24 @@
+from django.db import models
+from django.conf import settings
+from apps.common.models import TimeStampedModel
+from apps.orders.models import Order
+
+class DeliveryStatusChoices(models.TextChoices):
+    OPEN = 'open', 'Open'
+    ASSIGNED = 'assigned', 'Assigned'
+    PICKED_UP = 'picked_up', 'Picked Up'
+    IN_TRANSIT = 'in_transit', 'In Transit'
+    DELIVERED = 'delivered', 'Delivered'
+    CANCELLED = 'cancelled', 'Cancelled'
+
+class DeliveryRequest(TimeStampedModel):
+    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='delivery_request')
+    transporter = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='deliveries')
+    status = models.CharField(
+        max_length=20, 
+        choices=DeliveryStatusChoices.choices, 
+        default=DeliveryStatusChoices.OPEN
+    )
+
+    def __str__(self):
+        return f"Delivery for Order #{self.order.id} - {self.status}"
