@@ -1,4 +1,5 @@
 import { Leaf } from 'lucide-react';
+import PublicNavbar from '../components/PublicNavbar';
 
 const PublicLayout = ({ children }) => {
   return (

@@ -13,7 +13,9 @@ import {
   MapPin, 
   Calendar,
   CreditCard,
-  Target
+  Target,
+  ChevronRight,
+  ClipboardList
 } from 'lucide-react';
 
 const StatusBadge = ({ status }) => {
