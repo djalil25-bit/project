@@ -8,14 +8,14 @@ from apps.catalog.models import Product
 from apps.orders.models import Order, OrderItem
 from apps.logistics.models import DeliveryRequest, DeliveryStatusChoices
 from apps.payments.models import Payment
+from apps.accounts.permissions import IsAdminRole
 
 class AdminDashboardStatsAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAdminRole]
 
     def get(self, request):
-        if request.user.role != RoleChoices.ADMIN:
-            from rest_framework.exceptions import PermissionDenied
-            raise PermissionDenied
+        user = request.user
+        print(f"[DEBUG AdminStats] User: {user.email}, Role: {user.role}, Is Superuser: {user.is_superuser}, Is Staff: {user.is_staff}")
             
         pending_users = User.objects.filter(status=AccountStatusChoices.PENDING).count()
         total_users = User.objects.exclude(role=RoleChoices.ADMIN).count()

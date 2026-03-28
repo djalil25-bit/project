@@ -65,14 +65,14 @@ class ProductSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, data):
-        farm = data.get('farm')
+        farm = data.get('farm', getattr(self.instance, 'farm', None))
         user = self.context['request'].user
         if farm and farm.owner != user:
             raise serializers.ValidationError({"farm": "Product must belong to one of your own farms."})
         
         # Strict Price Validation against CatalogProduct range
-        catalog_product = data.get('catalog_product')
-        price = data.get('price')
+        catalog_product = data.get('catalog_product', getattr(self.instance, 'catalog_product', None))
+        price = data.get('price', getattr(self.instance, 'price', None))
         
         if catalog_product and price is not None:
             min_p = catalog_product.min_price
@@ -86,11 +86,14 @@ class ProductSerializer(serializers.ModelSerializer):
 
         if price is not None and price <= 0:
             raise serializers.ValidationError({"price": "Price must be positive."})
-        if data.get('stock', 0) < 0:
+            
+        stock = data.get('stock', getattr(self.instance, 'stock', None))
+        if stock is not None and stock < 0:
             raise serializers.ValidationError({"stock": "Stock cannot be negative."})
         
+        category = data.get('category', getattr(self.instance, 'category_id', None))
         # Ensure category is present if catalog_product is not
-        if not catalog_product and not data.get('category'):
+        if not catalog_product and not category:
             raise serializers.ValidationError({"category": "Category is required if not selecting from catalog."})
             
         return data

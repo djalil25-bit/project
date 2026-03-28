@@ -81,11 +81,8 @@ function TransporterDashboard() {
           <p className="page-subtitle">Manage missions, monitor routes, and track your performance.</p>
         </div>
         <div className="page-actions">
-           <button className="btn-agr btn-outline" onClick={() => navigate('/transporter/history')}>
+           <button className="btn-agr btn-outline" onClick={() => setActiveTab('done')}>
              <Clock size={16} className="me-2" /> History
-           </button>
-           <button className="btn-agr btn-primary">
-             <Navigation size={16} className="me-2" /> Route Optimizer
            </button>
         </div>
       </div>

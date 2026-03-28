@@ -16,9 +16,7 @@ import {
   TrendingDown,
   AlertCircle,
   Clock,
-  Trash2,
-  Plus,
-  Minus
+  Plus
 } from 'lucide-react';
 
 const PriceBadge = ({ comparison }) => {
@@ -49,9 +47,6 @@ function BuyerDashboard() {
   const [search, setSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [categories, setCategories] = useState([]);
-  const [checkoutAddress, setCheckoutAddress] = useState('');
-  const [showCheckout, setShowCheckout] = useState(false);
-  const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [message, setMessage] = useState(null);
 
   const fetchData = async () => {
@@ -86,36 +81,14 @@ function BuyerDashboard() {
     } finally { setCartLoading(false); }
   };
 
-  const removeFromCart = async (productId) => {
-    setCartLoading(true);
-    try {
-      const res = await api.delete(`/cart/items/${productId}`);
-      setCart(res.data);
-      showMsg('success', 'Item removed.');
-    } catch { showMsg('danger', 'Error removing item.'); }
-    finally { setCartLoading(false); }
-  };
 
-  const handleCheckout = async () => {
-    if (!checkoutAddress.trim()) { showMsg('danger', 'Delivery address is required.'); return; }
-    setCheckoutLoading(true);
-    try {
-      await api.post('/orders/checkout/', { delivery_address: checkoutAddress });
-      setCheckoutAddress('');
-      setShowCheckout(false);
-      showMsg('success', 'Order placed successfully! Track it in your history.');
-      fetchData();
-    } catch (err) {
-      showMsg('danger', err.response?.data?.error || 'Checkout failed.');
-    } finally { setCheckoutLoading(false); }
-  };
 
   const cartItemCount = cart?.items?.length || 0;
-  const cartTotal = cart?.total_price || 0;
 
   const filteredProducts = products.filter(p => {
-    const matchesSearch = p.title.toLowerCase().includes(search.toLowerCase()) || 
-                          p.category_name?.toLowerCase().includes(search.toLowerCase());
+    const titleMatch = p.title?.toLowerCase().includes(search.toLowerCase()) || false;
+    const catMatch = p.category_name?.toLowerCase().includes(search.toLowerCase()) || false;
+    const matchesSearch = titleMatch || catMatch;
     const matchesCategory = activeCategory === 'All' || p.category_name === activeCategory;
     return matchesSearch && matchesCategory;
   });
@@ -135,6 +108,9 @@ function BuyerDashboard() {
           <p className="page-subtitle">Premium local produce sourced direct from certified farms.</p>
         </div>
         <div className="page-actions">
+          <button className="btn-agr btn-primary me-2 fw-bold" onClick={() => navigate('/buyer/cart')}>
+            <ShoppingCart size={16} className="me-2" /> My Basket {cartItemCount > 0 && `(${cartItemCount})`}
+          </button>
           <button className="btn-agr btn-outline" onClick={() => navigate('/buyer-dashboard/orders')}>
             <Clock size={16} className="me-2" /> Order History
           </button>
@@ -150,9 +126,8 @@ function BuyerDashboard() {
         </div>
       )}
 
-      <div className="marketplace-layout mt-2">
-        {/* Main Content Area */}
-        <div className="marketplace-main">
+      <div className="mt-4">
+        <div>
           {/* Filters & Search */}
           <div className="agr-card p-3 mb-4 sticky-top-custom">
             <div className="row g-3 align-items-center">
@@ -169,17 +144,15 @@ function BuyerDashboard() {
                 </div>
               </div>
               <div className="col-lg-7">
-                <div className="tab-pills m-0 overflow-auto">
+                <select 
+                  className="form-control-agr form-select form-input w-100"
+                  value={activeCategory}
+                  onChange={(e) => setActiveCategory(e.target.value)}
+                >
                   {categories.map(cat => (
-                    <button 
-                      key={cat.id} 
-                      className={`tab-pill ${activeCategory === cat.name ? 'active' : ''}`}
-                      onClick={() => setActiveCategory(cat.name)}
-                    >
-                      {cat.name}
-                    </button>
+                    <option key={cat.id} value={cat.name}>{cat.name}</option>
                   ))}
-                </div>
+                </select>
               </div>
             </div>
           </div>
@@ -241,79 +214,6 @@ function BuyerDashboard() {
                 <h4 className="h5 text-muted">No products matched your search</h4>
                 <p className="small text-muted mb-0">Try different keywords or browse other categories.</p>
                 <button className="btn-agr btn-link mt-2" onClick={() => { setSearch(''); setActiveCategory('All'); }}>Clear filters</button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Sidebar Cart */}
-        <div className="marketplace-sidebar">
-          <div className="cart-panel sticky-top shadow-md" style={{ top: '84px', borderRadius: '16px' }}>
-            <div className="cart-header bg-dark text-white p-3 d-flex align-items-center">
-              <ShoppingCart size={18} className="me-2" /> 
-              <span className="fw-bold">My Shopping Basket</span>
-              {cartItemCount > 0 && <span className="ms-auto badge-agr badge-primary">{cartItemCount} items</span>}
-            </div>
-
-            <div className="cart-items" style={{ maxHeight: 'calc(100vh - 400px)' }}>
-              {(!cart?.items || cart.items.length === 0) ? (
-                <div className="text-center py-5 text-muted">
-                  <ShoppingBag size={48} className="mb-3 opacity-10" />
-                  <p className="small mb-0">Your basket is empty</p>
-                </div>
-              ) : cart.items.map(item => (
-                <div key={item.id} className="cart-item p-3 border-bottom d-flex align-items-center">
-                  <div className="cart-item-info flex-grow-1">
-                    <div className="cart-item-name fw-bold">{item.product_detail?.title}</div>
-                    <div className="cart-item-qty very-small text-muted">
-                      {item.quantity} {item.product_detail?.unit} × {item.product_detail?.price} DZD
-                    </div>
-                  </div>
-                  <div className="cart-item-price fw-bold text-dark px-2">
-                    {(item.product_detail?.price * item.quantity).toFixed(0)}
-                  </div>
-                  <button className="btn-icon btn-sm text-danger border-0" onClick={() => removeFromCart(item.product)}>
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            {cartItemCount > 0 && (
-              <div className="cart-footer p-3 bg-light">
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                  <span className="text-muted small">Total amount</span>
-                  <span className="h4 fw-bold mb-0 text-primary">{cartTotal} DZD</span>
-                </div>
-
-                {!showCheckout ? (
-                  <button className="btn-agr btn-primary w-100 py-3 fw-bold rounded-lg" onClick={() => setShowCheckout(true)}>
-                    Proceed to Delivery <ChevronRight size={18} className="ms-1" />
-                  </button>
-                ) : (
-                  <div className="checkout-form animate-slide-in">
-                    <div className="mb-3">
-                      <label className="very-small fw-bold text-uppercase text-muted mb-2 d-block">Delivery Destination</label>
-                      <textarea
-                        className="form-control-agr"
-                        rows="3"
-                        placeholder="Detailed address for courier..."
-                        value={checkoutAddress}
-                        onChange={e => setCheckoutAddress(e.target.value)}
-                      />
-                    </div>
-                    <div className="d-grid gap-2">
-                      <button
-                        className="btn-agr btn-success py-2 fw-bold"
-                        onClick={handleCheckout}
-                        disabled={checkoutLoading}
-                      >
-                        {checkoutLoading ? 'Processing...' : 'Confirm & Place Order'}
-                      </button>
-                      <button className="btn-agr btn-link btn-sm text-muted" onClick={() => setShowCheckout(false)}>Cancel</button>
-                    </div>
-                  </div>
-                )}
               </div>
             )}
           </div>

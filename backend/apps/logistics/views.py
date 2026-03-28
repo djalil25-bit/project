@@ -22,11 +22,21 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         qs = DeliveryRequest.objects.all().order_by('-created_at')
-        if self.action in ['my_missions', 'update_status']:
-            return qs.filter(transporter=user)
-        # By default, open requests
-        if self.action == 'list':
-            return qs.filter(status=DeliveryStatusChoices.OPEN)
+        
+        if user.role == 'transporter':
+            if self.action in ['my_missions', 'update_status']:
+                return qs.filter(transporter=user)
+            if self.action == 'list':
+                return qs.filter(status=DeliveryStatusChoices.OPEN)
+            from django.db.models import Q
+            return qs.filter(Q(transporter=user) | Q(status=DeliveryStatusChoices.OPEN))
+            
+        elif user.role == 'farmer':
+            return qs.filter(order__items__farmer=user).distinct()
+            
+        elif user.role == 'buyer':
+            return qs.filter(order__buyer=user)
+            
         return qs
 
     @action(detail=False, methods=['get'])

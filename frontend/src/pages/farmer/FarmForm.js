@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../api/axiosConfig';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useParams } from 'react-router-dom';
 import { 
   Home, 
   MapPin, 
@@ -17,6 +17,27 @@ function FarmForm() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { id } = useParams();
+  const isEditMode = !!id;
+
+  useEffect(() => {
+    if (isEditMode) {
+      const fetchFarm = async () => {
+        try {
+          const res = await api.get(`/farms/${id}/`);
+          setFormData({
+            name: res.data.name || '',
+            location: res.data.location || '',
+            size_hectares: res.data.size_hectares || '',
+            description: res.data.description || ''
+          });
+        } catch (err) {
+          setError('Failed to load farm data.');
+        }
+      };
+      fetchFarm();
+    }
+  }, [id, isEditMode]);
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -25,8 +46,12 @@ function FarmForm() {
     setError(null);
     setLoading(true);
     try {
-      await api.post('/farms/', formData);
-      navigate('/farmer-dashboard');
+      if (isEditMode) {
+        await api.put(`/farms/${id}/`, formData);
+      } else {
+        await api.post('/farms/', formData);
+      }
+      navigate('/farmer-dashboard/farms');
     } catch (err) {
       const data = err.response?.data;
       const msg = typeof data === 'object' ? Object.values(data).flat().join(' ') : 'Failed to save farm.';
@@ -44,8 +69,8 @@ function FarmForm() {
 
       <div className="page-header d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h1 className="page-title">Add New Farm Unit</h1>
-          <p className="page-subtitle text-muted">Register your agricultural land to start selling your produce.</p>
+          <h1 className="page-title">{isEditMode ? 'Edit Farm Unit' : 'Add New Farm Unit'}</h1>
+          <p className="page-subtitle text-muted">{isEditMode ? 'Update your agricultural land details.' : 'Register your agricultural land to start selling your produce.'}</p>
         </div>
         <button onClick={() => navigate(-1)} className="btn-agr btn-outline d-flex align-items-center">
           <ArrowLeft size={16} className="me-2" /> Back
@@ -70,6 +95,7 @@ function FarmForm() {
                 <input 
                   type="text" name="name" className="form-input" 
                   placeholder="e.g. Ibrahim Family Orchards" 
+                  value={formData.name}
                   onChange={handleChange} required 
                 />
               </div>
@@ -83,6 +109,7 @@ function FarmForm() {
                     <input 
                       type="text" name="location" className="form-input" 
                       placeholder="Province, District or City" 
+                      value={formData.location}
                       onChange={handleChange} required 
                     />
                   </div>
@@ -94,7 +121,7 @@ function FarmForm() {
                     </label>
                     <input 
                       type="number" step="0.01" name="size_hectares" className="form-input" 
-                      placeholder="0.00" onChange={handleChange} 
+                      placeholder="0.00" value={formData.size_hectares} onChange={handleChange} 
                     />
                   </div>
                 </div>
@@ -108,6 +135,7 @@ function FarmForm() {
                   name="description" className="form-input" 
                   placeholder="Tell us a bit about your soil, crops, or farming methods..." 
                   rows="4"
+                  value={formData.description}
                   onChange={handleChange} 
                 />
               </div>
@@ -116,7 +144,7 @@ function FarmForm() {
                 <button type="submit" className="btn-agr btn-primary px-4 d-flex align-items-center" disabled={loading}>
                   {loading ? 'Processing...' : <><Save size={18} className="me-2" /> Save Farm Details</>}
                 </button>
-                <button type="button" className="btn-agr btn-outline px-4" onClick={() => navigate('/farmer-dashboard')}>Discard</button>
+                <button type="button" className="btn-agr btn-outline px-4" onClick={() => navigate('/farmer-dashboard/farms')}>Discard</button>
               </div>
             </form>
           </div>

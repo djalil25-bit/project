@@ -20,7 +20,8 @@ import {
   ChevronLeft, 
   ChevronRight,
   ClipboardList,
-  CalendarDays
+  CalendarDays,
+  Home
 } from 'lucide-react';
 
 const MainLayout = () => {
@@ -62,16 +63,17 @@ const MainLayout = () => {
       { label: 'Dashboard', path: '/admin-dashboard', icon: <LayoutDashboard size={20} /> },
       { label: 'Catalog', path: '/admin-dashboard/catalog', icon: <ClipboardList size={20} /> },
       { label: 'Categories', path: '/admin-dashboard/categories', icon: <FolderTree size={20} /> },
-      { label: 'Pricing', path: '/admin-dashboard/prices', icon: <TrendingUp size={20} /> },
     ],
     farmer: [
       { label: 'Dashboard', path: '/farmer-dashboard', icon: <LayoutDashboard size={20} /> },
+      { label: 'My Farms', path: '/farmer-dashboard/farms', icon: <Home size={20} /> },
       { label: 'Orders', path: '/farmer/orders', icon: <ShoppingBag size={20} /> },
       { label: 'Products', path: '/farmer-dashboard/product/new', icon: <Package size={20} /> },
       { label: 'Harvests', path: '/farmer-dashboard/harvests', icon: <CalendarDays size={20} /> },
     ],
     buyer: [
       { label: 'Marketplace', path: '/buyer-dashboard', icon: <ShoppingCart size={20} /> },
+      { label: 'My Cart', path: '/buyer/cart', icon: <ShoppingBag size={20} /> },
       { label: 'My Orders', path: '/buyer-dashboard/orders', icon: <History size={20} /> },
     ],
     transporter: [

@@ -23,6 +23,7 @@ const OrderList = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('ALL'); // ALL, PENDING, CONFIRMED, REJECTED
   const [searchTerm, setSearchTerm] = useState('');
+  const [expandedRow, setExpandedRow] = useState(null);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -47,6 +48,14 @@ const OrderList = () => {
     } catch (err) {
       alert("Action failed. Please try again.");
     }
+  };
+
+  const requestDelivery = async (orderId) => {
+    try {
+      await api.post('/delivery-requests/', { order: orderId });
+      alert("Delivery requested successfully!");
+      fetchOrders();
+    } catch (err) { alert("Failed to request delivery. It may already exist."); }
   };
 
   const getStatusBadge = (status) => {
@@ -159,7 +168,8 @@ const OrderList = () => {
                   </td>
                 </tr>
               ) : filteredOrders.map(o => (
-                <tr key={o.id}>
+                <React.Fragment key={o.id}>
+                <tr>
                   <td><span className="fw-bold">#{o.order_id}</span></td>
                   <td>
                     <div className="d-flex align-items-center">
@@ -207,13 +217,47 @@ const OrderList = () => {
                           </button>
                         </>
                       )}
-                      <button className="btn-action btn-action-secondary" title="View Details">
+                      <button className="btn-action btn-action-secondary" title="View Details" onClick={() => setExpandedRow(expandedRow === o.id ? null : o.id)}>
                         <Eye size={16} />
                       </button>
                     </div>
                   </td>
                 </tr>
-              ))}
+                {expandedRow === o.id && (
+                  <tr>
+                    <td colSpan="9" className="p-0 border-0">
+                       <div className="bg-light-soft p-3 border-bottom animate-slide-in shadow-sm">
+                          <h6 className="fw-bold mb-3 text-primary"><Search size={14} className="me-2"/>Order Specifics</h6>
+                          <div className="row g-3">
+                            <div className="col-md-4">
+                               <label className="text-muted very-small d-block text-uppercase fw-bold">Buyer Details</label>
+                               <span>{o.buyer_name}</span>
+                            </div>
+                            <div className="col-md-4">
+                               <label className="text-muted very-small d-block text-uppercase fw-bold">Product Ordered</label>
+                               <span>{o.quantity} units of {o.product_name}</span>
+                            </div>
+                            <div className="col-md-4">
+                               <label className="text-muted very-small d-block text-uppercase fw-bold">Delivery & Logistics</label>
+                               {o.order_status?.toUpperCase() === 'CONFIRMED' ? (
+                                   (!o.delivery_status || o.delivery_status.toUpperCase() === 'AWAITING_PICKUP') ? (
+                                     <button className="btn-agr btn-primary btn-sm mt-1" onClick={() => requestDelivery(o.order_id)}>
+                                       <Truck size={14} className="me-2" /> Request Transporter
+                                     </button>
+                                   ) : (
+                                     <span className="small fw-bold d-block mt-1">{getDeliveryBadge(o.delivery_status)}</span>
+                                   )
+                               ) : (
+                                   <span className="small text-muted d-block mt-1">{o.delivery_status || 'Pending Order Confirmation'}</span>
+                               )}
+                            </div>
+                          </div>
+                       </div>
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
+            ))}
             </tbody>
           </table>
         </div>

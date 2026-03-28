@@ -21,12 +21,13 @@ import TransporterDashboard from './pages/dashboards/TransporterDashboard';
 
 // Sub-pages
 import FarmForm from './pages/farmer/FarmForm';
+import FarmList from './pages/farmer/FarmList';
 import ProductForm from './pages/farmer/ProductForm';
 import OrderList from './pages/farmer/OrderList';
 import HarvestRecords from './pages/farmer/HarvestRecords';
 import OrderHistory from './pages/buyer/OrderHistory';
+import CartPage from './pages/buyer/CartPage';
 import CategoryManager from './pages/admin/CategoryManager';
-import PriceManager from './pages/admin/PriceManager';
 import CatalogManager from './pages/admin/CatalogManager';
 import VehicleSettings from './pages/transporter/VehicleSettings';
 import ZoneSettings from './pages/transporter/ZoneSettings';
@@ -62,11 +63,6 @@ function App() {
             <CategoryManager />
           </ProtectedRoute>
         } />
-        <Route path="/admin-dashboard/prices" element={
-          <ProtectedRoute allowedRoles={['admin']}>
-            <PriceManager />
-          </ProtectedRoute>
-        } />
         <Route path="/farmer-dashboard" element={
           <ProtectedRoute allowedRoles={['farmer']}>
             <FarmerDashboard />
@@ -77,12 +73,27 @@ function App() {
             <OrderList />
           </ProtectedRoute>
         } />
+        <Route path="/farmer-dashboard/farms" element={
+          <ProtectedRoute allowedRoles={['farmer']}>
+            <FarmList />
+          </ProtectedRoute>
+        } />
         <Route path="/farmer-dashboard/farm/new" element={
           <ProtectedRoute allowedRoles={['farmer']}>
             <FarmForm />
           </ProtectedRoute>
         } />
+        <Route path="/farmer-dashboard/farm/edit/:id" element={
+          <ProtectedRoute allowedRoles={['farmer']}>
+            <FarmForm />
+          </ProtectedRoute>
+        } />
         <Route path="/farmer-dashboard/product/new" element={
+          <ProtectedRoute allowedRoles={['farmer']}>
+            <ProductForm />
+          </ProtectedRoute>
+        } />
+        <Route path="/farmer-dashboard/product/edit/:id" element={
           <ProtectedRoute allowedRoles={['farmer']}>
             <ProductForm />
           </ProtectedRoute>
@@ -95,6 +106,11 @@ function App() {
         <Route path="/buyer-dashboard" element={
           <ProtectedRoute allowedRoles={['buyer']}>
             <BuyerDashboard />
+          </ProtectedRoute>
+        } />
+        <Route path="/buyer/cart" element={
+          <ProtectedRoute allowedRoles={['buyer']}>
+            <CartPage />
           </ProtectedRoute>
         } />
         <Route path="/buyer-dashboard/orders" element={

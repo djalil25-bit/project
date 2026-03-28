@@ -72,6 +72,8 @@ class AdminUserViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, IsAdminRole]
 
     def get_queryset(self):
+        user = self.request.user
+        print(f"[DEBUG AdminUsers] User: {user.email}, Role: {user.role}, Is Superuser: {user.is_superuser}, Is Staff: {user.is_staff}")
         qs = super().get_queryset()
         status_filter = self.request.query_params.get('status', None)
         role_filter = self.request.query_params.get('role', None)

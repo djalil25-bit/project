@@ -54,6 +54,15 @@ function FarmerDashboard() {
     } catch (err) { alert("Failed to update status"); }
   };
 
+  const deleteProduct = async (id) => {
+    if (window.confirm('Are you sure you want to delete this listing?')) {
+      try {
+        await api.delete(`/products/${id}/`);
+        fetchData();
+      } catch (err) { alert("Failed to delete product"); }
+    }
+  };
+
   if (loading) return (
     <div className="loading-wrapper flex-center" style={{ minHeight: '60vh' }}>
       <div className="spinner-agr" /> <span className="ms-3">Loading farm data...</span>
@@ -187,16 +196,16 @@ function FarmerDashboard() {
                   </div>
                   <div className="product-actions">
                     <button 
-                      className="btn-action btn-action-secondary" 
+                      className={`btn-action ${p.is_active ? 'btn-action-warning' : 'btn-action-success'}`} 
                       title={p.is_active ? "Hide Listing" : "Publish Listing"}
                       onClick={() => toggleProductActive(p.id, p.is_active)}
                     >
                       {p.is_active ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
-                    <button className="btn-action btn-action-secondary" title="Edit">
+                    <button className="btn-action btn-action-secondary" title="Edit" onClick={() => navigate(`/farmer-dashboard/product/edit/${p.id}`)}>
                       <Edit3 size={16} />
                     </button>
-                    <button className="btn-action btn-action-danger" title="Delete">
+                    <button className="btn-action btn-action-danger" title="Delete" onClick={() => deleteProduct(p.id)}>
                       <Trash2 size={16} />
                     </button>
                   </div>

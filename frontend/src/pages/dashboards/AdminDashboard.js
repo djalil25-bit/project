@@ -17,7 +17,9 @@ import {
   UserCheck,
   UserX,
   UserMinus,
-  RefreshCw
+  RefreshCw,
+  Eye,
+  Search
 } from 'lucide-react';
 
 const StatusBadge = ({ status }) => (
@@ -32,6 +34,7 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('pending');
   const [actionLoading, setActionLoading] = useState(null);
+  const [expandedUser, setExpandedUser] = useState(null);
 
   const fetchStats = async () => {
     try {
@@ -88,9 +91,6 @@ function AdminDashboard() {
           <button className="btn-agr btn-outline px-3" onClick={() => window.location.href='/admin-dashboard/categories'}>
             <FolderTree size={16} className="me-2 text-primary" /> Categories
           </button>
-          <button className="btn-agr btn-outline px-3" onClick={() => window.location.href='/admin-dashboard/prices'}>
-            <TrendingUp size={16} className="me-2 text-primary" /> Price Ticker
-          </button>
         </div>
       </div>
 
@@ -141,7 +141,7 @@ function AdminDashboard() {
         </div>
       )}
 
-      <div className="agr-card overflow-hidden">
+      <div className="agr-card" style={{ overflow: 'visible' }}>
         <div className="agr-card-header bg-light-soft border-bottom d-flex justify-content-between align-items-center">
           <div className="d-flex align-items-center">
             <UserCheck size={18} className="text-primary me-2" />
@@ -193,7 +193,8 @@ function AdminDashboard() {
                     </td>
                   </tr>
                 ) : users.map(u => (
-                  <tr key={u.id}>
+                  <React.Fragment key={u.id}>
+                  <tr>
                     <td>
                       <div className="fw-bold text-dark">{u.full_name}</div>
                       <div className="very-small text-muted">{u.email}</div>
@@ -224,7 +225,7 @@ function AdminDashboard() {
                               onClick={() => handleAction(u.id, 'reject')}
                               disabled={actionLoading === u.id + 'reject'}
                             >
-                              {actionLoading === u.id + 'reject' ? '...' : <><XCircle size={14} className="me-2" /> Declin</>}
+                              {actionLoading === u.id + 'reject' ? '...' : <><XCircle size={14} className="me-2" /> Decline</>}
                             </button>
                           </>
                         )}
@@ -244,9 +245,44 @@ function AdminDashboard() {
                              <RefreshCw size={14} className="me-2" /> Restore
                           </button>
                         )}
+                        <button 
+                          className="btn-agr btn-outline-secondary btn-sm py-1 px-2 d-flex align-items-center" 
+                          onClick={() => setExpandedUser(expandedUser === u.id ? null : u.id)}
+                          title="View Details"
+                        >
+                          <Eye size={14} />
+                        </button>
                       </div>
                     </td>
                   </tr>
+                  {expandedUser === u.id && (
+                    <tr>
+                      <td colSpan="5" className="p-0 border-0">
+                        <div className="bg-light-soft p-3 border-bottom animate-slide-in shadow-sm">
+                           <h6 className="fw-bold mb-3 text-primary"><Search size={14} className="me-2"/>User Request Details</h6>
+                           <div className="row g-3">
+                             <div className="col-md-4">
+                                <label className="text-muted very-small d-block text-uppercase fw-bold">Full Name</label>
+                                <span>{u.full_name}</span>
+                             </div>
+                             <div className="col-md-4">
+                                <label className="text-muted very-small d-block text-uppercase fw-bold">Contact Email</label>
+                                <span>{u.email}</span>
+                             </div>
+                             <div className="col-md-4">
+                                <label className="text-muted very-small d-block text-uppercase fw-bold">Phone Number</label>
+                                <span>{u.phone || 'N/A'}</span>
+                             </div>
+                             <div className="col-md-12">
+                                <label className="text-muted very-small d-block text-uppercase fw-bold">Physical Address</label>
+                                <span>{u.address || 'N/A'}</span>
+                             </div>
+                           </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                  </React.Fragment>
                 ))}
               </tbody>
             </table>

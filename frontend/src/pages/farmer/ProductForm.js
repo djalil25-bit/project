@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../api/axiosConfig';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useParams } from 'react-router-dom';
 import { 
   ArrowLeft, 
   Package, 
@@ -35,6 +35,8 @@ function ProductForm() {
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { id } = useParams();
+  const [isEdit, setIsEdit] = useState(false);
 
   useEffect(() => {
     async function loadDeps() {
@@ -43,12 +45,35 @@ function ProductForm() {
           api.get('/farms/'), 
           api.get('/catalog-products/')
         ]);
-        setFarms(farmRes.data.results || farmRes.data);
-        setCatalog(catalogRes.data.results || catalogRes.data);
+        const fetchedFarms = farmRes.data.results || farmRes.data;
+        const fetchedCatalog = catalogRes.data.results || catalogRes.data;
+        setFarms(fetchedFarms);
+        setCatalog(fetchedCatalog);
+        
+        if (id) {
+          setIsEdit(true);
+          const productRes = await api.get(`/products/${id}/`);
+          const p = productRes.data;
+          setFormData({
+            catalog_product: p.catalog_product || '',
+            description: p.description || '',
+            price: p.price || '',
+            stock: p.stock || '',
+            farm: p.farm || '',
+            title: p.title || '',
+            category: p.category || '',
+            unit: p.unit || '',
+            image: null
+          });
+          if (p.catalog_product) {
+            const item = fetchedCatalog.find(i => i.id === parseInt(p.catalog_product));
+            if (item) setSelectedCatalogItem(item);
+          }
+        }
       } catch (err) { console.error('Failed to load deps', err); }
     }
     loadDeps();
-  }, []);
+  }, [id]);
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
@@ -112,10 +137,17 @@ function ProductForm() {
     }
 
     try {
-      await api.post('/products/', data, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      setSuccess('Product listed successfully!');
+      if (isEdit) {
+        await api.patch(`/products/${id}/`, data, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        setSuccess('Product updated successfully!');
+      } else {
+        await api.post('/products/', data, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        setSuccess('Product listed successfully!');
+      }
       setFormData({
         catalog_product: '', description: '', price: '', stock: '',
         farm: '', title: '', category: '', unit: '', image: null
@@ -139,13 +171,13 @@ function ProductForm() {
       <div className="agr-breadcrumb">
         <Link to="/farmer-dashboard">Farmer Hub</Link>
         <span className="agr-breadcrumb-sep"><ChevronRight size={12} /></span>
-        <span>List New Produce</span>
+        <span>{isEdit ? 'Edit Produce' : 'List New Produce'}</span>
       </div>
 
       <div className="page-header d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h1 className="page-title">List Your Produce</h1>
-          <p className="page-subtitle text-muted">Register your fresh harvest to the AgriGov marketplace.</p>
+          <h1 className="page-title">{isEdit ? 'Edit Your Produce' : 'List Your Produce'}</h1>
+          <p className="page-subtitle text-muted">{isEdit ? 'Update your harvest details and pricing.' : 'Register your fresh harvest to the AgriGov marketplace.'}</p>
         </div>
         <button onClick={() => navigate(-1)} className="btn-agr btn-outline d-flex align-items-center">
           <ArrowLeft size={16} className="me-2" /> Back
@@ -259,7 +291,7 @@ function ProductForm() {
 
               <div className="d-flex gap-3 pt-3">
                 <button type="submit" className="btn-agr btn-primary px-4 d-flex align-items-center" disabled={loading || farms.length === 0}>
-                  {loading ? 'Processing...' : <><Save size={18} className="me-2" /> List Product for Sale</>}
+                  {loading ? 'Processing...' : <><Save size={18} className="me-2" /> {isEdit ? 'Save Changes' : 'List Product for Sale'}</>}
                 </button>
                 <button type="button" className="btn-agr btn-outline px-4" onClick={() => navigate('/farmer-dashboard')}>Discard</button>
               </div>

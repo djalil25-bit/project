@@ -32,62 +32,88 @@ class OrderViewSet(viewsets.ModelViewSet):
         except Cart.DoesNotExist:
             return Response({"error": "Cart is empty."}, status=status.HTTP_400_BAD_REQUEST)
 
-        cart_items = cart.items.all()
-        if not cart_items.exists():
+        cart_items = list(cart.items.select_related('product', 'product__farmer').all())
+        if not cart_items:
             return Response({"error": "Cart is empty."}, status=status.HTTP_400_BAD_REQUEST)
 
         delivery_address = serializer.validated_data['delivery_address']
 
-        with transaction.atomic():
-            total_price = 0
-            for item in cart_items:
-                product = item.product
-                if not product.is_active:
-                    raise ValueError(f"Product {product.title} is no longer active.")
-                if item.quantity > product.stock:
-                    raise ValueError(f"Insufficient stock for {product.title}. Requested {item.quantity}, available {product.stock}.")
-                
-                total_price += product.price * item.quantity
+        try:
+            with transaction.atomic():
+                from collections import defaultdict
+                from apps.notifications.models import create_notification, NotificationType
 
-            order = Order.objects.create(
-                buyer=user,
-                total_price=total_price,
-                status=OrderStatusChoices.PENDING,
-                delivery_address=delivery_address
-            )
+                # Validate all items first before touching anything
+                for item in cart_items:
+                    product = item.product
+                    if not product.is_active:
+                        raise ValueError(f"Product '{product.title}' is no longer active.")
+                    if item.quantity > product.stock:
+                        raise ValueError(
+                            f"Insufficient stock for '{product.title}'. "
+                            f"Requested {item.quantity}, available {product.stock}."
+                        )
 
-            for item in cart_items:
-                product = item.product
-                product.stock -= item.quantity
-                product.save()
+                # Group items by farmer
+                items_by_farmer = defaultdict(list)
+                for item in cart_items:
+                    farmer = item.product.farmer
+                    items_by_farmer[farmer].append(item)
 
-                OrderItem.objects.create(
-                    order=order,
-                    product=product,
-                    quantity=item.quantity,
-                    price_snapshot=product.price,
-                    farmer=product.farmer
+                created_orders = []
+
+                for farmer, items in items_by_farmer.items():
+                    # Calculate total for this farmer's items
+                    farmer_total = sum(item.product.price * item.quantity for item in items)
+
+                    # Create one order per farmer
+                    order = Order.objects.create(
+                        buyer=user,
+                        total_price=farmer_total,
+                        status=OrderStatusChoices.PENDING,
+                        delivery_address=delivery_address
+                    )
+
+                    for item in items:
+                        product = item.product
+                        product.stock -= item.quantity
+                        product.save()
+
+                        OrderItem.objects.create(
+                            order=order,
+                            product=product,
+                            quantity=item.quantity,
+                            price_snapshot=product.price,
+                            farmer=farmer
+                        )
+
+                    Payment.objects.create(
+                        order=order,
+                        amount=farmer_total,
+                        status=PaymentStatusChoices.PENDING,
+                        method='cash_on_delivery'
+                    )
+
+                    create_notification(
+                        user=farmer,
+                        message=f"New order #{order.id} received from {user.full_name or user.email}.",
+                        notif_type=NotificationType.ORDER_PLACED,
+                        link="/farmer-dashboard"
+                    )
+
+                    created_orders.append(order)
+
+                # Clear cart after all orders are created
+                cart.items.all().delete()
+
+                # Return all created orders (list format)
+                return Response(
+                    OrderSerializer(created_orders, many=True).data,
+                    status=status.HTTP_201_CREATED
                 )
 
-            Payment.objects.create(
-                order=order,
-                amount=total_price,
-                status=PaymentStatusChoices.PENDING,
-                method='cash_on_delivery'
-            )
-
-            from apps.notifications.models import create_notification, NotificationType
-            farmers = {item.farmer for item in cart_items if item.farmer}
-            for farmer in farmers:
-                create_notification(
-                    user=farmer,
-                    message=f"New order #{order.id} received.",
-                    notif_type=NotificationType.ORDER_PLACED,
-                    link=f"/farmer-dashboard"
-                )
-
-            cart_items.delete()
-            return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
+        except ValueError as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     def handle_exception(self, exc):
         if isinstance(exc, ValueError):

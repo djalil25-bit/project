@@ -45,23 +45,21 @@ class CartViewSet(viewsets.ViewSet):
             
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=False, methods=['put', 'patch'], url_path='items/(?P<product_id>[^/.]+)')
-    def update_item(self, request, product_id=None):
+    @action(detail=False, methods=['put', 'patch', 'delete'], url_path='items/(?P<product_id>[^/.]+)')
+    def manage_item(self, request, product_id=None):
         cart = self.get_cart()
         cart_item = get_object_or_404(CartItem, cart=cart, product_id=product_id)
-        
+
+        if request.method == 'DELETE':
+            cart_item.delete()
+            return Response(CartSerializer(cart).data, status=status.HTTP_200_OK)
+
+        # PUT or PATCH — update quantity
         serializer = CartItemSerializer(cart_item, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(CartSerializer(cart).data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @action(detail=False, methods=['delete'], url_path='items/(?P<product_id>[^/.]+)')
-    def remove_item(self, request, product_id=None):
-        cart = self.get_cart()
-        cart_item = get_object_or_404(CartItem, cart=cart, product_id=product_id)
-        cart_item.delete()
-        return Response(CartSerializer(cart).data, status=status.HTTP_204_NO_CONTENT)
 
     @action(detail=False, methods=['delete'], url_path='clear')
     def clear_cart(self, request):

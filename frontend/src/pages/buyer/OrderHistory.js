@@ -20,12 +20,12 @@ import {
 
 const StatusBadge = ({ status }) => {
   const s = status?.toLowerCase() || 'pending';
-  return <span className={`status-badge status-${s}`}>{status.replace(/_/g, ' ')}</span>;
+  return <span className={`status-badge status-${s}`}>{(status || 'Pending').replace(/_/g, ' ')}</span>;
 };
 
 const DeliveryStatusBadge = ({ status }) => {
   const s = status?.toLowerCase() || 'awaiting_pickup';
-  const label = status.replace(/_/g, ' ');
+  const label = (status || 'Awaiting Pickup').replace(/_/g, ' ');
   let icon = <Clock size={12} className="me-1" />;
   if (s === 'picked_up') icon = <Package size={12} className="me-1" />;
   if (s === 'in_transit') icon = <Truck size={12} className="me-1" />;

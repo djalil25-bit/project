@@ -59,7 +59,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         catalog_product = serializer.validated_data.get('catalog_product')
         # Automatically set category and unit if missing but catalog_product is present
-        extra_args = {'farmer': self.request.user}
+        extra_args = {'farmer': self.request.user, 'is_active': True}
         if catalog_product:
             if not serializer.validated_data.get('category'):
                 extra_args['category'] = catalog_product.category
