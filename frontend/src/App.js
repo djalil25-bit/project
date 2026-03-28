@@ -25,6 +25,8 @@ import FarmList from './pages/farmer/FarmList';
 import ProductForm from './pages/farmer/ProductForm';
 import OrderList from './pages/farmer/OrderList';
 import HarvestRecords from './pages/farmer/HarvestRecords';
+import ProductList from './pages/farmer/ProductList';
+import RequestDelivery from './pages/farmer/RequestDelivery';
 import OrderHistory from './pages/buyer/OrderHistory';
 import CartPage from './pages/buyer/CartPage';
 import CategoryManager from './pages/admin/CategoryManager';
@@ -73,6 +75,11 @@ function App() {
             <OrderList />
           </ProtectedRoute>
         } />
+        <Route path="/farmer/orders/:id/request-delivery" element={
+          <ProtectedRoute allowedRoles={['farmer']}>
+            <RequestDelivery />
+          </ProtectedRoute>
+        } />
         <Route path="/farmer-dashboard/farms" element={
           <ProtectedRoute allowedRoles={['farmer']}>
             <FarmList />
@@ -96,6 +103,11 @@ function App() {
         <Route path="/farmer-dashboard/product/edit/:id" element={
           <ProtectedRoute allowedRoles={['farmer']}>
             <ProductForm />
+          </ProtectedRoute>
+        } />
+        <Route path="/farmer/products" element={
+          <ProtectedRoute allowedRoles={['farmer']}>
+            <ProductList />
           </ProtectedRoute>
         } />
         <Route path="/farmer-dashboard/harvests" element={

@@ -36,7 +36,13 @@ class OrderViewSet(viewsets.ModelViewSet):
         if not cart_items:
             return Response({"error": "Cart is empty."}, status=status.HTTP_400_BAD_REQUEST)
 
-        delivery_address = serializer.validated_data['delivery_address']
+        vdata = serializer.validated_data
+        delivery_address = vdata['delivery_address']
+        wilaya = vdata.get('wilaya', '')
+        buyer_phone = vdata.get('buyer_phone', '')
+        payment_method = vdata.get('payment_method', 'cash_on_delivery')
+        notes = vdata.get('notes', '')
+        preferred_delivery_date = vdata.get('preferred_delivery_date', None)
 
         try:
             with transaction.atomic():
@@ -54,24 +60,32 @@ class OrderViewSet(viewsets.ModelViewSet):
                             f"Requested {item.quantity}, available {product.stock}."
                         )
 
-                # Group items by farmer
-                items_by_farmer = defaultdict(list)
+                # Group items by farmer ID (use ID as key to avoid ORM object identity issues)
+                items_by_farmer_id = defaultdict(list)
+                farmer_map = {}
                 for item in cart_items:
-                    farmer = item.product.farmer
-                    items_by_farmer[farmer].append(item)
+                    fid = item.product.farmer_id
+                    items_by_farmer_id[fid].append(item)
+                    farmer_map[fid] = item.product.farmer
 
                 created_orders = []
 
-                for farmer, items in items_by_farmer.items():
-                    # Calculate total for this farmer's items
+                for fid, items in items_by_farmer_id.items():
+                    farmer = farmer_map[fid]
+                    # Calculate total for this farmer's items only
                     farmer_total = sum(item.product.price * item.quantity for item in items)
 
-                    # Create one order per farmer
+                    # Create ONE order per farmer
                     order = Order.objects.create(
                         buyer=user,
                         total_price=farmer_total,
                         status=OrderStatusChoices.PENDING,
-                        delivery_address=delivery_address
+                        delivery_address=delivery_address,
+                        wilaya=wilaya,
+                        buyer_phone=buyer_phone,
+                        payment_method=payment_method,
+                        notes=notes,
+                        preferred_delivery_date=preferred_delivery_date,
                     )
 
                     for item in items:
@@ -91,7 +105,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                         order=order,
                         amount=farmer_total,
                         status=PaymentStatusChoices.PENDING,
-                        method='cash_on_delivery'
+                        method=payment_method
                     )
 
                     create_notification(
@@ -106,7 +120,6 @@ class OrderViewSet(viewsets.ModelViewSet):
                 # Clear cart after all orders are created
                 cart.items.all().delete()
 
-                # Return all created orders (list format)
                 return Response(
                     OrderSerializer(created_orders, many=True).data,
                     status=status.HTTP_201_CREATED
@@ -114,6 +127,7 @@ class OrderViewSet(viewsets.ModelViewSet):
 
         except ValueError as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
     def handle_exception(self, exc):
         if isinstance(exc, ValueError):
@@ -123,29 +137,38 @@ class OrderViewSet(viewsets.ModelViewSet):
 
 class FarmerOrderViewSet(viewsets.ViewSet):
     """
-    For farmers to view and manage items ordered from them.
-    Each farmer sees and manages the order at the OrderItem level.
+    For farmers to view and manage orders received.
+    Each row is one Order from a buyer.
     """
     permission_classes = [IsFarmerRole]
 
     def list(self, request):
-        from apps.orders.serializers import OrderItemSerializer
-        items = OrderItem.objects.filter(farmer=request.user).order_by('-created_at')
-        serializer = OrderItemSerializer(items, many=True)
+        orders = Order.objects.filter(items__farmer=request.user).distinct().order_by('-created_at')
+        from .serializers import OrderSerializer
+        serializer = OrderSerializer(orders, many=True, context={'request': request})
         return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        try:
+            # Ensure the order contains items belonging to this farmer
+            order = Order.objects.get(pk=pk, items__farmer=request.user)
+            from .serializers import OrderSerializer
+            serializer = OrderSerializer(order, context={'request': request})
+            return Response(serializer.data)
+        except Order.DoesNotExist:
+            return Response({"error": "Order not found or access denied."}, status=status.HTTP_404_NOT_FOUND)
 
     @action(detail=True, methods=['post'], url_path='status')
     def change_status(self, request, pk=None):
         try:
-            item = OrderItem.objects.get(pk=pk, farmer=request.user)
-        except OrderItem.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            # Ensure the farmer has items in this order
+            order = Order.objects.get(pk=pk, items__farmer=request.user)
+        except Order.DoesNotExist:
+            return Response({"error": "Order not found or access denied for your account."}, status=status.HTTP_404_NOT_FOUND)
             
         serializer = FarmerOrderItemStatusSerializer(data=request.data)
         if serializer.is_valid():
             action_type = serializer.validated_data['action']
-            order = item.order
-            
             from apps.notifications.models import create_notification, NotificationType
             
             if action_type == 'confirm':
@@ -154,40 +177,47 @@ class FarmerOrderViewSet(viewsets.ViewSet):
                     order.save()
                     create_notification(
                         user=order.buyer,
-                        message=f"Order #{order.id} confirmed by farmer.",
+                        message=f"Order #{order.id} is being prepared by the farmer.",
                         notif_type=NotificationType.ORDER_CONFIRMED,
-                        link=f"/buyer-dashboard"
+                        link=f"/buyer-dashboard/orders"
                     )
+                    return Response({'status': 'ok', 'message': f'Order #{order.id} confirmed successfully.', 'order_status': order.status})
+                else:
+                    return Response({'error': f'Order #{order.id} is already {order.status.lower()}. Action skipped.'}, status=status.HTTP_400_BAD_REQUEST)
+            
             elif action_type == 'reject':
                 if order.status == OrderStatusChoices.PENDING:
                     order.status = OrderStatusChoices.REJECTED
                     order.save()
                     # Restore stock
-                    if item.product:
-                        item.product.stock += item.quantity
-                        item.product.save()
+                    farmer_items = order.items.filter(farmer=request.user)
+                    for item in farmer_items:
+                        if item.product:
+                            item.product.stock += item.quantity
+                            item.product.save()
                     
                     create_notification(
                         user=order.buyer,
-                        message=f"Order #{order.id} rejected by farmer.",
+                        message=f"Order #{order.id} could not be fulfilled by the farmer.",
                         notif_type=NotificationType.ORDER_REJECTED,
-                        link=f"/buyer-dashboard"
+                        link=f"/buyer-dashboard/orders"
                     )
+                    return Response({'status': 'ok', 'message': f'Order #{order.id} rejected. Inventory restored.', 'order_status': order.status})
+                else:
+                    return Response({'error': f'Cannot reject order in {order.status.lower()} state.'}, status=status.HTTP_400_BAD_REQUEST)
             
-            return Response({'status': 'ok', 'order_status': order.status})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=True, methods=['post'], url_path='delivery')
     def update_delivery(self, request, pk=None):
         try:
-            item = OrderItem.objects.get(pk=pk, farmer=request.user)
-        except OrderItem.DoesNotExist:
+            order = Order.objects.get(pk=pk, items__farmer=request.user)
+        except Order.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
             
         new_status = request.data.get('status')
         from .models import DeliveryStatusChoices
         if new_status in DeliveryStatusChoices.values:
-            order = item.order
             order.delivery_status = new_status
             order.save()
             return Response({'status': 'ok', 'delivery_status': order.delivery_status})

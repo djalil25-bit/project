@@ -8,7 +8,7 @@ class DeliveryRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = DeliveryRequest
         fields = '__all__'
-        read_only_fields = ('order', 'created_at', 'updated_at')
+        read_only_fields = ('created_at', 'updated_at', 'transporter')
 
 class DeliveryStatusUpdateSerializer(serializers.Serializer):
     status = serializers.ChoiceField(choices=['picked_up', 'in_transit', 'delivered', 'cancelled'])

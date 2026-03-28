@@ -19,6 +19,27 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
             return [IsTransporterRole()]
         return [permissions.IsAuthenticated()]
 
+    def perform_create(self, serializer):
+        order = serializer.validated_data['order']
+        user = self.request.user
+        
+        # 1. Check if farmer owner
+        if not order.items.filter(farmer=user).exists():
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("You can only request delivery for orders containing your products.")
+            
+        # 2. Check if already exists (OneToOneField replacement logic)
+        if hasattr(order, 'delivery_request'):
+             existing = order.delivery_request
+             if existing.status == DeliveryStatusChoices.CANCELLED:
+                 # Remove cancelled request to allow a new one
+                 existing.delete()
+             else:
+                 from rest_framework.exceptions import ValidationError
+                 raise ValidationError({"error": f"A delivery request already exists for this order (Status: {existing.status})."})
+             
+        serializer.save()
+
     def get_queryset(self):
         user = self.request.user
         qs = DeliveryRequest.objects.all().order_by('-created_at')

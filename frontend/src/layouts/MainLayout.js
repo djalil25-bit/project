@@ -68,7 +68,7 @@ const MainLayout = () => {
       { label: 'Dashboard', path: '/farmer-dashboard', icon: <LayoutDashboard size={20} /> },
       { label: 'My Farms', path: '/farmer-dashboard/farms', icon: <Home size={20} /> },
       { label: 'Orders', path: '/farmer/orders', icon: <ShoppingBag size={20} /> },
-      { label: 'Products', path: '/farmer-dashboard/product/new', icon: <Package size={20} /> },
+      { label: 'Products', path: '/farmer/products', icon: <Package size={20} /> },
       { label: 'Harvests', path: '/farmer-dashboard/harvests', icon: <CalendarDays size={20} /> },
     ],
     buyer: [

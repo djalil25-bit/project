@@ -19,6 +19,11 @@ function CartPage() {
   const [loading, setLoading] = useState(true);
   const [cartLoading, setCartLoading] = useState(false);
   const [checkoutAddress, setCheckoutAddress] = useState('');
+  const [checkoutPhone, setCheckoutPhone] = useState('');
+  const [checkoutWilaya, setCheckoutWilaya] = useState('');
+  const [checkoutPayment, setCheckoutPayment] = useState('cash_on_delivery');
+  const [checkoutNotes, setCheckoutNotes] = useState('');
+  const [checkoutDate, setCheckoutDate] = useState('');
   const [showCheckout, setShowCheckout] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [message, setMessage] = useState(null);
@@ -71,12 +76,21 @@ function CartPage() {
 
   const handleCheckout = async () => {
     if (!checkoutAddress.trim()) { showMsg('danger', 'Delivery address is required.'); return; }
+    if (!checkoutPhone.trim()) { showMsg('danger', 'Phone number is required.'); return; }
     setCheckoutLoading(true);
     try {
-      const res = await api.post('/orders/checkout/', { delivery_address: checkoutAddress });
+      const res = await api.post('/orders/checkout/', {
+        delivery_address: checkoutAddress,
+        buyer_phone: checkoutPhone,
+        wilaya: checkoutWilaya,
+        payment_method: checkoutPayment,
+        notes: checkoutNotes,
+        preferred_delivery_date: checkoutDate || null,
+      });
       const orders = Array.isArray(res.data) ? res.data : [res.data];
       await fetchCart();
-      setCheckoutAddress('');
+      setCheckoutAddress(''); setCheckoutPhone(''); setCheckoutWilaya('');
+      setCheckoutNotes(''); setCheckoutDate('');
       setShowCheckout(false);
       const msg = orders.length > 1
         ? `Order placed! ${orders.length} separate orders created (one per farmer). Redirecting...`
@@ -216,25 +230,62 @@ function CartPage() {
                 </button>
               ) : (
                 <div className="checkout-form animate-slide-in bg-light-soft p-3 rounded-lg border">
-                  <div className="mb-3">
-                    <label className="small fw-bold text-uppercase text-muted mb-2 d-block">Delivery Destination *</label>
-                    <textarea
-                      className="form-control-agr"
-                      rows="3"
-                      placeholder="Enter full address details (Street, City, Postal Code)..."
-                      value={checkoutAddress}
-                      onChange={e => setCheckoutAddress(e.target.value)}
-                    />
+                  <h6 className="fw-bold mb-3 text-uppercase small text-muted">Delivery Information</h6>
+
+                  <div className="mb-2">
+                    <label className="small fw-bold text-muted mb-1 d-block">Full Address *</label>
+                    <textarea className="form-control-agr" rows="2"
+                      placeholder="Street, building, district..."
+                      value={checkoutAddress} onChange={e => setCheckoutAddress(e.target.value)} />
                   </div>
+
+                  <div className="row g-2 mb-2">
+                    <div className="col-6">
+                      <label className="small fw-bold text-muted mb-1 d-block">Wilaya / City *</label>
+                      <input className="form-control-agr" type="text"
+                        placeholder="e.g. Alger"
+                        value={checkoutWilaya} onChange={e => setCheckoutWilaya(e.target.value)} />
+                    </div>
+                    <div className="col-6">
+                      <label className="small fw-bold text-muted mb-1 d-block">Phone *</label>
+                      <input className="form-control-agr" type="tel"
+                        placeholder="0555 123 456"
+                        value={checkoutPhone} onChange={e => setCheckoutPhone(e.target.value)} />
+                    </div>
+                  </div>
+
+                  <div className="mb-2">
+                    <label className="small fw-bold text-muted mb-1 d-block">Payment Method</label>
+                    <select className="form-control-agr" value={checkoutPayment} onChange={e => setCheckoutPayment(e.target.value)}>
+                      <option value="cash_on_delivery">Cash on Delivery</option>
+                      <option value="bank_transfer">Bank Transfer</option>
+                      <option value="mobile_payment">Mobile Payment</option>
+                    </select>
+                  </div>
+
+                  <div className="mb-2">
+                    <label className="small fw-bold text-muted mb-1 d-block">Preferred Delivery Date <span className="text-muted fw-normal">(optional)</span></label>
+                    <input className="form-control-agr" type="date"
+                      value={checkoutDate} onChange={e => setCheckoutDate(e.target.value)}
+                      min={new Date().toISOString().split('T')[0]} />
+                  </div>
+
+                  <div className="mb-3">
+                    <label className="small fw-bold text-muted mb-1 d-block">Order Notes <span className="text-muted fw-normal">(optional)</span></label>
+                    <textarea className="form-control-agr" rows="2"
+                      placeholder="Special instructions for the farmer..."
+                      value={checkoutNotes} onChange={e => setCheckoutNotes(e.target.value)} />
+                  </div>
+
                   <div className="d-grid gap-2">
                     <button
-                      className="btn-agr btn-success py-2 fw-bold"
+                      className="btn-agr btn-primary py-2 fw-bold d-flex align-items-center justify-content-center"
                       onClick={handleCheckout}
                       disabled={checkoutLoading}
                     >
-                      {checkoutLoading ? 'Processing...' : 'Confirm & Place Order'}
+                      {checkoutLoading ? <><span className="spinner-border spinner-border-sm me-2" /> Placing Order...</> : <><CheckCircle size={18} className="me-2" /> Confirm Order</>}
                     </button>
-                    <button className="btn-agr btn-link btn-sm text-muted" onClick={() => setShowCheckout(false)}>Cancel</button>
+                    <button className="btn-agr btn-outline py-2" onClick={() => setShowCheckout(false)}>Cancel</button>
                   </div>
                 </div>
               )}

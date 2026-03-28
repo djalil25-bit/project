@@ -131,7 +131,7 @@ function FarmerDashboard() {
               <h3 className="agr-card-title">Order Activity</h3>
               <button 
                 className="btn-agr btn-link btn-sm text-primary text-decoration-none d-flex align-items-center" 
-                onClick={() => navigate('/farmer/orders')}
+                onClick={() => navigate('/farmer/orders?status=PENDING')}
               >
                 Go to Order Management <ChevronRight size={16} />
               </button>
@@ -139,7 +139,7 @@ function FarmerDashboard() {
             <div className="p-4 bg-light-soft rounded-bottom text-center">
               <div className="text-muted mb-0">
                 You have <strong>{stats?.pending_orders || 0}</strong> orders awaiting your confirmation. 
-                <span className="ms-2 text-primary cursor-pointer fw-bold d-inline-flex align-items-center" onClick={() => navigate('/farmer/orders')}>
+                <span className="ms-2 text-primary cursor-pointer fw-bold d-inline-flex align-items-center" onClick={() => navigate('/farmer/orders?status=PENDING')}>
                   Review them now <ChevronRight size={14} className="ms-1" />
                 </span>
               </div>

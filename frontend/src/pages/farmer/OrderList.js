@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import api from '../../api/axiosConfig';
 import { 
   Package, 
@@ -10,20 +10,28 @@ import {
   Clock, 
   Truck, 
   Search, 
-  Filter,
-  Eye,
-  MoreVertical,
-  ChevronLeft
+  Eye, 
+  ChevronLeft,
+  ChevronRight,
+  MapPin,
+  Calendar,
+  FileText,
+  AlertCircle,
+  X
 } from 'lucide-react';
 
 const OrderList = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const initialFilter = queryParams.get('status')?.toUpperCase() || 'ALL';
+
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('ALL'); // ALL, PENDING, CONFIRMED, REJECTED
+  const [filter, setFilter] = useState(initialFilter); // ALL, PENDING, CONFIRMED, REJECTED
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedRow, setExpandedRow] = useState(null);
+  const [actionLoading, setActionLoading] = useState(null);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -41,50 +49,52 @@ const OrderList = () => {
     fetchOrders();
   }, []);
 
-  const handleAction = async (itemId, action) => {
+  const handleAction = async (orderId, action) => {
+    setActionLoading(orderId + '_' + action);
     try {
-      await api.post(`/farmer-orders/${itemId}/status/`, { action });
-      fetchOrders();
+      const response = await api.post(`/farmer-orders/${orderId}/status/`, { action });
+      await fetchOrders();
+      // Optional: Add a small toast or success indication if needed
     } catch (err) {
-      alert("Action failed. Please try again.");
+      const errorMsg = err.response?.data?.error || err.response?.data?.detail || "Action failed. Please try again.";
+      alert(errorMsg);
+    } finally {
+      setActionLoading(null);
     }
   };
 
-  const requestDelivery = async (orderId) => {
-    try {
-      await api.post('/delivery-requests/', { order: orderId });
-      alert("Delivery requested successfully!");
-      fetchOrders();
-    } catch (err) { alert("Failed to request delivery. It may already exist."); }
-  };
-
   const getStatusBadge = (status) => {
-    const s = status?.toUpperCase() || 'PENDING';
+    const s = status?.toUpperCase() || 'UNKNOWN';
+    const baseClass = "badge-agr text-truncate d-inline-block";
+    const style = { maxWidth: '120px' };
+
     switch (s) {
-      case 'PENDING': return <span className="badge-agr badge-warning"><Clock size={12} className="me-1" /> Pending</span>;
-      case 'CONFIRMED': return <span className="badge-agr badge-primary"><CheckCircle size={12} className="me-1" /> Confirmed</span>;
-      case 'DELIVERED': return <span className="badge-agr badge-success"><Truck size={12} className="me-1" /> Delivered</span>;
-      case 'REJECTED': return <span className="badge-agr badge-danger"><XCircle size={12} className="me-1" /> Rejected</span>;
-      default: return <span className="badge-agr badge-secondary">{s}</span>;
+      case 'PENDING': return <span className={`${baseClass} badge-warning`} style={style} title="Pending"><Clock size={12} className="me-1" /> Pending</span>;
+      case 'CONFIRMED': return <span className={`${baseClass} badge-primary`} style={style} title="Confirmed"><CheckCircle size={12} className="me-1" /> Confirmed</span>;
+      case 'DELIVERED': return <span className={`${baseClass} badge-success`} style={style} title="Delivered"><Truck size={12} className="me-1" /> Delivered</span>;
+      case 'REJECTED': return <span className={`${baseClass} badge-danger`} style={style} title="Rejected"><XCircle size={12} className="me-1" /> Rejected</span>;
+      default: return <span className={`${baseClass} badge-secondary`} style={style} title={s}>{s}</span>;
     }
   };
 
   const getDeliveryBadge = (status) => {
-    const s = status?.toUpperCase() || 'AWAITING_PICKUP';
+    const s = status?.toUpperCase() || 'NONE';
+    const baseClass = "badge-agr badge-outline text-truncate d-inline-block";
+    const style = { maxWidth: '120px' };
+
     switch (s) {
-      case 'AWAITING_PICKUP': return <span className="badge-agr badge-outline-warning">Awaiting</span>;
-      case 'PICKED_UP': return <span className="badge-agr badge-outline-primary">Picked Up</span>;
-      case 'IN_TRANSIT': return <span className="badge-agr badge-outline-info">In Transit</span>;
-      case 'DELIVERED': return <span className="badge-agr badge-outline-success">Delivered</span>;
-      default: return <span className="badge-agr badge-outline-secondary">{s}</span>;
+      case 'AWAITING_PICKUP': return <span className={`${baseClass} badge-outline-warning`} style={style} title="Awaiting Pickup">Awaiting</span>;
+      case 'PICKED_UP': return <span className={`${baseClass} badge-outline-primary`} style={style} title="Picked Up">Picked Up</span>;
+      case 'IN_TRANSIT': return <span className={`${baseClass} badge-outline-info`} style={style} title="In Transit">In Transit</span>;
+      case 'DELIVERED': return <span className={`${baseClass} badge-outline-success`} style={style} title="Delivered">Delivered</span>;
+      default: return <span className={`${baseClass} badge-outline-secondary`} style={style} title={s}>{s}</span>;
     }
   };
 
   const filteredOrders = orders.filter(o => {
-    const matchesFilter = filter === 'ALL' || o.order_status?.toUpperCase() === filter;
+    const matchesFilter = filter === 'ALL' || o.status?.toUpperCase() === filter;
     const matchesSearch = o.buyer_name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         o.product_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         String(o.order_id).includes(searchTerm);
+                         o.id.toString().includes(searchTerm);
     return matchesFilter && matchesSearch;
   });
 
@@ -97,18 +107,23 @@ const OrderList = () => {
 
   return (
     <div className="order-list-page">
-      {/* Breadcrumb / Header */}
+      <div className="agr-breadcrumb">
+        <Link to="/farmer-dashboard">Farmer Hub</Link>
+        <span className="agr-breadcrumb-sep"><ChevronRight size={12} /></span>
+        <span>Order Management</span>
+      </div>
+
       <div className="d-flex align-items-center mb-4">
         <button className="btn-icon me-3" onClick={() => navigate('/farmer-dashboard')}>
           <ChevronLeft size={20} />
         </button>
         <div>
-          <h1 className="h3 mb-0 fw-bold">Order Management</h1>
-          <p className="text-muted small">Manage incoming purchase requests and track fulfillment.</p>
+          <h1 className="h3 mb-0 fw-bold">Incoming Orders</h1>
+          <p className="text-muted small">Grouped by buyer order. Manage fulfillment and logistics.</p>
         </div>
       </div>
 
-      {/* Filters & Actions */}
+      {/* Filters */}
       <div className="agr-card p-3 mb-4 sticky-top-custom">
         <div className="row g-3 align-items-center">
           <div className="col-lg-4">
@@ -116,7 +131,7 @@ const OrderList = () => {
               <Search size={18} className="search-icon" />
               <input 
                 type="text" 
-                placeholder="Search by ID, product, or buyer..." 
+                placeholder="Search by Order ID or buyer..." 
                 className="form-control-agr ps-5"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -139,7 +154,6 @@ const OrderList = () => {
         </div>
       </div>
 
-      {/* Orders Table */}
       <div className="agr-card overflow-hidden">
         <div className="table-responsive">
           <table className="table-agr table-hover">
@@ -147,10 +161,9 @@ const OrderList = () => {
               <tr>
                 <th>Order ID</th>
                 <th>Buyer</th>
-                <th>Product</th>
-                <th className="text-center">Qty</th>
+                <th>Items</th>
                 <th>Total Price</th>
-                <th>Order Status</th>
+                <th>Status</th>
                 <th>Delivery</th>
                 <th>Date</th>
                 <th className="text-end">Actions</th>
@@ -159,7 +172,7 @@ const OrderList = () => {
             <tbody>
               {filteredOrders.length === 0 ? (
                 <tr>
-                  <td colSpan="9">
+                  <td colSpan="8">
                     <div className="text-center py-5">
                       <ShoppingBag size={48} className="text-muted mb-3 opacity-25" />
                       <h4 className="h5 text-muted">No orders found</h4>
@@ -169,95 +182,130 @@ const OrderList = () => {
                 </tr>
               ) : filteredOrders.map(o => (
                 <React.Fragment key={o.id}>
-                <tr>
-                  <td><span className="fw-bold">#{o.order_id}</span></td>
-                  <td>
-                    <div className="d-flex align-items-center">
-                      <div className="avatar-sm-circle me-2">
-                        {o.buyer_name?.charAt(0).toUpperCase() || 'U'}
-                      </div>
-                      <span className="small fw-semibold">{o.buyer_name}</span>
-                    </div>
-                  </td>
-                  <td>
-                    <div className="d-flex align-items-center">
-                      {o.product_image ? (
-                        <img src={`${process.env.REACT_APP_API_URL}${o.product_image}`} alt="" className="img-thumbnail-small me-2" />
-                      ) : (
-                        <div className="img-placeholder-small me-2"><Package size={14} /></div>
-                      )}
-                      <span className="small">{o.product_name}</span>
-                    </div>
-                  </td>
-                  <td className="text-center small">{o.quantity} kg</td>
-                  <td><span className="fw-bold text-dark">{o.item_total} DZD</span></td>
-                  <td>{getStatusBadge(o.order_status)}</td>
-                  <td>{getDeliveryBadge(o.delivery_status)}</td>
-                  <td>
-                    <div className="small text-muted">{new Date(o.created_at).toLocaleDateString()}</div>
-                    <div className="very-small text-muted">{new Date(o.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                  </td>
-                  <td className="text-end">
-                    <div className="d-flex gap-1 justify-content-end">
-                      {o.order_status?.toLowerCase() === 'pending' && (
-                        <>
-                          <button 
-                            className="btn-action btn-action-success" 
-                            title="Confirm"
-                            onClick={() => handleAction(o.id, 'confirm')}
-                          >
-                            <CheckCircle size={16} />
-                          </button>
-                          <button 
-                            className="btn-action btn-action-danger" 
-                            title="Reject"
-                            onClick={() => handleAction(o.id, 'reject')}
-                          >
-                            <XCircle size={16} />
-                          </button>
-                        </>
-                      )}
-                      <button className="btn-action btn-action-secondary" title="View Details" onClick={() => setExpandedRow(expandedRow === o.id ? null : o.id)}>
-                        <Eye size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-                {expandedRow === o.id && (
                   <tr>
-                    <td colSpan="9" className="p-0 border-0">
-                       <div className="bg-light-soft p-3 border-bottom animate-slide-in shadow-sm">
-                          <h6 className="fw-bold mb-3 text-primary"><Search size={14} className="me-2"/>Order Specifics</h6>
-                          <div className="row g-3">
-                            <div className="col-md-4">
-                               <label className="text-muted very-small d-block text-uppercase fw-bold">Buyer Details</label>
-                               <span>{o.buyer_name}</span>
-                            </div>
-                            <div className="col-md-4">
-                               <label className="text-muted very-small d-block text-uppercase fw-bold">Product Ordered</label>
-                               <span>{o.quantity} units of {o.product_name}</span>
-                            </div>
-                            <div className="col-md-4">
-                               <label className="text-muted very-small d-block text-uppercase fw-bold">Delivery & Logistics</label>
-                               {o.order_status?.toUpperCase() === 'CONFIRMED' ? (
-                                   (!o.delivery_status || o.delivery_status.toUpperCase() === 'AWAITING_PICKUP') ? (
-                                     <button className="btn-agr btn-primary btn-sm mt-1" onClick={() => requestDelivery(o.order_id)}>
-                                       <Truck size={14} className="me-2" /> Request Transporter
-                                     </button>
-                                   ) : (
-                                     <span className="small fw-bold d-block mt-1">{getDeliveryBadge(o.delivery_status)}</span>
-                                   )
-                               ) : (
-                                   <span className="small text-muted d-block mt-1">{o.delivery_status || 'Pending Order Confirmation'}</span>
-                               )}
-                            </div>
-                          </div>
-                       </div>
+                    <td><span className="fw-bold">#{o.id}</span></td>
+                    <td>
+                      <div className="d-flex align-items-center">
+                        <div className="avatar-sm-circle me-2">
+                          {o.buyer_name?.charAt(0).toUpperCase() || 'U'}
+                        </div>
+                        <span className="small fw-semibold">{o.buyer_name}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span className="badge-agr badge-secondary">{o.items?.length || 0} Products</span>
+                    </td>
+                    <td><span className="fw-bold text-dark">{o.farmer_total || o.total_price} DZD</span></td>
+                    <td>{getStatusBadge(o.status)}</td>
+                    <td>{getDeliveryBadge(o.delivery_status)}</td>
+                    <td>
+                      <div className="small text-muted">{new Date(o.created_at).toLocaleDateString()}</div>
+                    </td>
+                    <td className="text-end">
+                      <div className="d-flex gap-1 justify-content-end">
+                        {o.status?.toUpperCase() === 'PENDING' && (
+                          <>
+                            <button 
+                              className="btn-action btn-action-success" 
+                              title="Confirm Order" 
+                              onClick={() => handleAction(o.id, 'confirm')}
+                              disabled={actionLoading === o.id + '_confirm'}
+                            >
+                              {actionLoading === o.id + '_confirm' ? <span className="spinner-border spinner-border-sm" /> : <CheckCircle size={16} />}
+                            </button>
+                            <button 
+                              className="btn-action btn-action-danger" 
+                              title="Reject Order" 
+                              onClick={() => handleAction(o.id, 'reject')}
+                              disabled={actionLoading === o.id + '_reject'}
+                            >
+                              {actionLoading === o.id + '_reject' ? <span className="spinner-border spinner-border-sm" /> : <XCircle size={16} />}
+                            </button>
+                          </>
+                        )}
+                        <button className="btn-action btn-action-secondary" title="View Details" onClick={() => setExpandedRow(expandedRow === o.id ? null : o.id)}>
+                          <Eye size={16} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
-                )}
-              </React.Fragment>
-            ))}
+                  
+                  {/* Expanded Items Section */}
+                  {expandedRow === o.id && (
+                    <tr className="bg-light-soft">
+                      <td colSpan="8" className="p-0 border-0">
+                        <div className="p-4 animate-slide-in shadow-inner">
+                          <div className="row g-4">
+                            <div className="col-lg-7">
+                              <h6 className="fw-bold mb-3 d-flex align-items-center"><Package size={16} className="me-2 text-primary" /> Ordered Products</h6>
+                              <div className="agr-card p-0 mb-3 overflow-hidden">
+                                <table className="table table-sm mb-0">
+                                  <thead className="bg-white">
+                                    <tr className="very-small text-muted text-uppercase">
+                                      <th className="ps-3 py-2">Product</th>
+                                      <th className="py-2 text-center">Qty</th>
+                                      <th className="py-2 text-end pe-3">Subtotal</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {o.items.map(item => (
+                                      <tr key={item.id}>
+                                        <td className="ps-3 py-2">
+                                          <div className="fw-bold small">{item.product_name}</div>
+                                          <div className="very-small text-muted">{item.price_per_unit} DZD / unit</div>
+                                        </td>
+                                        <td className="py-2 text-center small">{item.quantity}</td>
+                                        <td className="py-2 text-end pe-3 fw-bold small">{item.item_total} DZD</td>
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                            
+                            <div className="col-lg-5">
+                              <h6 className="fw-bold mb-3 d-flex align-items-center"><User size={16} className="me-2 text-primary" /> Logistics & Contact</h6>
+                              <div className="bg-white p-3 rounded border mb-3">
+                                <div className="mb-2">
+                                  <span className="very-small text-muted text-uppercase d-block fw-bold">Buyer Contact</span>
+                                  <div className="small fw-bold">{o.buyer_phone || 'N/A'}</div>
+                                </div>
+                                <div className="mb-2">
+                                  <span className="very-small text-muted text-uppercase d-block fw-bold">Delivery Location</span>
+                                  <div className="small">{o.wilaya ? <strong className="text-primary">{o.wilaya}: </strong> : ''}{o.delivery_address}</div>
+                                </div>
+                                {o.notes && (
+                                  <div>
+                                    <span className="very-small text-muted text-uppercase d-block fw-bold">Order Notes</span>
+                                    <div className="small fst-italic text-muted">"{o.notes}"</div>
+                                  </div>
+                                )}
+                              </div>
+                              
+                              {o.status?.toUpperCase() === 'CONFIRMED' && (
+                                <div className="mt-3">
+                                  {!o.has_delivery_request ? (
+                                    <button 
+                                      className="btn-agr btn-primary w-100 d-flex align-items-center justify-content-center py-2" 
+                                      onClick={() => navigate(`/farmer/orders/${o.id}/request-delivery`)}
+                                    >
+                                      <Truck size={18} className="me-2" /> Request Transporter
+                                    </button>
+                                  ) : (
+                                    <div className="alert-agr alert-success-agr py-2 px-3 small d-flex align-items-center">
+                                      <CheckCircle size={16} className="me-2" /> Delivery Request Active
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+              ))}
             </tbody>
           </table>
         </div>

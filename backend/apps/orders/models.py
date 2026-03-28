@@ -15,6 +15,11 @@ class DeliveryStatusChoices(models.TextChoices):
     IN_TRANSIT = 'IN_TRANSIT', 'In Transit'
     DELIVERED = 'DELIVERED', 'Delivered'
 
+class PaymentMethodChoices(models.TextChoices):
+    CASH_ON_DELIVERY = 'cash_on_delivery', 'Cash on Delivery'
+    BANK_TRANSFER = 'bank_transfer', 'Bank Transfer'
+    MOBILE_PAYMENT = 'mobile_payment', 'Mobile Payment'
+
 class Order(TimeStampedModel):
     buyer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders')
     total_price = models.DecimalField(max_digits=12, decimal_places=2)
@@ -28,7 +33,19 @@ class Order(TimeStampedModel):
         choices=DeliveryStatusChoices.choices,
         default=DeliveryStatusChoices.AWAITING_PICKUP
     )
+    # Delivery info
     delivery_address = models.TextField()
+    wilaya = models.CharField(max_length=100, blank=True, default='')
+    # Buyer contact
+    buyer_phone = models.CharField(max_length=30, blank=True, default='')
+    # Order metadata
+    payment_method = models.CharField(
+        max_length=50,
+        choices=PaymentMethodChoices.choices,
+        default=PaymentMethodChoices.CASH_ON_DELIVERY
+    )
+    notes = models.TextField(blank=True, default='')
+    preferred_delivery_date = models.DateField(null=True, blank=True)
 
     def __str__(self):
         return f"Order #{self.id} by {self.buyer.email} ({self.status})"

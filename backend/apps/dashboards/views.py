@@ -5,7 +5,7 @@ from django.db.models import Sum
 
 from apps.accounts.models import User, AccountStatusChoices, RoleChoices
 from apps.catalog.models import Product
-from apps.orders.models import Order, OrderItem
+from apps.orders.models import Order, OrderItem, OrderStatusChoices
 from apps.logistics.models import DeliveryRequest, DeliveryStatusChoices
 from apps.payments.models import Payment
 from apps.accounts.permissions import IsAdminRole
@@ -48,9 +48,11 @@ class FarmerDashboardStatsAPIView(APIView):
         total_revenue = OrderItem.objects.filter(
             farmer=request.user
         ).aggregate(total=Sum('price_snapshot'))['total'] or 0
-        pending_orders = OrderItem.objects.filter(
-            farmer=request.user, order__status='pending'
-        ).count()
+        # Count distinct orders where this farmer has items and the order is PENDING
+        pending_orders = Order.objects.filter(
+            items__farmer=request.user, 
+            status=OrderStatusChoices.PENDING
+        ).distinct().count()
         
         return Response({
             'my_products_count': my_products,

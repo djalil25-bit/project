@@ -19,6 +19,12 @@ class DeliveryRequest(TimeStampedModel):
         choices=DeliveryStatusChoices.choices, 
         default=DeliveryStatusChoices.OPEN
     )
+    
+    # Farmer fills these when requesting
+    pickup_location = models.TextField(blank=True, default='')
+    delivery_location = models.TextField(blank=True, default='')
+    preferred_delivery_date = models.DateField(null=True, blank=True)
+    notes = models.TextField(blank=True, default='')
 
     def __str__(self):
         return f"Delivery for Order #{self.order.id} - {self.status}"
