@@ -33,7 +33,7 @@ function TransporterDashboard() {
     try {
       const [statsRes, delivRes] = await Promise.all([
         api.get('/dashboards/transporter-stats/'),
-        api.get('/delivery-requests/'),
+        api.get('/deliveries/'),
       ]);
       setStats(statsRes.data);
       setDeliveries(delivRes.data.results || delivRes.data);
@@ -46,7 +46,7 @@ function TransporterDashboard() {
   const handleAccept = async (id) => {
     setActionLoading(id + '_accept');
     try {
-      await api.post(`/delivery-requests/${id}/accept/`);
+      await api.post(`/deliveries/${id}/accept/`);
       fetchData();
     } catch { alert('Failed to accept delivery'); }
     finally { setActionLoading(null); }
@@ -55,7 +55,7 @@ function TransporterDashboard() {
   const handleStatusUpdate = async (id, status) => {
     setActionLoading(id + '_status');
     try {
-      await api.post(`/delivery-requests/${id}/update_status/`, { status });
+      await api.post(`/deliveries/${id}/update_status/`, { status });
       fetchData();
     } catch { alert('Failed to update status'); }
     finally { setActionLoading(null); }
@@ -173,12 +173,18 @@ function TransporterDashboard() {
                     <div className="d-flex flex-column gap-1">
                       <div className="very-small d-flex align-items-center text-muted">
                         <MapPin size={10} className="me-1 text-success" /> 
-                        <span className="fw-bold text-dark">Pickup:</span> Farm #{d.farmer}
+                        <span className="fw-bold text-dark me-1">Pickup:</span> {d.pickup_location?.substring(0, 25) || `Farm #${d.order_detail?.items?.[0]?.farmer}`}...
                       </div>
                       <div className="very-small d-flex align-items-center text-muted">
                         <Navigation size={10} className="me-1 text-primary" /> 
-                        <span className="fw-bold text-dark">Dropoff:</span> {d.order_detail?.delivery_address?.substring(0, 35)}...
+                        <span className="fw-bold text-dark me-1">Dropoff:</span> {d.delivery_location?.substring(0, 25) || d.order_detail?.delivery_address?.substring(0, 25)}...
                       </div>
+                      {d.vehicle_size && (
+                        <div className="very-small d-flex align-items-center mt-1">
+                          <Truck size={10} className="me-1 text-warning" />
+                          <span className="badge bg-warning text-dark opacity-75 rounded-pill px-2 py-0" style={{fontSize: '0.65rem'}}>Req: {d.vehicle_size}</span>
+                        </div>
+                      )}
                     </div>
                   </td>
                   <td>

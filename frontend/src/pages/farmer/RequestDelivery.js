@@ -32,7 +32,8 @@ const RequestDelivery = () => {
     pickup_location: '',
     delivery_location: '',
     preferred_delivery_date: '',
-    notes: ''
+    notes: '',
+    vehicle_size: 'Any/Standard'
   });
 
   useEffect(() => {
@@ -49,7 +50,8 @@ const RequestDelivery = () => {
           pickup_location: orderData.items?.[0]?.farm_address || '', 
           delivery_location: orderData.delivery_address || '',
           preferred_delivery_date: orderData.preferred_delivery_date || '',
-          notes: ''
+          notes: '',
+          vehicle_size: 'Any/Standard'
         });
       } catch (err) {
         const msg = err.response?.data?.error || err.response?.data?.detail || "Failed to fetch order details.";
@@ -73,7 +75,7 @@ const RequestDelivery = () => {
     setSubmitLoading(true);
     setError(null);
     try {
-      await api.post('/delivery-requests/', {
+      await api.post('/deliveries/', {
         order: id,
         ...formData
       });
@@ -227,7 +229,25 @@ const RequestDelivery = () => {
                       />
                     </div>
                     
-                    <div className="col-md-6 d-flex align-items-end">
+                    <div className="col-md-6">
+                      <label className="form-label fw-bold small text-gray-700 mb-2 d-flex align-items-center">
+                        <Truck size={16} className="me-2 text-warning" /> Required Truck/Vehicle Size
+                      </label>
+                      <select 
+                        className="form-control-agr py-3"
+                        value={formData.vehicle_size}
+                        onChange={e => setFormData({...formData, vehicle_size: e.target.value})}
+                      >
+                        <option value="Any/Standard">Any / Standard</option>
+                        <option value="Small Van">Small Van</option>
+                        <option value="Pickup Truck">Pickup Truck</option>
+                        <option value="Large Truck (>3T)">Large Truck &gt; 3 Tons</option>
+                        <option value="Cooled Container">Refrigerated / Cooled</option>
+                        <option value="Motorcycle (Small docs/samples)">Motorcycle</option>
+                      </select>
+                    </div>
+
+                    <div className="col-12 d-flex align-items-end">
                        <div className="p-3 bg-gray-50 rounded-4 w-100 border text-muted small text-center mb-1">
                          <Clock size={14} className="me-2" /> Mission status will start as <span className="fw-bold text-primary">OPEN</span>
                        </div>

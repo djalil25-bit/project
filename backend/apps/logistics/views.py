@@ -47,8 +47,7 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
         if user.role == 'transporter':
             if self.action in ['my_missions', 'update_status']:
                 return qs.filter(transporter=user)
-            if self.action == 'list':
-                return qs.filter(status=DeliveryStatusChoices.OPEN)
+            
             from django.db.models import Q
             return qs.filter(Q(transporter=user) | Q(status=DeliveryStatusChoices.OPEN))
             

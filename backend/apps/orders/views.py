@@ -151,7 +151,7 @@ class FarmerOrderViewSet(viewsets.ViewSet):
     def retrieve(self, request, pk=None):
         try:
             # Ensure the order contains items belonging to this farmer
-            order = Order.objects.get(pk=pk, items__farmer=request.user)
+            order = Order.objects.filter(pk=pk, items__farmer=request.user).distinct().get()
             from .serializers import OrderSerializer
             serializer = OrderSerializer(order, context={'request': request})
             return Response(serializer.data)
@@ -162,7 +162,7 @@ class FarmerOrderViewSet(viewsets.ViewSet):
     def change_status(self, request, pk=None):
         try:
             # Ensure the farmer has items in this order
-            order = Order.objects.get(pk=pk, items__farmer=request.user)
+            order = Order.objects.filter(pk=pk, items__farmer=request.user).distinct().get()
         except Order.DoesNotExist:
             return Response({"error": "Order not found or access denied for your account."}, status=status.HTTP_404_NOT_FOUND)
             
@@ -211,7 +211,7 @@ class FarmerOrderViewSet(viewsets.ViewSet):
     @action(detail=True, methods=['post'], url_path='delivery')
     def update_delivery(self, request, pk=None):
         try:
-            order = Order.objects.get(pk=pk, items__farmer=request.user)
+            order = Order.objects.filter(pk=pk, items__farmer=request.user).distinct().get()
         except Order.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
             

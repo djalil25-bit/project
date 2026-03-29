@@ -25,6 +25,7 @@ class DeliveryRequest(TimeStampedModel):
     delivery_location = models.TextField(blank=True, default='')
     preferred_delivery_date = models.DateField(null=True, blank=True)
     notes = models.TextField(blank=True, default='')
+    vehicle_size = models.CharField(max_length=50, blank=True, default='', help_text="Required truck capacity or vehicle size")
 
     def __str__(self):
         return f"Delivery for Order #{self.order.id} - {self.status}"

@@ -92,7 +92,17 @@ const OrderList = () => {
   };
 
   const filteredOrders = orders.filter(o => {
-    const matchesFilter = filter === 'ALL' || o.status?.toUpperCase() === filter;
+    let matchesFilter = false;
+    if (filter === 'ALL') {
+      matchesFilter = true;
+    } else if (filter === 'DELIVERED') {
+      matchesFilter = o.delivery_status?.toUpperCase() === 'DELIVERED';
+    } else if (filter === 'CONFIRMED') {
+      matchesFilter = o.status?.toUpperCase() === 'CONFIRMED' && o.delivery_status?.toUpperCase() !== 'DELIVERED';
+    } else {
+      matchesFilter = o.status?.toUpperCase() === filter;
+    }
+    
     const matchesSearch = o.buyer_name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
                          o.id.toString().includes(searchTerm);
     return matchesFilter && matchesSearch;
