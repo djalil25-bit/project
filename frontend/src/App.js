@@ -35,6 +35,7 @@ import FarmerStats from './pages/farmer/FarmerStats';
 import OrderHistory from './pages/buyer/OrderHistory';
 import CartPage from './pages/buyer/CartPage';
 import InvoicePage from './pages/buyer/InvoicePage';
+import Wishlist from './pages/buyer/Wishlist';
 import CategoryManager from './pages/admin/CategoryManager';
 import CatalogManager from './pages/admin/CatalogManager';
 import VehicleSettings from './pages/transporter/VehicleSettings';
@@ -168,6 +169,11 @@ function App() {
           <Route path="/buyer-dashboard/invoices/:id" element={
             <ProtectedRoute allowedRoles={['buyer']}>
               <InvoicePage />
+            </ProtectedRoute>
+          } />
+          <Route path="/buyer-dashboard/wishlist" element={
+            <ProtectedRoute allowedRoles={['buyer']}>
+              <Wishlist />
             </ProtectedRoute>
           } />
           <Route path="/transporter-dashboard" element={

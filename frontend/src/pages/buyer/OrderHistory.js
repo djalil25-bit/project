@@ -24,17 +24,39 @@ const FarmerStatusBadge = ({ status }) => {
   );
 };
 
-const DeliveryStatusBadge = ({ status }) => {
-  const s = status?.toUpperCase() || 'AWAITING_PICKUP';
+const DeliveryStatusBadge = ({ o }) => {
+  const hasReq = o.has_delivery_request;
+  const reqStatus = o.delivery_request?.status?.toUpperCase() || '';
+  const orderDelivStatus = o.delivery_status?.toUpperCase() || '';
+  
+  if (orderDelivStatus === 'DELIVERED') {
+    return (
+      <span className="inline-badge" style={{ backgroundColor: '#10b981', color: '#fff', fontSize: '10px', padding: '2px 8px' }}>
+        <CheckCircle size={11} /><span className="ms-1">Delivered</span>
+      </span>
+    );
+  }
+
+  if (!hasReq) {
+    return (
+      <span className="inline-badge" style={{ backgroundColor: '#9ca3af', color: '#fff', fontSize: '10px', padding: '2px 8px' }}>
+        <Clock size={11} /><span className="ms-1">Not Sent</span>
+      </span>
+    );
+  }
+
   const config = {
-    AWAITING_PICKUP: { cls: 'badge-status-waiting',   icon: <Clock size={11} />,        label: 'Awaiting' },
-    PICKED_UP:       { cls: 'badge-status-transit',   icon: <Package size={11} />,      label: 'Picked Up' },
-    IN_TRANSIT:      { cls: 'badge-status-transit',   icon: <Truck size={11} />,        label: 'In Transit' },
-    DELIVERED:       { cls: 'badge-status-delivered', icon: <CheckCircle size={11} />,  label: 'Delivered' },
+    OPEN:       { bg: '#f59e0b', icon: <Clock size={11} />,        label: 'Awaiting Transporter' },
+    ASSIGNED:   { bg: '#3b82f6', icon: <User size={11} />,         label: 'Assigned' },
+    PICKED_UP:  { bg: '#6366f1', icon: <Truck size={11} />,        label: 'In Transit' },
+    IN_TRANSIT: { bg: '#6366f1', icon: <Truck size={11} />,        label: 'In Transit' },
+    CANCELLED:  { bg: '#ef4444', icon: <XCircle size={11} />,      label: 'Cancelled' },
   };
-  const c = config[s] || config.AWAITING_PICKUP;
+
+  const c = config[reqStatus] || { bg: '#9ca3af', icon: <Package size={11} />, label: reqStatus || 'Processing' };
+
   return (
-    <span className={`inline-badge ${c.cls}`}>
+    <span className="inline-badge" style={{ backgroundColor: c.bg, color: '#fff', fontSize: '10px', padding: '2px 8px' }}>
       {c.icon}<span className="ms-1">{c.label}</span>
     </span>
   );
@@ -189,7 +211,7 @@ function OrderHistory() {
                             </td>
                             <td>
                               {o.status === 'CONFIRMED' || o.status === 'confirmed'
-                                ? <DeliveryStatusBadge status={o.delivery_status} />
+                                ? <DeliveryStatusBadge o={o} />
                                 : <span className="very-small text-muted">—</span>
                               }
                             </td>
@@ -230,7 +252,7 @@ function OrderHistory() {
                                         </div>
                                         <div>
                                           <label className="very-small text-muted d-block mb-1">Delivery Status</label>
-                                          <DeliveryStatusBadge status={o.delivery_status} />
+                                          <DeliveryStatusBadge o={o} />
                                         </div>
                                         
                                         {o.delivery_request?.pod_completed_at && (
@@ -289,13 +311,20 @@ function OrderHistory() {
                                             <strong>Note:</strong> {o.notes}
                                           </div>
                                         )}
-                                        <div className="mt-3">
-                                          <Link 
-                                            to={`/complaints/new?order_id=${o.id}&type=ORDER`}
-                                            className="btn-agr btn-sm btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2"
-                                          >
-                                            <ShieldAlert size={14} /> Official Complaint Center
-                                          </Link>
+                                        <div className="mt-4 pt-3 border-top">
+                                          <div className="complaint-section-card">
+                                            <div className="d-flex align-items-center justify-content-between mb-2">
+                                              <span className="very-small text-muted fw-bold text-uppercase">Something wrong?</span>
+                                              <span className="complaint-badge-mini" style={{ color: '#dc2626', background: '#fee2e2' }}>SECURE PHASE</span>
+                                            </div>
+                                            <Link 
+                                              to={`/complaints/new?order_id=${o.id}&type=ORDER`}
+                                              className="btn-complaint-cta"
+                                            >
+                                              <ShieldAlert size={18} /> 
+                                              <span>Official Complaint Center</span>
+                                            </Link>
+                                          </div>
                                         </div>
                                       </div>
                                     </div>

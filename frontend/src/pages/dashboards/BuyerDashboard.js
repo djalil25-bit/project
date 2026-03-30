@@ -5,7 +5,7 @@ import {
   Search, ShoppingBag, MapPin, User, CheckCircle, XCircle, Info, 
   ShieldCheck, ShoppingCart, Package, ChevronRight, TrendingDown,
   AlertCircle, Clock, Plus, X, Wheat, Tag, BarChart2, Eye,
-  BadgeCheck
+  BadgeCheck, Heart
 } from 'lucide-react';
 import VerifiedBadge from '../../components/common/VerifiedBadge';
 
@@ -171,6 +171,25 @@ function BuyerDashboard() {
     } finally { setCartLoading(false); }
   };
 
+  const toggleFavorite = async (p) => {
+    const isFav = p.is_favorite;
+    try {
+      if (isFav) {
+        await api.delete('/favorites/remove/', { data: { product: p.id } });
+        showMsg('success', 'Removed from favorites.');
+      } else {
+        await api.post('/favorites/', { product: p.id });
+        showMsg('success', 'Added to favorites!');
+      }
+      // Update local state for immediate feedback
+      setProducts(products.map(item => 
+        item.id === p.id ? { ...item, is_favorite: !isFav } : item
+      ));
+    } catch (err) {
+      showMsg('danger', 'Failed to update wishlist.');
+    }
+  };
+
   const cartItemCount = cart?.items?.length || 0;
 
   const filteredProducts = products.filter(p => {
@@ -262,6 +281,13 @@ function BuyerDashboard() {
                   <div className="placeholder-image"><Package size={32} /></div>
                 )}
                 <QualityBadge quality={p.quality} />
+                <button 
+                  className={`fav-btn-floating ${p.is_favorite ? 'active' : ''}`}
+                  onClick={(e) => { e.stopPropagation(); toggleFavorite(p); }}
+                  title={p.is_favorite ? 'Remove from favorites' : 'Add to favorites'}
+                >
+                  <Heart size={18} fill={p.is_favorite ? '#ef4444' : 'none'} className={p.is_favorite ? 'text-danger' : ''} />
+                </button>
               </div>
               <div className="product-card-body">
                 <div className="d-flex justify-content-between align-items-start mb-1">

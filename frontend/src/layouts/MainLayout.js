@@ -30,7 +30,8 @@ import {
   X,
   BadgeCheck,
   MessageSquare,
-  ShieldAlert
+  ShieldAlert,
+  Heart
 } from 'lucide-react';
 import VerifiedBadge from '../components/common/VerifiedBadge';
 
@@ -114,6 +115,7 @@ const MainLayout = () => {
     ],
     buyer: [
       { label: 'Marketplace', path: '/buyer-dashboard', icon: <ShoppingCart size={20} /> },
+      { label: 'My Wishlist', path: '/buyer-dashboard/wishlist', icon: <Heart size={20} /> },
       { label: 'My Cart', path: '/buyer/cart', icon: <ShoppingBag size={20} /> },
       { label: 'My Orders', path: '/buyer-dashboard/orders', icon: <History size={20} /> },
       { label: 'Invoices', path: '/buyer-dashboard/invoices', icon: <CreditCard size={20} /> },

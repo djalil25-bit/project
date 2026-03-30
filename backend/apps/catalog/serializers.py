@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Category, CatalogProduct, Product
+from .models import Category, CatalogProduct, Product, Favorite
 from apps.pricing.models import PricePublication
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -26,13 +26,19 @@ class ProductSerializer(serializers.ModelSerializer):
     max_price = serializers.DecimalField(source='catalog_product.max_price', max_digits=12, decimal_places=2, read_only=True, default=None)
 
     official_price_comparison = serializers.SerializerMethodField()
+    is_favorite = serializers.SerializerMethodField()
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), required=False)
-    unit = serializers.CharField(required=False)
 
     class Meta:
         model = Product
         fields = '__all__'
-        read_only_fields = ('farmer', 'created_at', 'updated_at')
+        read_only_fields = ('farmer', 'created_at', 'updated_at', 'is_favorite')
+
+    def get_is_favorite(self, obj):
+        user = self.context['request'].user
+        if user.is_authenticated:
+            return Favorite.objects.filter(user=user, product=obj).exists()
+        return False
 
     def get_official_price_comparison(self, obj):
         # Prefer catalog product pricing over legacy PricePublication
@@ -97,3 +103,16 @@ class ProductSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"category": "Category is required if not selecting from catalog."})
             
         return data
+
+class FavoriteSerializer(serializers.ModelSerializer):
+    product_detail = ProductSerializer(source='product', read_only=True)
+
+    class Meta:
+        model = Favorite
+        fields = ['id', 'user', 'product', 'product_detail', 'created_at']
+        read_only_fields = ['user', 'created_at']
+
+class FavoriteCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Favorite
+        fields = ['id', 'product']

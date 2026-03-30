@@ -1,7 +1,15 @@
-from rest_framework import viewsets, permissions, filters
+from rest_framework import viewsets, permissions, filters, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Category, CatalogProduct, Product
-from .serializers import CategorySerializer, CatalogProductSerializer, ProductSerializer
+from .models import Category, CatalogProduct, Product, Favorite
+from .serializers import (
+    CategorySerializer, 
+    CatalogProductSerializer, 
+    ProductSerializer,
+    FavoriteSerializer,
+    FavoriteCreateSerializer
+)
 from apps.accounts.permissions import IsFarmerRole, IsAdminRole
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -79,3 +87,30 @@ class ProductViewSet(viewsets.ModelViewSet):
             from rest_framework.exceptions import PermissionDenied
             raise PermissionDenied("You can only delete your own products.")
         instance.delete()
+
+class FavoriteViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Favorite.objects.filter(user=self.request.user).select_related('product', 'product__farmer', 'product__farm')
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return FavoriteCreateSerializer
+        return FavoriteSerializer
+
+    def perform_create(self, serializer):
+        # Prevent duplicates
+        if Favorite.objects.filter(user=self.request.user, product=serializer.validated_data['product']).exists():
+            from rest_framework.exceptions import ValidationError
+            raise ValidationError("Product already in favorites.")
+        serializer.save(user=self.request.user)
+
+    @action(detail=False, methods=['delete'])
+    def remove(self, request):
+        product_id = request.data.get('product')
+        if not product_id:
+            return Response({"error": "Product ID required"}, status=400)
+        
+        Favorite.objects.filter(user=request.user, product_id=product_id).delete()
+        return Response(status=204)

@@ -96,8 +96,8 @@ class OrderSerializer(serializers.ModelSerializer):
         # Note: Transporters access PoD via the /deliveries/ endpoint directly
         if user.role in ['farmer', 'buyer', 'admin'] or user.is_staff:
             if hasattr(instance, 'delivery_request'):
-                from apps.logistics.serializers import DeliveryRequestSerializer
-                ret['delivery_request'] = DeliveryRequestSerializer(instance.delivery_request).data
+                from apps.logistics.serializers import DeliveryRequestPoDSerializer
+                ret['delivery_request'] = DeliveryRequestPoDSerializer(instance.delivery_request).data
                 ret['has_delivery_request'] = True
             else:
                 ret['has_delivery_request'] = False

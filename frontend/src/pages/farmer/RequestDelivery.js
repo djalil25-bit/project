@@ -82,7 +82,26 @@ const RequestDelivery = () => {
       setSuccess(true);
       setTimeout(() => navigate('/farmer/orders'), 2500);
     } catch (err) {
-      setError(err.response?.data?.error || err.response?.data?.detail || "Failed to create delivery request.");
+      console.error("Delivery request failed:", err.response?.data);
+      const backendError = err.response?.data;
+      let detailedError = "Failed to create delivery request.";
+
+      if (backendError) {
+        if (typeof backendError === 'string') {
+          detailedError = backendError;
+        } else if (backendError.error) {
+          detailedError = backendError.error;
+        } else if (backendError.detail) {
+          detailedError = backendError.detail;
+        } else if (typeof backendError === 'object') {
+          // Flatten field-specific errors: { "pickup_location": ["This field is required."] }
+          const fieldErrors = Object.entries(backendError)
+            .map(([field, msgs]) => `${field}: ${Array.isArray(msgs) ? msgs.join(' ') : msgs}`)
+            .join(' | ');
+          if (fieldErrors) detailedError = fieldErrors;
+        }
+      }
+      setError(detailedError);
     } finally {
       setSubmitLoading(false);
     }

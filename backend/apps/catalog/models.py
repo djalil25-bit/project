@@ -53,3 +53,13 @@ class Product(TimeStampedModel):
 
     def __str__(self):
         return f"{self.title} - {self.farmer.full_name}"
+class Favorite(TimeStampedModel):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='favorites')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='favorited_by')
+
+    class Meta:
+        unique_together = ('user', 'product')
+        verbose_name_plural = 'Favorites'
+
+    def __str__(self):
+        return f"{self.user.username} - {self.product.title}"

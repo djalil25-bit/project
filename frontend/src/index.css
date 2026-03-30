@@ -2461,3 +2461,106 @@ textarea.form-input { min-height: 100px; resize: vertical; }
     gap: 1rem;
   }
 }
+
+/* Official Complaint Center Premium CTA */
+.complaint-section-card {
+  background: linear-gradient(145deg, #fff5f5 0%, #fff 100%);
+  border: 1px solid #fee2e2;
+  border-radius: 16px;
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition);
+}
+
+.complaint-section-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: #fecaca;
+  transform: translateY(-2px);
+}
+
+.btn-complaint-cta {
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  color: white !important;
+  border: none;
+  border-radius: 12px;
+  padding: 0.875rem 1.5rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  text-decoration: none;
+  transition: all var(--transition);
+  box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.2), 0 2px 4px -1px rgba(220, 38, 38, 0.1);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.85rem;
+}
+
+.btn-complaint-cta:hover {
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 15px -3px rgba(220, 38, 38, 0.3), 0 4px 6px -2px rgba(220, 38, 38, 0.15);
+  color: white;
+}
+
+.btn-complaint-cta:active {
+  transform: translateY(0);
+}
+
+.complaint-badge-mini {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+/* Wishlist / Favorites Styles */
+.product-card-image {
+  position: relative;
+}
+
+.fav-btn-floating {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  background: white;
+  border: none;
+  border-radius: 50% !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition);
+  z-index: 5;
+  color: #9ca3af;
+  padding: 0;
+}
+
+.fav-btn-floating:hover {
+  transform: scale(1.1);
+  box-shadow: var(--shadow-md);
+  color: #ef4444;
+}
+
+.fav-btn-floating.active {
+  color: #ef4444;
+}
+
+.quality-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+}

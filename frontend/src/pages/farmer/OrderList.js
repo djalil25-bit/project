@@ -80,17 +80,37 @@ const OrderList = () => {
     }
   };
 
-  const getDeliveryBadge = (status) => {
-    const s = status?.toUpperCase() || 'NONE';
-    const baseClass = "badge-agr badge-outline text-truncate d-inline-block";
-    const style = { maxWidth: '120px' };
+  const getDeliveryBadge = (o) => {
+    const hasReq = o.has_delivery_request;
+    const reqStatus = o.delivery_request?.status?.toUpperCase() || '';
+    const orderDelivStatus = o.delivery_status?.toUpperCase() || '';
+    
+    const baseClass = "badge-agr text-truncate d-inline-block";
+    const style = { maxWidth: '140px', fontWeight: '700', padding: '0.4rem 0.8rem', borderRadius: '6px' };
 
-    switch (s) {
-      case 'AWAITING_PICKUP': return <span className={`${baseClass} badge-outline-warning`} style={style} title="Awaiting Pickup">Awaiting</span>;
-      case 'PICKED_UP': return <span className={`${baseClass} badge-outline-primary`} style={style} title="Picked Up">Picked Up</span>;
-      case 'IN_TRANSIT': return <span className={`${baseClass} badge-outline-info`} style={style} title="In Transit">In Transit</span>;
-      case 'DELIVERED': return <span className={`${baseClass} badge-outline-success`} style={style} title="Delivered">Delivered</span>;
-      default: return <span className={`${baseClass} badge-outline-secondary`} style={style} title={s}>{s}</span>;
+    // 1. Delivered (highest priority)
+    if (orderDelivStatus === 'DELIVERED') {
+      return <span className={`${baseClass}`} style={{ ...style, backgroundColor: '#10b981', color: '#fff' }}><CheckCircle size={12} className="me-1" /> Delivered</span>;
+    }
+
+    // 2. No request yet
+    if (!hasReq) {
+      return <span className={`${baseClass}`} style={{ ...style, backgroundColor: '#9ca3af', color: '#fff' }}>Not Sent</span>;
+    }
+
+    // 3. Status based on Delivery Request
+    switch (reqStatus) {
+      case 'OPEN': 
+        return <span className={`${baseClass}`} style={{ ...style, backgroundColor: '#f59e0b', color: '#fff' }}>Awaiting Transporter</span>;
+      case 'ASSIGNED': 
+        return <span className={`${baseClass}`} style={{ ...style, backgroundColor: '#3b82f6', color: '#fff' }}>Assigned</span>;
+      case 'PICKED_UP':
+      case 'IN_TRANSIT': 
+        return <span className={`${baseClass}`} style={{ ...style, backgroundColor: '#6366f1', color: '#fff' }}>In Transit</span>;
+      case 'CANCELLED':
+        return <span className={`${baseClass}`} style={{ ...style, backgroundColor: '#ef4444', color: '#fff' }}>Cancelled</span>;
+      default: 
+        return <span className={`${baseClass} badge-secondary`} style={style}>{reqStatus || 'Unknown'}</span>;
     }
   };
 
@@ -220,7 +240,7 @@ const OrderList = () => {
                     </td>
                     <td><span className="fw-bold text-dark">{o.farmer_total || o.total_price} DZD</span></td>
                     <td>{getStatusBadge(o.status)}</td>
-                    <td>{getDeliveryBadge(o.delivery_status)}</td>
+                    <td>{getDeliveryBadge(o)}</td>
                     <td>
                       <div className="small text-muted">{new Date(o.created_at).toLocaleDateString()}</div>
                     </td>
@@ -352,13 +372,20 @@ const OrderList = () => {
                                 )}
                               </div>
                               
-                              <div className="mt-3 pt-3 border-top">
-                                <Link 
-                                  to={`/complaints/new?order_id=${o.id}&type=PAYMENT`}
-                                  className="btn-agr btn-sm btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2"
-                                >
-                                  <ShieldAlert size={14} /> Official Complaint Center
-                                </Link>
+                              <div className="mt-4 pt-3 border-top">
+                                <div className="complaint-section-card">
+                                  <div className="d-flex align-items-center justify-content-between mb-2">
+                                    <span className="very-small text-muted fw-bold text-uppercase">Issue with this order?</span>
+                                    <span className="complaint-badge-mini" style={{ color: '#dc2626', background: '#fee2e2' }}>SECURE PHASE</span>
+                                  </div>
+                                  <Link 
+                                    to={`/complaints/new?order_id=${o.id}&type=PAYMENT`}
+                                    className="btn-complaint-cta"
+                                  >
+                                    <ShieldAlert size={18} /> 
+                                    <span>Official Complaint Center</span>
+                                  </Link>
+                                </div>
                               </div>
                             </div>
                           </div>
