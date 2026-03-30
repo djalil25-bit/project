@@ -1,5 +1,7 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import { ToastProvider } from './context/ToastContext';
 import ProtectedRoute from './routes/ProtectedRoute';
 import MainLayout from './layouts/MainLayout';
 import PublicLayout from './layouts/PublicLayout';
@@ -15,6 +17,7 @@ import ContactPage from './pages/public/ContactPage';
 
 // Dashboards
 import AdminDashboard from './pages/dashboards/AdminDashboard';
+import AdminAnalytics from './pages/admin/AdminAnalytics';
 import FarmerDashboard from './pages/dashboards/FarmerDashboard';
 import BuyerDashboard from './pages/dashboards/BuyerDashboard';
 import TransporterDashboard from './pages/dashboards/TransporterDashboard';
@@ -27,8 +30,11 @@ import OrderList from './pages/farmer/OrderList';
 import HarvestRecords from './pages/farmer/HarvestRecords';
 import ProductList from './pages/farmer/ProductList';
 import RequestDelivery from './pages/farmer/RequestDelivery';
+import FarmDetail from './pages/farmer/FarmDetail';
+import FarmerStats from './pages/farmer/FarmerStats';
 import OrderHistory from './pages/buyer/OrderHistory';
 import CartPage from './pages/buyer/CartPage';
+import InvoicePage from './pages/buyer/InvoicePage';
 import CategoryManager from './pages/admin/CategoryManager';
 import CatalogManager from './pages/admin/CatalogManager';
 import VehicleSettings from './pages/transporter/VehicleSettings';
@@ -37,122 +43,153 @@ import Profile from './pages/Profile';
 
 function App() {
   return (
-    <Routes>
-      {/* Auth Routes - No Layout wrap or custom wrap inside components */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+    <ToastProvider>
+      <Routes>
+        {/* Auth Routes - No Layout wrap or custom wrap inside components */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-      {/* Public Pages - Wrapped in PublicLayout */}
-      <Route path="/" element={<PublicLayout><LandingPage /></PublicLayout>} />
-      <Route path="/about" element={<PublicLayout><AboutPage /></PublicLayout>} />
-      <Route path="/faq" element={<PublicLayout><FAQPage /></PublicLayout>} />
-      <Route path="/contact" element={<PublicLayout><ContactPage /></PublicLayout>} />
-      
-      {/* Protected Routes - Wrapped in MainLayout */}
-      <Route element={<MainLayout />}>
-        <Route path="/admin-dashboard" element={
-          <ProtectedRoute allowedRoles={['admin']}>
-            <AdminDashboard />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin-dashboard/catalog" element={
-          <ProtectedRoute allowedRoles={['admin']}>
-            <CatalogManager />
-          </ProtectedRoute>
-        } />
-        <Route path="/admin-dashboard/categories" element={
-          <ProtectedRoute allowedRoles={['admin']}>
-            <CategoryManager />
-          </ProtectedRoute>
-        } />
-        <Route path="/farmer-dashboard" element={
-          <ProtectedRoute allowedRoles={['farmer']}>
-            <FarmerDashboard />
-          </ProtectedRoute>
-        } />
-        <Route path="/farmer/orders" element={
-          <ProtectedRoute allowedRoles={['farmer']}>
-            <OrderList />
-          </ProtectedRoute>
-        } />
-        <Route path="/farmer/orders/:id/request-delivery" element={
-          <ProtectedRoute allowedRoles={['farmer']}>
-            <RequestDelivery />
-          </ProtectedRoute>
-        } />
-        <Route path="/farmer-dashboard/farms" element={
-          <ProtectedRoute allowedRoles={['farmer']}>
-            <FarmList />
-          </ProtectedRoute>
-        } />
-        <Route path="/farmer-dashboard/farm/new" element={
-          <ProtectedRoute allowedRoles={['farmer']}>
-            <FarmForm />
-          </ProtectedRoute>
-        } />
-        <Route path="/farmer-dashboard/farm/edit/:id" element={
-          <ProtectedRoute allowedRoles={['farmer']}>
-            <FarmForm />
-          </ProtectedRoute>
-        } />
-        <Route path="/farmer-dashboard/product/new" element={
-          <ProtectedRoute allowedRoles={['farmer']}>
-            <ProductForm />
-          </ProtectedRoute>
-        } />
-        <Route path="/farmer-dashboard/product/edit/:id" element={
-          <ProtectedRoute allowedRoles={['farmer']}>
-            <ProductForm />
-          </ProtectedRoute>
-        } />
-        <Route path="/farmer/products" element={
-          <ProtectedRoute allowedRoles={['farmer']}>
-            <ProductList />
-          </ProtectedRoute>
-        } />
-        <Route path="/farmer-dashboard/harvests" element={
-          <ProtectedRoute allowedRoles={['farmer']}>
-            <HarvestRecords />
-          </ProtectedRoute>
-        } />
-        <Route path="/buyer-dashboard" element={
-          <ProtectedRoute allowedRoles={['buyer']}>
-            <BuyerDashboard />
-          </ProtectedRoute>
-        } />
-        <Route path="/buyer/cart" element={
-          <ProtectedRoute allowedRoles={['buyer']}>
-            <CartPage />
-          </ProtectedRoute>
-        } />
-        <Route path="/buyer-dashboard/orders" element={
-          <ProtectedRoute allowedRoles={['buyer']}>
-            <OrderHistory />
-          </ProtectedRoute>
-        } />
-        <Route path="/transporter-dashboard" element={
-          <ProtectedRoute allowedRoles={['transporter']}>
-            <TransporterDashboard />
-          </ProtectedRoute>
-        } />
-        <Route path="/transporter-dashboard/vehicles" element={
-          <ProtectedRoute allowedRoles={['transporter']}>
-            <VehicleSettings />
-          </ProtectedRoute>
-        } />
-        <Route path="/transporter-dashboard/zones" element={
-          <ProtectedRoute allowedRoles={['transporter']}>
-            <ZoneSettings />
-          </ProtectedRoute>
-        } />
+        {/* Public Pages - Wrapped in PublicLayout */}
+        <Route path="/" element={<PublicLayout><LandingPage /></PublicLayout>} />
+        <Route path="/about" element={<PublicLayout><AboutPage /></PublicLayout>} />
+        <Route path="/faq" element={<PublicLayout><FAQPage /></PublicLayout>} />
+        <Route path="/contact" element={<PublicLayout><ContactPage /></PublicLayout>} />
+        
+        {/* Protected Routes - Wrapped in MainLayout */}
+        <Route element={<MainLayout />}>
+          <Route path="/admin-dashboard" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin-dashboard/analytics" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminAnalytics />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin-dashboard/catalog" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <CatalogManager />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin-dashboard/categories" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <CategoryManager />
+            </ProtectedRoute>
+          } />
+          <Route path="/farmer-dashboard" element={
+            <ProtectedRoute allowedRoles={['farmer']}>
+              <FarmerDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/farmer/orders" element={
+            <ProtectedRoute allowedRoles={['farmer']}>
+              <OrderList />
+            </ProtectedRoute>
+          } />
+          <Route path="/farmer/orders/:id/request-delivery" element={
+            <ProtectedRoute allowedRoles={['farmer']}>
+              <RequestDelivery />
+            </ProtectedRoute>
+          } />
+          <Route path="/farmer-dashboard/farms" element={
+            <ProtectedRoute allowedRoles={['farmer']}>
+              <FarmList />
+            </ProtectedRoute>
+          } />
+          <Route path="/farmer-dashboard/farm/new" element={
+            <ProtectedRoute allowedRoles={['farmer']}>
+              <FarmForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/farmer-dashboard/farm/edit/:id" element={
+            <ProtectedRoute allowedRoles={['farmer']}>
+              <FarmForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/farmer-dashboard/farms/:id" element={
+            <ProtectedRoute allowedRoles={['farmer']}>
+              <FarmDetail />
+            </ProtectedRoute>
+          } />
+          <Route path="/farmer-dashboard/stats" element={
+            <ProtectedRoute allowedRoles={['farmer']}>
+              <FarmerStats />
+            </ProtectedRoute>
+          } />
+          <Route path="/farmer-dashboard/product/new" element={
+            <ProtectedRoute allowedRoles={['farmer']}>
+              <ProductForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/farmer-dashboard/product/edit/:id" element={
+            <ProtectedRoute allowedRoles={['farmer']}>
+              <ProductForm />
+            </ProtectedRoute>
+          } />
+          <Route path="/farmer/products" element={
+            <ProtectedRoute allowedRoles={['farmer']}>
+              <ProductList />
+            </ProtectedRoute>
+          } />
+          <Route path="/farmer-dashboard/harvests" element={
+            <ProtectedRoute allowedRoles={['farmer']}>
+              <HarvestRecords />
+            </ProtectedRoute>
+          } />
+          <Route path="/buyer-dashboard" element={
+            <ProtectedRoute allowedRoles={['buyer']}>
+              <BuyerDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/buyer/cart" element={
+            <ProtectedRoute allowedRoles={['buyer']}>
+              <CartPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/buyer-dashboard/orders" element={
+            <ProtectedRoute allowedRoles={['buyer']}>
+              <OrderHistory />
+            </ProtectedRoute>
+          } />
+          <Route path="/buyer-dashboard/invoices" element={
+            <ProtectedRoute allowedRoles={['buyer']}>
+              <InvoicePage />
+            </ProtectedRoute>
+          } />
+          <Route path="/buyer-dashboard/invoices/:id" element={
+            <ProtectedRoute allowedRoles={['buyer']}>
+              <InvoicePage />
+            </ProtectedRoute>
+          } />
+          <Route path="/transporter-dashboard" element={
+            <ProtectedRoute allowedRoles={['transporter']}>
+              <TransporterDashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/transporter-dashboard/vehicles" element={
+            <ProtectedRoute allowedRoles={['transporter']}>
+              <VehicleSettings />
+            </ProtectedRoute>
+          } />
+          <Route path="/transporter-dashboard/zones" element={
+            <ProtectedRoute allowedRoles={['transporter']}>
+              <ZoneSettings />
+            </ProtectedRoute>
+          } />
 
-        {/* Common */}
-        <Route path="/profile" element={<Profile />} />
-      </Route>
+          {/* Common */}
+          <Route path="/profile" element={
+            <ProtectedRoute allowedRoles={['admin', 'farmer', 'buyer', 'transporter']}>
+              <Profile />
+            </ProtectedRoute>
+          } />
+        </Route>
 
-      {/* Fallback */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </ToastProvider>
   );
 }
 

@@ -102,11 +102,17 @@ const OrderList = () => {
     } else {
       matchesFilter = o.status?.toUpperCase() === filter;
     }
-    
-    const matchesSearch = o.buyer_name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         o.id.toString().includes(searchTerm);
+    const localNum = o.farmer_order_number ? `F-${String(o.farmer_order_number).padStart(3, '0')}` : String(o.id);
+    const matchesSearch = o.buyer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         localNum.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesFilter && matchesSearch;
   });
+
+  // Helper to format the local order number
+  const formatOrderNum = (o) => {
+    if (o.farmer_order_number) return `#F-${String(o.farmer_order_number).padStart(3, '0')}`;
+    return `#${o.id}`;
+  };
 
   if (loading) return (
     <div className="flex-center py-5">
@@ -193,7 +199,10 @@ const OrderList = () => {
               ) : filteredOrders.map(o => (
                 <React.Fragment key={o.id}>
                   <tr>
-                    <td><span className="fw-bold">#{o.id}</span></td>
+                    <td>
+                      <span className="fw-bold text-primary">{formatOrderNum(o)}</span>
+                      <div className="very-small text-muted mt-1">ID #{o.id}</div>
+                    </td>
                     <td>
                       <div className="d-flex align-items-center">
                         <div className="avatar-sm-circle me-2">

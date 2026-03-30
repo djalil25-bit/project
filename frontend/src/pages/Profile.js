@@ -13,16 +13,22 @@ import {
   Info,
   CheckCircle,
   AlertTriangle,
-  FileText
+  FileText,
+  Camera,
+  Trash2,
+  X
 } from 'lucide-react';
+import { useToast } from '../context/ToastContext';
 
 const Profile = () => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
+  const { showToast } = useToast();
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
-  const [message, setMessage] = useState(null);
   const [passwordData, setPasswordData] = useState({ old_password: '', new_password: '', confirm_password: '' });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
   useEffect(() => {
     fetchProfile();
@@ -36,34 +42,54 @@ const Profile = () => {
     finally { setLoading(false); }
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setImagePreview(reader.result);
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
     setUpdating(true);
     try {
-      await api.patch('/auth/profile/', {
-        full_name: profile.full_name,
-        phone: profile.phone,
-        bio: profile.bio,
-        address: profile.address
+      const formData = new FormData();
+      formData.append('full_name', profile.full_name);
+      formData.append('phone', profile.phone || '');
+      formData.append('bio', profile.bio || '');
+      formData.append('address', profile.address || '');
+      
+      if (imageFile) {
+        formData.append('profile_picture', imageFile);
+      }
+
+      const res = await api.patch('/auth/profile/', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
-      setMessage({ type: 'success', text: 'Profile updated successfully!' });
+      
+      updateUser(res.data); // sync global state
+      showToast('Profile updated successfully!', 'success');
+      setImageFile(null);
     } catch (err) {
-      setMessage({ type: 'danger', text: 'Update failed. Please check your data.' });
+      showToast('Update failed. Please check your data.', 'error');
     } finally { setUpdating(false); }
   };
 
   const handlePasswordChange = async (e) => {
     e.preventDefault();
     if (passwordData.new_password !== passwordData.confirm_password) {
-      alert("New passwords don't match!");
+      showToast("New passwords don't match!", 'warning');
       return;
     }
     try {
       await api.post('/auth/change-password/', passwordData);
-      setMessage({ type: 'success', text: 'Password changed successfully!' });
+      showToast('Password changed successfully!', 'success');
       setPasswordData({ old_password: '', new_password: '', confirm_password: '' });
     } catch (err) {
-      alert("Failed to change password. Ensure old password is correct.");
+      showToast("Failed to change password. Ensure old password is correct.", 'error');
     }
   };
 
@@ -83,17 +109,40 @@ const Profile = () => {
       <div className="row g-4">
         <div className="col-lg-8">
           <div className="agr-card p-4 p-md-5">
+            <div className="profile-hero-section mb-5">
+              <div className="d-flex align-items-center gap-4">
+                <div className="profile-avatar-wrapper">
+                  <div className="profile-avatar-large">
+                    {imagePreview || profile.profile_picture ? (
+                      <img 
+                        src={imagePreview || (profile.profile_picture.startsWith('http') ? profile.profile_picture : `http://localhost:8000${profile.profile_picture}`)} 
+                        alt="Profile" 
+                      />
+                    ) : (
+                      <div className={`avatar-placeholder-large avatar-role-${profile.role}`}>
+                        {profile.full_name?.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <label className="avatar-edit-badge" title="Change Photo">
+                      <Camera size={16} />
+                      <input type="file" hidden accept="image/*" onChange={handleImageChange} />
+                    </label>
+                  </div>
+                </div>
+                <div>
+                  <h2 className="h4 fw-bold mb-1">{profile.full_name}</h2>
+                  <div className="d-flex align-items-center gap-2">
+                    <span className={`role-badge role-${profile.role}`}>{profile.role}</span>
+                    <span className="text-muted small">ID: #{profile.id}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="d-flex align-items-center mb-4">
               <FileText size={20} className="text-primary me-2" />
               <h3 className="h5 fw-bold mb-0">Identity & Contact</h3>
             </div>
-            
-            {message && (
-              <div className={`alert-agr alert-${message.type === 'success' ? 'success' : 'danger'}-agr mb-4 d-flex align-items-center small`}>
-                {message.type === 'success' ? <CheckCircle size={14} className="me-2" /> : <AlertTriangle size={14} className="me-2" />}
-                {message.text}
-              </div>
-            )}
             
             <form onSubmit={handleProfileUpdate} className="agr-form">
               <div className="row g-3">

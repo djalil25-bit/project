@@ -13,7 +13,8 @@ import {
   ChevronRight,
   User,
   Navigation,
-  ExternalLink
+  ExternalLink,
+  X
 } from 'lucide-react';
 
 const StatusBadge = ({ status }) => (
@@ -27,6 +28,7 @@ function TransporterDashboard() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('open');
   const [actionLoading, setActionLoading] = useState(null);
+  const [viewingCargo, setViewingCargo] = useState(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -189,9 +191,16 @@ function TransporterDashboard() {
                   </td>
                   <td>
                     <div className="small fw-bold">Order #{d.order}</div>
-                    <div className="text-muted very-small d-flex align-items-center">
-                      <Package size={10} className="me-1" /> {d.order_detail?.items?.length || 0} units for delivery
+                    <div className="text-muted very-small d-flex align-items-center mt-1">
+                      <Package size={10} className="me-1" /> {d.order_detail?.items?.length || 0} Products
                     </div>
+                    <button 
+                      className="btn-agr btn-link btn-sm p-0 mt-1 text-primary d-flex align-items-center gap-1"
+                      onClick={() => setViewingCargo(d)}
+                      style={{ fontSize: '0.7rem', border: 'none', background: 'none' }}
+                    >
+                      <ClipboardList size={12} /> View Cargo
+                    </button>
                   </td>
                   <td><StatusBadge status={d.status} /></td>
                   <td style={{ textAlign: 'right' }}>
@@ -240,6 +249,88 @@ function TransporterDashboard() {
           </table>
         </div>
       </div>
+
+      {viewingCargo && (
+        <div className="modal-overlay" onClick={() => setViewingCargo(null)}>
+          <div className="modal-content animate-slide-in" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px' }}>
+            <div className="modal-header border-bottom">
+              <h3 className="h6 mb-0 d-flex align-items-center gap-2">
+                <Package size={18} className="text-primary" /> 
+                Cargo Breakdown - MIL-{viewingCargo.id.toString().padStart(4, '0')}
+              </h3>
+              <button className="btn-icon" onClick={() => setViewingCargo(null)}><X size={18} /></button>
+            </div>
+            <div className="modal-body p-0">
+              <div className="p-3 bg-light-soft border-bottom">
+                <div className="row g-3">
+                  <div className="col-12">
+                    <div className="d-flex align-items-center gap-4">
+                      <div>
+                        <div className="very-small text-muted text-uppercase fw-bold">Pickup From</div>
+                        <div className="small fw-bold d-flex align-items-center gap-1 mt-1">
+                          <MapPin size={12} className="text-success" /> {viewingCargo.pickup_location}
+                        </div>
+                      </div>
+                      <div className="text-muted">→</div>
+                      <div>
+                        <div className="very-small text-muted text-uppercase fw-bold">Delivery To</div>
+                        <div className="small fw-bold d-flex align-items-center gap-1 mt-1">
+                          <Navigation size={12} className="text-primary" /> {viewingCargo.delivery_location}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="table-responsive" style={{ maxHeight: '400px' }}>
+                <table className="agr-table mb-0">
+                  <thead>
+                    <tr className="bg-light-soft">
+                      <th>Product / Cargo Item</th>
+                      <th className="text-end">Quantity</th>
+                      <th className="text-center">Quality</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {viewingCargo.order_detail?.items?.map(item => (
+                      <tr key={item.id} className="hover-bg-light">
+                        <td>
+                          <div className="fw-bold small">{item.product_name}</div>
+                          {item.product_detail?.category_name && (
+                             <div className="very-small text-muted">{item.product_detail.category_name}</div>
+                          )}
+                        </td>
+                        <td className="text-end">
+                          <span className="fw-bold text-dark">{item.quantity}</span> 
+                          <span className="ms-1 text-muted very-small">{item.product_unit}</span>
+                        </td>
+                        <td className="text-center">
+                          {item.product_detail?.quality ? (
+                            <span className="inline-badge badge-status-assigned very-small">
+                              {item.product_detail.quality}
+                            </span>
+                          ) : (
+                            <span className="text-muted italic very-small">Standard</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {viewingCargo.notes && (
+                <div className="p-3 bg-light-soft border-top">
+                  <div className="very-small text-muted text-uppercase fw-bold mb-1">Logistics Notes</div>
+                  <div className="small text-muted italic">"{viewingCargo.notes}"</div>
+                </div>
+              )}
+            </div>
+            <div className="modal-footer">
+               <button className="btn-agr btn-outline w-100" onClick={() => setViewingCargo(null)}>Dismiss Details</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

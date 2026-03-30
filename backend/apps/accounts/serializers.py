@@ -20,6 +20,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             'email': user.email,
             'role': user.role,
             'status': user.status,
+            'profile_picture': user.profile_picture.url if user.profile_picture else None,
             'dashboard_route': f"/{user.role}-dashboard"
         }
         return token
@@ -63,6 +64,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             'email': user.email,
             'role': user.role,
             'status': user.status,
+            'profile_picture': user.profile_picture.url if user.profile_picture else None,
             'dashboard_route': f"/{user.role}-dashboard"
         }
         return data
@@ -70,7 +72,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'email', 'full_name', 'phone', 'role', 'status', 'created_at')
+        fields = ('id', 'email', 'full_name', 'phone', 'role', 'status', 'profile_picture', 'created_at')
         read_only_fields = ('id', 'status', 'created_at')
 
 class RegisterSerializer(serializers.ModelSerializer):

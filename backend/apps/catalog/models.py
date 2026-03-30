@@ -27,9 +27,10 @@ class CatalogProduct(TimeStampedModel):
         return f"{self.name} ({self.category.name})"
 
 class QualityChoices(models.TextChoices):
-    HIGH = 'HIGH', 'High'
-    MEDIUM = 'MEDIUM', 'Medium'
-    LOW = 'LOW', 'Low'
+    PREMIUM = 'PREMIUM', 'Premium'
+    STANDARD = 'STANDARD', 'Standard'
+    ECONOMY = 'ECONOMY', 'Economy'
+    ORGANIC = 'ORGANIC', 'Organic'
 
 class Product(TimeStampedModel):
     farmer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='products')
@@ -45,7 +46,7 @@ class Product(TimeStampedModel):
     quality = models.CharField(
         max_length=20,
         choices=QualityChoices.choices,
-        default=QualityChoices.MEDIUM
+        default=QualityChoices.STANDARD
     )
     image = models.ImageField(upload_to='products/', null=True, blank=True)
     is_active = models.BooleanField(default=True)

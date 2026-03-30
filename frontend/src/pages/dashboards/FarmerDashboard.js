@@ -1,67 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import api from '../../api/axiosConfig';
-import { 
-  Plus, 
-  Settings, 
-  Wheat, 
-  TrendingUp, 
-  Clock, 
-  DollarSign, 
-  Sprout, 
-  Edit3, 
-  Trash2, 
-  Eye, 
-  EyeOff,
-  Package,
-  Layers,
-  ChevronRight
+import {
+  Plus, Settings, Wheat, TrendingUp, Clock, DollarSign, Sprout,
+  Package, Home, ChevronRight, ShoppingCart, BarChart2,
+  AlertCircle, CheckCircle, ExternalLink, RefreshCw, User
 } from 'lucide-react';
 
-const PriceBadge = ({ comparison }) => {
-  if (!comparison) return null;
-  const { status, difference_percentage } = comparison;
-  const cls = status === 'above' ? 'price-above' : status === 'below' ? 'price-below' : 'price-equal';
-  const label = status === 'above' ? `+${difference_percentage}%` : status === 'below' ? `-${difference_percentage}%` : 'Fair Price';
-  return <span className={`price-badge ${cls}`} title={`vs Official Price`}>{label}</span>;
-};
+function timeAgo(dateStr) {
+  const d = new Date(dateStr);
+  const secs = Math.floor((Date.now() - d) / 1000);
+  if (secs < 60) return `${secs}s ago`;
+  const mins = Math.floor(secs / 60);
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return d.toLocaleDateString();
+}
 
 function FarmerDashboard() {
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
-  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [statsRes, prodRes] = await Promise.all([
-        api.get('/dashboards/farmer-stats/'),
-        api.get('/products/?my_products=true'),
-      ]);
-      setStats(statsRes.data);
-      setProducts(prodRes.data.results || prodRes.data);
+      const res = await api.get('/dashboards/farmer-stats/');
+      setStats(res.data);
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
   };
 
   useEffect(() => { fetchData(); }, []);
-
-  const toggleProductActive = async (id, currentStatus) => {
-    try {
-      await api.patch(`/products/${id}/`, { is_active: !currentStatus });
-      fetchData();
-    } catch (err) { alert("Failed to update status"); }
-  };
-
-  const deleteProduct = async (id) => {
-    if (window.confirm('Are you sure you want to delete this listing?')) {
-      try {
-        await api.delete(`/products/${id}/`);
-        fetchData();
-      } catch (err) { alert("Failed to delete product"); }
-    }
-  };
 
   if (loading) return (
     <div className="loading-wrapper flex-center" style={{ minHeight: '60vh' }}>
@@ -69,29 +40,31 @@ function FarmerDashboard() {
     </div>
   );
 
+  const recent = stats?.recent_pending_orders || [];
+
   return (
-    <div className="farmer-dashboard">
+    <div className="farmer-dashboard animate-fade-in">
       <div className="page-header">
         <div>
           <h1 className="page-title">Farm Overview</h1>
-          <p className="page-subtitle">Welcome back! Manage your listings and track performance.</p>
+          <p className="page-subtitle">Welcome back! Here's what's happening on your farms today.</p>
         </div>
-        <div className="page-actions">
-          <button className="btn-agr btn-outline" onClick={() => navigate('/farmer-dashboard/harvests')}>
-            <Wheat size={18} className="me-2" /> My Harvests
+        <div className="page-actions d-flex gap-2 flex-wrap">
+          <button className="btn-agr btn-outline d-flex align-items-center gap-2" onClick={() => navigate('/farmer-dashboard/stats')}>
+            <BarChart2 size={17} /> Statistics
           </button>
-          <button className="btn-agr btn-outline" onClick={() => navigate('/farmer-dashboard/farm/new')}>
-            <Settings size={18} className="me-2" /> Farm Settings
+          <button className="btn-agr btn-outline d-flex align-items-center gap-2" onClick={() => navigate('/farmer-dashboard/harvests')}>
+            <Wheat size={17} /> Harvests
           </button>
-          <button className="btn-agr btn-primary" onClick={() => navigate('/farmer-dashboard/product/new')}>
-            <Plus size={18} className="me-2" /> Add Product
+          <button className="btn-agr btn-primary d-flex align-items-center gap-2" onClick={() => navigate('/farmer-dashboard/product/new')}>
+            <Plus size={17} /> Add Product
           </button>
         </div>
       </div>
 
-      {/* Stats */}
+      {/* Stats KPI cards */}
       {stats && (
-        <div className="stats-grid mb-5">
+        <div className="stats-grid mb-4">
           <div className="stat-card">
             <div className="stat-icon stat-icon-green"><Sprout size={24} /></div>
             <div>
@@ -116,102 +89,85 @@ function FarmerDashboard() {
           <div className="stat-card">
             <div className="stat-icon stat-icon-green"><DollarSign size={24} /></div>
             <div>
-              <div className="stat-value">{stats.total_revenue} <small className="very-small">DZD</small></div>
+              <div className="stat-value">{parseFloat(stats.total_revenue || 0).toLocaleString()} <small className="very-small">DZD</small></div>
               <div className="stat-label">Total Earnings</div>
             </div>
           </div>
         </div>
       )}
 
-      <div className="row g-4 mt-2">
-        {/* Recent Overview Area */}
+      <div className="row g-4">
+        {/* Recent Pending Orders (last 24h) */}
         <div className="col-lg-12">
-          <div className="agr-card">
+          <div className="agr-card h-100">
             <div className="agr-card-header d-flex justify-content-between align-items-center">
-              <h3 className="agr-card-title">Order Activity</h3>
-              <button 
-                className="btn-agr btn-link btn-sm text-primary text-decoration-none d-flex align-items-center" 
+              <h3 className="agr-card-title d-flex align-items-center gap-2">
+                <Clock size={18} className="text-amber" /> Recent Orders
+                <span className="very-small text-muted fw-normal ms-1">(last 24h)</span>
+              </h3>
+              <button
+                className="btn-agr btn-link btn-sm text-primary text-decoration-none d-flex align-items-center gap-1"
                 onClick={() => navigate('/farmer/orders?status=PENDING')}
               >
-                Go to Order Management <ChevronRight size={16} />
+                View All <ChevronRight size={14} />
               </button>
             </div>
-            <div className="p-4 bg-light-soft rounded-bottom text-center">
-              <div className="text-muted mb-0">
-                You have <strong>{stats?.pending_orders || 0}</strong> orders awaiting your confirmation. 
-                <span className="ms-2 text-primary cursor-pointer fw-bold d-inline-flex align-items-center" onClick={() => navigate('/farmer/orders?status=PENDING')}>
-                  Review them now <ChevronRight size={14} className="ms-1" />
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        {/* Products Management Grid Area */}
-        <div className="col-lg-12 mt-4">
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <h3 className="h5 fw-bold mb-0">My Market Listings</h3>
-            <div className="text-muted small">Total: {products.length} products</div>
-          </div>
-          
-          <div className="product-grid">
-            {products.length === 0 ? (
-              <div className="agr-card p-5 text-center w-100">
-                <Package size={48} className="text-muted mb-3 opacity-25" />
-                <h4 className="h5 text-muted">Your shop is empty</h4>
-                <p className="small text-muted mb-4">Start by adding your first product to the marketplace.</p>
-                <button className="btn-agr btn-primary" onClick={() => navigate('/farmer-dashboard/product/new')}>
-                  List Your First Product
+            {recent.length === 0 ? (
+              <div className="p-5 text-center">
+                <CheckCircle size={40} className="text-success mb-3 opacity-50" />
+                <h4 className="h6 text-muted">All clear!</h4>
+                <p className="small text-muted mb-3">No new pending orders in the last 24 hours.</p>
+                <button className="btn-agr btn-outline btn-sm" onClick={() => navigate('/farmer/orders')}>
+                  View All Orders
                 </button>
               </div>
-            ) : products.map(p => (
-              <div key={p.id} className="product-card-premium">
-                <div className="product-card-image">
-                  {p.image ? (
-                    <img src={p.image} alt={p.title} />
-                  ) : (
-                    <div className="placeholder-image"><Sprout size={32} /></div>
-                  )}
-                  <div className={`status-pill ${p.is_active ? 'active' : 'inactive'}`}>
-                    {p.is_active ? 'Published' : 'Hidden'}
-                  </div>
-                </div>
-                <div className="product-card-body">
-                  <div className="d-flex justify-content-between align-items-start mb-1">
-                    <h4 className="product-title">{p.title}</h4>
-                    <span className="category-tag">{p.category_name}</span>
-                  </div>
-                  <div className="product-price-row mb-3">
-                    <span className="price">{p.price} DZD</span>
-                    <span className="unit">/{p.unit}</span>
-                    <PriceBadge comparison={p.official_price_comparison} />
-                  </div>
-                  <div className="product-info-row mb-3">
-                    <div className="info-item">
-                      <Layers size={14} />
-                      <span className={p.stock < 10 ? 'text-danger fw-bold' : ''}>
-                        {p.stock} {p.unit} left
-                      </span>
-                    </div>
-                  </div>
-                  <div className="product-actions">
-                    <button 
-                      className={`btn-action ${p.is_active ? 'btn-action-warning' : 'btn-action-success'}`} 
-                      title={p.is_active ? "Hide Listing" : "Publish Listing"}
-                      onClick={() => toggleProductActive(p.id, p.is_active)}
-                    >
-                      {p.is_active ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
-                    <button className="btn-action btn-action-secondary" title="Edit" onClick={() => navigate(`/farmer-dashboard/product/edit/${p.id}`)}>
-                      <Edit3 size={16} />
-                    </button>
-                    <button className="btn-action btn-action-danger" title="Delete" onClick={() => deleteProduct(p.id)}>
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </div>
+            ) : (
+              <div className="table-responsive">
+                <table className="agr-table mb-0">
+                  <thead>
+                    <tr>
+                      <th>Order #</th>
+                      <th>Buyer</th>
+                      <th className="text-end">Total</th>
+                      <th>Time</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recent.map(o => {
+                      const localNum = o.farmer_order_number
+                        ? `#F-${String(o.farmer_order_number).padStart(3, '0')}`
+                        : `#${o.id}`;
+                      return (
+                        <tr key={o.id} className="hover-bg-light">
+                          <td>
+                            <span className="fw-bold text-primary">{localNum}</span>
+                          </td>
+                          <td>
+                            <div className="d-flex align-items-center gap-2">
+                              <div className="avatar-xs-circle">{o.buyer_name?.charAt(0)?.toUpperCase()}</div>
+                              <span className="small fw-medium">{o.buyer_name}</span>
+                            </div>
+                          </td>
+                          <td className="text-end fw-bold small">{o.total.toLocaleString()} DZD</td>
+                          <td className="very-small text-muted">{timeAgo(o.created_at)}</td>
+                          <td>
+                            <button
+                              className="btn-icon btn-sm"
+                              title="Manage Order"
+                              onClick={() => navigate('/farmer/orders?status=PENDING')}
+                            >
+                              <ExternalLink size={14} />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
-            ))}
+            )}
           </div>
         </div>
       </div>

@@ -75,6 +75,10 @@ class OrderViewSet(viewsets.ModelViewSet):
                     # Calculate total for this farmer's items only
                     farmer_total = sum(item.product.price * item.quantity for item in items)
 
+                    # Compute next farmer-scoped display order number (atomic inside transaction)
+                    existing_farmer_orders = OrderItem.objects.filter(farmer=farmer).values('order').distinct().count()
+                    next_farmer_order_num = existing_farmer_orders + 1
+
                     # Create ONE order per farmer
                     order = Order.objects.create(
                         buyer=user,
@@ -86,6 +90,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                         payment_method=payment_method,
                         notes=notes,
                         preferred_delivery_date=preferred_delivery_date,
+                        farmer_order_number=next_farmer_order_num,
                     )
 
                     for item in items:
