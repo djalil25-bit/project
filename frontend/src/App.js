@@ -40,6 +40,9 @@ import CatalogManager from './pages/admin/CatalogManager';
 import VehicleSettings from './pages/transporter/VehicleSettings';
 import ZoneSettings from './pages/transporter/ZoneSettings';
 import Profile from './pages/Profile';
+import UserComplaints from './pages/complaints/UserComplaints';
+import ComplaintFormPage from './pages/complaints/ComplaintFormPage';
+import ComplaintManager from './pages/admin/ComplaintManager';
 
 function App() {
   return (
@@ -75,6 +78,11 @@ function App() {
           <Route path="/admin-dashboard/categories" element={
             <ProtectedRoute allowedRoles={['admin']}>
               <CategoryManager />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin-dashboard/complaints" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <ComplaintManager />
             </ProtectedRoute>
           } />
           <Route path="/farmer-dashboard" element={
@@ -182,6 +190,16 @@ function App() {
           <Route path="/profile" element={
             <ProtectedRoute allowedRoles={['admin', 'farmer', 'buyer', 'transporter']}>
               <Profile />
+            </ProtectedRoute>
+          } />
+          <Route path="/complaints" element={
+            <ProtectedRoute allowedRoles={['admin', 'farmer', 'buyer', 'transporter']}>
+              <UserComplaints />
+            </ProtectedRoute>
+          } />
+          <Route path="/complaints/new" element={
+            <ProtectedRoute allowedRoles={['admin', 'farmer', 'buyer', 'transporter']}>
+              <ComplaintFormPage />
             </ProtectedRoute>
           } />
         </Route>

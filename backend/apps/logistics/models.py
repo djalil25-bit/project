@@ -27,5 +27,11 @@ class DeliveryRequest(TimeStampedModel):
     notes = models.TextField(blank=True, default='')
     vehicle_size = models.CharField(max_length=50, blank=True, default='', help_text="Required truck capacity or vehicle size")
 
+    # Proof of Delivery (PoD)
+    pod_photo = models.ImageField(upload_to='pod/', null=True, blank=True)
+    pod_recipient_name = models.CharField(max_length=100, blank=True, default='')
+    pod_notes = models.TextField(blank=True, default='')
+    pod_completed_at = models.DateTimeField(null=True, blank=True)
+
     def __str__(self):
         return f"Delivery for Order #{self.order.id} - {self.status}"

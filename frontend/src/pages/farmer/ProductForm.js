@@ -140,14 +140,10 @@ function ProductForm() {
 
     try {
       if (isEdit) {
-        await api.patch(`/products/${id}/`, data, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        await api.patch(`/products/${id}/`, data);
         setSuccess('Product updated successfully!');
       } else {
-        await api.post('/products/', data, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        await api.post('/products/', data);
         setSuccess('Product listed successfully!');
       }
       setFormData({

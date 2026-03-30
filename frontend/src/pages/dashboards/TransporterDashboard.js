@@ -14,8 +14,11 @@ import {
   User,
   Navigation,
   ExternalLink,
-  X
+  X,
+  Camera,
+  Upload
 } from 'lucide-react';
+import ProofOfDeliveryModal from '../../components/logistics/ProofOfDeliveryModal';
 
 const StatusBadge = ({ status }) => (
   <span className={`status-badge status-${status}`}>{status.replace(/_/g, ' ')}</span>
@@ -29,6 +32,7 @@ function TransporterDashboard() {
   const [activeTab, setActiveTab] = useState('open');
   const [actionLoading, setActionLoading] = useState(null);
   const [viewingCargo, setViewingCargo] = useState(null);
+  const [podTarget, setPodTarget] = useState(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -232,14 +236,26 @@ function TransporterDashboard() {
                     {d.status === 'in_transit' && (
                       <button
                         className="btn-agr btn-dark btn-sm rounded-pill px-3 fw-bold"
-                        onClick={() => handleStatusUpdate(d.id, 'delivered')}
+                        onClick={() => setPodTarget(d)}
                       >
                          Confirm Delivery
                       </button>
                     )}
                     {d.status === 'delivered' && (
-                      <div className="text-success fw-bold very-small d-flex align-items-center justify-content-end">
-                        <CheckCircle size={14} className="me-1" /> Job Finalized
+                      <div className="d-flex flex-column align-items-end">
+                        <div className="text-success fw-bold very-small d-flex align-items-center justify-content-end mb-1">
+                          <CheckCircle size={14} className="me-1" /> Job Finalized
+                        </div>
+                        {d.pod_completed_at && (
+                          <div className="very-small text-muted bg-light-soft px-2 py-1 rounded border">
+                            <div className="fw-bold">Signee: {d.pod_recipient_name}</div>
+                            {d.pod_photo && (
+                              <div className="mt-1 d-flex gap-1" onClick={() => window.open(d.pod_photo, '_blank')} style={{cursor: 'pointer'}}>
+                                <Camera size={10} /><span style={{fontSize: '0.6rem'}}>View Proof</span>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
                   </td>
@@ -330,6 +346,18 @@ function TransporterDashboard() {
             </div>
           </div>
         </div>
+      )}
+
+      {podTarget && (
+        <ProofOfDeliveryModal 
+          delivery={podTarget} 
+          isOpen={!!podTarget} 
+          onClose={() => setPodTarget(null)}
+          onSuccess={() => {
+            fetchData();
+            setActiveTab('done');
+          }}
+        />
       )}
     </div>
   );

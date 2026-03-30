@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../api/axiosConfig';
-import { Link } from 'react-router-dom';
+import QRDisplay from '../../components/common/QRDisplay';
+import { useNavigate, Link } from 'react-router-dom';
 import { 
-  Package, Search, ShoppingBag, CheckCircle, Clock, ChevronDown, ChevronUp,
-  Truck, MapPin, Calendar, CreditCard, Target, ChevronRight, ClipboardList,
-  FileText, Filter, XCircle, AlertCircle, RefreshCw, User
+  FileText, Filter, XCircle, AlertCircle, RefreshCw, User, ShieldAlert,
+  ChevronRight, ClipboardList, Clock, CheckCircle, Package, Truck, MapPin, Calendar, CreditCard, ChevronDown, ChevronUp, ShoppingBag, Search
 } from 'lucide-react';
 
 /* ─── Status badge components ─────────────────────────────── */
@@ -65,6 +65,7 @@ function OrderHistory() {
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(null);
   const [activeFilter, setActiveFilter] = useState('all');
+  // const [complaintModal, setComplaintModal] = useState({ open: false, orderId: null });
 
   useEffect(() => {
     async function fetchOrders() {
@@ -231,16 +232,83 @@ function OrderHistory() {
                                           <label className="very-small text-muted d-block mb-1">Delivery Status</label>
                                           <DeliveryStatusBadge status={o.delivery_status} />
                                         </div>
+                                        
+                                        {o.delivery_request?.pod_completed_at && (
+                                          <div className="mt-3 p-3 bg-light-soft rounded-lg border-dashed border-1 border-success animate-fade-in">
+                                            <div className="d-flex align-items-center gap-2 mb-2 text-success fw-bold very-small text-uppercase">
+                                              <ShieldAlert size={14} /> Official Proof of Delivery
+                                            </div>
+                                            <div className="small mb-1"><span className="text-muted fw-bold">Recipient:</span> {o.delivery_request.pod_recipient_name}</div>
+                                            <div className="very-small text-muted mb-2">
+                                              {new Date(o.delivery_request.pod_completed_at).toLocaleString()}
+                                            </div>
+                                            {o.delivery_request.pod_notes && (
+                                              <div className="very-small text-muted fst-italic mb-2 ps-2 border-start">
+                                                "{o.delivery_request.pod_notes}"
+                                              </div>
+                                            )}
+                                            {o.delivery_request.pod_photo && (
+                                              <div className="pod-photo-preview mt-2">
+                                                <img 
+                                                  src={o.delivery_request.pod_photo} 
+                                                  alt="Proof" 
+                                                  className="img-fluid rounded border shadow-sm"
+                                                  style={{ maxHeight: '120px', cursor: 'pointer' }}
+                                                  onClick={() => window.open(o.delivery_request.pod_photo, '_blank')}
+                                                />
+                                              </div>
+                                            )}
+
+                                            {!o.buyer_confirmed_at ? (
+                                              <button 
+                                                className="btn-agr btn-primary btn-sm w-100 mt-3 d-flex align-items-center justify-content-center gap-2"
+                                                onClick={async () => {
+                                                  if(!window.confirm("Are you sure you want to confirm receipt of this order?")) return;
+                                                  try {
+                                                    await api.post(`/orders/${o.id}/confirm_receipt/`);
+                                                    const res = await api.get('/orders/');
+                                                    setOrders(res.data.results || res.data);
+                                                    alert("Receipt confirmed! Thank you.");
+                                                  } catch (err) {
+                                                    alert(err.response?.data?.error || "Confirmation failed.");
+                                                  }
+                                                }}
+                                              >
+                                                <CheckCircle size={14} /> Confirm Parcel Receipt
+                                              </button>
+                                            ) : (
+                                              <div className="mt-3 p-2 bg-success-soft text-success rounded small fw-bold text-center d-flex align-items-center justify-content-center gap-2">
+                                                <CheckCircle size={16} /> Receipt Confirmed
+                                              </div>
+                                            )}
+                                          </div>
+                                        )}
+
                                         {o.notes && (
                                           <div className="mt-2 p-2 bg-light-soft rounded-lg very-small text-muted">
                                             <strong>Note:</strong> {o.notes}
                                           </div>
                                         )}
+                                        <div className="mt-3">
+                                          <Link 
+                                            to={`/complaints/new?order_id=${o.id}&type=ORDER`}
+                                            className="btn-agr btn-sm btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2"
+                                          >
+                                            <ShieldAlert size={14} /> Official Complaint Center
+                                          </Link>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    {/* QR Code Section */}
+                                    <div className="col-lg-3">
+                                      <div className="p-3 bg-white rounded-lg shadow-sm border h-100 flex-center flex-column">
+                                         <QRDisplay value={`AG-ORD-${o.id}`} size={120} title="Order Trace" />
                                       </div>
                                     </div>
 
                                     {/* Order Summary */}
-                                    <div className="col-lg-8">
+                                    <div className="col-lg-5">
                                       <div className="p-3 bg-white rounded-lg shadow-sm border">
                                         <div className="d-flex justify-content-between align-items-center mb-3">
                                           <div className="d-flex align-items-center text-primary">

@@ -11,6 +11,7 @@ class NotificationType(models.TextChoices):
     DELIVERY_REQUEST = 'delivery_request', 'Delivery Request'
     USER_APPROVED = 'user_approved', 'Account Approved'
     USER_PENDING = 'user_pending', 'User Pending Approval'
+    COMPLAINT_UPDATE = 'complaint_update', 'Complaint Status Updated'
     GENERAL = 'general', 'General'
 
 class Notification(TimeStampedModel):

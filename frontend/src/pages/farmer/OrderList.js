@@ -17,8 +17,10 @@ import {
   Calendar,
   FileText,
   AlertCircle,
-  X
+  X,
+  ShieldAlert
 } from 'lucide-react';
+// import ComplaintFormModal from '../../components/complaints/ComplaintFormModal';
 
 const OrderList = () => {
   const navigate = useNavigate();
@@ -32,6 +34,7 @@ const OrderList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedRow, setExpandedRow] = useState(null);
   const [actionLoading, setActionLoading] = useState(null);
+  // const [complaintModal, setComplaintModal] = useState({ open: false, orderId: null });
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -103,7 +106,8 @@ const OrderList = () => {
       matchesFilter = o.status?.toUpperCase() === filter;
     }
     const localNum = o.farmer_order_number ? `F-${String(o.farmer_order_number).padStart(3, '0')}` : String(o.id);
-    const matchesSearch = o.buyer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    const buyerName = o.buyer_name || '';
+    const matchesSearch = buyerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          localNum.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesFilter && matchesSearch;
   });
@@ -293,15 +297,7 @@ const OrderList = () => {
                                   <span className="very-small text-muted text-uppercase d-block fw-bold">Delivery Location</span>
                                   <div className="small">{o.wilaya ? <strong className="text-primary">{o.wilaya}: </strong> : ''}{o.delivery_address}</div>
                                 </div>
-                                {o.notes && (
-                                  <div>
-                                    <span className="very-small text-muted text-uppercase d-block fw-bold">Order Notes</span>
-                                    <div className="small fst-italic text-muted">"{o.notes}"</div>
-                                  </div>
-                                )}
-                              </div>
-                              
-                              {o.status?.toUpperCase() === 'CONFIRMED' && (
+                                {o.status?.toUpperCase() === 'CONFIRMED' && (
                                 <div className="mt-3">
                                   {!o.has_delivery_request ? (
                                     <button 
@@ -317,6 +313,53 @@ const OrderList = () => {
                                   )}
                                 </div>
                               )}
+                              
+                              {/* Proof of Delivery Details for Farmer */}
+                              {o.delivery_request?.pod_completed_at && (
+                                <div className="mt-3 p-3 bg-light-soft rounded border-dashed border-1 border-success">
+                                  <div className="d-flex align-items-center gap-2 mb-2 text-success fw-bold very-small text-uppercase">
+                                    <CheckCircle size={14} /> Handover Verified
+                                  </div>
+                                  <div className="small mb-1">
+                                    <span className="text-muted fw-bold">Signee:</span> {o.delivery_request.pod_recipient_name}
+                                  </div>
+                                  <div className="very-small text-muted mb-2">
+                                    {new Date(o.delivery_request.pod_completed_at).toLocaleString()}
+                                  </div>
+                                  {o.delivery_request.pod_notes && (
+                                    <div className="very-small text-muted fst-italic mb-2 ps-2 border-start">
+                                      "{o.delivery_request.pod_notes}"
+                                    </div>
+                                  )}
+                                  {o.delivery_request.pod_photo && (
+                                    <div className="pod-photo-preview mt-2 rounded overflow-hidden border">
+                                      <img src={o.delivery_request.pod_photo} alt="Handover Proof" style={{ width: '100%', maxHeight: '150px', objectFit: 'cover', cursor: 'pointer' }} onClick={() => window.open(o.delivery_request.pod_photo, '_blank')} />
+                                    </div>
+                                  )}
+                                  {o.buyer_confirmed_at && (
+                                    <div className="mt-2 py-1 px-2 bg-success text-white rounded very-small fw-bold text-center">
+                                      FINALIZED BY BUYER
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                              
+                              {o.notes && (
+                                  <div className="mt-3">
+                                    <span className="very-small text-muted text-uppercase d-block fw-bold">Order Notes</span>
+                                    <div className="small fst-italic text-muted">"{o.notes}"</div>
+                                  </div>
+                                )}
+                              </div>
+                              
+                              <div className="mt-3 pt-3 border-top">
+                                <Link 
+                                  to={`/complaints/new?order_id=${o.id}&type=PAYMENT`}
+                                  className="btn-agr btn-sm btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2"
+                                >
+                                  <ShieldAlert size={14} /> Official Complaint Center
+                                </Link>
+                              </div>
                             </div>
                           </div>
                         </div>

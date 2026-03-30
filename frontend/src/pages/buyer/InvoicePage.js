@@ -6,6 +6,7 @@ import {
   MapPin, Calendar, CreditCard, User, Truck, CheckCircle,
   ArrowLeft, ShoppingBag
 } from 'lucide-react';
+import QRDisplay from '../../components/common/QRDisplay';
 
 /* ─── Invoice list (delivered orders) ───────────────────── */
 function InvoiceList() {
@@ -170,11 +171,16 @@ function InvoiceDetail() {
             </div>
             <div className="text-muted small">Direct Farm-to-Consumer Marketplace</div>
           </div>
-          <div className="text-end">
-            <div className="h3 fw-bold text-dark mb-1">{invoiceNum}</div>
-            <span className="inline-badge badge-status-delivered"><CheckCircle size={11} className="me-1" />DELIVERED</span>
-            <div className="very-small text-muted mt-2">Order Ref: {orderNum}</div>
-            <div className="very-small text-muted">{new Date(order.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</div>
+          <div className="text-end d-flex gap-4 align-items-start">
+            <div className="no-print">
+               <QRDisplay value={`AG-INV-${order.id}`} size={80} title="Verify" />
+            </div>
+            <div>
+              <div className="h3 fw-bold text-dark mb-1">{invoiceNum}</div>
+              <span className="inline-badge badge-status-delivered"><CheckCircle size={11} className="me-1" />DELIVERED</span>
+              <div className="very-small text-muted mt-2">Order Ref: {orderNum}</div>
+              <div className="very-small text-muted">{new Date(order.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</div>
+            </div>
           </div>
         </div>
 

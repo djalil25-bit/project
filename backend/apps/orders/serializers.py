@@ -64,6 +64,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
     payment = PaymentSerializer(read_only=True)
+    # delivery_request_details = serializers.SerializerMethodField()
     buyer_name = serializers.CharField(source='buyer.full_name', read_only=True)
     buyer_email = serializers.EmailField(source='buyer.email', read_only=True)
 
@@ -80,15 +81,28 @@ class OrderSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         request = self.context.get('request')
-        if request and request.user.role == 'farmer':
-            # Only show items belonging to this farmer
-            farmer_items = instance.items.filter(farmer=request.user)
-            ret['items'] = OrderItemSerializer(farmer_items, many=True).data
-            # Recompute total price for just this farmer's items in the context of their view
-            ret['farmer_total'] = sum(item.quantity * item.price_snapshot for item in farmer_items)
+        if not request or not request.user.is_authenticated:
+            return ret
             
-            # Check if delivery request exists
-            ret['has_delivery_request'] = hasattr(instance, 'delivery_request')
+        user = request.user
+        
+        # 1. Scope items for farmers
+        if user.role == 'farmer':
+            farmer_items = instance.items.filter(farmer=user)
+            ret['items'] = OrderItemSerializer(farmer_items, many=True).data
+            ret['farmer_total'] = sum((item.quantity or 0) * (item.price_snapshot or 0) for item in farmer_items)
+
+        # 2. Add Delivery Request & PoD for Farmer, Buyer, and Admin
+        # Note: Transporters access PoD via the /deliveries/ endpoint directly
+        if user.role in ['farmer', 'buyer', 'admin'] or user.is_staff:
+            if hasattr(instance, 'delivery_request'):
+                from apps.logistics.serializers import DeliveryRequestSerializer
+                ret['delivery_request'] = DeliveryRequestSerializer(instance.delivery_request).data
+                ret['has_delivery_request'] = True
+            else:
+                ret['has_delivery_request'] = False
+                ret['delivery_request'] = None
+                
         return ret
 
 

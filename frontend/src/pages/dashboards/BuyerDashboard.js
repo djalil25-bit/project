@@ -4,8 +4,10 @@ import api from '../../api/axiosConfig';
 import { 
   Search, ShoppingBag, MapPin, User, CheckCircle, XCircle, Info, 
   ShieldCheck, ShoppingCart, Package, ChevronRight, TrendingDown,
-  AlertCircle, Clock, Plus, X, Wheat, Tag, BarChart2, Eye
+  AlertCircle, Clock, Plus, X, Wheat, Tag, BarChart2, Eye,
+  BadgeCheck
 } from 'lucide-react';
+import VerifiedBadge from '../../components/common/VerifiedBadge';
 
 const PriceBadge = ({ comparison }) => {
   if (!comparison) return null;
@@ -78,7 +80,12 @@ function ProductDetailModal({ product, onClose, onAddToCart, cartLoading }) {
             <div className="col-md-7">
               <div className="detail-grid">
                 {[
-                  { icon: <User size={14} />, label: 'Farmer', value: p.farmer_name },
+                  { icon: <User size={14} />, label: 'Farmer', value: (
+                    <div className="d-flex align-items-center gap-2">
+                      {p.farmer_name}
+                      <VerifiedBadge role="farmer" isVerified={p.farmer_is_verified} trustLevel={p.farmer_trust_level} showLabel={false} />
+                    </div>
+                  ) },
                   { icon: <Wheat size={14} />, label: 'Farm', value: p.farm_name },
                   { icon: <Tag size={14} />, label: 'Category', value: p.category_name },
                   { icon: <BarChart2 size={14} />, label: 'Available Stock', value: `${parseFloat(p.stock || 0).toLocaleString()} ${p.unit}` },
@@ -268,9 +275,12 @@ function BuyerDashboard() {
                   <PriceBadge comparison={p.official_price_comparison} />
                 </div>
 
-                <div className="farmer-info mb-3 d-flex align-items-center">
-                  <div className="avatar-xs-circle me-2">{p.farm_name?.charAt(0)}</div>
-                  <span className="very-small text-muted">From <span className="fw-bold">{p.farm_name}</span></span>
+                <div className="farmer-info mb-3 d-flex align-items-center justify-content-between">
+                  <div className="d-flex align-items-center">
+                    <div className="avatar-xs-circle me-2">{p.farm_name?.charAt(0)}</div>
+                    <span className="very-small text-muted">From <span className="fw-bold">{p.farm_name}</span></span>
+                  </div>
+                  <VerifiedBadge role="farmer" isVerified={p.farmer_is_verified} trustLevel={p.farmer_trust_level} showLabel={false} />
                 </div>
 
                 <div className="product-actions mt-auto d-flex gap-2">

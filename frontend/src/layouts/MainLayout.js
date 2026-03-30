@@ -27,8 +27,12 @@ import {
   ShoppingBag as BagIcon,
   ShieldCheck,
   User as UserIcon,
-  X
+  X,
+  BadgeCheck,
+  MessageSquare,
+  ShieldAlert
 } from 'lucide-react';
+import VerifiedBadge from '../components/common/VerifiedBadge';
 
 const MainLayout = () => {
   const { user, logout } = useAuth();
@@ -97,6 +101,7 @@ const MainLayout = () => {
       { label: 'Analytics', path: '/admin-dashboard/analytics', icon: <TrendingUp size={20} /> },
       { label: 'Catalog', path: '/admin-dashboard/catalog', icon: <ClipboardList size={20} /> },
       { label: 'Categories', path: '/admin-dashboard/categories', icon: <FolderTree size={20} /> },
+      { label: 'Complaint Center', path: '/admin-dashboard/complaints', icon: <ShieldAlert size={20} /> },
     ],
     farmer: [
       { label: 'Dashboard', path: '/farmer-dashboard', icon: <LayoutDashboard size={20} /> },
@@ -105,17 +110,20 @@ const MainLayout = () => {
       { label: 'Orders', path: '/farmer/orders', icon: <ShoppingBag size={20} /> },
       { label: 'My Listings', path: '/farmer/products', icon: <Package size={20} /> },
       { label: 'Harvests', path: '/farmer-dashboard/harvests', icon: <CalendarDays size={20} /> },
+      { label: 'Complaints', path: '/complaints', icon: <MessageSquare size={20} /> },
     ],
     buyer: [
       { label: 'Marketplace', path: '/buyer-dashboard', icon: <ShoppingCart size={20} /> },
       { label: 'My Cart', path: '/buyer/cart', icon: <ShoppingBag size={20} /> },
       { label: 'My Orders', path: '/buyer-dashboard/orders', icon: <History size={20} /> },
       { label: 'Invoices', path: '/buyer-dashboard/invoices', icon: <CreditCard size={20} /> },
+      { label: 'Complaints', path: '/complaints', icon: <MessageSquare size={20} /> },
     ],
     transporter: [
       { label: 'Marketboard', path: '/transporter-dashboard', icon: <Truck size={20} /> },
       { label: 'My Fleet', path: '/transporter-dashboard/vehicles', icon: <Truck size={20} /> },
       { label: 'Zones', path: '/transporter-dashboard/zones', icon: <MapPin size={20} /> },
+      { label: 'Complaints', path: '/complaints', icon: <MessageSquare size={20} /> },
     ]
   };
 
@@ -241,8 +249,11 @@ const MainLayout = () => {
             </div>
             
             <div className="user-header-profile" onClick={() => navigate('/profile')}>
-              <div className="user-header-info d-none d-md-block">
-                <div className="user-header-name">{user?.full_name}</div>
+              <div className="user-header-info d-none d-md-block text-end">
+                <div className="d-flex align-items-center justify-content-end gap-2">
+                  <div className="user-header-name">{user?.full_name}</div>
+                  <VerifiedBadge role={user?.role} isVerified={user?.is_verified} trustLevel={user?.trust_level} showLabel={false} />
+                </div>
                 <div className="user-header-role">{user?.role}</div>
               </div>
               <div className="user-header-avatar">

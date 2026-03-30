@@ -16,9 +16,15 @@ import {
   FileText,
   Camera,
   Trash2,
-  X
+  X,
+  BadgeCheck,
+  Trophy,
+  Target,
+  ShieldCheck,
+  Award
 } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
+import VerifiedBadge from '../components/common/VerifiedBadge';
 
 const Profile = () => {
   const { user, updateUser } = useAuth();
@@ -130,7 +136,10 @@ const Profile = () => {
                   </div>
                 </div>
                 <div>
-                  <h2 className="h4 fw-bold mb-1">{profile.full_name}</h2>
+                  <div className="d-flex align-items-center gap-3 mb-1 flex-wrap">
+                    <h2 className="h4 fw-bold mb-0">{profile.full_name}</h2>
+                    <VerifiedBadge role={profile.role} isVerified={profile.is_verified} trustLevel={profile.trust_level} />
+                  </div>
                   <div className="d-flex align-items-center gap-2">
                     <span className={`role-badge role-${profile.role}`}>{profile.role}</span>
                     <span className="text-muted small">ID: #{profile.id}</span>
@@ -214,7 +223,69 @@ const Profile = () => {
         </div>
 
         <div className="col-lg-4">
-          <div className="agr-card p-4 h-100">
+          <div className="d-flex flex-column gap-4">
+            {/* Trust Foundation Card */}
+            <div className="agr-card p-4 trust-card overflow-hidden">
+              <div className="d-flex align-items-center justify-content-between mb-4">
+                <div className="d-flex align-items-center">
+                  <ShieldCheck size={22} className="text-primary me-2" />
+                  <h3 className="h5 fw-bold mb-0">Trust Index</h3>
+                </div>
+                <div className={`trust-level-badge level-${profile.trust_level}`}>
+                  {profile.trust_level}
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <div className="d-flex justify-content-between mb-2">
+                  <span className="very-small text-muted fw-bold text-uppercase tracking-wider">Profile Accuracy</span>
+                  <span className="very-small fw-bold text-primary">{profile.profile_completeness}%</span>
+                </div>
+                <div className="trust-meter-container">
+                  <div className="trust-meter-fill trust-high" style={{ width: `${profile.profile_completeness}%` }}></div>
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <div className="d-flex justify-content-between mb-2">
+                  <span className="very-small text-muted fw-bold text-uppercase tracking-wider">Reliability Score</span>
+                  <span className="very-small fw-bold text-success">{profile.trust_score}/100</span>
+                </div>
+                <div className="trust-meter-container">
+                  <div 
+                    className={`trust-meter-fill ${profile.trust_score > 70 ? 'trust-high' : profile.trust_score > 30 ? 'trust-medium' : 'trust-low'}`} 
+                    style={{ width: `${profile.trust_score}%` }}
+                  ></div>
+                </div>
+              </div>
+
+              <div className="d-flex align-items-center gap-3 p-3 bg-light-soft rounded-lg mt-2">
+                <div className="completeness-circle-container">
+                  <svg className="completeness-circle-svg">
+                    <circle className="completeness-circle-bg" cx="30" cy="30" r="26"></circle>
+                    <circle 
+                      className="completeness-circle-bar" 
+                      cx="30" cy="30" r="26" 
+                      style={{ 
+                        strokeDasharray: 163.36, 
+                        strokeDashoffset: 163.36 - (163.36 * (profile.profile_completeness || 0)) / 100 
+                      }}
+                    ></circle>
+                  </svg>
+                  <div className="completeness-text">{profile.profile_completeness}%</div>
+                </div>
+                <div className="small">
+                  <div className="fw-bold text-dark">Data Integrity</div>
+                  <div className="text-muted very-small mt-1" style={{lineHeight: '1.3'}}>
+                    {profile.profile_completeness === 100 
+                      ? 'Your platform identity is fully verified and optimized.' 
+                      : 'Complete your profile to unlock premium verification badges.'}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="agr-card p-4">
             <div className="d-flex align-items-center mb-4">
               <Lock size={20} className="text-primary me-2" />
               <h3 className="h5 fw-bold mb-0">Security Gate</h3>
@@ -264,6 +335,7 @@ const Profile = () => {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
