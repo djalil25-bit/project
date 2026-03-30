@@ -25,6 +25,7 @@ function ProductForm() {
     title: '',
     category: '',
     unit: '',
+    quality: 'STANDARD',
     image: null
   });
   const [farms, setFarms] = useState([]);
@@ -63,6 +64,7 @@ function ProductForm() {
             title: p.title || '',
             category: p.category || '',
             unit: p.unit || '',
+            quality: p.quality || 'STANDARD',
             image: null
           });
           if (p.catalog_product) {
@@ -138,19 +140,15 @@ function ProductForm() {
 
     try {
       if (isEdit) {
-        await api.patch(`/products/${id}/`, data, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        await api.patch(`/products/${id}/`, data);
         setSuccess('Product updated successfully!');
       } else {
-        await api.post('/products/', data, {
-          headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        await api.post('/products/', data);
         setSuccess('Product listed successfully!');
       }
       setFormData({
         catalog_product: '', description: '', price: '', stock: '',
-        farm: '', title: '', category: '', unit: '', image: null
+        farm: '', title: '', category: '', unit: '', quality: 'STANDARD', image: null
       });
       setSelectedCatalogItem(null);
       setTimeout(() => navigate('/farmer-dashboard'), 1500);
@@ -266,16 +264,32 @@ function ProductForm() {
                 </div>
               </div>
 
-              <div className="form-group mb-4">
-                <label className="form-label d-flex align-items-center">
-                  <ImageIcon size={16} className="me-2 text-primary" /> Product Photography
-                </label>
-                <div className="file-input-wrapper">
-                  <input 
-                    type="file" name="image" className="form-input" 
-                    accept="image/*" onChange={handleChange}
-                  />
-                  <p className="form-hint small text-muted mt-1">Upload a clear photo of the actual produce to improve buyer trust.</p>
+              <div className="row">
+                <div className="col-md-6">
+                   <div className="form-group mb-4">
+                    <label className="form-label d-flex align-items-center">
+                      <ShieldCheck size={16} className="me-2 text-primary" /> Product Quality *
+                    </label>
+                    <select name="quality" className="form-input" onChange={handleChange} required value={formData.quality}>
+                      <option value="PREMIUM">Premium (High End)</option>
+                      <option value="STANDARD">Standard (Regular)</option>
+                      <option value="ECONOMY">Economy (Low Cost)</option>
+                      <option value="ORGANIC">Organic (Certified)</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="col-md-6">
+                  <div className="form-group mb-4">
+                    <label className="form-label d-flex align-items-center">
+                      <ImageIcon size={16} className="me-2 text-primary" /> Product Photography
+                    </label>
+                    <div className="file-input-wrapper">
+                      <input 
+                        type="file" name="image" className="form-input" 
+                        accept="image/*" onChange={handleChange}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
 

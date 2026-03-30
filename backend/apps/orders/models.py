@@ -46,6 +46,11 @@ class Order(TimeStampedModel):
     )
     notes = models.TextField(blank=True, default='')
     preferred_delivery_date = models.DateField(null=True, blank=True)
+    # Farmer-scoped display number: each farmer's orders are numbered 1, 2, 3...
+    # Set at checkout time; NULL for legacy orders created before this feature.
+    # Life cycle finalization
+    buyer_confirmed_at = models.DateTimeField(null=True, blank=True)
+    farmer_order_number = models.PositiveIntegerField(null=True, blank=True, db_index=True)
 
     def __str__(self):
         return f"Order #{self.id} by {self.buyer.email} ({self.status})"

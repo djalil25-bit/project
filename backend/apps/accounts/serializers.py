@@ -20,6 +20,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             'email': user.email,
             'role': user.role,
             'status': user.status,
+            'is_verified': user.is_verified,
+            'trust_level': user.trust_level,
+            'profile_picture': user.profile_picture.url if user.profile_picture else None,
             'dashboard_route': f"/{user.role}-dashboard"
         }
         return token
@@ -63,6 +66,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             'email': user.email,
             'role': user.role,
             'status': user.status,
+            'is_verified': user.is_verified,
+            'trust_level': user.trust_level,
+            'profile_picture': user.profile_picture.url if user.profile_picture else None,
             'dashboard_route': f"/{user.role}-dashboard"
         }
         return data
@@ -70,8 +76,11 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'email', 'full_name', 'phone', 'role', 'status', 'created_at')
-        read_only_fields = ('id', 'status', 'created_at')
+        fields = (
+            'id', 'email', 'full_name', 'phone', 'role', 'status', 
+            'is_verified', 'trust_level', 'trust_score', 'profile_picture', 'created_at'
+        )
+        read_only_fields = ('id', 'status', 'is_verified', 'trust_level', 'trust_score', 'created_at')
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
@@ -100,13 +109,29 @@ class AdminUserActionSerializer(serializers.Serializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
     """For profile GET/PATCH. Exposes all profile-related fields."""
+    profile_completeness = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = (
             'id', 'email', 'full_name', 'phone', 'role', 'status',
             'profile_picture', 'address', 'bio', 'vehicles', 'service_zones',
+            'is_verified', 'document_status', 'trust_score', 'trust_level',
+            'verification_date', 'profile_completeness',
         )
-        read_only_fields = ('id', 'email', 'role', 'status')
+        read_only_fields = ('id', 'email', 'role', 'status', 'is_verified', 'verification_date', 'profile_completeness')
+
+    def get_profile_completeness(self, obj):
+        fields = ['full_name', 'phone', 'profile_picture', 'address', 'bio']
+        if obj.role == RoleChoices.TRANSPORTER:
+            fields.extend(['vehicles', 'service_zones'])
+        
+        filled = 0
+        for field in fields:
+            val = getattr(obj, field)
+            if val:
+                filled += 1
+        return int((filled / len(fields)) * 100)
 
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)

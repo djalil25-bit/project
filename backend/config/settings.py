@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'apps.dashboards.apps.DashboardsConfig',
     'apps.common.apps.CommonConfig',
     'apps.notifications.apps.NotificationsConfig',
+    'apps.complaints.apps.ComplaintsConfig',
 ]
 
 MIDDLEWARE = [

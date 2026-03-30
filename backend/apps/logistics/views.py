@@ -3,8 +3,13 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 
+from django.utils import timezone
 from .models import DeliveryRequest, DeliveryStatusChoices
-from .serializers import DeliveryRequestSerializer, DeliveryStatusUpdateSerializer
+from .serializers import (
+    DeliveryRequestSerializer, 
+    DeliveryStatusUpdateSerializer,
+    ProofOfDeliverySerializer
+)
 from apps.accounts.permissions import IsTransporterRole, IsFarmerRole
 from apps.orders.models import OrderStatusChoices, DeliveryStatusChoices as OrderDeliveryStatus
 
@@ -119,6 +124,44 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
                         link=f"/buyer-dashboard/orders"
                     )
             except ImportError:
+                pass
+
+            return Response(DeliveryRequestSerializer(delivery).data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['post'], serializer_class=ProofOfDeliverySerializer)
+    def complete_with_pod(self, request, pk=None):
+        delivery = self.get_object()
+        if delivery.transporter != request.user:
+            return Response({"error": "Not your assigned delivery."}, status=status.HTTP_403_FORBIDDEN)
+            
+        serializer = ProofOfDeliverySerializer(data=request.data)
+        if serializer.is_valid():
+            delivery.pod_recipient_name = serializer.validated_data.get('pod_recipient_name')
+            delivery.pod_notes = serializer.validated_data.get('pod_notes', '')
+            if 'pod_photo' in request.FILES:
+                delivery.pod_photo = request.FILES['pod_photo']
+            
+            delivery.pod_completed_at = timezone.now()
+            delivery.status = DeliveryStatusChoices.DELIVERED
+            delivery.save()
+            
+            # Sync with Order
+            order = delivery.order
+            order.delivery_status = OrderDeliveryStatus.DELIVERED
+            order.status = OrderStatusChoices.CONFIRMED
+            order.save()
+            
+            # Notifications
+            try:
+                from apps.notifications.models import create_notification, NotificationType
+                create_notification(
+                    user=order.buyer,
+                    message=f"Order #{order.id} has been delivered! Proof of delivery is available.",
+                    notif_type=NotificationType.DELIVERY_COMPLETED,
+                    link=f"/buyer-dashboard/orders"
+                )
+            except Exception:
                 pass
 
             return Response(DeliveryRequestSerializer(delivery).data)

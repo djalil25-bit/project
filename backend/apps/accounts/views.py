@@ -91,6 +91,15 @@ class AdminUserViewSet(viewsets.ModelViewSet):
             action_type = serializer.validated_data['action']
             if action_type == 'approve':
                 user.status = AccountStatusChoices.APPROVED
+                user.is_verified = True
+                from django.utils import timezone
+                user.verification_date = timezone.now()
+                # Initialize trust foundation
+                if user.trust_level == 'new':
+                    user.trust_level = 'bronze'
+                if user.trust_score < 20:
+                    user.trust_score = 20
+                
                 # Send notification to user
                 try:
                     from apps.notifications.models import Notification, NotificationType
@@ -103,10 +112,12 @@ class AdminUserViewSet(viewsets.ModelViewSet):
                     pass
             elif action_type == 'reject':
                 user.status = AccountStatusChoices.REJECTED
+                user.is_verified = False
             elif action_type == 'suspend':
                 user.status = AccountStatusChoices.SUSPENDED
             elif action_type == 'reactivate':
                 user.status = AccountStatusChoices.APPROVED
+                user.is_verified = True
             user.save()
             return Response(UserSerializer(user).data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

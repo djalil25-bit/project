@@ -24,6 +24,7 @@ const CatalogManager = () => {
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('');
 
   useEffect(() => {
     fetchData();
@@ -105,11 +106,25 @@ const CatalogManager = () => {
       </div>
 
       <div className="agr-card overflow-hidden">
-        <div className="agr-card-header bg-light-soft border-bottom p-3 d-flex justify-content-between align-items-center">
-           <h3 className="h6 fw-bold mb-0 d-flex align-items-center">
-              <Archive size={16} className="text-primary me-2" /> Available Standardized Units
-           </h3>
-           <span className="badge-agr badge-primary-soft">{catalog.length} Items</span>
+        <div className="agr-card-header bg-light-soft border-bottom p-3 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+           <div className="d-flex align-items-center">
+             <Archive size={16} className="text-primary me-2" />
+             <h3 className="h6 fw-bold mb-0">Available Standardized Units</h3>
+             <span className="badge-agr badge-primary-soft ms-3">{catalog.length} Items</span>
+           </div>
+           
+           <div className="d-flex align-items-center">
+             <Layers size={14} className="text-muted me-2" />
+             <select 
+               className="form-input form-select-sm" 
+               style={{ width: '200px' }}
+               value={selectedCategoryFilter}
+               onChange={(e) => setSelectedCategoryFilter(e.target.value)}
+             >
+               <option value="">All Categories</option>
+               {categories.map(c => <option key={c.id} value={c.id}>{c.icon || '🌱'} {c.name}</option>)}
+             </select>
+           </div>
         </div>
         {loading ? (
           <div className="flex-center py-5">
@@ -129,15 +144,15 @@ const CatalogManager = () => {
                 </tr>
               </thead>
               <tbody>
-                {catalog.length === 0 ? (
+                {catalog.filter(item => selectedCategoryFilter === '' || item.category === parseInt(selectedCategoryFilter)).length === 0 ? (
                   <tr>
                     <td colSpan="5" className="text-center py-5 text-muted">
                        <Search size={40} className="mb-3 opacity-25" />
-                       <p>No catalog products defined. Start by registering your first SKU.</p>
+                       <p>No catalog products match this criteria.</p>
                     </td>
                   </tr>
-                ) : catalog.map(item => (
-                  <tr key={item.id}>
+                ) : catalog.filter(item => selectedCategoryFilter === '' || item.category === parseInt(selectedCategoryFilter)).map(item => (
+                  <tr key={item.id} className="animate-fade-in hover-bg-light">
                     <td>
                       <div className="d-flex align-items-center">
                         <div className="avatar-xs-circle bg-light-soft me-3"><Tag size={16} className="text-primary" /></div>

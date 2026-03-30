@@ -85,11 +85,8 @@ function AdminDashboard() {
           <p className="page-subtitle text-muted">Monitor system health, verify actors, and manage global marketplace parameters.</p>
         </div>
         <div className="page-actions d-flex gap-2">
-          <button className="btn-agr btn-outline px-3" onClick={() => window.location.href='/admin-dashboard/catalog'}>
-            <ClipboardList size={16} className="me-2 text-primary" /> Master Catalog
-          </button>
-          <button className="btn-agr btn-outline px-3" onClick={() => window.location.href='/admin-dashboard/categories'}>
-            <FolderTree size={16} className="me-2 text-primary" /> Categories
+          <button className="btn-agr btn-primary px-3" onClick={() => window.location.href='/admin-dashboard/analytics'}>
+            <TrendingUp size={16} className="me-2" /> View Full Analytics
           </button>
         </div>
       </div>

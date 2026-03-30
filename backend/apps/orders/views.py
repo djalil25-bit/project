@@ -75,6 +75,10 @@ class OrderViewSet(viewsets.ModelViewSet):
                     # Calculate total for this farmer's items only
                     farmer_total = sum(item.product.price * item.quantity for item in items)
 
+                    # Compute next farmer-scoped display order number (atomic inside transaction)
+                    existing_farmer_orders = OrderItem.objects.filter(farmer=farmer).values('order').distinct().count()
+                    next_farmer_order_num = existing_farmer_orders + 1
+
                     # Create ONE order per farmer
                     order = Order.objects.create(
                         buyer=user,
@@ -86,6 +90,7 @@ class OrderViewSet(viewsets.ModelViewSet):
                         payment_method=payment_method,
                         notes=notes,
                         preferred_delivery_date=preferred_delivery_date,
+                        farmer_order_number=next_farmer_order_num,
                     )
 
                     for item in items:
@@ -127,6 +132,40 @@ class OrderViewSet(viewsets.ModelViewSet):
 
         except ValueError as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['post'], permission_classes=[IsBuyerRole])
+    def confirm_receipt(self, request, pk=None):
+        order = self.get_object()
+        from django.utils import timezone
+        
+        if order.delivery_status != 'DELIVERED':
+             return Response({"error": "You can only confirm receipt after the order is delivered."}, status=status.HTTP_400_BAD_REQUEST)
+             
+        if order.buyer_confirmed_at:
+             return Response({"error": "Order already confirmed."}, status=status.HTTP_400_BAD_REQUEST)
+             
+        order.buyer_confirmed_at = timezone.now()
+        order.save()
+        
+        # Notify the farmer(s)
+        try:
+            from apps.notifications.models import create_notification, NotificationType
+            # Get all unique farmers for this order
+            farmer_ids = order.items.values_list('farmer', flat=True).distinct()
+            from apps.accounts.models import User
+            farmers = User.objects.filter(id__in=farmer_ids)
+            
+            for farmer in farmers:
+                create_notification(
+                    user=farmer,
+                    message=f"Buyer has confirmed receipt of order #{order.id}.",
+                    notif_type=NotificationType.DELIVERY_COMPLETED,
+                    link=f"/farmer/orders"
+                )
+        except Exception:
+            pass
+            
+        return Response(OrderSerializer(order, context={'request': request}).data)
 
 
     def handle_exception(self, exc):
