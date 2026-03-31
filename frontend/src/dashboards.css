@@ -1,0 +1,117 @@
+
+/* ═══════════════════════════════════════════════════
+   BUYER DASHBOARD GRID & FILTERS
+═══════════════════════════════════════════════════ */
+.buyer-filter-bar {
+  background: white; border-radius: 14px;
+  border: 1px solid var(--gray-200); padding: 0.75rem 1rem;
+  box-shadow: var(--shadow-sm); display: flex; align-items: center; gap: 1rem;
+}
+.buyer-filter-search {
+  flex: 1; display: flex; align-items: center; gap: 0.6rem;
+  background: var(--gray-50); padding: 0.6rem 1rem; border-radius: 10px;
+}
+.buyer-filter-search input {
+  border: none; background: transparent; width: 100%; font-size: 0.9rem;
+  color: var(--gray-800); outline: none;
+}
+.buyer-filter-select {
+  padding: 0.6rem 2.5rem 0.6rem 1rem; border-radius: 10px;
+  border: 1.5px solid var(--gray-200); background: white;
+  font-size: 0.85rem; font-weight: 600; color: var(--gray-700);
+  cursor: pointer; appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%234b5563' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 0.8rem center;
+}
+/* Reusing .product-card-premium from index.css, just refining states */
+.product-card-premium:hover { box-shadow: 0 12px 24px rgba(0,0,0,0.06); transform: translateY(-4px); }
+
+/* ═══════════════════════════════════════════════════
+   FARMER DASHBOARD
+═══════════════════════════════════════════════════ */
+.farmer-hero-banner {
+  background: linear-gradient(135deg, #0f5132 0%, #198754 60%, #20c997 100%);
+  border-radius: 16px; padding: 2.5rem; margin-bottom: 1.5rem;
+  position: relative; overflow: hidden;
+}
+.farmer-hero-deco {
+  position: absolute; top: 10px; right: 2rem;
+  font-size: 5rem; opacity: 0.12; letter-spacing: 0.5rem;
+  pointer-events: none; line-height: 1;
+}
+.farmer-hero-content { position: relative; z-index: 1; }
+.farmer-hero-text { margin-bottom: 1.5rem; }
+.farmer-hero-tag {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  background: rgba(255,255,255,0.15); color: white;
+  font-size: 0.75rem; font-weight: 700; padding: 0.3rem 0.75rem;
+  border-radius: 20px; margin-bottom: 0.875rem;
+}
+.farmer-hero-title { font-size: 1.75rem; font-weight: 900; color: white; margin-bottom: 0.6rem; }
+.farmer-hero-sub { color: rgba(255,255,255,0.85); font-size: 0.9rem; margin-bottom: 1.25rem; max-width: 560px; }
+.farmer-hero-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+.farmer-hero-btn {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  background: white; color: #0f5132; font-weight: 800;
+  font-size: 0.875rem; padding: 0.6rem 1.25rem; border-radius: 9px;
+  border: none; cursor: pointer; transition: all 0.2s;
+}
+.farmer-hero-btn:hover { background: #e8f5e9; transform: translateY(-1px); }
+.farmer-hero-btn-outline {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  background: rgba(255,255,255,0.12); color: white; font-weight: 700;
+  font-size: 0.875rem; padding: 0.6rem 1.25rem; border-radius: 9px;
+  border: 1px solid rgba(255,255,255,0.25); cursor: pointer; transition: all 0.2s;
+}
+.farmer-hero-btn-outline:hover { background: rgba(255,255,255,0.2); }
+
+.farmer-table-card {
+  background: white; border-radius: 16px;
+  box-shadow: var(--shadow-sm); border: 1px solid var(--gray-200);
+}
+.farmer-table-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--gray-100);
+}
+
+/* ═══════════════════════════════════════════════════
+   TRANSPORTER DASHBOARD
+═══════════════════════════════════════════════════ */
+.transporter-hero-banner {
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 60%, #3b82f6 100%);
+  border-radius: 16px; padding: 2.5rem; margin-bottom: 1.5rem;
+  position: relative; overflow: hidden;
+}
+.transporter-hero-deco {
+  position: absolute; bottom: -20px; right: -20px;
+  font-size: 6rem; opacity: 0.1; line-height: 1; transform: rotate(-15deg);
+}
+.transporter-hero-content { position: relative; z-index: 1; }
+.transporter-hero-tag {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  background: rgba(255,255,255,0.15); color: white;
+  font-size: 0.75rem; font-weight: 700; padding: 0.3rem 0.75rem;
+  border-radius: 20px; margin-bottom: 0.875rem;
+}
+.transporter-hero-title { font-size: 1.75rem; font-weight: 900; color: white; margin-bottom: 0.6rem; }
+.transporter-hero-sub { color: rgba(255,255,255,0.85); font-size: 0.9rem; margin-bottom: 1.25rem; max-width: 560px; }
+
+/* Segmented Control Tabs */
+.segmented-tabs-wrapper {
+  background: var(--gray-100); padding: 0.35rem;
+  border-radius: 10px; display: inline-flex;
+}
+.segmented-tab {
+  padding: 0.5rem 1.5rem; font-size: 0.85rem; font-weight: 700;
+  color: var(--gray-600); border-radius: 8px; border: none;
+  background: transparent; transition: all 0.2s; cursor: pointer;
+}
+.segmented-tab.active {
+  background: white; color: #2563eb; box-shadow: var(--shadow-sm);
+}
+
+.mission-origin { color: #16a34a; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 0.35rem; }
+.mission-dest { color: #2563eb; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 0.35rem; }
+.mission-arrow { color: var(--gray-400); margin: 0 0.5rem; }
+
+.transporter-table-card { background: white; border-radius: 16px; border: 1px solid var(--gray-200); box-shadow: var(--shadow-sm); overflow: hidden; }

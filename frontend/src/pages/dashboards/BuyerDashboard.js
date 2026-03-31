@@ -2,12 +2,33 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axiosConfig';
 import { 
-  Search, ShoppingBag, MapPin, User, CheckCircle, XCircle, Info, 
-  ShieldCheck, ShoppingCart, Package, ChevronRight, TrendingDown,
+  Search, User, CheckCircle, XCircle, Info, 
+  ShieldCheck, ShoppingCart, Package, ChevronRight,
   AlertCircle, Clock, Plus, X, Wheat, Tag, BarChart2, Eye,
-  BadgeCheck, Heart
+  BadgeCheck, Heart, BarChart3, Sprout, Building2, FileText
 } from 'lucide-react';
 import VerifiedBadge from '../../components/common/VerifiedBadge';
+
+/* ─── Category Quick-Access Data ─────────────────── */
+const QUICK_CATEGORIES = [
+  { label: 'Légumes', emoji: '🥦', bg: '#dcfce7', color: '#16a34a' },
+  { label: 'Fruits', emoji: '🍊', bg: '#fef3c7', color: '#d97706' },
+  { label: 'Céréales', emoji: '🌾', bg: '#fef9c3', color: '#ca8a04' },
+  { label: 'Bio', emoji: '🌿', bg: '#d1fae5', color: '#059669' },
+  { label: 'Saisonnier', emoji: '☀️', bg: '#ffedd5', color: '#ea580c' },
+];
+
+/* ─── Official Prices Preview ─────────────────────── */
+const PRICE_PREVIEW = [
+  { name: 'Tomate ronde', range: '75–90 DZD/kg', status: 'normal' },
+  { name: 'Pomme de terre', range: '40–55 DZD/kg', status: 'optimal' },
+  { name: 'Carotte', range: '60–80 DZD/kg', status: 'normal' },
+];
+
+function PriceStatusDot({ status }) {
+  const map = { optimal: '#16a34a', normal: '#2563eb', attention: '#d97706' };
+  return <span style={{ width: 8, height: 8, borderRadius: '50%', background: map[status] || map.normal, display: 'inline-block', marginRight: 6 }} />;
+}
 
 const PriceBadge = ({ comparison }) => {
   if (!comparison) return null;
@@ -203,24 +224,145 @@ function BuyerDashboard() {
   if (loading) return (
     <div className="flex-center py-5" style={{ minHeight: '60vh' }}>
       <div className="spinner-agr"></div>
-      <span className="ms-3 text-muted">Opening Marketplace...</span>
+      <span className="ms-3 text-muted">Chargement du marché…</span>
     </div>
   );
 
   return (
     <div className="buyer-marketplace">
-      <div className="page-header">
-        <div>
-          <h1 className="page-title">Direct Marketplace</h1>
-          <p className="page-subtitle">Premium local produce sourced direct from certified farms.</p>
+
+      {/* ── HERO BANNER ─────────────────────────────── */}
+      <div className="buyer-hero-banner">
+        <div className="buyer-hero-deco">🌾🍅🥕🫒</div>
+        <div className="buyer-hero-content">
+          <div className="buyer-hero-text">
+            <div className="buyer-hero-tag">
+              <BadgeCheck size={14} /> Marché officiel AgriGov
+            </div>
+            <h1 className="buyer-hero-title">
+              Bienvenue sur votre espace acheteur
+            </h1>
+            <p className="buyer-hero-sub">
+              Parcourez des produits frais directement issus de fermes algériennes certifiées.
+              Comparez avec les prix officiels du Ministère.
+            </p>
+            <div className="buyer-hero-actions">
+              <button className="buyer-hero-btn-primary" onClick={() => navigate('/buyer/cart')}>
+                <ShoppingCart size={16} />
+                Mon panier {cartItemCount > 0 && `(${cartItemCount})`}
+              </button>
+              <button className="buyer-hero-btn-outline" onClick={() => navigate('/buyer-dashboard/orders')}>
+                <Clock size={16} />
+                Mes commandes
+              </button>
+            </div>
+          </div>
+          <div className="buyer-hero-badges">
+            <div className="buyer-hero-badge-item">
+              <ShieldCheck size={18} />
+              <span>Vendeurs vérifiés</span>
+            </div>
+            <div className="buyer-hero-badge-item">
+              <BarChart3 size={18} />
+              <span>Prix officiels visibles</span>
+            </div>
+            <div className="buyer-hero-badge-item">
+              <Sprout size={18} />
+              <span>Produits certifiés</span>
+            </div>
+          </div>
         </div>
-        <div className="page-actions">
-          <button className="btn-agr btn-primary me-2 fw-bold" onClick={() => navigate('/buyer/cart')}>
-            <ShoppingCart size={16} className="me-2" /> My Basket {cartItemCount > 0 && `(${cartItemCount})`}
+      </div>
+
+      {/* ── KPI CARDS ──────────────────────────────── */}
+      <div className="buyer-kpi-grid">
+        <div className="buyer-kpi-card">
+          <div className="buyer-kpi-icon" style={{ background: '#dbeafe', color: '#1d4ed8' }}>
+            <ShoppingCart size={20} />
+          </div>
+          <div>
+            <div className="buyer-kpi-value">{cartItemCount}</div>
+            <div className="buyer-kpi-label">Articles dans le panier</div>
+          </div>
+        </div>
+        <div className="buyer-kpi-card">
+          <div className="buyer-kpi-icon" style={{ background: '#dcfce7', color: '#16a34a' }}>
+            <Package size={20} />
+          </div>
+          <div>
+            <div className="buyer-kpi-value">{products.length}</div>
+            <div className="buyer-kpi-label">Produits disponibles</div>
+          </div>
+        </div>
+        <div className="buyer-kpi-card">
+          <div className="buyer-kpi-icon" style={{ background: '#fef3c7', color: '#d97706' }}>
+            <FileText size={20} />
+          </div>
+          <div>
+            <div className="buyer-kpi-value">—</div>
+            <div className="buyer-kpi-label">Commandes en attente</div>
+          </div>
+        </div>
+        <div className="buyer-kpi-card">
+          <div className="buyer-kpi-icon" style={{ background: '#f3e8ff', color: '#7c3aed' }}>
+            <Heart size={20} />
+          </div>
+          <div>
+            <div className="buyer-kpi-value">{products.filter(p => p.is_favorite).length}</div>
+            <div className="buyer-kpi-label">Produits favoris</div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── CATEGORY QUICK-ACCESS ──────────────────── */}
+      <div className="buyer-categories-row">
+        <button
+          className={`buyer-cat-pill ${activeCategory === 'All' ? 'buyer-cat-pill-active' : ''}`}
+          onClick={() => setActiveCategory('All')}
+        >
+          🛒 Tous les produits
+        </button>
+        {QUICK_CATEGORIES.map(c => (
+          <button
+            key={c.label}
+            className={`buyer-cat-pill ${activeCategory === c.label ? 'buyer-cat-pill-active' : ''}`}
+            style={activeCategory === c.label ? { background: c.bg, color: c.color, borderColor: c.color } : {}}
+            onClick={() => setActiveCategory(c.label)}
+          >
+            {c.emoji} {c.label}
           </button>
-          <button className="btn-agr btn-outline" onClick={() => navigate('/buyer-dashboard/orders')}>
-            <Clock size={16} className="me-2" /> My Orders
+        ))}
+        {categories.filter(c => c.name !== 'All' && !QUICK_CATEGORIES.find(q => q.label === c.name)).slice(0, 3).map(c => (
+          <button
+            key={c.id}
+            className={`buyer-cat-pill ${activeCategory === c.name ? 'buyer-cat-pill-active' : ''}`}
+            onClick={() => setActiveCategory(c.name)}
+          >
+            {c.name}
           </button>
+        ))}
+      </div>
+
+      {/* ── OFFICIAL PRICES MINI-PREVIEW ──────────── */}
+      <div className="buyer-prices-preview">
+        <div className="buyer-prices-preview-header">
+          <div className="d-flex align-items-center gap-2">
+            <Building2 size={16} style={{ color: '#7c3aed' }} />
+            <strong>Prix officiels du Ministère</strong>
+            <span className="buyer-prices-live-pill">Aujourd'hui</span>
+          </div>
+          <button className="buyer-prices-see-all" onClick={() => navigate('/buyer-dashboard/orders')}>
+            Voir tout <ChevronRight size={14} />
+          </button>
+        </div>
+        <div className="buyer-prices-preview-list">
+          {PRICE_PREVIEW.map((p, i) => (
+            <div key={i} className="buyer-prices-preview-item">
+              <PriceStatusDot status={p.status} />
+              <span className="buyer-prices-preview-name">{p.name}</span>
+              <span className="buyer-prices-preview-range">{p.range}</span>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -235,39 +377,32 @@ function BuyerDashboard() {
 
       <div className="mt-4">
         {/* Filters */}
-        <div className="agr-card p-3 mb-4 sticky-top-custom">
-          <div className="row g-3 align-items-center">
-            <div className="col-lg-5">
-              <div className="search-input-wrapper">
-                <Search size={18} className="search-icon" />
-                <input
-                  type="text"
-                  className="form-control-agr ps-5"
-                  placeholder="Search fresh produce..."
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="col-lg-7">
-              <select
-                className="form-control-agr form-select form-input w-100"
-                value={activeCategory}
-                onChange={e => setActiveCategory(e.target.value)}
-              >
-                {categories.map(cat => (
-                  <option key={cat.id} value={cat.name}>{cat.name}</option>
-                ))}
-              </select>
-            </div>
+        <div className="buyer-filter-bar mb-4 sticky-top-custom">
+          <div className="buyer-filter-search">
+            <Search size={18} className="text-muted" />
+            <input
+              type="text"
+              placeholder="Rechercher des produits frais..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
           </div>
+          <select
+            className="buyer-filter-select"
+            value={activeCategory}
+            onChange={e => setActiveCategory(e.target.value)}
+          >
+            {categories.map(cat => (
+              <option key={cat.id} value={cat.name}>{cat.name}</option>
+            ))}
+          </select>
         </div>
 
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <span className="text-muted small fw-medium">{filteredProducts.length} listings available</span>
+          <span className="text-muted small fw-medium">{filteredProducts.length} offres disponibles</span>
           <div className="d-flex gap-2">
-            <span className="very-small text-muted d-flex align-items-center"><CheckCircle size={10} className="me-1 text-success" />Verified Sellers</span>
-            <span className="very-small text-muted d-flex align-items-center"><ShieldCheck size={10} className="me-1 text-primary" />Quality Guaranteed</span>
+            <span className="very-small text-muted d-flex align-items-center"><CheckCircle size={10} className="me-1 text-success" />Agriculteurs Vérifiés</span>
+            <span className="very-small text-muted d-flex align-items-center"><ShieldCheck size={10} className="me-1 text-primary" />Qualité Garantie</span>
           </div>
         </div>
 
@@ -304,7 +439,7 @@ function BuyerDashboard() {
                 <div className="farmer-info mb-3 d-flex align-items-center justify-content-between">
                   <div className="d-flex align-items-center">
                     <div className="avatar-xs-circle me-2">{p.farm_name?.charAt(0)}</div>
-                    <span className="very-small text-muted">From <span className="fw-bold">{p.farm_name}</span></span>
+                    <span className="very-small text-muted">Par <span className="fw-bold">{p.farm_name}</span></span>
                   </div>
                   <VerifiedBadge role="farmer" isVerified={p.farmer_is_verified} trustLevel={p.farmer_trust_level} showLabel={false} />
                 </div>
@@ -315,7 +450,7 @@ function BuyerDashboard() {
                     onClick={() => addToCart(p.id)}
                     disabled={cartLoading || p.stock === 0}
                   >
-                    {p.stock === 0 ? <><XCircle size={16} className="me-1" />Sold Out</> : <><Plus size={16} className="me-1" />Add to Basket</>}
+                    {p.stock === 0 ? <><XCircle size={16} className="me-1" />Épuisé</> : <><Plus size={16} className="me-1" />Ajouter au Panier</>}
                   </button>
                   <button
                     className="btn-icon btn-sm"
@@ -331,9 +466,9 @@ function BuyerDashboard() {
           {filteredProducts.length === 0 && (
             <div className="agr-card p-5 text-center w-100">
               <Search size={48} className="text-muted mb-3 opacity-25" />
-              <h4 className="h5 text-muted">No products matched your search</h4>
-              <p className="small text-muted mb-0">Try different keywords or browse other categories.</p>
-              <button className="btn-agr btn-link mt-2" onClick={() => { setSearch(''); setActiveCategory('All'); }}>Clear filters</button>
+              <h4 className="h5 text-muted">Aucun produit ne correspond à votre recherche</h4>
+              <p className="small text-muted mb-0">Essayez d'autres mots-clés ou parcourez les autres catégories.</p>
+              <button className="btn-agr btn-link mt-2" onClick={() => { setSearch(''); setActiveCategory('All'); }}>Réinitialiser les filtres</button>
             </div>
           )}
         </div>

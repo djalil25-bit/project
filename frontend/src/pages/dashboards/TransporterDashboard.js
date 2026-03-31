@@ -20,9 +20,17 @@ import {
 } from 'lucide-react';
 import ProofOfDeliveryModal from '../../components/logistics/ProofOfDeliveryModal';
 
-const StatusBadge = ({ status }) => (
-  <span className={`status-badge status-${status}`}>{status.replace(/_/g, ' ')}</span>
-);
+const StatusBadge = ({ status }) => {
+  const map = {
+    open: { label: 'Disponible', cls: 'status-open' },
+    assigned: { label: 'Assigné', cls: 'status-assigned' },
+    picked_up: { label: 'Récupéré', cls: 'status-picked_up' },
+    in_transit: { label: 'En Transit', cls: 'status-in_transit' },
+    delivered: { label: 'Livré', cls: 'status-delivered' },
+  };
+  const { label, cls } = map[status] || { label: status, cls: '' };
+  return <span className={`status-badge ${cls}`}>{label}</span>;
+};
 
 function TransporterDashboard() {
   const navigate = useNavigate();
@@ -75,71 +83,83 @@ function TransporterDashboard() {
 
   if (loading) return (
     <div className="flex-center py-5" style={{ minHeight: '60vh' }}>
-      <div className="spinner-agr" /> <span className="ms-3 text-muted">Loading mission board...</span>
+      <div className="spinner-agr" /> <span className="ms-3 text-muted">Chargement du tableau de bord logistique...</span>
     </div>
   );
 
   return (
     <div className="transporter-dashboard">
-      <div className="page-header">
-        <div>
-          <h1 className="page-title">Logistics Control</h1>
-          <p className="page-subtitle">Manage missions, monitor routes, and track your performance.</p>
-        </div>
-        <div className="page-actions">
-           <button className="btn-agr btn-outline" onClick={() => setActiveTab('done')}>
-             <Clock size={16} className="me-2" /> History
-           </button>
+      {/* ── TRANSPORTER HERO ─────────────────────────── */}
+      <div className="transporter-hero-banner">
+        <div className="transporter-hero-deco">🚛🛣️</div>
+        <div className="transporter-hero-content">
+          <div className="transporter-hero-tag">
+            <Clock size={14} /> Mise à jour en temps réel
+          </div>
+          <h1 className="transporter-hero-title">
+            Contrôle Logistique
+          </h1>
+          <p className="transporter-hero-sub">
+            Gérez vos missions, surveillez vos itinéraires et suivez vos performances sur le réseau national.
+          </p>
         </div>
       </div>
 
       {stats && (
-        <div className="stats-grid mb-4">
-          <div className="stat-card">
-            <div className="stat-icon stat-icon-amber"><ClipboardList size={24} /></div>
+        <div className="buyer-kpi-grid mb-4">
+          <div className="buyer-kpi-card">
+            <div className="buyer-kpi-icon" style={{ background: '#fef3c7', color: '#d97706' }}>
+              <ClipboardList size={20} />
+            </div>
             <div>
-              <div className="stat-value">{stats.open_requests}</div>
-              <div className="stat-label">Available Missions</div>
+              <div className="buyer-kpi-value">{stats.open_requests}</div>
+              <div className="buyer-kpi-label">Missions disponibles</div>
             </div>
           </div>
-          <div className="stat-card">
-            <div className="stat-icon stat-icon-blue"><Truck size={24} /></div>
+          <div className="buyer-kpi-card">
+            <div className="buyer-kpi-icon" style={{ background: '#dbeafe', color: '#1d4ed8' }}>
+              <Truck size={20} />
+            </div>
             <div>
-              <div className="stat-value">{stats.my_active_missions}</div>
-              <div className="stat-label">Current Jobs</div>
+              <div className="buyer-kpi-value">{stats.my_active_missions}</div>
+              <div className="buyer-kpi-label">Trajets en cours</div>
             </div>
           </div>
-          <div className="stat-card">
-            <div className="stat-icon stat-icon-green"><CheckCircle size={24} /></div>
+          <div className="buyer-kpi-card">
+            <div className="buyer-kpi-icon" style={{ background: '#dcfce7', color: '#16a34a' }}>
+              <CheckCircle size={20} />
+            </div>
             <div>
-              <div className="stat-value">{stats.my_completed_missions}</div>
-              <div className="stat-label">Total Deliveries</div>
+              <div className="buyer-kpi-value">{stats.my_completed_missions}</div>
+              <div className="buyer-kpi-label">Livraisons effectuées</div>
             </div>
           </div>
-          <div className="stat-card">
-            <div className="stat-icon stat-icon-green"><DollarSign size={24} /></div>
+          <div className="buyer-kpi-card">
+            <div className="buyer-kpi-icon" style={{ background: '#ecfdf5', color: '#059669' }}>
+               <DollarSign size={20} />
+            </div>
             <div>
-              <div className="stat-value">{(stats.my_completed_missions * 1200)} <small className="very-small">DZD</small></div>
-              <div className="stat-label">Est. Revenue</div>
+              <div className="buyer-kpi-value">{(stats.my_completed_missions * 1200).toLocaleString()} <small className="very-small">DZD</small></div>
+              <div className="buyer-kpi-label">Revenus estimés</div>
             </div>
           </div>
         </div>
       )}
 
-      <div className="agr-card">
-        <div className="agr-card-header d-flex justify-content-between align-items-center">
-          <h3 className="agr-card-title">Delivery Mission Board</h3>
-          <div className="text-muted small fw-medium">Last updated: {new Date().toLocaleTimeString()}</div>
+      <div className="transporter-table-card">
+        <div className="farmer-table-header">
+          <h3 className="agr-card-title mb-0">Tableau des Missions</h3>
+          <div className="text-muted small fw-medium">Mis à jour: {new Date().toLocaleTimeString('fr-FR')}</div>
         </div>
         
         <div className="px-3 py-2 bg-light-soft border-bottom">
-          <div className="tab-pills m-0">
+          <div className="segmented-tabs-wrapper">
             {[
-              { key: 'open', label: `Public Market (${deliveries.filter(d => d.status === 'open').length})` }, 
-              { key: 'mine', label: 'My Assigned Jobs' }, 
-              { key: 'done', label: 'Completed Missions' }
+              { key: 'open', label: `Marché Public (${deliveries.filter(d => d.status === 'open').length})` }, 
+              { key: 'mine', label: 'Mes Missions' }, 
+              { key: 'done', label: 'Historique' }
             ].map(t => (
-              <button key={t.key} className={`tab-pill ${activeTab === t.key ? 'active' : ''}`} onClick={() => setActiveTab(t.key)}>
+              <button key={t.key} className={`segmented-tab ${activeTab === t.key ? 'active' : ''}`} onClick={() => setActiveTab(t.key)}>
                 {t.label}
               </button>
             ))}
@@ -150,10 +170,10 @@ function TransporterDashboard() {
           <table className="agr-table">
             <thead>
               <tr>
-                <th>Mission Ref</th>
-                <th>Origins & Destination</th>
-                <th>Order Details</th>
-                <th>Status</th>
+                <th>Réf. Mission</th>
+                <th>Itinéraire</th>
+                <th>Détails Commande</th>
+                <th>Statut</th>
                 <th style={{ textAlign: 'right' }}>Actions</th>
               </tr>
             </thead>
@@ -163,7 +183,7 @@ function TransporterDashboard() {
                   <td colSpan="5">
                     <div className="table-empty py-5">
                       <Package size={48} className="text-muted mb-3 opacity-25" />
-                      <div className="table-empty-text">No missions found in this category.</div>
+                      <div className="table-empty-text">Aucune mission trouvée dans cette catégorie.</div>
                     </div>
                   </td>
                 </tr>
@@ -177,75 +197,72 @@ function TransporterDashboard() {
                   </td>
                   <td>
                     <div className="d-flex flex-column gap-1">
-                      <div className="very-small d-flex align-items-center text-muted">
-                        <MapPin size={10} className="me-1 text-success" /> 
-                        <span className="fw-bold text-dark me-1">Pickup:</span> {d.pickup_location?.substring(0, 25) || `Farm #${d.order_detail?.items?.[0]?.farmer}`}...
+                      <div className="mission-origin">
+                        <MapPin size={12} /> {d.pickup_location?.substring(0, 25) || `Ferme #${d.order_detail?.items?.[0]?.farmer}`}...
                       </div>
-                      <div className="very-small d-flex align-items-center text-muted">
-                        <Navigation size={10} className="me-1 text-primary" /> 
-                        <span className="fw-bold text-dark me-1">Dropoff:</span> {d.delivery_location?.substring(0, 25) || d.order_detail?.delivery_address?.substring(0, 25)}...
+                      <div className="mission-dest">
+                        <Navigation size={12} /> {d.delivery_location?.substring(0, 25) || d.order_detail?.delivery_address?.substring(0, 25)}...
                       </div>
                       {d.vehicle_size && (
                         <div className="very-small d-flex align-items-center mt-1">
-                          <Truck size={10} className="me-1 text-warning" />
-                          <span className="badge bg-warning text-dark opacity-75 rounded-pill px-2 py-0" style={{fontSize: '0.65rem'}}>Req: {d.vehicle_size}</span>
+                          <span className="badge bg-warning text-dark opacity-75 rounded-pill px-2 py-0" style={{fontSize: '0.65rem'}}>Véhicule: {d.vehicle_size}</span>
                         </div>
                       )}
                     </div>
                   </td>
                   <td>
-                    <div className="small fw-bold">Order #{d.order}</div>
+                    <div className="small fw-bold">Commande #{d.order}</div>
                     <div className="text-muted very-small d-flex align-items-center mt-1">
-                      <Package size={10} className="me-1" /> {d.order_detail?.items?.length || 0} Products
+                      <Package size={10} className="me-1" /> {d.order_detail?.items?.length || 0} Produits
                     </div>
                     <button 
                       className="btn-agr btn-link btn-sm p-0 mt-1 text-primary d-flex align-items-center gap-1"
                       onClick={() => setViewingCargo(d)}
                       style={{ fontSize: '0.7rem', border: 'none', background: 'none' }}
                     >
-                      <ClipboardList size={12} /> View Cargo
+                      <ClipboardList size={12} /> Voir Cargo
                     </button>
                   </td>
                   <td><StatusBadge status={d.status} /></td>
                   <td style={{ textAlign: 'right' }}>
                     {d.status === 'open' && (
-                      <button
-                        className="btn-agr btn-primary btn-sm rounded-pill px-3 fw-bold"
-                        onClick={() => handleAccept(d.id)}
-                        disabled={actionLoading === d.id + '_accept'}
-                      >
-                        {actionLoading === d.id + '_accept' ? 'Processing...' : 'Accept Mission'}
-                      </button>
+                        <button
+                         className="btn-agr btn-primary btn-sm rounded-pill px-3 fw-bold"
+                         onClick={() => handleAccept(d.id)}
+                         disabled={actionLoading === d.id + '_accept'}
+                       >
+                         {actionLoading === d.id + '_accept' ? 'Traitement...' : 'Accepter Mission'}
+                       </button>
                     )}
                     {d.status === 'assigned' && (
-                      <button
-                        className="btn-agr btn-success btn-sm rounded-pill px-3 fw-bold"
-                        onClick={() => handleStatusUpdate(d.id, 'picked_up')}
-                      >
-                         Mark as Picked Up
-                      </button>
+                       <button
+                         className="btn-agr btn-success btn-sm rounded-pill px-3 fw-bold"
+                         onClick={() => handleStatusUpdate(d.id, 'picked_up')}
+                       >
+                          Marquer "Récupéré"
+                       </button>
                     )}
                     {d.status === 'picked_up' && (
-                      <button
-                        className="btn-agr btn-warning btn-sm rounded-pill px-3 fw-bold"
-                        onClick={() => handleStatusUpdate(d.id, 'in_transit')}
-                      >
-                         Start Transit
-                      </button>
+                       <button
+                         className="btn-agr btn-warning btn-sm rounded-pill px-3 fw-bold"
+                         onClick={() => handleStatusUpdate(d.id, 'in_transit')}
+                       >
+                          Démarrer Trajet
+                       </button>
                     )}
                     {d.status === 'in_transit' && (
-                      <button
-                        className="btn-agr btn-dark btn-sm rounded-pill px-3 fw-bold"
-                        onClick={() => setPodTarget(d)}
-                      >
-                         Confirm Delivery
-                      </button>
+                       <button
+                         className="btn-agr btn-dark btn-sm rounded-pill px-3 fw-bold"
+                         onClick={() => setPodTarget(d)}
+                       >
+                          Confirmer Livraison
+                       </button>
                     )}
                     {d.status === 'delivered' && (
-                      <div className="d-flex flex-column align-items-end">
-                        <div className="text-success fw-bold very-small d-flex align-items-center justify-content-end mb-1">
-                          <CheckCircle size={14} className="me-1" /> Job Finalized
-                        </div>
+                       <div className="d-flex flex-column align-items-end">
+                         <div className="text-success fw-bold very-small d-flex align-items-center justify-content-end mb-1">
+                           <CheckCircle size={14} className="me-1" /> Livraison Terminée
+                         </div>
                         {d.pod_completed_at && (
                           <div className="very-small text-muted bg-light-soft px-2 py-1 rounded border">
                             <div className="fw-bold">Signee: {d.pod_recipient_name}</div>
@@ -270,9 +287,9 @@ function TransporterDashboard() {
         <div className="modal-overlay" onClick={() => setViewingCargo(null)}>
           <div className="modal-content animate-slide-in" onClick={e => e.stopPropagation()} style={{ maxWidth: '600px' }}>
             <div className="modal-header border-bottom">
-              <h3 className="h6 mb-0 d-flex align-items-center gap-2">
+               <h3 className="h6 mb-0 d-flex align-items-center gap-2">
                 <Package size={18} className="text-primary" /> 
-                Cargo Breakdown - MIL-{viewingCargo.id.toString().padStart(4, '0')}
+                Détails du Cargo - MIL-{viewingCargo.id.toString().padStart(4, '0')}
               </h3>
               <button className="btn-icon" onClick={() => setViewingCargo(null)}><X size={18} /></button>
             </div>
@@ -282,14 +299,14 @@ function TransporterDashboard() {
                   <div className="col-12">
                     <div className="d-flex align-items-center gap-4">
                       <div>
-                        <div className="very-small text-muted text-uppercase fw-bold">Pickup From</div>
+                        <div className="very-small text-muted text-uppercase fw-bold">Origine</div>
                         <div className="small fw-bold d-flex align-items-center gap-1 mt-1">
                           <MapPin size={12} className="text-success" /> {viewingCargo.pickup_location}
                         </div>
                       </div>
                       <div className="text-muted">→</div>
                       <div>
-                        <div className="very-small text-muted text-uppercase fw-bold">Delivery To</div>
+                        <div className="very-small text-muted text-uppercase fw-bold">Destination</div>
                         <div className="small fw-bold d-flex align-items-center gap-1 mt-1">
                           <Navigation size={12} className="text-primary" /> {viewingCargo.delivery_location}
                         </div>
@@ -302,9 +319,9 @@ function TransporterDashboard() {
                 <table className="agr-table mb-0">
                   <thead>
                     <tr className="bg-light-soft">
-                      <th>Product / Cargo Item</th>
-                      <th className="text-end">Quantity</th>
-                      <th className="text-center">Quality</th>
+                      <th>Produit / Article</th>
+                      <th className="text-end">Quantité</th>
+                      <th className="text-center">Qualité</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -336,13 +353,13 @@ function TransporterDashboard() {
               </div>
               {viewingCargo.notes && (
                 <div className="p-3 bg-light-soft border-top">
-                  <div className="very-small text-muted text-uppercase fw-bold mb-1">Logistics Notes</div>
+                  <div className="very-small text-muted text-uppercase fw-bold mb-1">Notes Logistiques</div>
                   <div className="small text-muted italic">"{viewingCargo.notes}"</div>
                 </div>
               )}
             </div>
             <div className="modal-footer">
-               <button className="btn-agr btn-outline w-100" onClick={() => setViewingCargo(null)}>Dismiss Details</button>
+               <button className="btn-agr btn-outline w-100" onClick={() => setViewingCargo(null)}>Fermer</button>
             </div>
           </div>
         </div>
