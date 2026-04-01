@@ -1,33 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axiosConfig';
-import { 
-  Search, User, CheckCircle, XCircle, Info, 
+import {
+  Search, User, CheckCircle, XCircle, Info,
   ShieldCheck, ShoppingCart, Package, ChevronRight,
   AlertCircle, Clock, Plus, X, Wheat, Tag, BarChart2, Eye,
   BadgeCheck, Heart, BarChart3, Sprout, Building2, FileText
 } from 'lucide-react';
 import VerifiedBadge from '../../components/common/VerifiedBadge';
 
-/* ─── Category Quick-Access Data ─────────────────── */
+/* ─── Category Quick-Access ─────────────────────── */
 const QUICK_CATEGORIES = [
-  { label: 'Légumes', emoji: '🥦', bg: '#dcfce7', color: '#16a34a' },
-  { label: 'Fruits', emoji: '🍊', bg: '#fef3c7', color: '#d97706' },
-  { label: 'Céréales', emoji: '🌾', bg: '#fef9c3', color: '#ca8a04' },
-  { label: 'Bio', emoji: '🌿', bg: '#d1fae5', color: '#059669' },
-  { label: 'Saisonnier', emoji: '☀️', bg: '#ffedd5', color: '#ea580c' },
+  { label: 'Vegetables', icon: '🥦', bg: '#dcfce7', color: '#16a34a' },
+  { label: 'Fruits',     icon: '🍊', bg: '#fef3c7', color: '#d97706' },
+  { label: 'Grains',    icon: '🌾', bg: '#fef9c3', color: '#ca8a04' },
+  { label: 'Organic',   icon: '🌿', bg: '#d1fae5', color: '#059669' },
+  { label: 'Seasonal',  icon: '☀️', bg: '#ffedd5', color: '#ea580c' },
 ];
 
-/* ─── Official Prices Preview ─────────────────────── */
+/* ─── Ministry Reference Prices Preview ──────────── */
 const PRICE_PREVIEW = [
-  { name: 'Tomate ronde', range: '75–90 DZD/kg', status: 'normal' },
-  { name: 'Pomme de terre', range: '40–55 DZD/kg', status: 'optimal' },
-  { name: 'Carotte', range: '60–80 DZD/kg', status: 'normal' },
+  { name: 'Round Tomato',  range: '75–90 DZD/kg',  status: 'normal' },
+  { name: 'Potato',        range: '40–55 DZD/kg',  status: 'optimal' },
+  { name: 'Carrot',        range: '60–80 DZD/kg',  status: 'normal' },
 ];
 
 function PriceStatusDot({ status }) {
   const map = { optimal: '#16a34a', normal: '#2563eb', attention: '#d97706' };
-  return <span style={{ width: 8, height: 8, borderRadius: '50%', background: map[status] || map.normal, display: 'inline-block', marginRight: 6 }} />;
+  return <span style={{ width: 8, height: 8, borderRadius: '50%', background: map[status] || map.normal, display: 'inline-block', marginRight: 6, flexShrink: 0 }} />;
 }
 
 const PriceBadge = ({ comparison }) => {
@@ -42,22 +42,20 @@ const PriceBadge = ({ comparison }) => {
 const QualityBadge = ({ quality }) => {
   const q = quality?.toUpperCase() || 'MEDIUM';
   switch (q) {
-    case 'HIGH':   return <span className="quality-badge high"><ShieldCheck size={12} className="me-1" />High Quality</span>;
-    case 'MEDIUM': return <span className="quality-badge medium"><CheckCircle size={12} className="me-1" />Medium</span>;
-    case 'LOW':    return <span className="quality-badge low"><Info size={12} className="me-1" />Standard</span>;
+    case 'HIGH':   return <span className="quality-badge high"><ShieldCheck size={11} className="me-1" />Premium</span>;
+    case 'MEDIUM': return <span className="quality-badge medium"><CheckCircle size={11} className="me-1" />Standard</span>;
+    case 'LOW':    return <span className="quality-badge low"><Info size={11} className="me-1" />Basic</span>;
     default:       return null;
   }
 };
 
-/* ─── Product Detail Modal ─────────────────────────────── */
+/* ─── Product Detail Modal ─────────────────────── */
 function ProductDetailModal({ product, onClose, onAddToCart, cartLoading }) {
   if (!product) return null;
   const p = product;
-
   return (
     <div className="modal-overlay flex-center" onClick={onClose}>
       <div className="modal-content agr-card animate-scale-in" style={{ maxWidth: 640, width: '95%' }} onClick={e => e.stopPropagation()}>
-        {/* Header */}
         <div className="modal-header border-bottom p-4 d-flex justify-content-between align-items-start">
           <div>
             <div className="d-flex align-items-center gap-2 mb-1 flex-wrap">
@@ -69,20 +67,16 @@ function ProductDetailModal({ product, onClose, onAddToCart, cartLoading }) {
               <PriceBadge comparison={p.official_price_comparison} />
             </div>
           </div>
-          <button className="btn-icon ms-3" onClick={onClose}><X size={20} /></button>
+          <button className="btn-icon ms-3" onClick={onClose}><X size={18} /></button>
         </div>
-
-        {/* Body */}
         <div className="modal-body p-4">
           <div className="row g-4">
-            {/* Image */}
             <div className="col-md-5">
               <div className="product-modal-image rounded-lg overflow-hidden bg-light-soft d-flex align-items-center justify-content-center" style={{ height: 200 }}>
-                {p.image ? (
-                  <img src={p.image} alt={p.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                ) : (
-                  <Package size={56} className="text-muted opacity-30" />
-                )}
+                {p.image
+                  ? <img src={p.image} alt={p.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  : <Package size={56} className="text-muted opacity-30" />
+                }
               </div>
               <div className="mt-3">
                 <div className="d-flex align-items-baseline gap-1">
@@ -96,20 +90,18 @@ function ProductDetailModal({ product, onClose, onAddToCart, cartLoading }) {
                 )}
               </div>
             </div>
-
-            {/* Details */}
             <div className="col-md-7">
               <div className="detail-grid">
                 {[
-                  { icon: <User size={14} />, label: 'Farmer', value: (
-                    <div className="d-flex align-items-center gap-2">
+                  { icon: <User size={13} />, label: 'Farmer', value: (
+                    <div className="d-flex align-items-center gap-1">
                       {p.farmer_name}
                       <VerifiedBadge role="farmer" isVerified={p.farmer_is_verified} trustLevel={p.farmer_trust_level} showLabel={false} />
                     </div>
-                  ) },
-                  { icon: <Wheat size={14} />, label: 'Farm', value: p.farm_name },
-                  { icon: <Tag size={14} />, label: 'Category', value: p.category_name },
-                  { icon: <BarChart2 size={14} />, label: 'Available Stock', value: `${parseFloat(p.stock || 0).toLocaleString()} ${p.unit}` },
+                  )},
+                  { icon: <Wheat size={13} />, label: 'Farm', value: p.farm_name },
+                  { icon: <Tag size={13} />, label: 'Category', value: p.category_name },
+                  { icon: <BarChart2 size={13} />, label: 'Available Stock', value: `${parseFloat(p.stock || 0).toLocaleString()} ${p.unit}` },
                 ].filter(d => d.value).map((d, i) => (
                   <div key={i} className="detail-item">
                     <span className="detail-icon text-primary">{d.icon}</span>
@@ -120,7 +112,6 @@ function ProductDetailModal({ product, onClose, onAddToCart, cartLoading }) {
                   </div>
                 ))}
               </div>
-
               {p.description && (
                 <div className="mt-3 p-3 bg-light-soft rounded-lg">
                   <div className="very-small text-muted text-uppercase fw-bold mb-1">Description</div>
@@ -130,8 +121,6 @@ function ProductDetailModal({ product, onClose, onAddToCart, cartLoading }) {
             </div>
           </div>
         </div>
-
-        {/* Footer */}
         <div className="modal-footer border-top p-4">
           <button className="btn-agr btn-outline flex-fill" onClick={onClose}>Close</button>
           <button
@@ -147,7 +136,7 @@ function ProductDetailModal({ product, onClose, onAddToCart, cartLoading }) {
   );
 }
 
-/* ─── Main Buyer Dashboard ─────────────────────────────── */
+/* ─── Main Buyer Dashboard ─────────────────────── */
 function BuyerDashboard() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
@@ -202,11 +191,10 @@ function BuyerDashboard() {
         await api.post('/favorites/', { product: p.id });
         showMsg('success', 'Added to favorites!');
       }
-      // Update local state for immediate feedback
-      setProducts(products.map(item => 
+      setProducts(products.map(item =>
         item.id === p.id ? { ...item, is_favorite: !isFav } : item
       ));
-    } catch (err) {
+    } catch {
       showMsg('danger', 'Failed to update wishlist.');
     }
   };
@@ -222,14 +210,14 @@ function BuyerDashboard() {
   });
 
   if (loading) return (
-    <div className="flex-center py-5" style={{ minHeight: '60vh' }}>
-      <div className="spinner-agr"></div>
-      <span className="ms-3 text-muted">Chargement du marché…</span>
+    <div className="flex-center py-5" style={{ minHeight: '60vh', gap: '0.75rem' }}>
+      <div className="spinner-agr" />
+      <span className="text-muted">Loading marketplace...</span>
     </div>
   );
 
   return (
-    <div className="buyer-marketplace">
+    <div className="buyer-marketplace animate-fade-in">
 
       {/* ── HERO BANNER ─────────────────────────────── */}
       <div className="buyer-hero-banner">
@@ -237,38 +225,38 @@ function BuyerDashboard() {
         <div className="buyer-hero-content">
           <div className="buyer-hero-text">
             <div className="buyer-hero-tag">
-              <BadgeCheck size={14} /> Marché officiel AgriGov
+              <BadgeCheck size={13} /> AgriGov Market — Official Marketplace
             </div>
             <h1 className="buyer-hero-title">
-              Bienvenue sur votre espace acheteur
+              Welcome to your Buyer Space
             </h1>
             <p className="buyer-hero-sub">
-              Parcourez des produits frais directement issus de fermes algériennes certifiées.
-              Comparez avec les prix officiels du Ministère.
+              Browse fresh produce directly from certified Algerian farms.
+              Compare prices against official Ministry benchmarks.
             </p>
             <div className="buyer-hero-actions">
               <button className="buyer-hero-btn-primary" onClick={() => navigate('/buyer/cart')}>
-                <ShoppingCart size={16} />
-                Mon panier {cartItemCount > 0 && `(${cartItemCount})`}
+                <ShoppingCart size={15} />
+                My Basket {cartItemCount > 0 && `(${cartItemCount})`}
               </button>
               <button className="buyer-hero-btn-outline" onClick={() => navigate('/buyer-dashboard/orders')}>
-                <Clock size={16} />
-                Mes commandes
+                <Clock size={15} />
+                My Orders
               </button>
             </div>
           </div>
           <div className="buyer-hero-badges">
             <div className="buyer-hero-badge-item">
-              <ShieldCheck size={18} />
-              <span>Vendeurs vérifiés</span>
+              <ShieldCheck size={16} />
+              <span>Verified Sellers</span>
             </div>
             <div className="buyer-hero-badge-item">
-              <BarChart3 size={18} />
-              <span>Prix officiels visibles</span>
+              <BarChart3 size={16} />
+              <span>Official Prices Visible</span>
             </div>
             <div className="buyer-hero-badge-item">
-              <Sprout size={18} />
-              <span>Produits certifiés</span>
+              <Sprout size={16} />
+              <span>Certified Products</span>
             </div>
           </div>
         </div>
@@ -276,40 +264,40 @@ function BuyerDashboard() {
 
       {/* ── KPI CARDS ──────────────────────────────── */}
       <div className="buyer-kpi-grid">
-        <div className="buyer-kpi-card">
+        <div className="buyer-kpi-card stagger-1 animate-fade-up">
           <div className="buyer-kpi-icon" style={{ background: '#dbeafe', color: '#1d4ed8' }}>
             <ShoppingCart size={20} />
           </div>
           <div>
             <div className="buyer-kpi-value">{cartItemCount}</div>
-            <div className="buyer-kpi-label">Articles dans le panier</div>
+            <div className="buyer-kpi-label">Cart Items</div>
           </div>
         </div>
-        <div className="buyer-kpi-card">
+        <div className="buyer-kpi-card stagger-2 animate-fade-up">
           <div className="buyer-kpi-icon" style={{ background: '#dcfce7', color: '#16a34a' }}>
             <Package size={20} />
           </div>
           <div>
             <div className="buyer-kpi-value">{products.length}</div>
-            <div className="buyer-kpi-label">Produits disponibles</div>
+            <div className="buyer-kpi-label">Available Products</div>
           </div>
         </div>
-        <div className="buyer-kpi-card">
+        <div className="buyer-kpi-card stagger-3 animate-fade-up">
           <div className="buyer-kpi-icon" style={{ background: '#fef3c7', color: '#d97706' }}>
             <FileText size={20} />
           </div>
           <div>
             <div className="buyer-kpi-value">—</div>
-            <div className="buyer-kpi-label">Commandes en attente</div>
+            <div className="buyer-kpi-label">Pending Orders</div>
           </div>
         </div>
-        <div className="buyer-kpi-card">
+        <div className="buyer-kpi-card stagger-4 animate-fade-up">
           <div className="buyer-kpi-icon" style={{ background: '#f3e8ff', color: '#7c3aed' }}>
             <Heart size={20} />
           </div>
           <div>
             <div className="buyer-kpi-value">{products.filter(p => p.is_favorite).length}</div>
-            <div className="buyer-kpi-label">Produits favoris</div>
+            <div className="buyer-kpi-label">Wishlist Items</div>
           </div>
         </div>
       </div>
@@ -320,7 +308,7 @@ function BuyerDashboard() {
           className={`buyer-cat-pill ${activeCategory === 'All' ? 'buyer-cat-pill-active' : ''}`}
           onClick={() => setActiveCategory('All')}
         >
-          🛒 Tous les produits
+          🛒 All Products
         </button>
         {QUICK_CATEGORIES.map(c => (
           <button
@@ -329,7 +317,7 @@ function BuyerDashboard() {
             style={activeCategory === c.label ? { background: c.bg, color: c.color, borderColor: c.color } : {}}
             onClick={() => setActiveCategory(c.label)}
           >
-            {c.emoji} {c.label}
+            {c.icon} {c.label}
           </button>
         ))}
         {categories.filter(c => c.name !== 'All' && !QUICK_CATEGORIES.find(q => q.label === c.name)).slice(0, 3).map(c => (
@@ -343,16 +331,16 @@ function BuyerDashboard() {
         ))}
       </div>
 
-      {/* ── OFFICIAL PRICES MINI-PREVIEW ──────────── */}
+      {/* ── OFFICIAL PRICES PREVIEW ────────────────── */}
       <div className="buyer-prices-preview">
         <div className="buyer-prices-preview-header">
           <div className="d-flex align-items-center gap-2">
-            <Building2 size={16} style={{ color: '#7c3aed' }} />
-            <strong>Prix officiels du Ministère</strong>
-            <span className="buyer-prices-live-pill">Aujourd'hui</span>
+            <Building2 size={15} style={{ color: '#7c3aed' }} />
+            <strong>Ministry Reference Prices</strong>
+            <span className="buyer-prices-live-pill">Today</span>
           </div>
           <button className="buyer-prices-see-all" onClick={() => navigate('/buyer-dashboard/orders')}>
-            Voir tout <ChevronRight size={14} />
+            View All <ChevronRight size={13} />
           </button>
         </div>
         <div className="buyer-prices-preview-list">
@@ -367,22 +355,20 @@ function BuyerDashboard() {
       </div>
 
       {message && (
-        <div className={`alert-agr alert-agr-${message.type} animate-slide-in mb-4`}>
-          <div className="d-flex align-items-center">
-            {message.type === 'success' ? <CheckCircle size={18} className="me-2" /> : <AlertCircle size={18} className="me-2" />}
-            <span>{message.text}</span>
-          </div>
+        <div className={`alert-agr alert-agr-${message.type} animate-fade-up mb-4 d-flex align-items-center gap-2`}>
+          {message.type === 'success' ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
+          <span>{message.text}</span>
         </div>
       )}
 
-      <div className="mt-4">
-        {/* Filters */}
+      {/* ── FILTER BAR + PRODUCT GRID ──────────────── */}
+      <div className="mt-2">
         <div className="buyer-filter-bar mb-4 sticky-top-custom">
           <div className="buyer-filter-search">
-            <Search size={18} className="text-muted" />
+            <Search size={16} className="text-muted" />
             <input
               type="text"
-              placeholder="Rechercher des produits frais..."
+              placeholder="Search fresh products..."
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
@@ -399,29 +385,28 @@ function BuyerDashboard() {
         </div>
 
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <span className="text-muted small fw-medium">{filteredProducts.length} offres disponibles</span>
+          <span className="text-muted small fw-medium">{filteredProducts.length} products available</span>
           <div className="d-flex gap-2">
-            <span className="very-small text-muted d-flex align-items-center"><CheckCircle size={10} className="me-1 text-success" />Agriculteurs Vérifiés</span>
-            <span className="very-small text-muted d-flex align-items-center"><ShieldCheck size={10} className="me-1 text-primary" />Qualité Garantie</span>
+            <span className="very-small text-muted d-flex align-items-center gap-1"><CheckCircle size={10} className="text-success" />Verified Farmers</span>
+            <span className="very-small text-muted d-flex align-items-center gap-1"><ShieldCheck size={10} className="text-primary" />Certified Quality</span>
           </div>
         </div>
 
         <div className="product-grid">
           {filteredProducts.map(p => (
-            <div key={p.id} className="product-card-premium">
+            <div key={p.id} className="product-card-premium animate-fade-up">
               <div className="product-card-image">
-                {p.image ? (
-                  <img src={p.image} alt={p.title} />
-                ) : (
-                  <div className="placeholder-image"><Package size={32} /></div>
-                )}
+                {p.image
+                  ? <img src={p.image} alt={p.title} />
+                  : <div className="placeholder-image"><Package size={32} /></div>
+                }
                 <QualityBadge quality={p.quality} />
-                <button 
+                <button
                   className={`fav-btn-floating ${p.is_favorite ? 'active' : ''}`}
-                  onClick={(e) => { e.stopPropagation(); toggleFavorite(p); }}
+                  onClick={e => { e.stopPropagation(); toggleFavorite(p); }}
                   title={p.is_favorite ? 'Remove from favorites' : 'Add to favorites'}
                 >
-                  <Heart size={18} fill={p.is_favorite ? '#ef4444' : 'none'} className={p.is_favorite ? 'text-danger' : ''} />
+                  <Heart size={16} fill={p.is_favorite ? '#ef4444' : 'none'} className={p.is_favorite ? 'text-danger' : ''} />
                 </button>
               </div>
               <div className="product-card-body">
@@ -431,33 +416,33 @@ function BuyerDashboard() {
                 </div>
 
                 <div className="product-price-row mb-2">
-                  <span className="price">{p.price} DZD</span>
-                  <span className="unit">/{p.unit}</span>
+                  <span className="price">{p.price}</span>
+                  <span className="unit">DZD / {p.unit}</span>
                   <PriceBadge comparison={p.official_price_comparison} />
                 </div>
 
                 <div className="farmer-info mb-3 d-flex align-items-center justify-content-between">
-                  <div className="d-flex align-items-center">
-                    <div className="avatar-xs-circle me-2">{p.farm_name?.charAt(0)}</div>
-                    <span className="very-small text-muted">Par <span className="fw-bold">{p.farm_name}</span></span>
+                  <div className="d-flex align-items-center gap-1">
+                    <div className="avatar-xs-circle">{p.farm_name?.charAt(0)}</div>
+                    <span className="very-small text-muted">By <span className="fw-bold">{p.farm_name}</span></span>
                   </div>
                   <VerifiedBadge role="farmer" isVerified={p.farmer_is_verified} trustLevel={p.farmer_trust_level} showLabel={false} />
                 </div>
 
-                <div className="product-actions mt-auto d-flex gap-2">
+                <div className="product-actions">
                   <button
                     className="btn-agr btn-primary flex-fill btn-sm fw-bold"
                     onClick={() => addToCart(p.id)}
                     disabled={cartLoading || p.stock === 0}
                   >
-                    {p.stock === 0 ? <><XCircle size={16} className="me-1" />Épuisé</> : <><Plus size={16} className="me-1" />Ajouter au Panier</>}
+                    {p.stock === 0 ? <><XCircle size={14} /> Sold Out</> : <><Plus size={14} /> Add to Basket</>}
                   </button>
                   <button
                     className="btn-icon btn-sm"
                     title="Quick View"
                     onClick={() => setSelectedProduct(p)}
                   >
-                    <Eye size={18} />
+                    <Eye size={16} />
                   </button>
                 </div>
               </div>
@@ -465,16 +450,17 @@ function BuyerDashboard() {
           ))}
           {filteredProducts.length === 0 && (
             <div className="agr-card p-5 text-center w-100">
-              <Search size={48} className="text-muted mb-3 opacity-25" />
-              <h4 className="h5 text-muted">Aucun produit ne correspond à votre recherche</h4>
-              <p className="small text-muted mb-0">Essayez d'autres mots-clés ou parcourez les autres catégories.</p>
-              <button className="btn-agr btn-link mt-2" onClick={() => { setSearch(''); setActiveCategory('All'); }}>Réinitialiser les filtres</button>
+              <Search size={44} className="text-muted mb-3 opacity-25" />
+              <h4 className="h6 text-muted">No products match your search</h4>
+              <p className="small text-muted mb-3">Try different keywords or browse other categories.</p>
+              <button className="btn-agr btn-outline btn-sm" onClick={() => { setSearch(''); setActiveCategory('All'); }}>
+                Reset Filters
+              </button>
             </div>
           )}
         </div>
       </div>
 
-      {/* Product Detail Modal */}
       {selectedProduct && (
         <ProductDetailModal
           product={selectedProduct}

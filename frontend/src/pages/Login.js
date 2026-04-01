@@ -22,7 +22,7 @@ const Login = () => {
       const result = await login(formData.email, formData.password);
       if (!result.success) setError(result.message);
     } catch {
-      setError('Une erreur inattendue s\'est produite. Veuillez réessayer.');
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -41,44 +41,43 @@ const Login = () => {
           <div className="auth-left-body">
             <div className="auth-ministry-tag">
               <Building2 size={14} />
-              Ministère de l'Agriculture
+              Ministry of Agriculture
             </div>
             <h2 className="auth-left-headline">
-              La place de marché agricole officielle d'Algérie
+              Algeria's Official Agricultural Marketplace
             </h2>
             <p className="auth-left-lead">
-              Connectez-vous pour accéder à votre espace personnel, consulter les prix 
-              officiels et gérer vos activités agricoles.
+              Sign in to access your personal workspace, view official Ministry prices, and manage your agricultural activities.
             </p>
             <ul className="auth-features-list">
               <li>
                 <div className="auth-feature-icon-box">
                   <BarChart3 size={18} />
                 </div>
-                <span>Prix officiels de référence publiés par le Ministère</span>
+                <span>Official reference prices published by the Ministry</span>
               </li>
               <li>
                 <div className="auth-feature-icon-box">
                   <ShieldCheck size={18} />
                 </div>
-                <span>Réseau d'utilisateurs vérifiés et approuvés</span>
+                <span>Verified and approved user network</span>
               </li>
               <li>
                 <div className="auth-feature-icon-box">
                   <Truck size={18} />
                 </div>
-                <span>Logistique intégrée sur toutes les wilayas</span>
+                <span>Integrated logistics across all wilayas</span>
               </li>
             </ul>
             <div className="auth-trust-stats">
               <div className="auth-trust-stat">
                 <span className="auth-trust-val">2800+</span>
-                <span className="auth-trust-lbl">Agriculteurs</span>
+                <span className="auth-trust-lbl">Farmers</span>
               </div>
               <div className="auth-trust-sep"></div>
               <div className="auth-trust-stat">
                 <span className="auth-trust-val">14k+</span>
-                <span className="auth-trust-lbl">Acheteurs</span>
+                <span className="auth-trust-lbl">Buyers</span>
               </div>
               <div className="auth-trust-sep"></div>
               <div className="auth-trust-stat">
@@ -89,7 +88,7 @@ const Login = () => {
           </div>
           <div className="auth-left-footer">
             <CheckCircle size={14} />
-            Plateforme certifiée conforme — Données officiellement validées
+            Certified compliant platform — Officially validated data
           </div>
         </div>
       </div>
@@ -98,7 +97,7 @@ const Login = () => {
       <div className="auth-right-panel auth-right-clean">
         <div className="auth-form-wrapper">
           <Link to="/" className="auth-back-link">
-            <ArrowLeft size={16} /> Retour à l'accueil
+            <ArrowLeft size={16} /> Back to Home
           </Link>
 
           <div className="auth-form-card">
@@ -107,14 +106,14 @@ const Login = () => {
               <div className="auth-form-icon">
                 <Leaf size={22} />
               </div>
-              <h1 className="auth-form-title">Bienvenue</h1>
-              <p className="auth-form-subtitle">Connectez-vous à votre espace AgriGov Market</p>
+              <h1 className="auth-form-title">Welcome back</h1>
+              <p className="auth-form-subtitle">Sign in to your AgriGov Market account</p>
             </div>
 
             {/* Tabs */}
             <div className="auth-tabs">
-              <Link to="/login" className="auth-tab auth-tab-active">Connexion</Link>
-              <Link to="/register" className="auth-tab">Créer un compte</Link>
+              <Link to="/login" className="auth-tab auth-tab-active">Sign In</Link>
+              <Link to="/register" className="auth-tab">Create Account</Link>
             </div>
 
             {/* Error */}
@@ -128,11 +127,11 @@ const Login = () => {
             {/* Form */}
             <form onSubmit={handleSubmit} className="auth-form-body">
               <div className="auth-field">
-                <label className="auth-label">Adresse e-mail</label>
+                <label className="auth-label">Email address</label>
                 <input
                   type="email"
                   className="auth-input"
-                  placeholder="exemple@domaine.com"
+                  placeholder="you@example.com"
                   required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -141,8 +140,8 @@ const Login = () => {
 
               <div className="auth-field">
                 <div className="auth-label-row">
-                  <label className="auth-label">Mot de passe</label>
-                  <Link to="/contact" className="auth-forgot">Mot de passe oublié ?</Link>
+                  <label className="auth-label">Password</label>
+                  <Link to="/contact" className="auth-forgot">Forgot password?</Link>
                 </div>
                 <div className="auth-input-wrapper">
                   <input
@@ -171,7 +170,7 @@ const Login = () => {
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
                   />
-                  <span>Se souvenir de moi</span>
+                  <span>Remember me</span>
                 </label>
               </div>
 
@@ -181,21 +180,21 @@ const Login = () => {
                 disabled={loading}
               >
                 {loading ? (
-                  <><span className="auth-spinner"></span> Connexion en cours…</>
+                  <><span className="auth-spinner"></span> Signing in…</>
                 ) : (
-                  <>Se connecter <ChevronRight size={18} /></>
+                  <>Sign In <ChevronRight size={18} /></>
                 )}
               </button>
             </form>
 
             <p className="auth-switch-text">
-              Pas encore de compte ?{' '}
-              <Link to="/register">Créer un compte</Link>
+              Don't have an account?{' '}
+              <Link to="/register">Create one</Link>
             </p>
 
             <div className="auth-form-trust">
               <ShieldCheck size={13} />
-              Accès sécurisé — Supervisé par le Ministère de l'Agriculture
+              Secure access — Supervised by the Ministry of Agriculture
             </div>
           </div>
         </div>

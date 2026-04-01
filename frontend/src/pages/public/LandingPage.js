@@ -10,108 +10,108 @@ import {
 
 /* ─── Static Data ─────────────────────────────────── */
 const PRODUCTS = [
-  { id: 1, name: 'Tomates Fraîches', category: 'Légumes', price: '80', unit: 'kg', badge: 'Saisonnier', emoji: '🍅', color: '#fee2e2', accent: '#ef4444' },
-  { id: 2, name: 'Carottes Bio', category: 'Légumes', price: '55', unit: 'kg', badge: 'Bio', emoji: '🥕', color: '#ffedd5', accent: '#f97316' },
-  { id: 3, name: 'Pommes de Terre', category: 'Tubercules', price: '45', unit: 'kg', badge: 'Local', emoji: '🥔', color: '#fef3c7', accent: '#d97706' },
-  { id: 4, name: 'Blé Dur', category: 'Céréales', price: '35', unit: 'kg', badge: 'Premium', emoji: '🌾', color: '#fef9c3', accent: '#ca8a04' },
-  { id: 5, name: 'Dattes Deglet', category: 'Fruits Secs', price: '320', unit: 'kg', badge: 'Export', emoji: '🌴', color: '#f0fdf4', accent: '#16a34a' },
-  { id: 6, name: 'Oranges Blida', category: 'Fruits', price: '90', unit: 'kg', badge: 'Saisonnier', emoji: '🍊', color: '#fff7ed', accent: '#ea580c' },
-  { id: 7, name: 'Olives Sigoise', category: 'Oléiculture', price: '150', unit: 'kg', badge: 'AOC', emoji: '🫒', color: '#f0fdf4', accent: '#15803d' },
-  { id: 8, name: 'Poivrons Rouges', category: 'Légumes', price: '120', unit: 'kg', badge: 'Frais', emoji: '🫑', color: '#ecfdf5', accent: '#059669' },
+  { id: 1, name: 'Fresh Tomatoes', category: 'Vegetables', price: '80', unit: 'kg', badge: 'Seasonal', emoji: '🍅', color: '#fee2e2', accent: '#ef4444' },
+  { id: 2, name: 'Organic Carrots', category: 'Vegetables', price: '55', unit: 'kg', badge: 'Organic', emoji: '🥕', color: '#ffedd5', accent: '#f97316' },
+  { id: 3, name: 'Potatoes', category: 'Tubers', price: '45', unit: 'kg', badge: 'Local', emoji: '🥔', color: '#fef3c7', accent: '#d97706' },
+  { id: 4, name: 'Durum Wheat', category: 'Cereals', price: '35', unit: 'kg', badge: 'Premium', emoji: '🌾', color: '#fef9c3', accent: '#ca8a04' },
+  { id: 5, name: 'Deglet Nour Dates', category: 'Dried Fruits', price: '320', unit: 'kg', badge: 'Export', emoji: '🌴', color: '#f0fdf4', accent: '#16a34a' },
+  { id: 6, name: 'Blida Oranges', category: 'Fruits', price: '90', unit: 'kg', badge: 'Seasonal', emoji: '🍊', color: '#fff7ed', accent: '#ea580c' },
+  { id: 7, name: 'Sig Olives', category: 'Olive Cultivation', price: '150', unit: 'kg', badge: 'PDO', emoji: '🫒', color: '#f0fdf4', accent: '#15803d' },
+  { id: 8, name: 'Red Peppers', category: 'Vegetables', price: '120', unit: 'kg', badge: 'Fresh', emoji: '🫑', color: '#ecfdf5', accent: '#059669' },
 ];
 
 const FEATURES = [
-  { icon: <BarChart3 size={28} />, title: 'Prix officiels de référence', desc: 'Le Ministère publie des fourchettes de prix officiels pour garantir équité et transparence sur tous les produits agricoles.', color: '#e8f5e9', iconColor: '#2e7d32' },
-  { icon: <Sprout size={28} />, title: 'Vente directe producteur', desc: 'Achetez directement auprès des agriculteurs certifiés. Éliminez les intermédiaires pour des prix justes et une meilleure qualité.', color: '#e3f2fd', iconColor: '#1565c0' },
-  { icon: <Truck size={28} />, title: 'Livraison coordonnée', desc: 'Un réseau de transporteurs vérifiés couvre toutes les wilayas d\'Algérie pour des livraisons ponctuelles et sécurisées.', color: '#fff3e0', iconColor: '#e65100' },
-  { icon: <ShieldCheck size={28} />, title: 'Supervision du Ministère', desc: 'Chaque utilisateur est validé manuellement. La plateforme est placée sous la tutelle officielle du Ministère de l\'Agriculture.', color: '#f3e5f5', iconColor: '#6a1b9a' },
+  { icon: <BarChart3 size={28} />, title: 'Official Reference Prices', desc: 'The Ministry publishes official price ranges to ensure fairness and transparency for all agricultural products.', color: '#e8f5e9', iconColor: '#2e7d32' },
+  { icon: <Sprout size={28} />, title: 'Direct Producer Sales', desc: 'Buy directly from certified farmers. Eliminate middlemen for fair prices and better quality.', color: '#e3f2fd', iconColor: '#1565c0' },
+  { icon: <Truck size={28} />, title: 'Coordinated Delivery', desc: 'A network of verified transporters covers all wilayas of Algeria for punctual and secure deliveries.', color: '#fff3e0', iconColor: '#e65100' },
+  { icon: <ShieldCheck size={28} />, title: 'Ministry Supervision', desc: 'Each user is manually validated. The platform is under the official supervision of the Ministry of Agriculture.', color: '#f3e5f5', iconColor: '#6a1b9a' },
 ];
 
 const ROLES = [
   {
-    role: 'Agriculteur',
+    role: 'Farmer',
     icon: <Sprout size={32} />,
     color: '#f0fdf4',
     border: '#bbf7d0',
     iconBg: '#dcfce7',
     iconColor: '#16a34a',
-    badge: 'Producteurs',
+    badge: 'Producers',
     badgeColor: '#16a34a',
     actions: [
-      'Publiez vos produits depuis un catalogue officiel',
-      'Accédez aux prix de référence du Ministère',
-      'Gérez vos récoltes et analysez vos ventes',
-      'Demandez une livraison en un clic',
-      'Suivez vos commandes en temps réel',
+      'Publish your products to an official catalog',
+      'Access Ministry reference prices',
+      'Manage harvests and analyze sales',
+      'Request delivery in one click',
+      'Track your orders in real time',
     ]
   },
   {
-    role: 'Acheteur',
+    role: 'Buyer',
     icon: <ShoppingBag size={32} />,
     color: '#eff6ff',
     border: '#bfdbfe',
     iconBg: '#dbeafe',
     iconColor: '#1d4ed8',
-    badge: 'Acheteurs',
+    badge: 'Buyers',
     badgeColor: '#1d4ed8',
     actions: [
-      'Parcourez des produits de fermes certifiées',
-      'Comparez les prix avec les tarifs officiels',
-      'Passez commande avec suivi intégré',
-      'Recevez vos factures automatiquement',
-      'Gérez vos favoris et votre historique',
+      'Browse products from certified farms',
+      'Compare prices with official rates',
+      'Place orders with integrated tracking',
+      'Receive your invoices automatically',
+      'Manage favorites and order history',
     ]
   },
   {
-    role: 'Transporteur',
+    role: 'Transporter',
     icon: <Truck size={32} />,
     color: '#fffbeb',
     border: '#fde68a',
     iconBg: '#fef3c7',
     iconColor: '#d97706',
-    badge: 'Logistique',
+    badge: 'Logistics',
     badgeColor: '#d97706',
     actions: [
-      'Acceptez des missions de livraison validées',
-      'Gérez vos zones de couverture et véhicules',
-      'Suivez vos missions et revenus logistiques',
-      'Collaborez avec agriculteurs et acheteurs',
-      'Simplifiez votre gestion administrative',
+      'Accept validated delivery missions',
+      'Manage your coverage zones and vehicles',
+      'Track missions and logistics revenue',
+      'Collaborate with farmers and buyers',
+      'Simplify your administrative management',
     ]
   },
   {
-    role: 'Administrateur',
+    role: 'Administrator',
     icon: <Building2 size={32} />,
     color: '#fdf4ff',
     border: '#e9d5ff',
     iconBg: '#f3e8ff',
     iconColor: '#7c3aed',
-    badge: 'Ministère',
+    badge: 'Ministry',
     badgeColor: '#7c3aed',
     actions: [
-      'Supervisez l\'ensemble de la plateforme',
-      'Validez les comptes utilisateurs',
-      'Publiez les prix officiels de référence',
-      'Gérez le catalogue produits national',
-      'Analysez les données du marché agricole',
+      'Supervise the entire platform',
+      'Approve and validate user accounts',
+      'Publish official reference prices',
+      'Manage the national product catalog',
+      'Analyze agricultural market data',
     ]
   }
 ];
 
 const STATS = [
-  { value: '2 800+', label: 'Producteurs actifs', icon: <Sprout size={22} />, color: '#dcfce7', iconColor: '#16a34a' },
-  { value: '14 000+', label: 'Acheteurs vérifiés', icon: <Users size={22} />, color: '#dbeafe', iconColor: '#1d4ed8' },
-  { value: '980+', label: 'Missions logistiques', icon: <Truck size={22} />, color: '#fef3c7', iconColor: '#d97706' },
-  { value: '42 000+', label: 'Produits publiés', icon: <Package size={22} />, color: '#f3e8ff', iconColor: '#7c3aed' },
+  { value: '2,800+', label: 'Active Producers', icon: <Sprout size={22} />, color: '#dcfce7', iconColor: '#16a34a' },
+  { value: '14,000+', label: 'Verified Buyers', icon: <Users size={22} />, color: '#dbeafe', iconColor: '#1d4ed8' },
+  { value: '980+', label: 'Logistics Missions', icon: <Truck size={22} />, color: '#fef3c7', iconColor: '#d97706' },
+  { value: '42,000+', label: 'Published Products', icon: <Package size={22} />, color: '#f3e8ff', iconColor: '#7c3aed' },
 ];
 
 const OFFICIAL_PRICES = [
-  { name: 'Tomate ronde', price: '75–90', unit: 'DZD/kg', status: 'normal', wilaya: 'Alger', updated: 'Aujourd\'hui' },
-  { name: 'Pomme de terre', price: '40–55', unit: 'DZD/kg', status: 'optimal', wilaya: 'Tipaza', updated: 'Aujourd\'hui' },
-  { name: 'Oignon sec', price: '50–65', unit: 'DZD/kg', status: 'attention', wilaya: 'Bouira', updated: 'Hier' },
-  { name: 'Carotte', price: '60–80', unit: 'DZD/kg', status: 'normal', wilaya: 'Blida', updated: 'Aujourd\'hui' },
-  { name: 'Courgette', price: '85–110', unit: 'DZD/kg', status: 'optimal', wilaya: 'Tizi Ouzou', updated: 'Aujourd\'hui' },
-  { name: 'Poivron', price: '100–130', unit: 'DZD/kg', status: 'normal', wilaya: 'Chlef', updated: 'Hier' },
+  { name: 'Round Tomato', price: '75–90', unit: 'DZD/kg', status: 'normal', wilaya: 'Algiers', updated: 'Today' },
+  { name: 'Potato', price: '40–55', unit: 'DZD/kg', status: 'optimal', wilaya: 'Tipaza', updated: 'Today' },
+  { name: 'Dry Onion', price: '50–65', unit: 'DZD/kg', status: 'attention', wilaya: 'Bouira', updated: 'Yesterday' },
+  { name: 'Carrot', price: '60–80', unit: 'DZD/kg', status: 'normal', wilaya: 'Blida', updated: 'Today' },
+  { name: 'Zucchini', price: '85–110', unit: 'DZD/kg', status: 'optimal', wilaya: 'Tizi Ouzou', updated: 'Today' },
+  { name: 'Bell Pepper', price: '100–130', unit: 'DZD/kg', status: 'normal', wilaya: 'Chlef', updated: 'Yesterday' },
 ];
 
 /* ─── Counter animation hook ─────────────────────── */
@@ -165,10 +165,10 @@ const LandingPage = () => {
           <div className="home-top-bar-inner">
             <span className="home-top-bar-msg">
               <ShieldCheck size={14} className="me-1" />
-              Plateforme officielle supervisée par le Ministère de l'Agriculture et du Développement Rural
+              Official platform supervised by the Ministry of Agriculture and Rural Development
             </span>
             <Link to="/login" className="home-top-bar-cta">
-              Accéder à la plateforme <ChevronRight size={13} />
+              Access platform <ChevronRight size={13} />
             </Link>
           </div>
         </div>
@@ -181,35 +181,35 @@ const LandingPage = () => {
           <div className="home-hero-content">
             <div className="home-hero-badge">
               <BadgeCheck size={15} />
-              Certifié Ministère de l'Agriculture
+              Ministry of Agriculture Certified
             </div>
             <h1 className="home-hero-title">
-              La place de marché agricole <span className="home-hero-highlight">officielle</span> de l'Algérie
+              The <span className="home-hero-highlight">Official</span> Agricultural Marketplace of Algeria
             </h1>
             <p className="home-hero-subtitle">
-              AgriGov Market connecte directement producteurs, acheteurs et transporteurs dans un cadre 
-              institutionnel transparent. Des prix officiels, des utilisateurs vérifiés, une logistique intégrée.
+              AgriGov Market connects producers, buyers, and transporters directly within a transparent 
+              institutional framework. Official prices, verified users, integrated logistics.
             </p>
             <div className="home-hero-actions">
               <Link to="/register" className="home-btn-primary">
-                Explorer la plateforme <ArrowRight size={18} />
+                Explore the Platform <ArrowRight size={18} />
               </Link>
               <Link to="/login" className="home-btn-outline">
-                Se connecter
+                Sign In
               </Link>
             </div>
             <div className="home-hero-trust">
               <div className="home-trust-pill">
                 <CheckCircle size={14} />
-                Utilisateurs vérifiés
+                Verified Users
               </div>
               <div className="home-trust-pill">
                 <BarChart3 size={14} />
-                Prix officiels publiés
+                Published Official Prices
               </div>
               <div className="home-trust-pill">
                 <Truck size={14} />
-                Livraison suivie
+                Tracked Delivery
               </div>
             </div>
           </div>
@@ -225,15 +225,15 @@ const LandingPage = () => {
             <div className="home-hero-floating-1">
               <TrendingUp size={18} className="me-2 text-success" />
               <div>
-                <div className="home-float-title">Prix en temps réel</div>
-                <div className="home-float-sub">Mis à jour chaque jour</div>
+                <div className="home-float-title">Real-time Prices</div>
+                <div className="home-float-sub">Updated Every Day</div>
               </div>
             </div>
             <div className="home-hero-floating-2">
               <ShieldCheck size={18} className="me-2" style={{ color: '#1d4ed8' }} />
               <div>
-                <div className="home-float-title">2 800+ Agriculteurs</div>
-                <div className="home-float-sub">Approuvés & Vérifiés</div>
+                <div className="home-float-title">2,800+ Farmers</div>
+                <div className="home-float-sub">Approved & Verified</div>
               </div>
             </div>
           </div>
@@ -244,10 +244,10 @@ const LandingPage = () => {
       <section className="home-features-section">
         <div className="container">
           <div className="home-section-header">
-            <span className="home-section-tag">Nos engagements</span>
-            <h2 className="home-section-title">Pourquoi choisir AgriGov Market ?</h2>
+            <span className="home-section-tag">Our Commitments</span>
+            <h2 className="home-section-title">Why choose AgriGov Market?</h2>
             <p className="home-section-sub">
-              Un écosystème agricole moderne construit sur la confiance, la transparence et l'efficacité institutionnelle.
+              A modern agricultural ecosystem built on trust, transparency, and institutional efficiency.
             </p>
           </div>
           <div className="home-features-grid">
@@ -268,10 +268,10 @@ const LandingPage = () => {
       <section className="home-products-section">
         <div className="container">
           <div className="home-section-header">
-            <span className="home-section-tag">Marché</span>
-            <h2 className="home-section-title">Produits agricoles en vedette</h2>
+            <span className="home-section-tag">Marketplace</span>
+            <h2 className="home-section-title">Featured Agricultural Products</h2>
             <p className="home-section-sub">
-              Des centaines de produits locaux disponibles directement depuis les fermes algériennes certifiées.
+              Hundreds of local products available directly from certified Algerian farms.
             </p>
           </div>
           <div className="home-products-grid">
@@ -289,7 +289,7 @@ const LandingPage = () => {
                     <span className="home-product-unit">/{p.unit}</span>
                   </div>
                   <Link to="/login" className="home-product-cta">
-                    Voir le produit <ChevronRight size={14} />
+                    View Product <ChevronRight size={14} />
                   </Link>
                 </div>
               </div>
@@ -297,7 +297,7 @@ const LandingPage = () => {
           </div>
           <div className="home-products-more">
             <Link to="/register" className="home-btn-outline-green">
-              Voir tous les produits <ArrowRight size={16} />
+              View All Products <ArrowRight size={16} />
             </Link>
           </div>
         </div>
@@ -307,10 +307,10 @@ const LandingPage = () => {
       <section className="home-how-section">
         <div className="container">
           <div className="home-section-header">
-            <span className="home-section-tag">Mode d'emploi</span>
-            <h2 className="home-section-title">Comment ça marche ?</h2>
+            <span className="home-section-tag">User Guide</span>
+            <h2 className="home-section-title">How does it work?</h2>
             <p className="home-section-sub">
-              Une plateforme pensée pour chaque acteur de la chaîne agricole.
+              A platform designed for every actor in the agricultural supply chain.
             </p>
           </div>
           <div className="home-roles-grid">
@@ -332,7 +332,7 @@ const LandingPage = () => {
                   ))}
                 </ul>
                 <Link to="/register" className="home-role-link">
-                  Rejoindre en tant que {r.role} <ChevronRight size={14} />
+                  Join as {r.role} <ChevronRight size={14} />
                 </Link>
               </div>
             ))}
@@ -347,24 +347,24 @@ const LandingPage = () => {
             <div className="home-prices-header">
               <div className="home-prices-badge">
                 <Building2 size={15} />
-                Ministère de l'Agriculture
+                Ministry of Agriculture
               </div>
-              <h2 className="home-prices-title">Prix officiels de référence</h2>
+              <h2 className="home-prices-title">Official Reference Prices</h2>
               <p className="home-prices-sub">
-                Des prix de référence publiés régulièrement par le Ministère pour garantir un marché juste et transparent.
+                Reference prices published regularly by the Ministry to guarantee a fair and transparent market.
               </p>
               <div className="home-prices-note">
                 <Clock size={14} />
-                Mis à jour aujourd'hui — Valables sur tout le territoire national
+                Updated Today — Valid across the entire national territory
               </div>
             </div>
             <div className="home-prices-table">
               <div className="home-prices-table-head">
-                <span>Produit</span>
-                <span>Fourchette officielle</span>
+                <span>Product</span>
+                <span>Official Status</span>
                 <span>Wilaya</span>
-                <span>Statut</span>
-                <span>Mise à jour</span>
+                <span>Status</span>
+                <span>Last Updated</span>
               </div>
               {OFFICIAL_PRICES.map((p, i) => (
                 <div key={i} className="home-prices-row">
@@ -380,7 +380,7 @@ const LandingPage = () => {
             </div>
             <div className="home-prices-footer">
               <Link to="/register" className="home-btn-primary">
-                Accéder aux prix officiels complets <ArrowRight size={16} />
+                Access Full Official Prices <ArrowRight size={16} />
               </Link>
             </div>
           </div>
@@ -392,7 +392,7 @@ const LandingPage = () => {
         <div className="container">
           <div className="home-section-header">
             <span className="home-section-tag">Impact</span>
-            <h2 className="home-section-title">AgriGov Market en chiffres</h2>
+            <h2 className="home-section-title">AgriGov Market in Numbers</h2>
           </div>
           <div className="home-stats-grid">
             {STATS.map((s, i) => (
@@ -409,36 +409,36 @@ const LandingPage = () => {
             <div className="home-trust-left">
               <div className="home-trust-ministry-badge">
                 <Building2 size={20} />
-                Supervision officielle
+                Official Supervision
               </div>
               <h2 className="home-trust-title">
-                Une plateforme sous la tutelle du Ministère de l'Agriculture
+                A platform under the supervision of the Ministry of Agriculture
               </h2>
               <p className="home-trust-desc">
-                AgriGov Market n'est pas une application commerciale ordinaire. Elle est développée 
-                et supervisée directement par l'administration agricole nationale pour moderniser 
-                les échanges, protéger les producteurs et garantir la transparence des prix.
+                AgriGov Market is not an ordinary commercial application. It is developed 
+                and supervised directly by the national agricultural administration to modernize 
+                trade, protect producers, and guarantee price transparency.
               </p>
               <div className="home-trust-pillars">
                 <div className="home-trust-pillar">
                   <div className="home-trust-pillar-icon"><ShieldCheck size={20} /></div>
                   <div>
-                    <strong>Utilisateurs validés</strong>
-                    <p>Chaque compte est examiné manuellement avant activation.</p>
+                    <strong>Validated Users</strong>
+                    <p>Every account is manually reviewed before activation.</p>
                   </div>
                 </div>
                 <div className="home-trust-pillar">
                   <div className="home-trust-pillar-icon"><BarChart3 size={20} /></div>
                   <div>
-                    <strong>Données officielles</strong>
-                    <p>Les prix publiés proviennent directement des services du Ministère.</p>
+                    <strong>Official Data</strong>
+                    <p>Published prices come directly from the Ministry's services.</p>
                   </div>
                 </div>
                 <div className="home-trust-pillar">
                   <div className="home-trust-pillar-icon"><Globe size={20} /></div>
                   <div>
-                    <strong>Couverture nationale</strong>
-                    <p>La plateforme couvre l'ensemble des 58 wilayas d'Algérie.</p>
+                    <strong>National Coverage</strong>
+                    <p>The platform covers all 58 wilayas of Algeria.</p>
                   </div>
                 </div>
               </div>
@@ -447,20 +447,20 @@ const LandingPage = () => {
               <div className="home-trust-card-wrapper">
                 <div className="home-trust-card">
                   <div className="home-trust-card-icon">🏛️</div>
-                  <h4>Ministère de l'Agriculture</h4>
-                  <p className="home-trust-card-sub">et du Développement Rural</p>
+                  <h4>Ministry of Agriculture</h4>
+                  <p className="home-trust-card-sub">and Rural Development</p>
                   <div className="home-trust-card-sep"></div>
                   <div className="home-trust-seal">
                     <CheckCircle size={16} />
-                    Plateforme certifiée conforme
+                    Certified Compliant Platform
                   </div>
                   <div className="home-trust-seal">
                     <Award size={16} />
-                    Données officiellement validées
+                    Officially Validated Data
                   </div>
                   <div className="home-trust-seal">
                     <Zap size={16} />
-                    Interopérable avec les services nationaux
+                    Interoperable with National Services
                   </div>
                 </div>
               </div>
@@ -474,22 +474,22 @@ const LandingPage = () => {
         <div className="container">
           <div className="home-cta-inner">
             <div className="home-cta-icon-bg">🌾</div>
-            <h2 className="home-cta-title">Prêt à rejoindre l'agriculture de demain ?</h2>
+            <h2 className="home-cta-title">Ready to join the agriculture of tomorrow?</h2>
             <p className="home-cta-sub">
-              Créez votre compte, accédez aux prix officiels et commencez à commercer sur la plateforme 
-              agricole la plus fiable d'Algérie.
+              Create your account, access official prices, and start trading on the most 
+              reliable agricultural platform in Algeria.
             </p>
             <div className="home-cta-actions">
               <Link to="/register" className="home-btn-white">
-                Créer un compte <ArrowRight size={18} />
+                Create Account <ArrowRight size={18} />
               </Link>
               <Link to="/login" className="home-btn-white-outline">
-                Se connecter
+                Sign In
               </Link>
             </div>
             <div className="home-cta-footnote">
               <ShieldCheck size={14} />
-              Supervisé par le Ministère de l'Agriculture · Accès gratuit · Validation requise
+              Supervised by the Ministry of Agriculture · Free Access · Validation Required
             </div>
           </div>
         </div>

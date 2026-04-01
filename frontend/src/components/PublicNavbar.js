@@ -3,11 +3,11 @@ import { Link, useLocation } from 'react-router-dom';
 import { Leaf, Menu, X, ChevronRight } from 'lucide-react';
 
 const NAV_LINKS = [
-  { label: 'Accueil', to: '/' },
-  { label: 'Produits', to: '/register' },
-  { label: 'Prix officiels', to: '/register' },
-  { label: 'Comment ça marche', to: '/#how' },
-  { label: 'À propos', to: '/about' },
+  { label: 'Home', to: '/' },
+  { label: 'Products', to: '/register' },
+  { label: 'Official Prices', to: '/register' },
+  { label: 'How it Works', to: '/#how' },
+  { label: 'About', to: '/about' },
   { label: 'Contact', to: '/contact' },
 ];
 
@@ -45,10 +45,10 @@ const PublicNavbar = () => {
           {/* CTA buttons */}
           <div className="pub-nav-ctas">
             <Link to="/login" className="pub-nav-login">
-              Connexion
+              Sign In
             </Link>
             <Link to="/register" className="pub-nav-register">
-              Créer un compte <ChevronRight size={14} />
+              Create Account <ChevronRight size={14} />
             </Link>
           </div>
 
@@ -78,10 +78,10 @@ const PublicNavbar = () => {
               ))}
               <div className="pub-mobile-ctas">
                 <Link to="/login" className="pub-nav-login w-100" onClick={() => setMobileOpen(false)}>
-                  Connexion
+                  Sign In
                 </Link>
                 <Link to="/register" className="pub-nav-register w-100" onClick={() => setMobileOpen(false)}>
-                  Créer un compte
+                  Create Account
                 </Link>
               </div>
             </div>

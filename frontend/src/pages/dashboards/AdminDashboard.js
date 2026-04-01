@@ -77,17 +77,21 @@ function AdminDashboard() {
 
   return (
     <div className="admin-dashboard-page">
-      <div className="page-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
-        <div>
-          <h1 className="page-title d-flex align-items-center">
-            <Activity className="text-primary me-3" size={28} /> Central Control
-          </h1>
-          <p className="page-subtitle text-muted">Monitor system health, verify actors, and manage global marketplace parameters.</p>
-        </div>
-        <div className="page-actions d-flex gap-2">
-          <button className="btn-agr btn-primary px-3" onClick={() => window.location.href='/admin-dashboard/analytics'}>
-            <TrendingUp size={16} className="me-2" /> View Full Analytics
-          </button>
+      <div className="admin-hero-banner animate-fade-in">
+        <div className="admin-hero-deco">🛡️⚙️</div>
+        <div className="admin-hero-content">
+          <div className="admin-hero-tag">
+            <Activity size={13} /> Secure System Control
+          </div>
+          <h1 className="admin-hero-title">Central Control</h1>
+          <p className="admin-hero-sub">
+            Monitor system health, verify actors, and manage global marketplace parameters.
+          </p>
+          <div className="admin-hero-actions">
+            <button className="admin-hero-btn" onClick={() => window.location.href='/admin-dashboard/analytics'}>
+              <TrendingUp size={15} /> View Full Analytics
+            </button>
+          </div>
         </div>
       </div>
 

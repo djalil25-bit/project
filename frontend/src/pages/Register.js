@@ -18,9 +18,9 @@ const WILAYAS = [
 ];
 
 const ROLES = [
-  { value: 'buyer', label: 'Acheteur', icon: <ShoppingBag size={22} />, desc: 'Achat de produits agricoles', color: '#dbeafe', iconColor: '#1d4ed8' },
-  { value: 'farmer', label: 'Agriculteur', icon: <Sprout size={22} />, desc: 'Vente de produits de la ferme', color: '#dcfce7', iconColor: '#16a34a' },
-  { value: 'transporter', label: 'Transporteur', icon: <Truck size={22} />, desc: 'Missions de livraison', color: '#fef3c7', iconColor: '#d97706' },
+  { value: 'buyer', label: 'Buyer', icon: <ShoppingBag size={22} />, desc: 'Purchase agricultural products', color: '#dbeafe', iconColor: '#1d4ed8' },
+  { value: 'farmer', label: 'Farmer', icon: <Sprout size={22} />, desc: 'Sell farm produce', color: '#dcfce7', iconColor: '#16a34a' },
+  { value: 'transporter', label: 'Transporter', icon: <Truck size={22} />, desc: 'Delivery missions', color: '#fef3c7', iconColor: '#d97706' },
 ];
 
 const Register = () => {
@@ -43,13 +43,13 @@ const Register = () => {
 
   const validate = () => {
     const errs = {};
-    if (!formData.full_name.trim()) errs.full_name = 'Le nom complet est requis.';
-    if (!formData.email.trim()) errs.email = 'L\'adresse e-mail est requise.';
-    if (!formData.phone.trim()) errs.phone = 'Le numéro de téléphone est requis.';
-    if (!formData.wilaya) errs.wilaya = 'Veuillez sélectionner une wilaya.';
-    if (formData.password.length < 8) errs.password = 'Le mot de passe doit comporter au moins 8 caractères.';
-    if (formData.password !== formData.confirm_password) errs.confirm_password = 'Les mots de passe ne correspondent pas.';
-    if (!acceptTerms) errs.terms = 'Vous devez accepter les conditions d\'utilisation.';
+    if (!formData.full_name.trim()) errs.full_name = 'Full name is required.';
+    if (!formData.email.trim()) errs.email = 'Email address is required.';
+    if (!formData.phone.trim()) errs.phone = 'Phone number is required.';
+    if (!formData.wilaya) errs.wilaya = 'Please select a wilaya.';
+    if (formData.password.length < 8) errs.password = 'Password must be at least 8 characters.';
+    if (formData.password !== formData.confirm_password) errs.confirm_password = 'Passwords do not match.';
+    if (!acceptTerms) errs.terms = 'You must accept the terms of service.';
     return errs;
   };
 
@@ -79,7 +79,7 @@ const Register = () => {
           setError(msgs.join(' | '));
         }
       } else {
-        setError('Erreur réseau. Impossible de se connecter au serveur.');
+        setError('Network error. Unable to connect to server.');
       }
     } finally {
       setLoading(false);
@@ -95,22 +95,22 @@ const Register = () => {
           <div className="auth-logo-link" style={{ marginBottom: '2rem' }}>
             <Leaf size={22} /> <span>AgriGov <strong>Market</strong></span>
           </div>
-          <h2>Inscription réussie !</h2>
+          <h2>Registration successful!</h2>
           <div className="auth-success-alert">
-            <h4>Compte en attente de validation</h4>
+            <h4>Account pending validation</h4>
             <p>
-              Votre compte en tant que <strong>{ROLES.find(r => r.value === formData.role)?.label || formData.role}</strong> a 
-              été créé avec succès. Pour garantir l'intégrité de la plateforme, chaque compte est 
-              <strong> examiné manuellement</strong> par les équipes du Ministère. Vous recevrez 
-              une confirmation par e-mail dès l'activation.
+              Your account as a <strong>{ROLES.find(r => r.value === formData.role)?.label || formData.role}</strong> has 
+              been created successfully. To ensure platform integrity, each account is 
+              <strong> manually reviewed</strong> by Ministry teams. You will receive 
+              an email confirmation upon activation.
             </p>
           </div>
           <div className="auth-success-actions">
             <Link to="/login" className="auth-submit-btn" style={{ textDecoration: 'none', display: 'flex', justifyContent: 'center' }}>
-              Retour à la connexion
+              Back to Login
             </Link>
             <Link to="/" className="auth-back-link" style={{ marginTop: '1rem', justifyContent: 'center' }}>
-              Retour à l'accueil
+              Back to Home
             </Link>
           </div>
         </div>
@@ -132,31 +132,31 @@ const Register = () => {
           <div className="auth-left-body">
             <div className="auth-ministry-tag">
               <Building2 size={14} />
-              Ministère de l'Agriculture
+              Ministry of Agriculture
             </div>
             <h2 className="auth-left-headline">
-              Rejoignez la plateforme agricole nationale
+              Join the national agricultural platform
             </h2>
             <p className="auth-left-lead">
-              Chaque compte est vérifié manuellement pour garantir un écosystème de confiance 
-              entre producteurs, acheteurs et transporteurs.
+              Each account is manually verified to guarantee a trusted ecosystem 
+              between producers, buyers, and transporters.
             </p>
             <div className="auth-register-info-box">
               <ShieldCheck size={20} />
               <div>
-                <strong>Communauté vérifiée</strong>
-                <p>Toutes les inscriptions sont examinées par les administrateurs de la plateforme avant activation.</p>
+                <strong>Verified community</strong>
+                <p>All registrations are reviewed by platform administrators before activation.</p>
               </div>
             </div>
             <div className="auth-trust-stats">
               <div className="auth-trust-stat">
                 <span className="auth-trust-val">2800+</span>
-                <span className="auth-trust-lbl">Agriculteurs</span>
+                <span className="auth-trust-lbl">Farmers</span>
               </div>
               <div className="auth-trust-sep"></div>
               <div className="auth-trust-stat">
                 <span className="auth-trust-val">14k+</span>
-                <span className="auth-trust-lbl">Acheteurs</span>
+                <span className="auth-trust-lbl">Buyers</span>
               </div>
               <div className="auth-trust-sep"></div>
               <div className="auth-trust-stat">
@@ -167,7 +167,7 @@ const Register = () => {
           </div>
           <div className="auth-left-footer">
             <CheckCircle size={14} />
-            Plateforme certifiée — Supervisée par le Ministère de l'Agriculture
+            Certified platform — Supervised by the Ministry of Agriculture
           </div>
         </div>
       </div>
@@ -176,7 +176,7 @@ const Register = () => {
       <div className="auth-right-panel auth-right-clean auth-right-scroll">
         <div className="auth-form-wrapper">
           <Link to="/" className="auth-back-link">
-            <ArrowLeft size={16} /> Retour à l'accueil
+            <ArrowLeft size={16} /> Back to Home
           </Link>
 
           <div className="auth-form-card">
@@ -184,14 +184,14 @@ const Register = () => {
               <div className="auth-form-icon">
                 <Leaf size={22} />
               </div>
-              <h1 className="auth-form-title">Créer un compte</h1>
-              <p className="auth-form-subtitle">Rejoignez AgriGov Market dès aujourd'hui</p>
+              <h1 className="auth-form-title">Create Account</h1>
+              <p className="auth-form-subtitle">Join AgriGov Market today</p>
             </div>
 
             {/* Tabs */}
             <div className="auth-tabs">
-              <Link to="/login" className="auth-tab">Connexion</Link>
-              <Link to="/register" className="auth-tab auth-tab-active">Créer un compte</Link>
+              <Link to="/login" className="auth-tab">Sign In</Link>
+              <Link to="/register" className="auth-tab auth-tab-active">Create Account</Link>
             </div>
 
             {error && (
@@ -205,7 +205,7 @@ const Register = () => {
 
               {/* Role selector */}
               <div className="auth-field">
-                <label className="auth-label">Je suis un(e)</label>
+                <label className="auth-label">I am a</label>
                 <div className="auth-role-grid">
                   {ROLES.map(r => (
                     <button
@@ -228,18 +228,18 @@ const Register = () => {
               {/* Name & Phone */}
               <div className="auth-form-row">
                 <div className="auth-field">
-                  <label className="auth-label">Nom complet</label>
+                  <label className="auth-label">Full Name</label>
                   <input
                     type="text"
                     className={`auth-input ${fieldErrors.full_name ? 'auth-input-error' : ''}`}
-                    placeholder="Prénom NOM"
+                    placeholder="Firstname LASTNAME"
                     value={formData.full_name}
                     onChange={e => set('full_name', e.target.value)}
                   />
                   {fieldErrors.full_name && <span className="auth-field-error">{fieldErrors.full_name}</span>}
                 </div>
                 <div className="auth-field">
-                  <label className="auth-label">Téléphone</label>
+                  <label className="auth-label">Phone Number</label>
                   <input
                     type="tel"
                     className={`auth-input ${fieldErrors.phone ? 'auth-input-error' : ''}`}
@@ -253,11 +253,11 @@ const Register = () => {
 
               {/* Email */}
               <div className="auth-field">
-                <label className="auth-label">Adresse e-mail</label>
+                <label className="auth-label">Email address</label>
                 <input
                   type="email"
                   className={`auth-input ${fieldErrors.email ? 'auth-input-error' : ''}`}
-                  placeholder="exemple@domaine.com"
+                  placeholder="you@example.com"
                   value={formData.email}
                   onChange={e => set('email', e.target.value)}
                 />
@@ -272,7 +272,7 @@ const Register = () => {
                   value={formData.wilaya}
                   onChange={e => set('wilaya', e.target.value)}
                 >
-                  <option value="">Sélectionnez votre wilaya</option>
+                  <option value="">Select your wilaya</option>
                   {WILAYAS.map(w => <option key={w} value={w}>{w}</option>)}
                 </select>
                 {fieldErrors.wilaya && <span className="auth-field-error">{fieldErrors.wilaya}</span>}
@@ -281,12 +281,12 @@ const Register = () => {
               {/* Passwords */}
               <div className="auth-form-row">
                 <div className="auth-field">
-                  <label className="auth-label">Mot de passe</label>
+                  <label className="auth-label">Password</label>
                   <div className="auth-input-wrapper">
                     <input
                       type={showPassword ? 'text' : 'password'}
                       className={`auth-input auth-input-icon-right ${fieldErrors.password ? 'auth-input-error' : ''}`}
-                      placeholder="min. 8 caractères"
+                      placeholder="min. 8 characters"
                       value={formData.password}
                       onChange={e => set('password', e.target.value)}
                     />
@@ -297,12 +297,12 @@ const Register = () => {
                   {fieldErrors.password && <span className="auth-field-error">{fieldErrors.password}</span>}
                 </div>
                 <div className="auth-field">
-                  <label className="auth-label">Confirmer le mot de passe</label>
+                  <label className="auth-label">Confirm Password</label>
                   <div className="auth-input-wrapper">
                     <input
                       type={showConfirm ? 'text' : 'password'}
                       className={`auth-input auth-input-icon-right ${fieldErrors.confirm_password ? 'auth-input-error' : ''}`}
-                      placeholder="Répéter le mot de passe"
+                      placeholder="Repeat password"
                       value={formData.confirm_password}
                       onChange={e => set('confirm_password', e.target.value)}
                     />
@@ -323,10 +323,10 @@ const Register = () => {
                     onChange={e => { setAcceptTerms(e.target.checked); setFieldErrors(f => ({ ...f, terms: '' })); }}
                   />
                   <span>
-                    J'accepte les{' '}
-                    <Link to="/faq" style={{ color: 'var(--primary)', fontWeight: 600 }}>conditions d'utilisation</Link>
-                    {' '}et la{' '}
-                    <Link to="/faq" style={{ color: 'var(--primary)', fontWeight: 600 }}>politique de confidentialité</Link>
+                    I accept the{' '}
+                    <Link to="/faq" style={{ color: 'var(--primary)', fontWeight: 600 }}>terms of service</Link>
+                    {' '}and the{' '}
+                    <Link to="/faq" style={{ color: 'var(--primary)', fontWeight: 600 }}>privacy policy</Link>
                   </span>
                 </label>
                 {fieldErrors.terms && <span className="auth-field-error">{fieldErrors.terms}</span>}
@@ -334,21 +334,21 @@ const Register = () => {
 
               <button type="submit" className="auth-submit-btn" disabled={loading}>
                 {loading ? (
-                  <><span className="auth-spinner"></span> Création du compte…</>
+                  <><span className="auth-spinner"></span> Creating account…</>
                 ) : (
-                  <>Créer mon compte <ChevronRight size={18} /></>
+                  <>Create my account <ChevronRight size={18} /></>
                 )}
               </button>
             </form>
 
             <p className="auth-switch-text">
-              Déjà un compte ?{' '}
-              <Link to="/login">Se connecter</Link>
+              Already have an account?{' '}
+              <Link to="/login">Sign In</Link>
             </p>
 
             <div className="auth-form-trust">
               <ShieldCheck size={13} />
-              Compte vérifié manuellement — Supervision du Ministère de l'Agriculture
+              Manually verified account — Supervised by the Ministry of Agriculture
             </div>
           </div>
         </div>
