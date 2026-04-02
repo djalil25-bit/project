@@ -1,58 +1,47 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../api/axiosConfig';
-import { useNavigate, Link, useParams } from 'react-router-dom';
-import { 
-  ArrowLeft, 
-  Package, 
-  Home, 
-  Tag, 
-  Image as ImageIcon, 
-  Save, 
-  Info, 
-  ShieldCheck, 
-  AlertTriangle,
-  ChevronRight,
-  Plus
+import { useNavigate, Link, useParams, useSearchParams } from 'react-router-dom';
+import {
+  ArrowLeft, Package, Home, Tag, Image as ImageIcon,
+  Save, Info, ShieldCheck, AlertTriangle, ChevronRight, Plus
 } from 'lucide-react';
 
-function ProductForm() {
-  const [formData, setFormData] = useState({ 
-    catalog_product: '', 
-    description: '', 
-    price: '', 
-    stock: '', 
-    farm: '',
-    title: '',
-    category: '',
-    unit: '',
-    quality: 'STANDARD',
-    image: null
+export default function ProductForm() {
+  const [formData, setFormData] = useState({
+    catalog_product: '', description: '', price: '', stock: '',
+    farm: '', title: '', category: '', unit: '', quality: 'STANDARD', image: null,
   });
-  const [farms, setFarms] = useState([]);
-  const [catalog, setCatalog] = useState([]);
-  const [selectedCatalogItem, setSelectedCatalogItem] = useState(null);
-  const [fieldErrors, setFieldErrors] = useState({});
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const { id } = useParams();
-  const [isEdit, setIsEdit] = useState(false);
+  const [farms, setFarms]           = useState([]);
+  const [catalog, setCatalog]       = useState([]);
+  const [selCatalog, setSelCatalog] = useState(null);
+  const [fieldErrors, setFErrors]   = useState({});
+  const [error, setError]           = useState(null);
+  const [success, setSuccess]       = useState(null);
+  const [loading, setLoading]       = useState(false);
+  const navigate    = useNavigate();
+  const { id }      = useParams();
+  const [qp]        = useSearchParams();
+  const isEdit      = !!id;
 
   useEffect(() => {
     async function loadDeps() {
       try {
-        const [farmRes, catalogRes] = await Promise.all([
-          api.get('/farms/'), 
-          api.get('/catalog-products/')
+        const [farmRes, catRes] = await Promise.all([
+          api.get('/farms/'),
+          api.get('/catalog-products/'),
         ]);
-        const fetchedFarms = farmRes.data.results || farmRes.data;
-        const fetchedCatalog = catalogRes.data.results || catalogRes.data;
+        const fetchedFarms   = farmRes.data.results || farmRes.data;
+        const fetchedCatalog = catRes.data.results  || catRes.data;
         setFarms(fetchedFarms);
         setCatalog(fetchedCatalog);
-        
+
+        // Pre-select farm from URL query ?farm=N
+        const farmParam = qp.get('farm');
+        if (farmParam && !id) {
+          setFormData(prev => ({ ...prev, farm: farmParam }));
+        }
+
         if (id) {
-          setIsEdit(true);
           const productRes = await api.get(`/products/${id}/`);
           const p = productRes.data;
           setFormData({
@@ -65,78 +54,63 @@ function ProductForm() {
             category: p.category || '',
             unit: p.unit || '',
             quality: p.quality || 'STANDARD',
-            image: null
+            image: null,
           });
           if (p.catalog_product) {
             const item = fetchedCatalog.find(i => i.id === parseInt(p.catalog_product));
-            if (item) setSelectedCatalogItem(item);
+            if (item) setSelCatalog(item);
           }
         }
       } catch (err) { console.error('Failed to load deps', err); }
     }
     loadDeps();
-  }, [id]);
+  }, [id, qp]);
 
   const handleChange = (e) => {
     const { name, value, type, files } = e.target;
-    
     if (type === 'file') {
       setFormData({ ...formData, [name]: files[0] });
     } else {
       setFormData({ ...formData, [name]: value });
     }
-    
-    if (fieldErrors[name]) {
-      setFieldErrors({ ...fieldErrors, [name]: null });
-    }
-    
+    if (fieldErrors[name]) setFErrors({ ...fieldErrors, [name]: null });
+
     if (name === 'catalog_product') {
       const item = catalog.find(i => i.id === parseInt(value));
-      setSelectedCatalogItem(item);
+      setSelCatalog(item);
       if (item) {
-        setFormData(prev => ({ 
-          ...prev, 
-          price: item.official_price || '', 
+        setFormData(prev => ({
+          ...prev,
+          price: item.official_price || '',
           title: item.name,
           category: item.category,
-          unit: item.default_unit
+          unit: item.default_unit,
         }));
       }
-      setFieldErrors({});
+      setFErrors({});
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-    setSuccess(null);
-    setFieldErrors({});
+    setError(null); setSuccess(null); setFErrors({});
 
-    if (selectedCatalogItem) {
+    if (selCatalog) {
       const price = parseFloat(formData.price);
-      const minP = parseFloat(selectedCatalogItem.min_price);
-      const maxP = parseFloat(selectedCatalogItem.max_price);
-
+      const minP  = parseFloat(selCatalog.min_price);
+      const maxP  = parseFloat(selCatalog.max_price);
       if ((!isNaN(minP) && price < minP) || (!isNaN(maxP) && price > maxP)) {
-        setFieldErrors({ 
-          price: "Your price is outside the admin-approved range. Please review the admin prices." 
-        });
+        setFErrors({ price: 'Your price is outside the admin-approved range. Please review the official pricing.' });
         return;
       }
     }
 
     setLoading(true);
-
     const data = new FormData();
     Object.keys(formData).forEach(key => {
-      if (formData[key] !== null && formData[key] !== '') {
-        data.append(key, formData[key]);
-      }
+      if (formData[key] !== null && formData[key] !== '') data.append(key, formData[key]);
     });
-
-    if (!formData.title && selectedCatalogItem) {
-      data.set('title', selectedCatalogItem.name);
-    }
+    if (!formData.title && selCatalog) data.set('title', selCatalog.name);
 
     try {
       if (isEdit) {
@@ -146,18 +120,14 @@ function ProductForm() {
         await api.post('/products/', data);
         setSuccess('Product listed successfully!');
       }
-      setFormData({
-        catalog_product: '', description: '', price: '', stock: '',
-        farm: '', title: '', category: '', unit: '', quality: 'STANDARD', image: null
-      });
-      setSelectedCatalogItem(null);
+      setFormData({ catalog_product:'', description:'', price:'', stock:'', farm:'', title:'', category:'', unit:'', quality:'STANDARD', image:null });
+      setSelCatalog(null);
       setTimeout(() => navigate('/farmer-dashboard'), 1500);
     } catch (err) {
       const resData = err.response?.data;
       if (resData && typeof resData === 'object') {
-        setFieldErrors(resData);
-        let topMsg = resData.detail || resData.non_field_errors?.[0] || resData.price?.[0] || 'Submission failed. Please check the fields below.';
-        setError(topMsg);
+        setFErrors(resData);
+        setError(resData.detail || resData.non_field_errors?.[0] || resData.price?.[0] || 'Submission failed. Please check the fields.');
       } else {
         setError('Failed to list product. Please check your connection.');
       }
@@ -165,192 +135,255 @@ function ProductForm() {
   };
 
   return (
-    <div className="product-form-page">
-      <div className="agr-breadcrumb">
+    <div className="farmer-page-wrapper">
+      {/* Breadcrumb */}
+      <div className="f-breadcrumb">
         <Link to="/farmer-dashboard">Farmer Hub</Link>
-        <span className="agr-breadcrumb-sep"><ChevronRight size={12} /></span>
+        <span className="f-breadcrumb-sep"><ChevronRight size={11} /></span>
         <span>{isEdit ? 'Edit Produce' : 'List New Produce'}</span>
       </div>
 
-      <div className="page-header d-flex justify-content-between align-items-center mb-4">
+      {/* Page header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.75rem' }}>
         <div>
-          <h1 className="page-title">{isEdit ? 'Edit Your Produce' : 'List Your Produce'}</h1>
-          <p className="page-subtitle text-muted">{isEdit ? 'Update your harvest details and pricing.' : 'Register your fresh harvest to the AgriGov marketplace.'}</p>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--f-forest-dark)', margin: 0 }}>
+            {isEdit ? 'Edit Your Produce' : 'List Your Produce'}
+          </h1>
+          <p style={{ margin: '0.3rem 0 0', color: '#6b7280', fontSize: '0.88rem' }}>
+            {isEdit ? 'Update your harvest details and pricing.' : 'Register your fresh harvest to the AgriGov marketplace.'}
+          </p>
         </div>
-        <button onClick={() => navigate(-1)} className="btn-agr btn-outline d-flex align-items-center">
-          <ArrowLeft size={16} className="me-2" /> Back
+        <button onClick={() => navigate(-1)} className="btn-f-ghost btn-f-sm">
+          <ArrowLeft size={15} /> Back
         </button>
       </div>
 
-      <div className="row g-4">
-        <div className="col-lg-7">
-          <div className="agr-card p-4 p-md-5">
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: '1.5rem', alignItems: 'start' }}>
+
+        {/* ── Form card ── */}
+        <div className="f-card">
+          <div className="f-card-body">
             {error && (
-              <div className="alert-agr alert-danger-agr mb-4 d-flex align-items-center">
-                <AlertTriangle size={18} className="me-3" />
-                <div>{error}</div>
+              <div className="f-alert f-alert-danger">
+                <AlertTriangle size={16} /> <div>{error}</div>
               </div>
             )}
             {success && (
-              <div className="alert-agr alert-success-agr mb-4 d-flex align-items-center">
-                <ShieldCheck size={18} className="me-3" />
-                <div>{success}</div>
+              <div className="f-alert f-alert-success">
+                <ShieldCheck size={16} /> <div>{success}</div>
               </div>
             )}
-            
             {farms.length === 0 && !loading && (
-              <div className="alert-agr alert-warning-agr mb-4 d-flex align-items-center">
-                <Info size={18} className="me-3" />
-                <div>
-                  No active farms found. <Link to="/farmer-dashboard/farm/new" className="fw-bold">Register a farm</Link> to start selling.
+              <div className="f-alert f-alert-warning">
+                <Info size={16} />
+                <div>No active farms found. <Link to="/farmer-dashboard/farm/new" style={{ fontWeight: 700, color: 'var(--f-forest)' }}>Register a farm</Link> to start selling.</div>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit}>
+
+              {/* Section: Product */}
+              <div className="f-form-section">
+                <div className="f-form-section-title">Product Information</div>
+
+                <div className="f-form-group">
+                  <label className="f-form-label">
+                    <Package size={14} style={{ color: 'var(--f-olive)' }} />
+                    Select Market Product <span className="req">*</span>
+                  </label>
+                  <select
+                    name="catalog_product"
+                    className={`f-input f-select ${fieldErrors.catalog_product ? 'error' : ''}`}
+                    onChange={handleChange}
+                    required
+                    value={formData.catalog_product}
+                  >
+                    <option value="">Choose from official catalog…</option>
+                    {catalog.map(i => <option key={i.id} value={i.id}>{i.name} ({i.default_unit})</option>)}
+                  </select>
+                  <div className="f-form-hint">Only certified products from the AgriGov database can be listed.</div>
+                </div>
+
+                <div className="f-form-group">
+                  <label className="f-form-label">
+                    <Home size={14} style={{ color: 'var(--f-olive)' }} />
+                    Origin Farm <span className="req">*</span>
+                  </label>
+                  <select
+                    name="farm"
+                    className={`f-input f-select ${fieldErrors.farm ? 'error' : ''}`}
+                    onChange={handleChange}
+                    required
+                    value={formData.farm}
+                  >
+                    <option value="">Select where this is grown…</option>
+                    {farms.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                  </select>
                 </div>
               </div>
-            )}
-            
-            <form onSubmit={handleSubmit} className="agr-form">
-              <div className="form-group mb-4">
-                <label className="form-label d-flex align-items-center">
-                  <Package size={16} className="me-2 text-primary" /> Select Market Product *
-                </label>
-                <select name="catalog_product" className="form-input" onChange={handleChange} required value={formData.catalog_product}>
-                  <option value="">Choose from official catalog...</option>
-                  {catalog.map(i => <option key={i.id} value={i.id}>{i.name} ({i.default_unit})</option>)}
-                </select>
-                <p className="form-hint small text-muted mt-1 italic">Only certified products from our database can be listed.</p>
-              </div>
 
-              <div className="form-group mb-4">
-                <label className="form-label d-flex align-items-center">
-                  <Home size={16} className="me-2 text-primary" /> Origin Farm *
-                </label>
-                <select name="farm" className="form-input" onChange={handleChange} required value={formData.farm}>
-                  <option value="">Select where this is grown...</option>
-                  {farms.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
-                </select>
-              </div>
+              {/* Section: Pricing & Quantity */}
+              <div className="f-form-section">
+                <div className="f-form-section-title">Pricing &amp; Quantity</div>
 
-              <div className="row">
-                <div className="col-md-6">
-                  <div className="form-group mb-4">
-                    <label className="form-label d-flex align-items-center">
-                      <Tag size={16} className="me-2 text-primary" /> Asking Price (DZD) *
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div className="f-form-group" style={{ marginBottom: 0 }}>
+                    <label className="f-form-label">
+                      <Tag size={14} style={{ color: 'var(--f-olive)' }} />
+                      Asking Price (DZD) <span className="req">*</span>
                     </label>
-                    <div className="input-group-agr">
-                      <input 
-                        type="number" step="0.01" name="price" 
-                        className={`form-input ${fieldErrors.price ? 'border-danger' : ''}`}
-                        placeholder="0.00" onChange={handleChange} required value={formData.price}
-                      />
-                    </div>
+                    <input
+                      type="number" step="0.01" name="price"
+                      className={`f-input ${fieldErrors.price ? 'error' : ''}`}
+                      placeholder="0.00" onChange={handleChange} required value={formData.price}
+                    />
                     {fieldErrors.price && (
-                      <div className="text-danger very-small mt-1 fw-medium">{Array.isArray(fieldErrors.price) ? fieldErrors.price[0] : fieldErrors.price}</div>
+                      <div className="f-form-error">{Array.isArray(fieldErrors.price) ? fieldErrors.price[0] : fieldErrors.price}</div>
                     )}
                   </div>
-                </div>
-                <div className="col-md-6">
-                  <div className="form-group mb-4">
-                    <label className="form-label d-flex align-items-center">
-                      <Plus size={16} className="me-2 text-primary" /> Quantity Available ({selectedCatalogItem?.default_unit || 'Units'}) *
+
+                  <div className="f-form-group" style={{ marginBottom: 0 }}>
+                    <label className="f-form-label">
+                      <Plus size={14} style={{ color: 'var(--f-olive)' }} />
+                      Quantity ({selCatalog?.default_unit || 'Units'}) <span className="req">*</span>
                     </label>
-                    <input 
-                      type="number" step="0.01" name="stock" 
-                      className={`form-input ${fieldErrors.stock ? 'border-danger' : ''}`}
+                    <input
+                      type="number" step="0.01" name="stock"
+                      className={`f-input ${fieldErrors.stock ? 'error' : ''}`}
                       placeholder="Enter amount" onChange={handleChange} required value={formData.stock}
                     />
                     {fieldErrors.stock && (
-                      <div className="text-danger very-small mt-1 fw-medium">{Array.isArray(fieldErrors.stock) ? fieldErrors.stock[0] : fieldErrors.stock}</div>
+                      <div className="f-form-error">{Array.isArray(fieldErrors.stock) ? fieldErrors.stock[0] : fieldErrors.stock}</div>
                     )}
                   </div>
                 </div>
               </div>
 
-              <div className="row">
-                <div className="col-md-6">
-                   <div className="form-group mb-4">
-                    <label className="form-label d-flex align-items-center">
-                      <ShieldCheck size={16} className="me-2 text-primary" /> Product Quality *
+              {/* Section: Details */}
+              <div className="f-form-section">
+                <div className="f-form-section-title">Quality &amp; Photography</div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div className="f-form-group" style={{ marginBottom: 0 }}>
+                    <label className="f-form-label">
+                      <ShieldCheck size={14} style={{ color: 'var(--f-olive)' }} />
+                      Product Quality <span className="req">*</span>
                     </label>
-                    <select name="quality" className="form-input" onChange={handleChange} required value={formData.quality}>
+                    <select
+                      name="quality"
+                      className="f-input f-select"
+                      onChange={handleChange} required value={formData.quality}
+                    >
                       <option value="PREMIUM">Premium (High End)</option>
                       <option value="STANDARD">Standard (Regular)</option>
                       <option value="ECONOMY">Economy (Low Cost)</option>
                       <option value="ORGANIC">Organic (Certified)</option>
                     </select>
                   </div>
-                </div>
-                <div className="col-md-6">
-                  <div className="form-group mb-4">
-                    <label className="form-label d-flex align-items-center">
-                      <ImageIcon size={16} className="me-2 text-primary" /> Product Photography
+
+                  <div className="f-form-group" style={{ marginBottom: 0 }}>
+                    <label className="f-form-label">
+                      <ImageIcon size={14} style={{ color: 'var(--f-olive)' }} />
+                      Product Photography <span className="opt">(optional)</span>
                     </label>
-                    <div className="file-input-wrapper">
-                      <input 
-                        type="file" name="image" className="form-input" 
-                        accept="image/*" onChange={handleChange}
-                      />
-                    </div>
+                    <input
+                      type="file" name="image"
+                      className="f-input"
+                      style={{ padding: '0.5rem' }}
+                      accept="image/*" onChange={handleChange}
+                    />
                   </div>
                 </div>
+
+                <div className="f-form-group" style={{ marginTop: '1rem' }}>
+                  <label className="f-form-label">Harvest Details &amp; Quality Notes</label>
+                  <textarea
+                    name="description"
+                    className="f-input f-textarea"
+                    placeholder="Tell buyers about your produce: organic, extra fresh, specific variety, etc."
+                    onChange={handleChange} value={formData.description}
+                  />
+                </div>
               </div>
 
-              <div className="form-group mb-4">
-                <label className="form-label">Harvest Details & Quality</label>
-                <textarea 
-                  name="description" className="form-input" 
-                  placeholder="Tell buyers about your produce: organic, extra fresh, specific variety, etc." 
-                  style={{ minHeight: '120px' }}
-                  onChange={handleChange} value={formData.description}
-                />
-              </div>
-
-              <div className="d-flex gap-3 pt-3">
-                <button type="submit" className="btn-agr btn-primary px-4 d-flex align-items-center" disabled={loading || farms.length === 0}>
-                  {loading ? 'Processing...' : <><Save size={18} className="me-2" /> {isEdit ? 'Save Changes' : 'List Product for Sale'}</>}
+              {/* Actions */}
+              <div style={{ display: 'flex', gap: '0.75rem', paddingTop: '0.5rem' }} className="f-form-actions">
+                <button
+                  type="submit"
+                  className="btn-f-primary"
+                  disabled={loading || farms.length === 0}
+                >
+                  {loading
+                    ? 'Processing…'
+                    : <><Save size={16} /> {isEdit ? 'Save Changes' : 'List Product for Sale'}</>
+                  }
                 </button>
-                <button type="button" className="btn-agr btn-outline px-4" onClick={() => navigate('/farmer-dashboard')}>Discard</button>
+                <button
+                  type="button"
+                  className="btn-f-ghost"
+                  onClick={() => navigate('/farmer/products')}
+                >
+                  Discard
+                </button>
               </div>
             </form>
           </div>
         </div>
 
-        <div className="col-lg-5">
-          {selectedCatalogItem ? (
-            <div className="agr-card bg-light-soft p-4 sticky-top" style={{ top: '2rem' }}>
-              <div className="d-flex align-items-center mb-3">
-                <Info size={20} className="text-primary me-2" />
-                <h3 className="h5 fw-bold mb-0">Official Marketplace Guide</h3>
-              </div>
-              
-              <div className="mb-4">
-                <label className="very-small text-muted d-block text-uppercase fw-bold mb-1">Recommended Pricing</label>
-                <div className="h4 fw-bold text-dark">{selectedCatalogItem.min_price} - {selectedCatalogItem.max_price} <small className="small">DZD / {selectedCatalogItem.default_unit}</small></div>
-                <div className="very-small text-muted italic">Based on latest market data for {selectedCatalogItem.name}.</div>
-              </div>
+        {/* ── Sidebar info panel ── */}
+        {selCatalog ? (
+          <div className="f-info-panel">
+            <div className="f-info-panel-header">
+              <Info size={16} style={{ color: 'var(--f-olive)' }} />
+              Official Marketplace Guide
+            </div>
 
-              <div className="mb-4">
-                <label className="very-small text-muted d-block text-uppercase fw-bold mb-1">Quality Requirements</label>
-                <div className="bg-white p-3 rounded border small text-muted">
-                  {selectedCatalogItem.description || 'General high-quality standards apply. Ensure produce is clean and properly packaged.'}
+            <div className="f-info-field">
+              <div className="f-info-field-label">Recommended Pricing</div>
+              <div className="f-info-field-value">
+                {selCatalog.min_price} – {selCatalog.max_price}
+                <span style={{ fontSize: '0.82rem', fontWeight: 500, color: 'var(--f-olive)', marginLeft: '0.3rem' }}>
+                  DZD / {selCatalog.default_unit}
+                </span>
+              </div>
+              <div className="f-info-field-sub">Based on latest market data for {selCatalog.name}.</div>
+            </div>
+
+            {selCatalog.description && (
+              <div className="f-info-field">
+                <div className="f-info-field-label">Quality Requirements</div>
+                <div style={{ fontSize: '0.82rem', color: '#6b7280', lineHeight: 1.55, background: '#fff', padding: '0.75rem', borderRadius: 8, border: '1px solid rgba(26,74,46,0.09)' }}>
+                  {selCatalog.description}
                 </div>
               </div>
+            )}
 
-              <div className="p-3 rounded-lg bg-primary-soft text-primary small d-flex">
-                <ShieldCheck size={20} className="me-2 flex-shrink-0" />
-                <div>
-                  Listing within the recommended price range increases your visibility on the buyer's marketplace by 40%.
-                </div>
+            <div className="f-info-tip">
+              <ShieldCheck size={18} style={{ color: 'var(--f-forest)', flexShrink: 0, marginTop: 1 }} />
+              <div>
+                Listing within the recommended price range increases your visibility on the buyer marketplace.
               </div>
             </div>
-          ) : (
-            <div className="agr-card bg-light-soft p-5 text-center border-dashed">
-              <Package size={48} className="text-muted mb-3 opacity-25" />
-              <h4 className="h6 text-muted mb-0">Select a product to view marketplace guidelines and pricing help.</h4>
+          </div>
+        ) : (
+          <div className="f-info-placeholder">
+            <div className="f-info-placeholder-icon"><Package size={40} style={{ color: 'var(--f-sage-light)' }} /></div>
+            <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#9ca3af' }}>
+              Select a product to view marketplace guidelines and pricing help.
             </div>
-          )}
-        </div>
+          </div>
+        )}
+
       </div>
+
+      {/* Mobile: stack sidebar below */}
+      <style>{`
+        @media (max-width: 900px) {
+          .farmer-page-wrapper > div[style*="grid-template-columns"] {
+            grid-template-columns: 1fr !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
-
-export default ProductForm;

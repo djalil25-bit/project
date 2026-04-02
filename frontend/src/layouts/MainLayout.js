@@ -34,6 +34,12 @@ import {
   ShieldAlert,
   Heart,
   ChevronDown,
+  Tractor,
+  Wheat,
+  Sprout,
+  Leaf,
+  BarChart3,
+  ListOrdered
 } from 'lucide-react';
 import VerifiedBadge from '../components/common/VerifiedBadge';
 import AgriGovLogo from '../components/common/AgriGovLogo';
@@ -124,13 +130,13 @@ const MainLayout = () => {
       { label: t('nav_complaint_center'), path: '/admin-dashboard/complaints', icon: <ShieldAlert size={18} /> },
     ],
     farmer: [
-      { label: t('nav_dashboard'), path: '/farmer-dashboard', icon: <LayoutDashboard size={18} /> },
-      { label: t('nav_statistics'), path: '/farmer-dashboard/stats', icon: <TrendingUp size={18} /> },
-      { label: t('nav_my_farms'), path: '/farmer-dashboard/farms', icon: <Home size={18} /> },
-      { label: t('nav_orders'), path: '/farmer/orders', icon: <ShoppingBag size={18} /> },
-      { label: t('nav_my_listings'), path: '/farmer/products', icon: <Package size={18} /> },
-      { label: t('nav_harvests'), path: '/farmer-dashboard/harvests', icon: <CalendarDays size={18} /> },
-      { label: t('nav_complaints'), path: '/complaints', icon: <MessageSquare size={18} /> },
+      { label: t('nav_dashboard'), path: '/farmer-dashboard', icon: <LayoutDashboard size={18} strokeWidth={2.2} /> },
+      { label: t('nav_statistics'), path: '/farmer-dashboard/stats', icon: <BarChart3 size={18} strokeWidth={2.2} /> },
+      { label: t('nav_my_farms'), path: '/farmer-dashboard/farms', icon: <Tractor size={18} strokeWidth={2.2} /> },
+      { label: t('nav_orders'), path: '/farmer/orders', icon: <ListOrdered size={18} strokeWidth={2.2} /> },
+      { label: t('nav_my_listings'), path: '/farmer/products', icon: <Sprout size={18} strokeWidth={2.2} /> },
+      { label: t('nav_harvests'), path: '/farmer-dashboard/harvests', icon: <Wheat size={18} strokeWidth={2.2} /> },
+      { label: t('nav_complaints'), path: '/complaints', icon: <MessageSquare size={18} strokeWidth={2.2} /> },
     ],
     buyer: [
       { label: t('nav_marketplace'), path: '/buyer-dashboard', icon: <ShoppingCart size={18} /> },

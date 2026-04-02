@@ -2,48 +2,51 @@ import React, { useState, useEffect, useRef } from 'react';
 import api from '../../api/axiosConfig';
 import { useNavigate, Link, useParams } from 'react-router-dom';
 import {
-  Home, MapPin, Maximize, Save, FileText, ChevronRight, ArrowLeft,
-  Info, Upload, Image, X
+  Home, MapPin, Maximize2, Save, FileText,
+  ChevronRight, ArrowLeft, Info, Upload, Image as ImageIcon, X
 } from 'lucide-react';
 
-function FarmForm() {
-  const [formData, setFormData] = useState({ name: '', location: '', size_hectares: '', description: '' });
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
-  const [existingImage, setExistingImage] = useState(null);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+export default function FarmForm() {
+  const [formData, setFormData] = useState({
+    name: '', location: '', size_hectares: '', description: '',
+  });
+  const [imageFile, setImageFile]     = useState(null);
+  const [imagePreview, setPreview]    = useState(null);
+  const [existingImage, setExisting]  = useState(null);
+  const [error, setError]             = useState(null);
+  const [loading, setLoading]         = useState(false);
   const fileInputRef = useRef();
-  const navigate = useNavigate();
-  const { id } = useParams();
-  const isEditMode = !!id;
+  const navigate     = useNavigate();
+  const { id }       = useParams();
+  const isEditMode   = !!id;
 
   useEffect(() => {
-    if (isEditMode) {
-      api.get(`/farms/${id}/`).then(res => {
+    if (!isEditMode) return;
+    api.get(`/farms/${id}/`)
+      .then(res => {
         setFormData({
           name: res.data.name || '',
           location: res.data.location || '',
           size_hectares: res.data.size_hectares || '',
-          description: res.data.description || ''
+          description: res.data.description || '',
         });
-        if (res.data.image) setExistingImage(res.data.image);
-      }).catch(() => setError('Failed to load farm data.'));
-    }
+        if (res.data.image) setExisting(res.data.image);
+      })
+      .catch(() => setError('Failed to load farm data.'));
   }, [id, isEditMode]);
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const handleImageChange = (e) => {
+  const handleImageChange = e => {
     const file = e.target.files?.[0];
     if (!file) return;
     setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
+    setPreview(URL.createObjectURL(file));
   };
 
   const clearImage = () => {
     setImageFile(null);
-    setImagePreview(null);
+    setPreview(null);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
@@ -53,7 +56,7 @@ function FarmForm() {
     setLoading(true);
     try {
       const body = new FormData();
-      Object.entries(formData).forEach(([k, v]) => body.append(k, v));
+      Object.entries(formData).forEach(([k, v]) => { if (v !== '') body.append(k, v); });
       if (imageFile) body.append('image', imageFile);
 
       if (isEditMode) {
@@ -64,120 +67,192 @@ function FarmForm() {
       navigate('/farmer-dashboard/farms');
     } catch (err) {
       const data = err.response?.data;
-      const msg = typeof data === 'object' ? Object.values(data).flat().join(' ') : 'Failed to save farm.';
+      const msg  = typeof data === 'object' ? Object.values(data).flat().join(' ') : 'Failed to save farm.';
       setError(msg);
     } finally { setLoading(false); }
   };
 
   return (
-    <div className="farm-form-page">
-      <div className="agr-breadcrumb">
+    <div className="farmer-page-wrapper">
+
+      {/* Breadcrumb */}
+      <div className="f-breadcrumb">
         <Link to="/farmer-dashboard">Farmer Hub</Link>
-        <span className="agr-breadcrumb-sep"><ChevronRight size={12} /></span>
+        <span className="f-breadcrumb-sep"><ChevronRight size={11} /></span>
         <Link to="/farmer-dashboard/farms">My Farms</Link>
-        <span className="agr-breadcrumb-sep"><ChevronRight size={12} /></span>
+        <span className="f-breadcrumb-sep"><ChevronRight size={11} /></span>
         <span>{isEditMode ? 'Edit' : 'Add'} Farm</span>
       </div>
 
-      <div className="page-header d-flex justify-content-between align-items-center mb-4">
+      {/* Page header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.75rem' }}>
         <div>
-          <h1 className="page-title">{isEditMode ? 'Edit Farm Unit' : 'Add New Farm Unit'}</h1>
-          <p className="page-subtitle text-muted">{isEditMode ? 'Update your farm details.' : 'Register your agricultural land.'}</p>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--f-forest-dark)', margin: 0 }}>
+            {isEditMode ? 'Edit Farm Unit' : 'Add New Farm Unit'}
+          </h1>
+          <p style={{ margin: '0.3rem 0 0', color: '#6b7280', fontSize: '0.88rem' }}>
+            {isEditMode ? 'Update your farm details.' : 'Register your agricultural land on AgriGov Market.'}
+          </p>
         </div>
-        <button onClick={() => navigate(-1)} className="btn-agr btn-outline d-flex align-items-center gap-2">
-          <ArrowLeft size={16} /> Back
+        <button onClick={() => navigate(-1)} className="btn-f-ghost btn-f-sm">
+          <ArrowLeft size={15} /> Back
         </button>
       </div>
 
-      <div className="row justify-content-center">
-        <div className="col-lg-7">
-          <div className="agr-card p-4 p-md-5">
+      <div style={{ maxWidth: 620 }}>
+        <div className="f-card">
+          <div className="f-card-body">
+
             {error && (
-              <div className="alert-agr alert-danger-agr mb-4 d-flex align-items-center">
-                <Info size={18} className="me-3" />
-                <div>{error}</div>
+              <div className="f-alert f-alert-danger">
+                <Info size={16} /> <div>{error}</div>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="agr-form">
-              {/* Farm Image Upload */}
-              <div className="form-group mb-4">
-                <label className="form-label d-flex align-items-center gap-2">
-                  <Image size={16} className="text-primary" /> Farm Photo
-                  <span className="text-muted very-small fw-normal">(optional)</span>
-                </label>
-                <div className="farm-image-uploader">
+            <form onSubmit={handleSubmit}>
+
+              {/* Farm Photo */}
+              <div className="f-form-section">
+                <div className="f-form-section-title">Farm Photo</div>
+                <div className="f-form-group">
+                  <label className="f-form-label">
+                    <ImageIcon size={14} style={{ color: 'var(--f-olive)' }} />
+                    Upload Photo <span className="opt">(optional)</span>
+                  </label>
+
                   {imagePreview || existingImage ? (
-                    <div className="farm-image-preview" style={{ position: 'relative' }}>
-                      <img src={imagePreview || existingImage} alt="Farm preview" style={{ width: '100%', height: 200, objectFit: 'cover', borderRadius: 10 }} />
-                      <button type="button" className="btn-icon text-danger" style={{ position: 'absolute', top: 8, right: 8, background: 'white', borderRadius: 20, padding: 4 }} onClick={clearImage}>
-                        <X size={16} />
+                    <div className="f-image-preview-wrap">
+                      <img src={imagePreview || existingImage} alt="Farm preview" />
+                      <button type="button" className="f-image-remove" onClick={clearImage} title="Remove image">
+                        <X size={14} />
                       </button>
                     </div>
                   ) : (
                     <div
-                      className="image-upload-zone"
+                      className="f-upload-zone"
                       onClick={() => fileInputRef.current?.click()}
                     >
-                      <Upload size={32} className="text-muted mb-2 opacity-40" />
-                      <div className="small text-muted">Click to upload farm photo</div>
-                      <div className="very-small text-muted">JPG, PNG, or WEBP</div>
+                      <div className="f-upload-zone-icon">
+                        <Upload size={32} />
+                      </div>
+                      <div className="f-upload-zone-text">Click to upload farm photo</div>
+                      <div className="f-upload-zone-sub">JPG, PNG, or WEBP — max 10 MB</div>
                     </div>
                   )}
-                  <input ref={fileInputRef} type="file" accept="image/*" className="d-none" onChange={handleImageChange} />
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={handleImageChange}
+                  />
                   {!imagePreview && !existingImage && (
-                    <button type="button" className="btn-agr btn-outline btn-sm mt-2 d-flex align-items-center gap-1" onClick={() => fileInputRef.current?.click()}>
-                      <Upload size={14} /> Choose Image
+                    <button
+                      type="button"
+                      className="btn-f-ghost btn-f-sm"
+                      style={{ marginTop: '0.5rem' }}
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      <Upload size={13} /> Choose Image
                     </button>
                   )}
                 </div>
               </div>
 
-              <div className="form-group mb-4">
-                <label className="form-label d-flex align-items-center gap-2">
-                  <Home size={16} className="text-primary" /> Farm Name *
-                </label>
-                <input type="text" name="name" className="form-input" placeholder="e.g. Ibrahim Family Orchards" value={formData.name} onChange={handleChange} required />
-              </div>
+              {/* Farm Details */}
+              <div className="f-form-section">
+                <div className="f-form-section-title">Farm Details</div>
 
-              <div className="row">
-                <div className="col-md-7">
-                  <div className="form-group mb-4">
-                    <label className="form-label d-flex align-items-center gap-2">
-                      <MapPin size={16} className="text-primary" /> Location *
+                <div className="f-form-group">
+                  <label className="f-form-label">
+                    <Home size={14} style={{ color: 'var(--f-olive)' }} />
+                    Farm Name <span className="req">*</span>
+                  </label>
+                  <input
+                    type="text" name="name"
+                    className="f-input"
+                    placeholder="e.g. Ibrahim Family Orchards"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '1rem' }}>
+                  <div className="f-form-group" style={{ marginBottom: 0 }}>
+                    <label className="f-form-label">
+                      <MapPin size={14} style={{ color: 'var(--f-olive)' }} />
+                      Location <span className="req">*</span>
                     </label>
-                    <input type="text" name="location" className="form-input" placeholder="Province, District or City" value={formData.location} onChange={handleChange} required />
+                    <input
+                      type="text" name="location"
+                      className="f-input"
+                      placeholder="Province, District or City"
+                      value={formData.location}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                  <div className="f-form-group" style={{ marginBottom: 0, minWidth: 130 }}>
+                    <label className="f-form-label">
+                      <Maximize2 size={14} style={{ color: 'var(--f-olive)' }} />
+                      Land Size (ha)
+                    </label>
+                    <input
+                      type="number" step="0.01" name="size_hectares"
+                      className="f-input"
+                      placeholder="0.00"
+                      value={formData.size_hectares}
+                      onChange={handleChange}
+                    />
                   </div>
                 </div>
-                <div className="col-md-5">
-                  <div className="form-group mb-4">
-                    <label className="form-label d-flex align-items-center gap-2">
-                      <Maximize size={16} className="text-primary" /> Land Size (ha)
-                    </label>
-                    <input type="number" step="0.01" name="size_hectares" className="form-input" placeholder="0.00" value={formData.size_hectares} onChange={handleChange} />
+              </div>
+
+              {/* Description */}
+              <div className="f-form-section">
+                <div className="f-form-section-title">Additional Information</div>
+                <div className="f-form-group">
+                  <label className="f-form-label">
+                    <FileText size={14} style={{ color: 'var(--f-olive)' }} />
+                    Description <span className="opt">(optional)</span>
+                  </label>
+                  <textarea
+                    name="description"
+                    className="f-input f-textarea"
+                    placeholder="Tell us about your soil, crops, irrigation method, certifications…"
+                    rows="4"
+                    value={formData.description}
+                    onChange={handleChange}
+                  />
+                  <div className="f-form-hint">
+                    A good description helps buyers trust your farm and products.
                   </div>
                 </div>
               </div>
 
-              <div className="form-group mb-4">
-                <label className="form-label d-flex align-items-center gap-2">
-                  <FileText size={16} className="text-primary" /> Description
-                </label>
-                <textarea name="description" className="form-input" placeholder="Tell us about your soil, crops, or methods..." rows="4" value={formData.description} onChange={handleChange} />
-              </div>
-
-              <div className="d-flex gap-3 pt-3">
-                <button type="submit" className="btn-agr btn-primary px-4 d-flex align-items-center gap-2" disabled={loading}>
-                  {loading ? 'Saving...' : <><Save size={18} /> Save Farm</>}
+              {/* Actions */}
+              <div style={{ display: 'flex', gap: '0.75rem' }} className="f-form-actions">
+                <button
+                  type="submit"
+                  className="btn-f-primary"
+                  disabled={loading}
+                >
+                  {loading ? 'Saving…' : <><Save size={16} /> Save Farm</>}
                 </button>
-                <button type="button" className="btn-agr btn-outline px-4" onClick={() => navigate('/farmer-dashboard/farms')}>Discard</button>
+                <button
+                  type="button"
+                  className="btn-f-ghost"
+                  onClick={() => navigate('/farmer-dashboard/farms')}
+                >
+                  Discard
+                </button>
               </div>
             </form>
+
           </div>
         </div>
       </div>
     </div>
   );
 }
-
-export default FarmForm;

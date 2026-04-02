@@ -1,222 +1,186 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import api from '../../api/axiosConfig';
-import { 
-  Package, 
-  User, 
-  ShoppingBag, 
-  CheckCircle, 
-  XCircle, 
-  Clock, 
-  Truck, 
-  Search, 
-  Eye, 
-  ChevronLeft,
-  ChevronRight,
-  MapPin,
-  Calendar,
-  FileText,
-  AlertCircle,
-  X,
+import {
+  Package, User, ListOrdered, CheckCircle, XCircle,
+  Clock, Truck, Search, Eye, ChevronLeft, ChevronRight,
   ShieldAlert
 } from 'lucide-react';
-// import ComplaintFormModal from '../../components/complaints/ComplaintFormModal';
 
-const OrderList = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const initialFilter = queryParams.get('status')?.toUpperCase() || 'ALL';
+/* ── Status badges ───────────────────────────────────────── */
+const OrderStatusBadge = ({ status }) => {
+  const s = status?.toUpperCase() || '';
+  const map = {
+    PENDING:   { cls: 'f-badge f-badge-pending',   icon: <Clock size={10} />,         label: 'Pending'   },
+    CONFIRMED: { cls: 'f-badge f-badge-confirmed',  icon: <CheckCircle size={10} />,   label: 'Confirmed' },
+    DELIVERED: { cls: 'f-badge f-badge-delivered',  icon: <Truck size={10} />,         label: 'Delivered' },
+    REJECTED:  { cls: 'f-badge f-badge-rejected',   icon: <XCircle size={10} />,       label: 'Rejected'  },
+  };
+  const b = map[s] || { cls: 'f-badge f-badge-inactive', icon: null, label: s };
+  return <span className={b.cls}>{b.icon} {b.label}</span>;
+};
 
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState(initialFilter); // ALL, PENDING, CONFIRMED, REJECTED
-  const [searchTerm, setSearchTerm] = useState('');
-  const [expandedRow, setExpandedRow] = useState(null);
-  const [actionLoading, setActionLoading] = useState(null);
-  // const [complaintModal, setComplaintModal] = useState({ open: false, orderId: null });
+const DeliveryBadge = ({ order }) => {
+  const hasReq      = order.has_delivery_request;
+  const reqStatus   = order.delivery_request?.status?.toUpperCase() || '';
+  const delivStatus = order.delivery_status?.toUpperCase() || '';
+
+  if (delivStatus === 'DELIVERED') return <span className="f-badge f-badge-delivered"><CheckCircle size={10} /> Delivered</span>;
+  if (!hasReq)                     return <span className="f-badge f-badge-not-sent">Not Sent</span>;
+
+  const map = {
+    OPEN:      { cls: 'f-badge f-badge-pending',  label: 'Awaiting Transporter' },
+    ASSIGNED:  { cls: 'f-badge f-badge-assigned', label: 'Assigned'             },
+    PICKED_UP: { cls: 'f-badge f-badge-transit',  label: 'In Transit'           },
+    IN_TRANSIT:{ cls: 'f-badge f-badge-transit',  label: 'In Transit'           },
+    CANCELLED: { cls: 'f-badge f-badge-rejected', label: 'Cancelled'            },
+  };
+  const b = map[reqStatus] || { cls: 'f-badge f-badge-inactive', label: reqStatus || 'Unknown' };
+  return <span className={b.cls}>{b.label}</span>;
+};
+
+/* ── Format order number ─────────────────────────────────── */
+const fmtNum = o => o.farmer_order_number
+  ? `#F-${String(o.farmer_order_number).padStart(3, '0')}`
+  : `#${o.id}`;
+
+export default function OrderList() {
+  const navigate  = useNavigate();
+  const location  = useLocation();
+  const qp        = new URLSearchParams(location.search);
+  const initFilter = qp.get('status')?.toUpperCase() || 'ALL';
+
+  const [orders, setOrders]         = useState([]);
+  const [loading, setLoading]       = useState(true);
+  const [filter, setFilter]         = useState(initFilter);
+  const [searchTerm, setSearch]     = useState('');
+  const [expandedRow, setExpanded]  = useState(null);
+  const [actionLoading, setActLoad] = useState(null);
 
   const fetchOrders = async () => {
     setLoading(true);
     try {
       const res = await api.get('/farmer-orders/');
       setOrders(res.data.results || res.data);
-    } catch (err) {
-      console.error("Failed to fetch orders", err);
-    } finally {
-      setLoading(false);
-    }
+    } catch (err) { console.error('Failed to fetch orders', err); }
+    finally { setLoading(false); }
   };
 
-  useEffect(() => {
-    fetchOrders();
-  }, []);
+  useEffect(() => { fetchOrders(); }, []);
 
   const handleAction = async (orderId, action) => {
-    setActionLoading(orderId + '_' + action);
+    setActLoad(orderId + '_' + action);
     try {
-      const response = await api.post(`/farmer-orders/${orderId}/status/`, { action });
+      await api.post(`/farmer-orders/${orderId}/status/`, { action });
       await fetchOrders();
-      // Optional: Add a small toast or success indication if needed
     } catch (err) {
-      const errorMsg = err.response?.data?.error || err.response?.data?.detail || "Action failed. Please try again.";
-      alert(errorMsg);
-    } finally {
-      setActionLoading(null);
-    }
-  };
-
-  const getStatusBadge = (status) => {
-    const s = status?.toUpperCase() || 'UNKNOWN';
-    const baseClass = "badge-agr text-truncate d-inline-block";
-    const style = { maxWidth: '120px' };
-
-    switch (s) {
-      case 'PENDING': return <span className={`${baseClass} badge-warning`} style={style} title="Pending"><Clock size={12} className="me-1" /> Pending</span>;
-      case 'CONFIRMED': return <span className={`${baseClass} badge-primary`} style={style} title="Confirmed"><CheckCircle size={12} className="me-1" /> Confirmed</span>;
-      case 'DELIVERED': return <span className={`${baseClass} badge-success`} style={style} title="Delivered"><Truck size={12} className="me-1" /> Delivered</span>;
-      case 'REJECTED': return <span className={`${baseClass} badge-danger`} style={style} title="Rejected"><XCircle size={12} className="me-1" /> Rejected</span>;
-      default: return <span className={`${baseClass} badge-secondary`} style={style} title={s}>{s}</span>;
-    }
-  };
-
-  const getDeliveryBadge = (o) => {
-    const hasReq = o.has_delivery_request;
-    const reqStatus = o.delivery_request?.status?.toUpperCase() || '';
-    const orderDelivStatus = o.delivery_status?.toUpperCase() || '';
-    
-    const baseClass = "badge-agr text-truncate d-inline-block";
-    const style = { maxWidth: '140px', fontWeight: '700', padding: '0.4rem 0.8rem', borderRadius: '6px' };
-
-    // 1. Delivered (highest priority)
-    if (orderDelivStatus === 'DELIVERED') {
-      return <span className={`${baseClass}`} style={{ ...style, backgroundColor: '#10b981', color: '#fff' }}><CheckCircle size={12} className="me-1" /> Delivered</span>;
-    }
-
-    // 2. No request yet
-    if (!hasReq) {
-      return <span className={`${baseClass}`} style={{ ...style, backgroundColor: '#9ca3af', color: '#fff' }}>Not Sent</span>;
-    }
-
-    // 3. Status based on Delivery Request
-    switch (reqStatus) {
-      case 'OPEN': 
-        return <span className={`${baseClass}`} style={{ ...style, backgroundColor: '#f59e0b', color: '#fff' }}>Awaiting Transporter</span>;
-      case 'ASSIGNED': 
-        return <span className={`${baseClass}`} style={{ ...style, backgroundColor: '#3b82f6', color: '#fff' }}>Assigned</span>;
-      case 'PICKED_UP':
-      case 'IN_TRANSIT': 
-        return <span className={`${baseClass}`} style={{ ...style, backgroundColor: '#6366f1', color: '#fff' }}>In Transit</span>;
-      case 'CANCELLED':
-        return <span className={`${baseClass}`} style={{ ...style, backgroundColor: '#ef4444', color: '#fff' }}>Cancelled</span>;
-      default: 
-        return <span className={`${baseClass} badge-secondary`} style={style}>{reqStatus || 'Unknown'}</span>;
-    }
+      alert(err.response?.data?.error || err.response?.data?.detail || 'Action failed.');
+    } finally { setActLoad(null); }
   };
 
   const filteredOrders = orders.filter(o => {
-    let matchesFilter = false;
-    if (filter === 'ALL') {
-      matchesFilter = true;
-    } else if (filter === 'DELIVERED') {
-      matchesFilter = o.delivery_status?.toUpperCase() === 'DELIVERED';
-    } else if (filter === 'CONFIRMED') {
-      matchesFilter = o.status?.toUpperCase() === 'CONFIRMED' && o.delivery_status?.toUpperCase() !== 'DELIVERED';
-    } else {
-      matchesFilter = o.status?.toUpperCase() === filter;
-    }
-    const localNum = o.farmer_order_number ? `F-${String(o.farmer_order_number).padStart(3, '0')}` : String(o.id);
-    const buyerName = o.buyer_name || '';
-    const matchesSearch = buyerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         localNum.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesFilter && matchesSearch;
+    let match = false;
+    if (filter === 'ALL')        match = true;
+    else if (filter === 'DELIVERED') match = o.delivery_status?.toUpperCase() === 'DELIVERED';
+    else if (filter === 'CONFIRMED') match = o.status?.toUpperCase() === 'CONFIRMED' && o.delivery_status?.toUpperCase() !== 'DELIVERED';
+    else match = o.status?.toUpperCase() === filter;
+
+    const locNum   = o.farmer_order_number ? `F-${String(o.farmer_order_number).padStart(3,'0')}` : String(o.id);
+    const matchSrc = (o.buyer_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                     locNum.toLowerCase().includes(searchTerm.toLowerCase());
+    return match && matchSrc;
   });
 
-  // Helper to format the local order number
-  const formatOrderNum = (o) => {
-    if (o.farmer_order_number) return `#F-${String(o.farmer_order_number).padStart(3, '0')}`;
-    return `#${o.id}`;
-  };
+  const filterTabs = [
+    { key: 'ALL',       label: 'All'       },
+    { key: 'PENDING',   label: 'Pending'   },
+    { key: 'CONFIRMED', label: 'Confirmed' },
+    { key: 'REJECTED',  label: 'Rejected'  },
+    { key: 'DELIVERED', label: 'Delivered' },
+  ];
 
   if (loading) return (
-    <div className="flex-center py-5">
-      <div className="spinner-agr"></div>
-      <span className="ms-3 text-muted">Loading orders...</span>
+    <div className="f-spinner-wrap">
+      <div className="f-spinner" />
+      <span>Loading orders…</span>
     </div>
   );
 
   return (
-    <div className="order-list-page">
-      <div className="agr-breadcrumb">
+    <div className="farmer-page-wrapper">
+
+      {/* Breadcrumb */}
+      <div className="f-breadcrumb">
         <Link to="/farmer-dashboard">Farmer Hub</Link>
-        <span className="agr-breadcrumb-sep"><ChevronRight size={12} /></span>
+        <span className="f-breadcrumb-sep"><ChevronRight size={11} /></span>
         <span>Order Management</span>
       </div>
 
-      <div className="d-flex align-items-center mb-4">
-        <button className="btn-icon me-3" onClick={() => navigate('/farmer-dashboard')}>
-          <ChevronLeft size={20} />
+      {/* Page header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+        <button className="btn-f-icon" onClick={() => navigate('/farmer-dashboard')}>
+          <ChevronLeft size={18} />
         </button>
         <div>
-          <h1 className="h3 mb-0 fw-bold">Incoming Orders</h1>
-          <p className="text-muted small">Grouped by buyer order. Manage fulfillment and logistics.</p>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--f-forest-dark)', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <ListOrdered size={24} style={{ color: 'var(--f-olive)' }} strokeWidth={2} /> Incoming Orders
+          </h1>
+          <p style={{ margin: '0.3rem 0 0', color: '#6b7280', fontSize: '0.88rem' }}>
+            Grouped by buyer order. Manage fulfillment and logistics.
+          </p>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="agr-card p-3 mb-4 sticky-top-custom">
-        <div className="row g-3 align-items-center">
-          <div className="col-lg-4">
-            <div className="search-input-wrapper">
-              <Search size={18} className="search-icon" />
-              <input 
-                type="text" 
-                placeholder="Search by Order ID or buyer..." 
-                className="form-control-agr ps-5"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-          </div>
-          <div className="col-lg-8">
-            <div className="d-flex gap-2 justify-content-lg-end overflow-auto pb-1 pb-lg-0">
-              {['ALL', 'PENDING', 'CONFIRMED', 'REJECTED', 'DELIVERED'].map(f => (
-                <button 
-                  key={f}
-                  className={`btn-agr btn-sm ${filter === f ? 'btn-primary' : 'btn-outline'}`}
-                  onClick={() => setFilter(f)}
-                >
-                  {f.charAt(0) + f.slice(1).toLowerCase()}
-                </button>
-              ))}
-            </div>
-          </div>
+      {/* Filter bar */}
+      <div className="f-filter-bar">
+        <div className="f-search-wrap" style={{ flex: '1 1 220px', minWidth: 180 }}>
+          <Search size={15} className="f-search-icon" />
+          <input
+            type="text"
+            className="f-search-input"
+            placeholder="Search by Order ID or buyer…"
+            value={searchTerm}
+            onChange={e => setSearch(e.target.value)}
+          />
+        </div>
+        <div className="f-filter-bar-divider" />
+        <div className="f-filter-pills" style={{ flexWrap: 'nowrap', overflowX: 'auto' }}>
+          {filterTabs.map(t => (
+            <button
+              key={t.key}
+              className={`f-pill ${filter === t.key ? 'active' : ''}`}
+              onClick={() => setFilter(t.key)}
+            >
+              {t.label}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="agr-card overflow-hidden">
-        <div className="table-responsive">
-          <table className="table-agr table-hover">
+      {/* Table */}
+      <div className="f-card">
+        <div className="f-table-wrap">
+          <table className="f-table">
             <thead>
               <tr>
                 <th>Order ID</th>
                 <th>Buyer</th>
                 <th>Items</th>
-                <th>Total Price</th>
+                <th className="right">Total</th>
                 <th>Status</th>
                 <th>Delivery</th>
                 <th>Date</th>
-                <th className="text-end">Actions</th>
+                <th className="right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredOrders.length === 0 ? (
                 <tr>
                   <td colSpan="8">
-                    <div className="text-center py-5">
-                      <ShoppingBag size={48} className="text-muted mb-3 opacity-25" />
-                      <h4 className="h5 text-muted">No orders found</h4>
-                      <p className="small text-muted mb-0">Adjust your filters or check back later.</p>
+                    <div className="f-empty-state" style={{ padding: '3rem 1rem' }}>
+                      <div className="f-empty-icon"><ListOrdered size={32} strokeWidth={1.5} /></div>
+                      <div className="f-empty-title">No orders found</div>
+                      <div className="f-empty-sub">Adjust your filters or check back later.</div>
                     </div>
                   </td>
                 </tr>
@@ -224,171 +188,196 @@ const OrderList = () => {
                 <React.Fragment key={o.id}>
                   <tr>
                     <td>
-                      <span className="fw-bold text-primary">{formatOrderNum(o)}</span>
-                      <div className="very-small text-muted mt-1">ID #{o.id}</div>
+                      <div style={{ fontWeight: 800, color: 'var(--f-forest)', fontSize: '0.875rem' }}>{fmtNum(o)}</div>
+                      <div style={{ fontSize: '0.7rem', color: '#9ca3af', marginTop: 2 }}>ID #{o.id}</div>
                     </td>
                     <td>
-                      <div className="d-flex align-items-center">
-                        <div className="avatar-sm-circle me-2">
-                          {o.buyer_name?.charAt(0).toUpperCase() || 'U'}
-                        </div>
-                        <span className="small fw-semibold">{o.buyer_name}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                        <div className="f-avatar">{o.buyer_name?.charAt(0)?.toUpperCase() || 'U'}</div>
+                        <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>{o.buyer_name}</span>
                       </div>
                     </td>
                     <td>
-                      <span className="badge-agr badge-secondary">{o.items?.length || 0} Products</span>
+                      <span className="f-badge f-badge-inactive">{o.items?.length || 0} Products</span>
                     </td>
-                    <td><span className="fw-bold text-dark">{o.farmer_total || o.total_price} DZD</span></td>
-                    <td>{getStatusBadge(o.status)}</td>
-                    <td>{getDeliveryBadge(o)}</td>
-                    <td>
-                      <div className="small text-muted">{new Date(o.created_at).toLocaleDateString()}</div>
+                    <td className="col-right">
+                      <span style={{ fontWeight: 800, fontSize: '0.875rem' }}>
+                        {String(o.farmer_total || o.total_price || 0)}
+                        <span style={{ color: '#9ca3af', fontSize: '0.72rem', marginLeft: 3 }}>DZD</span>
+                      </span>
                     </td>
-                    <td className="text-end">
-                      <div className="d-flex gap-1 justify-content-end">
+                    <td><OrderStatusBadge status={o.status} /></td>
+                    <td><DeliveryBadge order={o} /></td>
+                    <td style={{ fontSize: '0.78rem', color: '#6b7280' }}>
+                      {new Date(o.created_at).toLocaleDateString()}
+                    </td>
+                    <td className="col-right">
+                      <div style={{ display: 'flex', gap: '0.35rem', justifyContent: 'flex-end' }}>
                         {o.status?.toUpperCase() === 'PENDING' && (
                           <>
-                            <button 
-                              className="btn-action btn-action-success" 
-                              title="Confirm Order" 
+                            <button
+                              className="btn-f-success btn-f-sm"
+                              title="Confirm Order"
                               onClick={() => handleAction(o.id, 'confirm')}
                               disabled={actionLoading === o.id + '_confirm'}
                             >
-                              {actionLoading === o.id + '_confirm' ? <span className="spinner-border spinner-border-sm" /> : <CheckCircle size={16} />}
+                              {actionLoading === o.id + '_confirm'
+                                ? <span style={{ display:'inline-block',width:14,height:14,border:'2px solid rgba(255,255,255,0.3)',borderTopColor:'#fff',borderRadius:'50%',animation:'f-spin .7s linear infinite'}} />
+                                : <CheckCircle size={15} strokeWidth={2.2} />
+                              }
                             </button>
-                            <button 
-                              className="btn-action btn-action-danger" 
-                              title="Reject Order" 
+                            <button
+                              className="btn-f-danger btn-f-sm"
+                              title="Reject Order"
                               onClick={() => handleAction(o.id, 'reject')}
                               disabled={actionLoading === o.id + '_reject'}
                             >
-                              {actionLoading === o.id + '_reject' ? <span className="spinner-border spinner-border-sm" /> : <XCircle size={16} />}
+                              {actionLoading === o.id + '_reject'
+                                ? <span style={{ display:'inline-block',width:14,height:14,border:'2px solid rgba(255,255,255,0.3)',borderTopColor:'#fff',borderRadius:'50%',animation:'f-spin .7s linear infinite'}} />
+                                : <XCircle size={15} strokeWidth={2.2} />
+                              }
                             </button>
                           </>
                         )}
-                        <button className="btn-action btn-action-secondary" title="View Details" onClick={() => setExpandedRow(expandedRow === o.id ? null : o.id)}>
-                          <Eye size={16} />
+                        <button
+                          className="btn-f-icon btn-f-icon-sm"
+                          title="View Details"
+                          onClick={() => setExpanded(expandedRow === o.id ? null : o.id)}
+                          style={expandedRow === o.id ? { background: 'var(--f-mint-deep)', color: 'var(--f-forest)' } : {}}
+                        >
+                          <Eye size={14} />
                         </button>
                       </div>
                     </td>
                   </tr>
-                  
-                  {/* Expanded Items Section */}
+
+                  {/* ── Expanded Details ───────────────────── */}
                   {expandedRow === o.id && (
-                    <tr className="bg-light-soft">
-                      <td colSpan="8" className="p-0 border-0">
-                        <div className="p-4 animate-slide-in shadow-inner">
-                          <div className="row g-4">
-                            <div className="col-lg-7">
-                              <h6 className="fw-bold mb-3 d-flex align-items-center"><Package size={16} className="me-2 text-primary" /> Ordered Products</h6>
-                              <div className="agr-card p-0 mb-3 overflow-hidden">
-                                <table className="table table-sm mb-0">
-                                  <thead className="bg-white">
-                                    <tr className="very-small text-muted text-uppercase">
-                                      <th className="ps-3 py-2">Product</th>
-                                      <th className="py-2 text-center">Qty</th>
-                                      <th className="py-2 text-end pe-3">Subtotal</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>
-                                    {o.items.map(item => (
-                                      <tr key={item.id}>
-                                        <td className="ps-3 py-2">
-                                          <div className="fw-bold small">{item.product_name}</div>
-                                          <div className="very-small text-muted">{item.price_per_unit} DZD / unit</div>
-                                        </td>
-                                        <td className="py-2 text-center small">{item.quantity}</td>
-                                        <td className="py-2 text-end pe-3 fw-bold small">{item.item_total} DZD</td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                              </div>
+                    <tr className="f-order-expanded">
+                      <td colSpan="8">
+                        <div className="f-order-expanded-inner">
+
+                          {/* Products list */}
+                          <div>
+                            <div className="f-order-section-label">
+                              <Package size={14} strokeWidth={1.5} /> Ordered Products
                             </div>
-                            
-                            <div className="col-lg-5">
-                              <h6 className="fw-bold mb-3 d-flex align-items-center"><User size={16} className="me-2 text-primary" /> Logistics & Contact</h6>
-                              <div className="bg-white p-3 rounded border mb-3">
-                                <div className="mb-2">
-                                  <span className="very-small text-muted text-uppercase d-block fw-bold">Buyer Contact</span>
-                                  <div className="small fw-bold">{o.buyer_phone || 'N/A'}</div>
+                            <div className="f-card" style={{ overflow: 'hidden' }}>
+                              <table className="f-table" style={{ fontSize: '0.82rem' }}>
+                                <thead>
+                                  <tr>
+                                    <th>Product</th>
+                                    <th className="right">Qty</th>
+                                    <th className="right">Subtotal</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {o.items?.map(item => (
+                                    <tr key={item.id}>
+                                      <td>
+                                        <div style={{ fontWeight: 700 }}>{item.product_name}</div>
+                                        <div style={{ fontSize: '0.72rem', color: '#9ca3af' }}>{item.price_per_unit} DZD / unit</div>
+                                      </td>
+                                      <td className="col-right" style={{ fontWeight: 700 }}>{item.quantity}</td>
+                                      <td className="col-right" style={{ fontWeight: 800, color: 'var(--f-forest)' }}>{item.item_total} DZD</td>
+                                    </tr>
+                                  ))}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+
+                          {/* Logistics & Contact */}
+                          <div>
+                            <div className="f-order-section-label">
+                              <User size={13} /> Logistics &amp; Contact
+                            </div>
+                            <div className="f-logistics-card">
+                              <div className="f-logistics-field">
+                                <div className="f-logistics-field-label">Buyer Contact</div>
+                                <div className="f-logistics-field-value">{o.buyer_phone || 'N/A'}</div>
+                              </div>
+                              <div className="f-logistics-field">
+                                <div className="f-logistics-field-label">Delivery Location</div>
+                                <div className="f-logistics-field-value">
+                                  {o.wilaya && <span style={{ color: 'var(--f-forest)', fontWeight: 800 }}>{o.wilaya}: </span>}
+                                  {o.delivery_address}
                                 </div>
-                                <div className="mb-2">
-                                  <span className="very-small text-muted text-uppercase d-block fw-bold">Delivery Location</span>
-                                  <div className="small">{o.wilaya ? <strong className="text-primary">{o.wilaya}: </strong> : ''}{o.delivery_address}</div>
-                                </div>
-                                {o.status?.toUpperCase() === 'CONFIRMED' && (
-                                <div className="mt-3">
+                              </div>
+
+                              {/* Request transporter */}
+                              {o.status?.toUpperCase() === 'CONFIRMED' && (
+                                <div style={{ marginTop: '0.875rem' }}>
                                   {!o.has_delivery_request ? (
-                                    <button 
-                                      className="btn-agr btn-primary w-100 d-flex align-items-center justify-content-center py-2" 
+                                    <button
+                                      className="btn-f-primary"
+                                      style={{ width: '100%', justifyContent: 'center' }}
                                       onClick={() => navigate(`/farmer/orders/${o.id}/request-delivery`)}
                                     >
-                                      <Truck size={18} className="me-2" /> Request Transporter
+                                      <Truck size={16} strokeWidth={2.2} /> Request Transporter
                                     </button>
                                   ) : (
-                                    <div className="alert-agr alert-success-agr py-2 px-3 small d-flex align-items-center">
-                                      <CheckCircle size={16} className="me-2" /> Delivery Request Active
+                                    <div className="f-alert f-alert-success" style={{ margin: 0 }}>
+                                      <CheckCircle size={15} /> Delivery Request Active
                                     </div>
                                   )}
                                 </div>
                               )}
-                              
-                              {/* Proof of Delivery Details for Farmer */}
+
+                              {/* POD section */}
                               {o.delivery_request?.pod_completed_at && (
-                                <div className="mt-3 p-3 bg-light-soft rounded border-dashed border-1 border-success">
-                                  <div className="d-flex align-items-center gap-2 mb-2 text-success fw-bold very-small text-uppercase">
-                                    <CheckCircle size={14} /> Handover Verified
+                                <div className="f-pod-section">
+                                  <div className="f-pod-label"><CheckCircle size={12} /> Handover Verified</div>
+                                  <div style={{ fontSize: '0.82rem', marginBottom: '0.3rem' }}>
+                                    <span style={{ color: '#9ca3af', fontWeight: 700 }}>Signee:</span> {o.delivery_request.pod_recipient_name}
                                   </div>
-                                  <div className="small mb-1">
-                                    <span className="text-muted fw-bold">Signee:</span> {o.delivery_request.pod_recipient_name}
-                                  </div>
-                                  <div className="very-small text-muted mb-2">
+                                  <div style={{ fontSize: '0.72rem', color: '#9ca3af', marginBottom: '0.5rem' }}>
                                     {new Date(o.delivery_request.pod_completed_at).toLocaleString()}
                                   </div>
                                   {o.delivery_request.pod_notes && (
-                                    <div className="very-small text-muted fst-italic mb-2 ps-2 border-start">
+                                    <div style={{ fontSize: '0.75rem', fontStyle: 'italic', color: '#6b7280', borderLeft: '3px solid var(--f-sage-light)', paddingLeft: '0.6rem' }}>
                                       "{o.delivery_request.pod_notes}"
                                     </div>
                                   )}
                                   {o.delivery_request.pod_photo && (
-                                    <div className="pod-photo-preview mt-2 rounded overflow-hidden border">
-                                      <img src={o.delivery_request.pod_photo} alt="Handover Proof" style={{ width: '100%', maxHeight: '150px', objectFit: 'cover', cursor: 'pointer' }} onClick={() => window.open(o.delivery_request.pod_photo, '_blank')} />
+                                    <div style={{ marginTop: '0.5rem', borderRadius: 8, overflow: 'hidden' }}>
+                                      <img
+                                        src={o.delivery_request.pod_photo}
+                                        alt="Proof of Delivery"
+                                        style={{ width: '100%', maxHeight: 140, objectFit: 'cover', cursor: 'pointer', display: 'block' }}
+                                        onClick={() => window.open(o.delivery_request.pod_photo, '_blank')}
+                                      />
                                     </div>
                                   )}
                                   {o.buyer_confirmed_at && (
-                                    <div className="mt-2 py-1 px-2 bg-success text-white rounded very-small fw-bold text-center">
+                                    <div style={{ marginTop: '0.5rem', background: 'var(--f-forest)', color: '#fff', borderRadius: 6, padding: '0.35rem 0.75rem', fontSize: '0.72rem', fontWeight: 800, textAlign: 'center' }}>
                                       FINALIZED BY BUYER
                                     </div>
                                   )}
                                 </div>
                               )}
-                              
+
+                              {/* Notes */}
                               {o.notes && (
-                                  <div className="mt-3">
-                                    <span className="very-small text-muted text-uppercase d-block fw-bold">Order Notes</span>
-                                    <div className="small fst-italic text-muted">"{o.notes}"</div>
-                                  </div>
-                                )}
-                              </div>
-                              
-                              <div className="mt-4 pt-3 border-top">
-                                <div className="complaint-section-card">
-                                  <div className="d-flex align-items-center justify-content-between mb-2">
-                                    <span className="very-small text-muted fw-bold text-uppercase">Issue with this order?</span>
-                                    <span className="complaint-badge-mini" style={{ color: '#dc2626', background: '#fee2e2' }}>SECURE PHASE</span>
-                                  </div>
-                                  <Link 
-                                    to={`/complaints/new?order_id=${o.id}&type=PAYMENT`}
-                                    className="btn-complaint-cta"
-                                  >
-                                    <ShieldAlert size={18} /> 
-                                    <span>Official Complaint Center</span>
-                                  </Link>
+                                <div style={{ marginTop: '0.875rem' }}>
+                                  <div className="f-logistics-field-label">Order Notes</div>
+                                  <div style={{ fontSize: '0.82rem', fontStyle: 'italic', color: '#6b7280' }}>"{o.notes}"</div>
                                 </div>
+                              )}
+
+                              {/* Complaint CTA */}
+                              <div style={{ marginTop: '1rem', paddingTop: '0.875rem', borderTop: '1px solid rgba(26,74,46,0.07)' }}>
+                                <div style={{ fontSize: '0.7rem', color: '#9ca3af', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.5rem' }}>Issue with this order?</div>
+                                <a
+                                  href={`/complaints/new?order_id=${o.id}&type=PAYMENT`}
+                                  className="f-complaint-cta"
+                                >
+                                  <ShieldAlert size={16} /> Official Complaint Center
+                                </a>
                               </div>
                             </div>
                           </div>
+
                         </div>
                       </td>
                     </tr>
@@ -401,6 +390,4 @@ const OrderList = () => {
       </div>
     </div>
   );
-};
-
-export default OrderList;
+}

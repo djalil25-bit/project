@@ -5,19 +5,20 @@ import {
   ChevronRight, ArrowRight, CheckCircle,
   Package, Users, ShoppingBag,
   Award, Globe, Building2, Sprout, MapPin,
-  BadgeCheck, Zap, Clock
+  BadgeCheck, Zap, Clock, Landmark, Trees, Leaf,
+  Carrot, Apple, Citrus, Nut, Box, Wheat
 } from 'lucide-react';
 
 /* ─── Static Data ─────────────────────────────────── */
 const PRODUCTS = [
-  { id: 1, name: 'Fresh Tomatoes', category: 'Vegetables', price: '80', unit: 'kg', badge: 'Seasonal', emoji: '🍅', color: '#fee2e2', accent: '#ef4444' },
-  { id: 2, name: 'Organic Carrots', category: 'Vegetables', price: '55', unit: 'kg', badge: 'Organic', emoji: '🥕', color: '#ffedd5', accent: '#f97316' },
-  { id: 3, name: 'Potatoes', category: 'Tubers', price: '45', unit: 'kg', badge: 'Local', emoji: '🥔', color: '#fef3c7', accent: '#d97706' },
-  { id: 4, name: 'Durum Wheat', category: 'Cereals', price: '35', unit: 'kg', badge: 'Premium', emoji: '🌾', color: '#fef9c3', accent: '#ca8a04' },
-  { id: 5, name: 'Deglet Nour Dates', category: 'Dried Fruits', price: '320', unit: 'kg', badge: 'Export', emoji: '🌴', color: '#f0fdf4', accent: '#16a34a' },
-  { id: 6, name: 'Blida Oranges', category: 'Fruits', price: '90', unit: 'kg', badge: 'Seasonal', emoji: '🍊', color: '#fff7ed', accent: '#ea580c' },
-  { id: 7, name: 'Sig Olives', category: 'Olive Cultivation', price: '150', unit: 'kg', badge: 'PDO', emoji: '🫒', color: '#f0fdf4', accent: '#15803d' },
-  { id: 8, name: 'Red Peppers', category: 'Vegetables', price: '120', unit: 'kg', badge: 'Fresh', emoji: '🫑', color: '#ecfdf5', accent: '#059669' },
+  { id: 1, name: 'Fresh Tomatoes', category: 'Vegetables', price: '80', unit: 'kg', badge: 'Seasonal', icon: <Apple size={28} />, color: '#fee2e2', accent: '#ef4444' },
+  { id: 2, name: 'Organic Carrots', category: 'Vegetables', price: '55', unit: 'kg', badge: 'Organic', icon: <Carrot size={28} />, color: '#ffedd5', accent: '#f97316' },
+  { id: 3, name: 'Potatoes', category: 'Tubers', price: '45', unit: 'kg', badge: 'Local', icon: <Box size={28} />, color: '#fef3c7', accent: '#d97706' },
+  { id: 4, name: 'Durum Wheat', category: 'Cereals', price: '35', unit: 'kg', badge: 'Premium', icon: <Wheat size={28} />, color: '#fef9c3', accent: '#ca8a04' },
+  { id: 5, name: 'Deglet Nour Dates', category: 'Dried Fruits', price: '320', unit: 'kg', badge: 'Export', icon: <Trees size={28} />, color: '#f0fdf4', accent: '#16a34a' },
+  { id: 6, name: 'Blida Oranges', category: 'Fruits', price: '90', unit: 'kg', badge: 'Seasonal', icon: <Citrus size={28} />, color: '#fff7ed', accent: '#ea580c' },
+  { id: 7, name: 'Sig Olives', category: 'Olive Cultivation', price: '150', unit: 'kg', badge: 'PDO', icon: <Leaf size={28} />, color: '#f0fdf4', accent: '#15803d' },
+  { id: 8, name: 'Red Peppers', category: 'Vegetables', price: '120', unit: 'kg', badge: 'Fresh', icon: <Sprout size={28} />, color: '#ecfdf5', accent: '#059669' },
 ];
 
 const FEATURES = [
@@ -214,13 +215,13 @@ const LandingPage = () => {
             </div>
           </div>
           <div className="home-hero-visual">
-            <div className="home-hero-image-grid">
-              <div className="home-hero-img-1">🌾</div>
-              <div className="home-hero-img-2">🍅</div>
-              <div className="home-hero-img-3">🥕</div>
-              <div className="home-hero-img-4">🫒</div>
-              <div className="home-hero-img-5">🍊</div>
-              <div className="home-hero-img-6">🌴</div>
+            <div className="home-hero-image-grid" style={{ fontVairant: 'none' }}>
+              <div className="home-hero-img-1" style={{ color: '#ca8a04' }}><Wheat size={36} strokeWidth={1.5} /></div>
+              <div className="home-hero-img-2" style={{ color: '#ef4444' }}><Apple size={36} strokeWidth={1.5} /></div>
+              <div className="home-hero-img-3" style={{ color: '#f97316' }}><Carrot size={36} strokeWidth={1.5} /></div>
+              <div className="home-hero-img-4" style={{ color: '#15803d' }}><Leaf size={36} strokeWidth={1.5} /></div>
+              <div className="home-hero-img-5" style={{ color: '#ea580c' }}><Citrus size={36} strokeWidth={1.5} /></div>
+              <div className="home-hero-img-6" style={{ color: '#16a34a' }}><Trees size={36} strokeWidth={1.5} /></div>
             </div>
             <div className="home-hero-floating-1">
               <TrendingUp size={18} className="me-2 text-success" />
@@ -277,8 +278,8 @@ const LandingPage = () => {
           <div className="home-products-grid">
             {PRODUCTS.map((p) => (
               <div key={p.id} className="home-product-card">
-                <div className="home-product-image" style={{ background: p.color }}>
-                  <span className="home-product-emoji">{p.emoji}</span>
+                <div className="home-product-image" style={{ background: p.color, color: p.accent }}>
+                  {p.icon}
                   <span className="home-product-badge" style={{ background: p.accent }}>{p.badge}</span>
                 </div>
                 <div className="home-product-body">
@@ -446,7 +447,7 @@ const LandingPage = () => {
             <div className="home-trust-right">
               <div className="home-trust-card-wrapper">
                 <div className="home-trust-card">
-                  <div className="home-trust-card-icon">🏛️</div>
+                  <div className="home-trust-card-icon" style={{ color: '#0f5132' }}><Landmark size={40} strokeWidth={1.5} /></div>
                   <h4>Ministry of Agriculture</h4>
                   <p className="home-trust-card-sub">and Rural Development</p>
                   <div className="home-trust-card-sep"></div>
@@ -473,7 +474,7 @@ const LandingPage = () => {
       <section className="home-cta-section">
         <div className="container">
           <div className="home-cta-inner">
-            <div className="home-cta-icon-bg">🌾</div>
+            <div className="home-cta-icon-bg"><Sprout size={48} strokeWidth={1.5} color="#16a34a" /></div>
             <h2 className="home-cta-title">Ready to join the agriculture of tomorrow?</h2>
             <p className="home-cta-sub">
               Create your account, access official prices, and start trading on the most 

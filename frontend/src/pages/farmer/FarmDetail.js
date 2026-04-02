@@ -2,35 +2,34 @@ import React, { useState, useEffect } from 'react';
 import api from '../../api/axiosConfig';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
-  Home, MapPin, Maximize, Package, TrendingUp, ShoppingCart,
-  DollarSign, Plus, Edit3, ArrowLeft, ChevronRight, Trophy,
-  BarChart2, Eye, EyeOff, Edit, Leaf, Calendar
+  Home, MapPin, Maximize2, Package, ShoppingCart,
+  DollarSign, Plus, Edit3, ChevronRight, Trophy,
+  Eye, EyeOff, Edit, Leaf, Calendar
 } from 'lucide-react';
 
-const FARM_GRADIENTS = [
-  'linear-gradient(135deg, #10b981 0%, #047857 100%)',
-  'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-  'linear-gradient(135deg, #f59e0b 0%, #b45309 100%)',
-  'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
-  'linear-gradient(135deg, #06b6d4 0%, #0e7490 100%)',
+const GRADIENTS = [
+  'linear-gradient(135deg, #1a4a2e 0%, #4a7c59 100%)',
+  'linear-gradient(135deg, #2d5a27 0%, #6aab5e 100%)',
+  'linear-gradient(135deg, #3a5a40 0%, #7aab6a 100%)',
+  'linear-gradient(135deg, #2e4a1e 0%, #5a8c3e 100%)',
+  'linear-gradient(135deg, #1e3a2e 0%, #3a7a5a 100%)',
 ];
 
-function timeAgo(dateStr) {
-  const d = new Date(dateStr);
-  const secs = Math.floor((Date.now() - d) / 1000);
-  if (secs < 60) return `${secs}s ago`;
-  const mins = Math.floor(secs / 60);
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  return d.toLocaleDateString();
-}
+const QualityBadge = ({ quality }) => {
+  const map = {
+    PREMIUM:  'f-badge f-badge-premium',
+    ORGANIC:  'f-badge f-badge-organic',
+    STANDARD: 'f-badge f-badge-standard',
+    ECONOMY:  'f-badge f-badge-economy',
+  };
+  return <span className={map[quality] || 'f-badge f-badge-standard'}>{quality || 'Standard'}</span>;
+};
 
-function FarmDetail() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [farm, setFarm] = useState(null);
-  const [stats, setStats] = useState(null);
+export default function FarmDetail() {
+  const { id }     = useParams();
+  const navigate   = useNavigate();
+  const [farm, setFarm]       = useState(null);
+  const [stats, setStats]     = useState(null);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [timeframe, setTimeframe] = useState('all');
@@ -64,171 +63,199 @@ function FarmDetail() {
   };
 
   if (loading) return (
-    <div className="flex-center py-5"><div className="spinner-agr" /><span className="ms-3 text-muted">Loading farm...</span></div>
+    <div className="f-spinner-wrap">
+      <div className="f-spinner" />
+      <span>Loading farm…</span>
+    </div>
   );
-  if (!farm) return <div className="agr-card p-5 text-center text-muted">Farm not found.</div>;
+  if (!farm) return (
+    <div className="f-card">
+      <div className="f-empty-state">
+        <div className="f-empty-icon"><Home size={32} /></div>
+        <div className="f-empty-title">Farm not found</div>
+      </div>
+    </div>
+  );
 
   const initials = farm.name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-  const gradient = FARM_GRADIENTS[farm.id % FARM_GRADIENTS.length];
+  const gradient = GRADIENTS[farm.id % GRADIENTS.length];
+
+  const statCards = [
+    { icon: <Package size={20} />, color: 'green', val: stats?.product_count ?? products.length, label: 'Listed Products' },
+    { icon: <ShoppingCart size={20} />, color: 'blue', val: stats?.order_count ?? '—', label: 'Orders Received' },
+    { icon: <DollarSign size={20} />, color: 'gold', val: stats ? <>{parseFloat(stats.revenue).toLocaleString()}<small>DZD</small></> : '—', label: 'Revenue' },
+  ];
 
   return (
-    <div className="farm-detail-page animate-fade-in">
-      <div className="agr-breadcrumb">
+    <div className="farmer-page-wrapper">
+
+      {/* Breadcrumb */}
+      <div className="f-breadcrumb">
         <Link to="/farmer-dashboard">Farmer Hub</Link>
-        <span className="agr-breadcrumb-sep"><ChevronRight size={12} /></span>
+        <span className="f-breadcrumb-sep"><ChevronRight size={11} /></span>
         <Link to="/farmer-dashboard/farms">My Farms</Link>
-        <span className="agr-breadcrumb-sep"><ChevronRight size={12} /></span>
+        <span className="f-breadcrumb-sep"><ChevronRight size={11} /></span>
         <span>{farm.name}</span>
       </div>
 
-      {/* Farm Hero */}
-      <div className="farm-detail-hero agr-card mb-4 overflow-hidden">
-        <div className="farm-hero-banner">
-          {farm.image ? (
-            <img src={farm.image} alt={farm.name} className="farm-hero-img" />
-          ) : (
-            <div className="farm-hero-placeholder" style={{ background: gradient }}>
-              <span className="farm-hero-initials">{initials}</span>
-            </div>
-          )}
-          <div className="farm-hero-overlay" />
-        </div>
-        <div className="farm-hero-body p-4">
-          <div className="d-flex justify-content-between align-items-start flex-wrap gap-3">
-            <div>
-              <h1 className="h3 fw-bold mb-1">{farm.name}</h1>
-              <div className="d-flex align-items-center gap-3 text-muted small flex-wrap">
-                <span className="d-flex align-items-center gap-1"><MapPin size={14} className="text-danger" />{farm.location}</span>
-                {farm.size_hectares && <span className="d-flex align-items-center gap-1"><Maximize size={13} />{farm.size_hectares} ha</span>}
-                <span className="d-flex align-items-center gap-1"><Calendar size={13} />Added {new Date(farm.created_at).toLocaleDateString()}</span>
+      {/* Farm Hero card */}
+      <div className="f-card" style={{ marginBottom: '1.5rem', overflow: 'visible' }}>
+        {/* Image banner */}
+        <div style={{ height: 220, position: 'relative', borderRadius: 'var(--f-radius) var(--f-radius) 0 0', overflow: 'hidden' }}>
+          {farm.image
+            ? <img src={farm.image} alt={farm.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            : <div style={{ width: '100%', height: '100%', background: gradient, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ fontSize: '3.5rem', fontWeight: 900, color: 'rgba(255,255,255,0.75)', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>{initials}</span>
               </div>
-              {farm.description && <p className="text-muted small mt-2 mb-0">{farm.description}</p>}
+          }
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 55%)' }} />
+          <div style={{ position: 'absolute', bottom: '1.25rem', left: '1.5rem', right: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '0.75rem' }}>
+            <div>
+              <h1 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.2 }}>{farm.name}</h1>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.4rem', flexWrap: 'wrap' }}>
+                <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                  <MapPin size={13} style={{ color: '#ef4444' }} /> {farm.location}
+                </span>
+                {farm.size_hectares && (
+                  <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                    <Maximize2 size={12} /> {farm.size_hectares} ha
+                  </span>
+                )}
+                <span style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                  <Calendar size={12} /> Added {new Date(farm.created_at).toLocaleDateString()}
+                </span>
+              </div>
             </div>
-            <div className="d-flex gap-2">
-              <button className="btn-agr btn-outline btn-sm d-flex align-items-center gap-1" onClick={() => navigate(`/farmer-dashboard/farm/edit/${farm.id}`)}>
-                <Edit3 size={15} /> Edit Farm
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button className="btn-f-hero-ghost btn-f-sm" onClick={() => navigate(`/farmer-dashboard/farm/edit/${farm.id}`)}>
+                <Edit3 size={14} /> Edit Farm
               </button>
-              <button className="btn-agr btn-primary btn-sm d-flex align-items-center gap-1" onClick={() => navigate(`/farmer-dashboard/product/new?farm=${farm.id}`)}>
-                <Plus size={15} /> Add Product
+              <button className="btn-f-hero btn-f-sm" onClick={() => navigate(`/farmer-dashboard/product/new?farm=${farm.id}`)}>
+                <Plus size={14} /> Add Product
               </button>
             </div>
           </div>
         </div>
+
+        {/* Description */}
+        {farm.description && (
+          <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid rgba(26,74,46,0.07)', color: '#6b7280', fontSize: '0.88rem', lineHeight: 1.6 }}>
+            {farm.description}
+          </div>
+        )}
       </div>
 
-      {/* Stats Cards with Timeframe */}
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h3 className="h6 fw-bold mb-0">Farm Performance</h3>
-        <div className="d-flex gap-1">
-          {['all', 'year', 'month'].map(t => (
-            <button key={t} className={`btn-agr btn-sm ${timeframe === t ? 'btn-primary' : 'btn-outline'}`} onClick={() => setTimeframe(t)}>
-              {t === 'all' ? 'All Time' : t === 'year' ? 'This Year' : 'This Month'}
-            </button>
+      {/* Performance header + timeframe control */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+        <div className="f-section-title">
+          <div className="f-section-title-icon"><Trophy size={14} /></div>
+          Farm Performance
+        </div>
+        <div className="f-segmented">
+          {[['all','All Time'],['year','This Year'],['month','This Month']].map(([k, l]) => (
+            <button key={k} className={`f-segmented-btn ${timeframe === k ? 'active' : ''}`} onClick={() => setTimeframe(k)}>{l}</button>
           ))}
         </div>
       </div>
 
-      <div className="stats-grid mb-4">
-        <div className="stat-card">
-          <div className="stat-icon stat-icon-green"><Package size={22} /></div>
-          <div>
-            <div className="stat-value">{stats?.product_count ?? products.length}</div>
-            <div className="stat-label">Listed Products</div>
+      {/* KPI cards */}
+      <div className="f-kpi-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)', marginBottom: '1.75rem' }}>
+        {statCards.map((s, i) => (
+          <div key={i} className="f-kpi-card">
+            <div className={`f-kpi-icon ${s.color}`}>{s.icon}</div>
+            <div className="f-kpi-body">
+              <div className="f-kpi-value">{s.val}</div>
+              <div className="f-kpi-label">{s.label}</div>
+            </div>
           </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon stat-icon-blue"><ShoppingCart size={22} /></div>
-          <div>
-            <div className="stat-value">{stats?.order_count ?? '—'}</div>
-            <div className="stat-label">Orders Received</div>
-          </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon stat-icon-amber"><DollarSign size={22} /></div>
-          <div>
-            <div className="stat-value">{stats ? parseFloat(stats.revenue).toLocaleString() : '—'} <small className="very-small">DZD</small></div>
-            <div className="stat-label">Revenue</div>
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* Best Products */}
+      {/* Top products ranking */}
       {stats?.best_products?.length > 0 && (
-        <div className="agr-card p-4 mb-4">
-          <h5 className="h6 fw-bold mb-3 d-flex align-items-center"><Trophy size={16} className="text-amber me-2" />Top Selling Products</h5>
-          <div className="d-flex flex-column gap-2">
-            {stats.best_products.map((bp, i) => (
-              <div key={bp.id} className="d-flex align-items-center justify-content-between p-2 bg-light-soft rounded-lg">
-                <div className="d-flex align-items-center gap-2">
-                  <span className="fw-bold text-muted very-small" style={{ width: 20 }}>#{i + 1}</span>
-                  <span className="small fw-bold">{bp.name}</span>
-                </div>
-                <div className="text-end">
-                  <div className="very-small text-muted">{bp.qty} units sold</div>
-                  <div className="very-small fw-bold text-primary">{bp.revenue.toLocaleString()} DZD</div>
+        <div className="f-chart-card" style={{ marginBottom: '1.5rem' }}>
+          <div className="f-chart-header">
+            <div className="f-chart-title"><Trophy size={15} style={{ color: 'var(--f-gold)' }} /> Top Selling Products</div>
+          </div>
+          {stats.best_products.map((bp, i) => (
+            <div key={bp.id} className="f-ranking-item">
+              <div className={`f-rank-badge ${i === 0 ? 'r1' : i === 1 ? 'r2' : i === 2 ? 'r3' : 'rn'}`}>
+                {String(i + 1).padStart(2, '0')}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div className="f-rank-name">{bp.name}</div>
+                <div className="f-rank-sub">{bp.qty} units sold</div>
+              </div>
+              <div className="f-rank-value">
+                <div className="f-rank-rev">{bp.revenue.toLocaleString()} DZD</div>
+                <div className="f-rank-bar-wrap">
+                  <div className="f-rank-bar" style={{ width: `${Math.min((bp.revenue / (stats.best_products[0]?.revenue || 1)) * 100, 100)}%` }} />
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       )}
 
-      {/* Farm Products Table */}
-      <div className="agr-card overflow-hidden">
-        <div className="agr-card-header d-flex justify-content-between align-items-center">
-          <h3 className="agr-card-title d-flex align-items-center gap-2"><Leaf size={18} className="text-primary" />Products on This Farm</h3>
-          <span className="text-muted very-small">{products.length} listing{products.length !== 1 ? 's' : ''}</span>
+      {/* Products table */}
+      <div className="f-card">
+        <div className="f-card-header">
+          <div className="f-section-title">
+            <div className="f-section-title-icon"><Leaf size={14} /></div>
+            Products on This Farm
+          </div>
+          <span style={{ fontSize: '0.78rem', color: '#9ca3af', fontWeight: 600 }}>
+            {products.length} listing{products.length !== 1 ? 's' : ''}
+          </span>
         </div>
+
         {products.length === 0 ? (
-          <div className="p-5 text-center">
-            <Package size={48} className="text-muted mb-3 opacity-25" />
-            <p className="text-muted small">No products registered for this farm yet.</p>
-            <button className="btn-agr btn-primary" onClick={() => navigate(`/farmer-dashboard/product/new?farm=${farm.id}`)}>
-              <Plus size={16} className="me-2" />Add First Product
+          <div className="f-empty-state">
+            <div className="f-empty-icon"><Package size={28} /></div>
+            <div className="f-empty-title">No products yet</div>
+            <div className="f-empty-sub">Register your first product for this farm.</div>
+            <button className="btn-f-primary btn-f-sm" onClick={() => navigate(`/farmer-dashboard/product/new?farm=${farm.id}`)}>
+              <Plus size={15} /> Add First Product
             </button>
           </div>
         ) : (
-          <div className="table-responsive">
-            <table className="agr-table mb-0">
+          <div className="f-table-wrap">
+            <table className="f-table">
               <thead>
                 <tr>
                   <th>Product</th>
                   <th>Category</th>
-                  <th className="text-end">Price</th>
-                  <th className="text-end">Stock</th>
+                  <th className="right">Price</th>
+                  <th className="right">Stock</th>
                   <th>Quality</th>
                   <th>Status</th>
-                  <th className="text-end">Actions</th>
+                  <th className="right">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {products.map(p => (
-                  <tr key={p.id} className="hover-bg-light">
-                    <td><span className="fw-bold small">{p.title}</span></td>
-                    <td><span className="category-tag">{p.category_name}</span></td>
-                    <td className="text-end small fw-bold">{p.price} DZD/{p.unit}</td>
-                    <td className={`text-end small ${p.stock < 10 ? 'text-danger fw-bold' : ''}`}>{p.stock} {p.unit}</td>
-                    <td>
-                      <span className={`inline-badge ${
-                        p.quality === 'PREMIUM' ? 'badge-status-confirmed' : 
-                        p.quality === 'ORGANIC' ? 'badge-status-confirmed' : 
-                        p.quality === 'ECONOMY' ? 'badge-status-pending' : 'badge-status-assigned'
-                      }`}>
-                        {p.quality || 'Standard'}
-                      </span>
+                  <tr key={p.id}>
+                    <td style={{ fontWeight: 700, fontSize: '0.875rem' }}>{p.title}</td>
+                    <td><span className="f-category-tag">{p.category_name}</span></td>
+                    <td className="col-right" style={{ fontWeight: 800, fontSize: '0.875rem' }}>
+                      {p.price} <span style={{ color: '#9ca3af', fontSize: '0.72rem' }}>DZD/{p.unit}</span>
                     </td>
+                    <td className="col-right" style={{ fontWeight: 700, color: p.stock < 10 ? 'var(--f-red)' : '#374151', fontSize: '0.82rem' }}>
+                      {p.stock} {p.unit}
+                    </td>
+                    <td><QualityBadge quality={p.quality} /></td>
                     <td>
-                      <span className={`inline-badge ${p.is_active ? 'badge-status-confirmed' : 'badge-status-cancelled'}`}>
+                      <span className={`f-badge ${p.is_active ? 'f-badge-active' : 'f-badge-inactive'}`}>
                         {p.is_active ? 'Published' : 'Hidden'}
                       </span>
                     </td>
-                    <td className="text-end">
-                      <div className="d-flex gap-1 justify-content-end">
-                        <button className="btn-icon btn-sm" title={p.is_active ? 'Hide' : 'Publish'} onClick={() => toggleProduct(p.id, p.is_active)}>
-                          {p.is_active ? <EyeOff size={15} /> : <Eye size={15} />}
+                    <td className="col-right">
+                      <div style={{ display: 'flex', gap: '0.3rem', justifyContent: 'flex-end' }}>
+                        <button className="btn-f-icon btn-f-icon-sm" title={p.is_active ? 'Hide' : 'Publish'} onClick={() => toggleProduct(p.id, p.is_active)}>
+                          {p.is_active ? <EyeOff size={14} /> : <Eye size={14} />}
                         </button>
-                        <button className="btn-icon btn-sm" title="Edit" onClick={() => navigate(`/farmer-dashboard/product/edit/${p.id}`)}>
-                          <Edit size={15} />
+                        <button className="btn-f-icon btn-f-icon-sm" title="Edit" onClick={() => navigate(`/farmer-dashboard/product/edit/${p.id}`)}>
+                          <Edit size={14} />
                         </button>
                       </div>
                     </td>
@@ -239,8 +266,7 @@ function FarmDetail() {
           </div>
         )}
       </div>
+
     </div>
   );
 }
-
-export default FarmDetail;
