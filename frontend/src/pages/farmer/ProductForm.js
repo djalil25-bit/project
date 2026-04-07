@@ -81,7 +81,7 @@ export default function ProductForm() {
       if (item) {
         setFormData(prev => ({
           ...prev,
-          price: item.official_price || '',
+          price: item.ref_price || '',
           title: item.name,
           category: item.category,
           unit: item.default_unit,
@@ -108,7 +108,9 @@ export default function ProductForm() {
     setLoading(true);
     const data = new FormData();
     Object.keys(formData).forEach(key => {
-      if (formData[key] !== null && formData[key] !== '') data.append(key, formData[key]);
+      if (formData[key] !== null && formData[key] !== undefined && (formData[key] !== '' || key === 'description')) {
+        data.append(key, formData[key]);
+      }
     });
     if (!formData.title && selCatalog) data.set('title', selCatalog.name);
 

@@ -35,10 +35,10 @@ class ProductSerializer(serializers.ModelSerializer):
         read_only_fields = ('farmer', 'created_at', 'updated_at', 'is_favorite')
 
     def get_is_favorite(self, obj):
-        user = self.context['request'].user
-        if user.is_authenticated:
-            return Favorite.objects.filter(user=user, product=obj).exists()
-        return False
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return False
+        return Favorite.objects.filter(user=request.user, product=obj).exists()
 
     def get_official_price_comparison(self, obj):
         # Prefer catalog product pricing over legacy PricePublication
@@ -72,8 +72,8 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         farm = data.get('farm', getattr(self.instance, 'farm', None))
-        user = self.context['request'].user
-        if farm and farm.owner != user:
+        request = self.context.get('request')
+        if farm and request and getattr(farm, 'owner_id', None) != request.user.id:
             raise serializers.ValidationError({"farm": "Product must belong to one of your own farms."})
         
         # Strict Price Validation against CatalogProduct range

@@ -16,7 +16,7 @@ class CartViewSet(viewsets.ViewSet):
 
     def list(self, request):
         cart = self.get_cart()
-        serializer = CartSerializer(cart)
+        serializer = CartSerializer(cart, context={'request': request})
         return Response(serializer.data)
 
     @action(detail=False, methods=['post'], url_path='items')
@@ -41,7 +41,7 @@ class CartViewSet(viewsets.ViewSet):
                     return Response({'error': 'Exceeds available stock'}, status=status.HTTP_400_BAD_REQUEST)
                 cart_item.quantity = new_quantity
                 cart_item.save()
-            return Response(CartSerializer(cart).data, status=status.HTTP_201_CREATED)
+            return Response(CartSerializer(cart, context={'request': request}).data, status=status.HTTP_201_CREATED)
             
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -52,13 +52,13 @@ class CartViewSet(viewsets.ViewSet):
 
         if request.method == 'DELETE':
             cart_item.delete()
-            return Response(CartSerializer(cart).data, status=status.HTTP_200_OK)
+            return Response(CartSerializer(cart, context={'request': request}).data, status=status.HTTP_200_OK)
 
         # PUT or PATCH — update quantity
         serializer = CartItemSerializer(cart_item, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(CartSerializer(cart).data)
+            return Response(CartSerializer(cart, context={'request': request}).data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['delete'], url_path='clear')

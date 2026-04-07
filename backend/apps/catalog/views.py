@@ -1,6 +1,7 @@
 from rest_framework import viewsets, permissions, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import Category, CatalogProduct, Product, Favorite
 from .serializers import (
@@ -13,7 +14,7 @@ from .serializers import (
 from apps.accounts.permissions import IsFarmerRole, IsAdminRole
 
 class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.all()
+    queryset = Category.objects.all().order_by('-id')
     serializer_class = CategorySerializer
 
     def get_permissions(self):
@@ -31,7 +32,7 @@ class CatalogProductViewSet(viewsets.ModelViewSet):
     search_fields = ['name']
 
     def get_queryset(self):
-        return CatalogProduct.objects.filter(is_active=True).select_related('category')
+        return CatalogProduct.objects.filter(is_active=True).select_related('category').order_by('-id')
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
@@ -41,6 +42,7 @@ class CatalogProductViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
 class ProductViewSet(viewsets.ModelViewSet):
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['category', 'farm', 'farmer', 'is_active', 'catalog_product']
@@ -48,7 +50,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     ordering_fields = ['price', 'created_at']
 
     def get_queryset(self):
-        qs = Product.objects.select_related('farmer', 'farm', 'category', 'catalog_product').all()
+        qs = Product.objects.select_related('farmer', 'farm', 'category', 'catalog_product').all().order_by('-id')
         user = self.request.user
         if user.role == 'farmer':
             if self.request.query_params.get('my_products') == 'true':
@@ -56,6 +58,24 @@ class ProductViewSet(viewsets.ModelViewSet):
         if self.action == 'list' and user.role == 'buyer':
             qs = qs.filter(is_active=True, stock__gt=0)
         return qs
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if not serializer.is_valid():
+            # Log errors to help diagnose 400 Bad Request
+            print(f"DEBUG: Product creation failed validation: {serializer.errors}")
+            print(f"DEBUG: Request.data: {request.data}")
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return super().create(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        if not serializer.is_valid():
+            print(f"DEBUG: Product update failed validation: {serializer.errors}")
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return super().update(request, *args, **kwargs)
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
@@ -92,7 +112,7 @@ class FavoriteViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Favorite.objects.filter(user=self.request.user).select_related('product', 'product__farmer', 'product__farm')
+        return Favorite.objects.filter(user=self.request.user).select_related('product', 'product__farmer', 'product__farm').order_by('-id')
 
     def get_serializer_class(self):
         if self.action == 'create':
