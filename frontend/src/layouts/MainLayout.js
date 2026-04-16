@@ -158,9 +158,9 @@ const MainLayout = () => {
 
   const roleAccents = {
     buyer: '#2563eb',
-    farmer: '#16a34a',
+    farmer: '#22543d',
     transporter: '#d97706',
-    admin: '#475569',
+    admin: '#059669',
   };
   const accent = roleAccents[user?.role] || 'var(--primary)';
 
@@ -168,7 +168,7 @@ const MainLayout = () => {
     || (location.pathname === '/profile' ? t('nav_my_profile') : 'AgriGov Market');
 
   return (
-    <div className={`app-container ${sidebarOpen ? 'sidebar-expanded' : 'sidebar-collapsed'}`}>
+    <div className={`app-container ${sidebarOpen ? 'sidebar-expanded' : 'sidebar-collapsed'} ${user?.role === 'admin' ? 'admin-mode' : ''}`}>
 
       {/* ── SIDEBAR ─────────────────────────────── */}
       <aside className="app-sidebar">

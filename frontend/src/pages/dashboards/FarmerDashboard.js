@@ -3,9 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../api/axiosConfig';
 import {
   Plus, Sprout, TrendingUp, Clock, DollarSign,
-  Package, ChevronRight, CheckCircle, ExternalLink,
-  BadgeCheck, ShoppingBag, Wheat, BarChart2,
-  Activity, AlertTriangle, CloudSun, Target
+  Package, ChevronRight, CheckCircle, ExternalLink, ListOrdered,
+  BadgeCheck, ShoppingBag, Activity, AlertTriangle, CloudSun, Target
 } from 'lucide-react';
 
 function timeAgo(dateStr) {
@@ -33,9 +32,9 @@ export default function FarmerDashboard() {
   }, []);
 
   if (loading) return (
-    <div className="f-spinner-wrap">
-      <div className="f-spinner" />
-      <span>Loading farm data…</span>
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+      <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-t-[#22543d] animate-spin" />
+      <span className="text-sm font-bold text-slate-500 uppercase tracking-widest animate-pulse">Synchronizing Data...</span>
     </div>
   );
 
@@ -43,29 +42,29 @@ export default function FarmerDashboard() {
 
   const kpis = stats ? [
     {
-      icon: <Sprout size={22} />,
-      color: 'green',
+      icon: <Sprout size={28} strokeWidth={2.5} className="text-emerald-500 drop-shadow-sm" />,
+      bgIconCls: 'bg-emerald-500/10 text-emerald-600',
       value: stats.my_products_count,
       label: 'Active Listings',
       micro: 'Products on marketplace',
     },
     {
-      icon: <ShoppingBag size={22} />,
-      color: 'gold',
+      icon: <ShoppingBag size={28} strokeWidth={2.5} className="text-amber-500 drop-shadow-sm" />,
+      bgIconCls: 'bg-amber-500/10 text-amber-600',
       value: stats.pending_orders,
       label: 'Pending Orders',
       micro: 'Awaiting your confirmation',
     },
     {
-      icon: <TrendingUp size={22} />,
-      color: 'blue',
+      icon: <TrendingUp size={28} strokeWidth={2.5} className="text-blue-500 drop-shadow-sm" />,
+      bgIconCls: 'bg-blue-500/10 text-blue-600',
       value: stats.total_items_sold,
       label: 'Units Sold',
       micro: 'Total across all products',
     },
     {
-      icon: <DollarSign size={22} />,
-      color: 'sage',
+      icon: <DollarSign size={28} strokeWidth={2.5} className="text-emerald-600 drop-shadow-sm" />,
+      bgIconCls: 'bg-emerald-600/10 text-emerald-700',
       value: null,
       rawRevenue: stats.total_revenue,
       label: 'Total Revenue',
@@ -74,204 +73,216 @@ export default function FarmerDashboard() {
   ] : [];
 
   return (
-    <div className="farmer-page-wrapper">
+    <div className="max-w-7xl mx-auto px-4 py-8 space-y-8 animate-fade-in relative z-0">
 
-      {/* ── HERO ───────────────────────────────────────────────── */}
-      <div className="f-hero">
-        <div className="f-hero-inner">
-          <div>
-            <div className="f-hero-badge">
-              <BadgeCheck size={12} /> Certified Producer Workspace
+      {/* ── HERO WIDGET ───────────────────────────────────────────────── */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#22543d] via-[#1a402e] to-slate-900 rounded-3xl shadow-[0_20px_50px_rgba(34,84,61,0.35)] text-white p-6 lg:p-8 border border-white/10">
+        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-10 w-48 h-48 bg-[#22543d] rounded-full blur-2xl opacity-50 pointer-events-none" />
+        
+        <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/20 border border-emerald-400/30 rounded-full text-emerald-300 text-xs font-bold uppercase tracking-wider mb-5 backdrop-blur-sm">
+              <BadgeCheck size={14} /> Certified Producer Workspace
             </div>
-            <h1 className="f-hero-title">Farmer Workspace</h1>
-            <p className="f-hero-subtitle">
-              Manage your agricultural operations, track your
-              sales directly with buyers, and optimize your listings based on official Ministry data.
+            <h1 className="text-4xl sm:text-5xl font-black text-white mb-4 tracking-tight drop-shadow-md">
+              Welcome back, Farmer.
+            </h1>
+            <p className="text-slate-300 text-lg sm:text-xl font-medium leading-relaxed mb-8 max-w-2xl">
+              Manage your agricultural operations, track your sales directly with buyers, and optimize your listings based on official Ministry data.
             </p>
-            {/* Intelligence Bar */}
-            <div className="f-hero-intel-bar">
-              <div className="f-intel-item">
-                <Activity size={16} />
-                <div>
-                  <div className="f-intel-label">Farm Status</div>
-                  <div className="f-intel-val">Operational</div>
-                </div>
+            
+            {/* Quick Actions Strip inside Hero */}
+            <div className="flex flex-wrap gap-4">
+              <button onClick={() => navigate('/farmer-dashboard/product/new')} className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl font-extrabold shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all transform hover:-translate-y-1 hover:scale-105 active:scale-95 duration-300">
+                <Plus size={18} strokeWidth={3} /> Add New Listing
+              </button>
+              <button onClick={() => navigate('/farmer-dashboard/stats')} className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl font-extrabold backdrop-blur-md transition-all transform hover:-translate-y-1 hover:scale-105 active:scale-95 duration-300">
+                <TrendingUp size={18} strokeWidth={3} /> View Analytics
+              </button>
+            </div>
+          </div>
+
+          {/* Intelligence Column */}
+          <div className="w-full lg:w-80 bg-white/5 border border-white/10 backdrop-blur-xl rounded-3xl p-6 shadow-2xl shrink-0 group hover:bg-white/10 transition-colors duration-500">
+            <h3 className="text-sm font-black text-emerald-400 uppercase tracking-widest mb-4 flex items-center gap-2 border-b border-white/10 pb-3">
+              <CloudSun size={18} strokeWidth={2.5} /> Market Intel
+            </h3>
+            <div className="space-y-4">
+               <div className="flex items-center justify-between bg-black/20 p-3 rounded-xl border border-white/5">
+                <span className="text-sm text-slate-300 font-bold">Farm Status</span>
+                <span className="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 text-xs font-black rounded-lg flex items-center gap-1.5 border border-emerald-500/30"><Activity size={12}/> Operational</span>
               </div>
-              <div className="f-intel-item">
-                <Target size={16} />
-                <div>
-                  <div className="f-intel-label">Market Signal</div>
-                  <div className="f-intel-val">High Demand</div>
-                </div>
-              </div>
-              <div className="f-intel-item">
-                <CloudSun size={16} />
-                <div>
-                  <div className="f-intel-label">Seasonality</div>
-                  <div className="f-intel-val">Spring Planting</div>
-                </div>
+              <div className="flex items-center justify-between bg-black/20 p-3 rounded-xl border border-white/5">
+                <span className="text-sm text-slate-300 font-bold">Market Signal</span>
+                <span className="px-2.5 py-1 bg-amber-500/20 text-amber-300 text-xs font-black rounded-lg flex items-center gap-1.5 border border-amber-500/30"><Target size={12}/> High Demand</span>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── KPI CARDS ────────────────────────────────────────── */}
+      {/* ── KPI GRID (GLASSMORPHISM) ────────────────────────────────────────── */}
       {stats && (
-        <div className="f-kpi-grid">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {kpis.map((k, i) => (
-            <div key={i} className="f-kpi-card">
-              <div className={`f-kpi-icon ${k.color}`}>
-                {k.icon}
+            <div 
+              key={i} 
+              className="group flex flex-col justify-between bg-gradient-to-br from-white to-slate-50 border border-slate-200 rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(34,84,61,0.12)] hover:border-[#22543d]/30 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] transform hover:-translate-y-2 cursor-pointer relative overflow-hidden"
+              onClick={() => {
+                if (k.label === 'Active Listings') navigate('/farmer-dashboard/products');
+                if (k.label === 'Pending Orders') navigate('/farmer/orders?status=PENDING');
+              }}
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-slate-100 to-transparent rounded-full -mr-10 -mt-10 opacity-50 group-hover:scale-150 transition-transform duration-700 ease-out pointer-events-none" />
+              
+              <div className="flex items-center gap-4 mb-4 relative z-10">
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-inner ${k.bgIconCls.replace('10 text', '500 text-white').replace('text-emerald-500/10 text-emerald-600', 'bg-emerald-500 text-white').replace('text-emerald-600/10 text-emerald-700', 'bg-[#22543d] text-white').replace('bg-emerald-500 text-white', 'bg-emerald-500 text-white').replace('bg-amber-500/10 text-amber-600', 'bg-amber-500 text-white').replace('bg-blue-500/10 text-blue-600', 'bg-blue-500 text-white').replace('bg-[#22543d] text-white', 'bg-[#22543d] text-white')} transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3`}>
+                  {React.cloneElement(k.icon, { className: 'text-white' })}
+                </div>
+                <div className="text-xs font-black uppercase tracking-widest text-slate-500">{k.label}</div>
               </div>
-              <div className="f-kpi-body">
-                <div className="f-kpi-value">
-                  {k.rawRevenue != null
-                    ? <>{parseFloat(k.rawRevenue || 0).toLocaleString()}<small>DZD</small></>
-                    : k.value
+              
+              <div className="relative z-10 w-full overflow-hidden">
+                <div className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight drop-shadow-sm flex items-end gap-1 w-full truncate" title={k.rawRevenue != null ? k.rawRevenue : k.value}>
+                  {k.rawRevenue != null && k.rawRevenue !== undefined
+                    ? <><span className="truncate max-w-full inline-block overflow-hidden text-ellipsis">{parseFloat(k.rawRevenue || 0).toLocaleString()}</span> <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1.5 shrink-0">DZD</span></>
+                    : <span className="truncate max-w-full inline-block overflow-hidden text-ellipsis">{k.value}</span>
                   }
                 </div>
-                <div className="f-kpi-label">{k.label}</div>
-                <div className="f-kpi-micro">{k.micro}</div>
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {/* ── QUICK ACTIONS STRIP ─────────────────────────────── */}
-      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.75rem', flexWrap: 'wrap' }}>
-        <button className="btn-f-secondary btn-f-sm" onClick={() => navigate('/farmer/products')}>
-          <Package size={16} strokeWidth={2.2} /> My Listings
-        </button>
-        <button className="btn-f-secondary btn-f-sm" onClick={() => navigate('/farmer/orders')}>
-          <ShoppingBag size={16} strokeWidth={2.2} /> All Orders
-        </button>
-        <button className="btn-f-secondary btn-f-sm" onClick={() => navigate('/farmer-dashboard/farms')}>
-          <Sprout size={16} strokeWidth={2.2} /> My Farms
-        </button>
-        <button className="btn-f-secondary btn-f-sm" onClick={() => navigate('/farmer-dashboard/stats')}>
-          <TrendingUp size={16} strokeWidth={2.2} /> Analytics
-        </button>
-        <button className="btn-f-secondary btn-f-sm" onClick={() => navigate('/farmer-dashboard/product/new')} style={{ marginLeft: 'auto', background: 'var(--f-olive)', color: '#fff' }}>
-          <Plus size={16} strokeWidth={2.2} /> Add Product
-        </button>
-      </div>
-
-      {/* ── SMART INSIGHT MODULES ─────────────────────────── */}
-      <div className="f-insight-grid">
-        <div className="f-card f-insight-module">
-          <div className="f-insight-icon-wrap primary"><Activity size={20} /></div>
-          <div className="f-insight-content">
-            <h4 className="f-insight-title">Operational Metrics</h4>
-            <div className="f-insight-data">
-              <div className="f-insight-row">
-                <span>Orders requiring action</span>
-                <strong>{stats?.pending_orders || 0}</strong>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        {/* ── SMART INSIGHT MODULES ─────────────────────────── */}
+        <div className="lg:col-span-1 space-y-6">
+          <h2 className="text-xl font-black text-slate-900 flex items-center gap-2 tracking-tight">
+            <Activity size={22} strokeWidth={2.5} className="text-[#22543d]" /> System Status
+          </h2>
+          
+          <div className="bg-white/80 backdrop-blur-md border border-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-xl transition-all duration-500 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:scale-110 group-hover:rotate-12 transition-transform duration-700 ease-out"><Activity size={80} /></div>
+            <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-5">Operational Metrics</h4>
+            <div className="space-y-4 relative z-10">
+              <div className="flex justify-between items-center pb-4 border-b border-slate-100">
+                <span className="text-sm font-bold text-slate-600">Action Required</span>
+                <span className="text-sm font-black text-white bg-amber-500 px-3 py-1 rounded-lg border border-amber-600 shadow-sm">{stats?.pending_orders || 0}</span>
               </div>
-              <div className="f-insight-row">
-                <span>Active products</span>
-                <strong>{stats?.my_products_count || 0}</strong>
+              <div className="flex justify-between items-center">
+                <span className="text-sm font-bold text-slate-600">Active Products</span>
+                <span className="text-sm font-black text-white bg-[#22543d] px-3 py-1 rounded-lg border border-[#1a402e] shadow-sm">{stats?.my_products_count || 0}</span>
               </div>
             </div>
           </div>
-        </div>
-        <div className="f-card f-insight-module">
-          <div className="f-insight-icon-wrap warning"><AlertTriangle size={20} /></div>
-          <div className="f-insight-content">
-            <h4 className="f-insight-title">Action Items</h4>
-            <div className="f-insight-data">
+
+          <div className="bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200/50 rounded-3xl p-6 shadow-sm relative overflow-hidden">
+             <div className="absolute top-0 right-0 p-4 opacity-5"><AlertTriangle size={64} /></div>
+            <h4 className="text-sm font-extrabold text-amber-800 uppercase tracking-widest mb-3 flex items-center gap-2 relative z-10">
+              <AlertTriangle size={18} strokeWidth={2.5} /> Urgent Actions
+            </h4>
+            <div className="relative z-10">
               {stats?.pending_orders > 0 ? (
-                <div className="f-insight-row hint">
-                  <span>You have pending orders awaiting approval before transport can be assigned.</span>
-                </div>
+                <p className="text-sm text-amber-900 font-medium leading-relaxed">
+                  You have <strong className="font-black bg-amber-200 px-1 rounded">{stats.pending_orders} pending orders</strong> awaiting your approval. Promptly confirming orders ensures logistics flow smoothly.
+                </p>
               ) : (
-                <div className="f-insight-row ok">
-                  <span>All operational checks are green. You are fully caught up today.</span>
-                </div>
+                <p className="text-sm text-emerald-800 font-bold leading-relaxed flex items-center gap-2">
+                  <CheckCircle size={18} className="text-emerald-600"/> All operational checks are green. You are fully caught up today.
+                </p>
               )}
+              <button 
+                onClick={() => navigate('/farmer/orders?status=PENDING')}
+                className="mt-5 w-full bg-amber-500 hover:bg-amber-600 text-white font-extrabold py-3 rounded-xl transition-all shadow-md transform hover:-translate-y-0.5 active:scale-95 duration-200 flex justify-center items-center gap-2"
+              >
+                Review Pending Intel <ChevronRight size={16} strokeWidth={3} />
+              </button>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* ── RECENT PENDING ORDERS ───────────────────────────── */}
-      <div className="f-card">
-        <div className="f-card-header">
-          <div className="f-section-title">
-            <div className="f-section-title-icon"><Clock size={15} /></div>
-            Recent Pending Orders
-            <span style={{ fontSize: '0.72rem', color: '#9ca3af', fontWeight: 500 }}>(last 24h)</span>
-          </div>
-          <button
-            className="btn-f-ghost btn-f-sm"
-            onClick={() => navigate('/farmer/orders?status=PENDING')}
-          >
-            View All <ChevronRight size={13} />
-          </button>
-        </div>
-
-        {recent.length === 0 ? (
-          <div className="f-empty-state">
-            <div className="f-empty-icon">
-              <CheckCircle size={32} />
-            </div>
-            <div className="f-empty-title">All caught up!</div>
-            <div className="f-empty-sub">No new pending orders at the moment.</div>
-            <button className="btn-f-ghost btn-f-sm" onClick={() => navigate('/farmer/orders')}>
-              View Order History
+        {/* ── RECENT PENDING ORDERS ───────────────────────────── */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-black text-slate-900 flex items-center gap-2 tracking-tight">
+              <Clock size={22} strokeWidth={2.5} className="text-[#22543d]" /> Recent Activity
+              <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest ml-2 bg-slate-100 px-2 py-1 rounded-md border border-slate-200">last 24h</span>
+            </h2>
+            <button
+              className="text-xs font-black uppercase tracking-widest text-[#22543d] hover:text-[#1a402e] flex items-center transition-all hover:bg-emerald-50 px-3 py-1.5 rounded-lg"
+              onClick={() => navigate('/farmer/orders?status=PENDING')}
+            >
+              Full Log <ChevronRight size={14} className="ml-1" strokeWidth={3} />
             </button>
           </div>
-        ) : (
-          <div className="f-table-wrap">
-            <table className="f-table">
-              <thead>
-                <tr>
-                  <th>Order #</th>
-                  <th>Buyer</th>
-                  <th className="right">Total</th>
-                  <th>Date</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                {recent.map(o => {
-                  const localNum = o.farmer_order_number
-                    ? `#F-${String(o.farmer_order_number).padStart(3, '0')}`
-                    : `#${o.id}`;
-                  return (
-                    <tr key={o.id}>
-                      <td>
-                        <span style={{ fontWeight: 800, color: 'var(--f-forest)' }}>{localNum}</span>
-                      </td>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                          <div className="f-avatar">{o.buyer_name?.charAt(0)?.toUpperCase()}</div>
-                          <span style={{ fontWeight: 600, fontSize: '0.85rem' }}>{o.buyer_name}</span>
-                        </div>
-                      </td>
-                      <td className="col-right" style={{ fontWeight: 800, fontSize: '0.875rem' }}>
-                        {o.total?.toLocaleString()} <span style={{ color: '#9ca3af', fontSize: '0.75rem' }}>DZD</span>
-                      </td>
-                      <td style={{ fontSize: '0.78rem', color: '#9ca3af' }}>{timeAgo(o.created_at)}</td>
-                      <td>
-                        <button
-                          className="btn-f-icon btn-f-icon-sm"
-                          title="Manage order"
-                          onClick={() => navigate('/farmer/orders?status=PENDING')}
-                        >
-                          <ExternalLink size={14} />
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
 
+          <div className="bg-white/90 backdrop-blur-xl border border-white/80 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.05)] overflow-hidden">
+            {recent.length === 0 ? (
+              <div className="p-16 flex flex-col items-center justify-center text-center">
+                <div className="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-3xl flex items-center justify-center mb-6 border border-emerald-100 shadow-sm transform hover:rotate-12 transition-transform duration-500">
+                  <CheckCircle size={40} strokeWidth={2.5} />
+                </div>
+                <h3 className="text-2xl font-black text-slate-800 mb-2 tracking-tight">All clear!</h3>
+                <p className="text-slate-500 font-medium max-w-sm mb-8">No new pending orders detected in the matrix. Enjoy your well-earned break.</p>
+                <button className="px-8 py-3.5 bg-slate-100 border border-slate-200 hover:bg-slate-200 hover:border-slate-300 text-slate-700 font-extrabold rounded-xl transition-all shadow-sm transform hover:-translate-y-0.5 active:scale-95 flex gap-2 items-center" onClick={() => navigate('/farmer/orders')}>
+                  <ListOrdered size={16} /> Open Complete Registry
+                </button>
+              </div>
+            ) : (
+              <div className="w-full">
+                <table className="w-full text-left border-collapse table-fixed">
+                  <thead>
+                    <tr className="bg-[#22543d] text-emerald-100 uppercase text-[10px] tracking-widest font-black">
+                      <th className="px-4 py-3 w-32 truncate">Ref Code</th>
+                      <th className="px-4 py-3 w-48 truncate">Buyer Identity</th>
+                      <th className="px-4 py-3 w-32 truncate text-right">Value</th>
+                      <th className="px-4 py-3 w-32 truncate text-center">Time</th>
+                      <th className="px-4 py-3 w-20 truncate text-right">Op</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {recent.map(o => {
+                      const localNum = o.farmer_order_number
+                        ? `F-${String(o.farmer_order_number).padStart(3, '0')}`
+                        : String(o.id);
+                      return (
+                        <tr key={o.id} className="hover:bg-emerald-50/50 transition-colors duration-300 group cursor-pointer" onClick={() => navigate('/farmer/orders?status=PENDING')}>
+                          <td className="px-4 py-3 border-l-4 border-transparent group-hover:border-[#22543d]">
+                            <span className="font-black text-[#22543d] text-sm">#{localNum}</span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#22543d] to-[#1a402e] text-white flex items-center justify-center font-black text-xs shadow-md border border-[#1a402e]">
+                                {o.buyer_name?.charAt(0)?.toUpperCase()}
+                              </div>
+                              <span className="font-extrabold text-xs text-slate-800 truncate">{o.buyer_name}</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <span className="font-black text-slate-800 text-sm">{o.total?.toLocaleString()}</span>
+                            <span className="text-slate-400 text-[10px] font-black uppercase ml-1">DZD</span>
+                          </td>
+                          <td className="px-4 py-3 text-[10px] font-bold text-slate-400 text-center uppercase tracking-wider">
+                            {timeAgo(o.created_at)}
+                          </td>
+                          <td className="px-4 py-3 text-right">
+                            <div className="inline-flex p-2 bg-slate-50 text-slate-400 group-hover:bg-[#22543d] group-hover:text-white rounded-lg transition-all duration-300 shadow-sm border border-slate-100 group-hover:border-[#1a402e]">
+                              <ChevronRight size={14} strokeWidth={3} />
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

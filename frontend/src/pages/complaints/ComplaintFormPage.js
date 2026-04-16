@@ -1,18 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import api from '../../api/axiosConfig';
 import { 
-  ShieldAlert, 
-  ArrowLeft, 
-  Send, 
-  AlertCircle, 
-  Image as ImageIcon, 
-  CheckCircle,
-  Package,
-  FileText,
-  Info,
-  ChevronRight,
-  Target
+  ArrowLeft, Send, AlertCircle, Image as ImageIcon, 
+  CheckCircle, Package, FileText, ChevronRight, Target, ShieldAlert
 } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
 
@@ -72,21 +63,22 @@ const ComplaintFormPage = () => {
 
   if (success) {
     return (
-      <div className="container py-5 animate-fade-in">
-        <div className="max-width-600 mx-auto">
-          <div className="agr-card p-5 text-center border-2 border-success border-dashed">
-            <div className="success-icon-wrapper mb-4 animate-scale-in">
-              <CheckCircle size={80} className="text-success" />
-            </div>
-            <h2 className="fw-bold h3 mb-3">Incident Report Filed</h2>
-            <p className="text-muted mb-5">
-              Thank you for reporting this issue. Our administrative team will review your ticket (Ref: #{Math.floor(Math.random() * 10000)}) and update you shortly. 
-              You can track the resolution status in your Complaints Center.
-            </p>
-            <div className="d-flex flex-column gap-3">
-              <Link to="/complaints" className="btn-agr btn-primary py-3">View My Complaints</Link>
-              <button onClick={() => navigate(-1)} className="btn-agr btn-outline py-2">Go Back</button>
-            </div>
+      <div className="max-w-3xl mx-auto px-4 py-20 animate-fade-in relative z-0">
+        <div className="bg-white p-12 text-center rounded-[2.5rem] shadow-[0_20px_60px_rgba(34,84,61,0.08)] border border-slate-100 flex flex-col items-center">
+          <div className="w-24 h-24 bg-emerald-50 text-emerald-500 rounded-[2rem] flex items-center justify-center mb-8 border border-emerald-100 shadow-sm animate-scale-in">
+            <CheckCircle size={48} strokeWidth={2.5} />
+          </div>
+          <h2 className="font-black text-3xl text-slate-900 mb-4 tracking-tight">Incident Report Filed</h2>
+          <p className="text-slate-500 text-lg font-medium mb-10 max-w-lg mx-auto leading-relaxed">
+            Your grievance network protocol has been submitted. Our administrative team will review your ticket and update you in the Complaints Center.
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center gap-4 w-full sm:w-auto">
+            <button onClick={() => navigate(-1)} className="px-8 py-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-sm uppercase tracking-widest rounded-2xl transition-all duration-300 shadow-sm hover:-translate-y-1 active:scale-95">
+              Return Previous
+            </button>
+            <Link to="/complaints" className="px-8 py-4 bg-[#22543d] hover:bg-[#1a402e] text-white font-black text-sm uppercase tracking-widest rounded-2xl transition-all duration-300 shadow-[0_8px_20px_rgba(34,84,61,0.3)] hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2">
+              <ShieldAlert size={18} /> Open Complaints
+            </Link>
           </div>
         </div>
       </div>
@@ -94,39 +86,44 @@ const ComplaintFormPage = () => {
   }
 
   return (
-    <div className="complaint-form-page animate-fade-in pb-5">
-      <div className="agr-breadcrumb mb-4">
-        <Link to="/complaints">Complaints Center</Link>
-        <span className="agr-breadcrumb-sep"><ChevronRight size={12} /></span>
-        <span>File New Report</span>
+    <div className="max-w-4xl mx-auto px-4 py-8 pb-20 animate-fade-in relative z-0">
+      
+      {/* ── BREADCRUMBS ────────────────────────────────────────────── */}
+      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#22543d] mb-8">
+        {orderId ? (
+          <Link to={`/farmer/orders`} className="hover:underline hover:text-[#1a402e] transition-colors flex items-center gap-1"><ArrowLeft size={12}/> Back to Orders</Link>
+        ) : (
+          <button onClick={() => navigate('/farmer-dashboard')} className="hover:underline hover:text-[#1a402e] transition-colors flex items-center gap-1 cursor-pointer"><ArrowLeft size={12}/> Back to Dashboard</button>
+        )}
+        <ChevronRight size={12} className="text-slate-400 mx-1" />
+        <span className="text-slate-400 flex items-center gap-1"><ShieldAlert size={12}/> File New Report</span>
       </div>
 
-      <div className="page-header d-flex align-items-center mb-5">
-        <button onClick={() => navigate(-1)} className="btn-icon me-3 shadow-sm hover-translate-x">
-          <ArrowLeft size={20} />
-        </button>
-        <div>
-          <h1 className="h3 fw-bold mb-1">Incident Reporting Center</h1>
-          <p className="text-muted small">Standardized form for dispute resolution and quality assurance.</p>
-        </div>
+      <div className="mb-10 text-center">
+        <h1 className="text-4xl font-black text-slate-900 tracking-tight flex items-center justify-center gap-3">
+          Incident Reporting Center
+        </h1>
+        <p className="text-lg font-medium text-slate-500 mt-3 max-w-xl mx-auto">Standardized form for global dispute resolution, logistics anomalies, and quality assurance.</p>
       </div>
 
-      <div className="row justify-content-center">
-        <div className="col-lg-8">
-          <form onSubmit={handleSubmit} className="agr-form">
-            {/* Section 1: Context */}
-            <div className="agr-card p-4 mb-4 border-start-0 border-end-0 border-top-0 border-bottom-4 border-primary">
-              <div className="d-flex align-items-center mb-4 text-primary">
-                <Target size={18} className="me-2" />
-                <h3 className="h6 fw-bold mb-0 text-uppercase">Reporting Context</h3>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <div className="lg:col-span-8">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+            
+            {/* Context Section */}
+            <div className="bg-white border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[2rem] p-8 lg:p-10 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#22543d] to-emerald-400" />
+              <div className="flex items-center gap-2 mb-6 text-[#22543d] font-black text-[10px] uppercase tracking-widest border-b border-slate-100 pb-3">
+                <Target size={16} /> Reporting Context
               </div>
               
-              <div className="row g-4">
-                <div className="col-md-6">
-                  <div className="form-group">
-                    <label className="form-label small fw-bold">Report Type</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs font-black text-slate-600 uppercase tracking-widest mb-2">Report Type <span className="text-red-500">*</span></label>
+                  <div className="relative">
                     <select 
-                      className={`form-select ${errors.complaint_type ? 'border-danger' : ''}`}
+                      className={`w-full appearance-none pl-4 pr-10 py-3.5 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#22543d] transition-all text-sm font-bold text-slate-800 ${errors.complaint_type ? 'border-red-400 ring-2 ring-red-400/20' : 'border-slate-200'}`}
                       value={formData.complaint_type} 
                       onChange={e => setFormData({...formData, complaint_type: e.target.value})}
                     >
@@ -136,113 +133,124 @@ const ComplaintFormPage = () => {
                       <option value="PAYMENT">Payment/Transaction</option>
                       <option value="OTHER">Other Institutional Matter</option>
                     </select>
-                    {errors.complaint_type && <div className="text-danger very-small mt-1">{errors.complaint_type[0]}</div>}
+                    <ChevronRight size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 rotate-90 pointer-events-none" />
                   </div>
+                  {errors.complaint_type && <div className="text-red-500 text-xs font-bold mt-2">{errors.complaint_type[0]}</div>}
                 </div>
-                <div className="col-md-6">
-                  <div className="form-group">
-                    <label className="form-label small fw-bold">Order Reference (Optional)</label>
-                    <div className="position-relative">
-                      <div className="position-absolute start-0 top-50 translate-middle-y ps-3 text-muted">#AG-</div>
-                      <input 
-                        type="text" className={`form-input ps-5 ${errors.order ? 'border-danger' : ''}`}
-                        placeholder="000XX"
-                        value={formData.order}
-                        onChange={e => setFormData({...formData, order: e.target.value})}
-                      />
-                    </div>
-                    {errors.order && <div className="text-danger very-small mt-1">{errors.order[0]}</div>}
+                <div>
+                  <label className="block text-xs font-black text-slate-600 uppercase tracking-widest mb-2">Order Reference</label>
+                  <div className="relative">
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">#AG-</div>
+                    <input 
+                      type="text" 
+                      className={`w-full pl-14 pr-4 py-3.5 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#22543d] transition-all text-sm font-bold text-slate-800 placeholder-slate-300 ${errors.order ? 'border-red-400 ring-2 ring-red-400/20' : 'border-slate-200'}`}
+                      placeholder="000XX"
+                      value={formData.order}
+                      onChange={e => setFormData({...formData, order: e.target.value})}
+                    />
                   </div>
+                  {errors.order && <div className="text-red-500 text-xs font-bold mt-2">{errors.order[0]}</div>}
                 </div>
               </div>
             </div>
 
-            {/* Section 2: Details */}
-            <div className="agr-card p-4 mb-4">
-              <div className="d-flex align-items-center mb-4 text-primary">
-                <FileText size={18} className="me-2" />
-                <h3 className="h6 fw-bold mb-0 text-uppercase">Technical Details</h3>
+            {/* Details Section */}
+            <div className="bg-white border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[2rem] p-8 lg:p-10">
+              <div className="flex items-center gap-2 mb-6 text-[#22543d] font-black text-[10px] uppercase tracking-widest border-b border-slate-100 pb-3">
+                <FileText size={16} /> Technical Details
               </div>
 
-              <div className="form-group mb-4">
-                <label className="form-label small fw-bold">Brief Subject</label>
+              <div className="mb-6">
+                <label className="block text-xs font-black text-slate-600 uppercase tracking-widest mb-2">Brief Subject <span className="text-red-500">*</span></label>
                 <input 
-                  type="text" className={`form-input ${errors.title ? 'border-danger' : ''}`} required 
+                  type="text" 
+                  className={`w-full px-4 py-3.5 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#22543d] transition-all text-sm font-bold text-slate-800 placeholder-slate-300 ${errors.title ? 'border-red-400 ring-2 ring-red-400/20' : 'border-slate-200'}`}
+                  required 
                   placeholder="e.g., Incomplete shipment received"
                   value={formData.title} 
                   onChange={e => setFormData({...formData, title: e.target.value})} 
                 />
-                {errors.title && <div className="text-danger very-small mt-1">{errors.title[0]}</div>}
+                {errors.title && <div className="text-red-500 text-xs font-bold mt-2">{errors.title[0]}</div>}
               </div>
 
-              <div className="form-group mb-4">
-                <label className="form-label small fw-bold">Detailed Incident Description</label>
+              <div>
+                <label className="block text-xs font-black text-slate-600 uppercase tracking-widest mb-2">Detailed Incident Description <span className="text-red-500">*</span></label>
                 <textarea 
-                  className={`form-input ${errors.description ? 'border-danger' : ''}`} rows="6" required
+                  className={`w-full px-4 py-3.5 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#22543d] transition-all text-sm font-bold text-slate-800 placeholder-slate-300 resize-y ${errors.description ? 'border-red-400 ring-2 ring-red-400/20' : 'border-slate-200'}`}
+                  rows="5" 
+                  required
                   placeholder="Please describe exactly what happened, when it happened, and what resolution you are seeking..."
                   value={formData.description}
                   onChange={e => setFormData({...formData, description: e.target.value})}
                 ></textarea>
-                {errors.description && <div className="text-danger very-small mt-1">{errors.description[0]}</div>}
+                {errors.description && <div className="text-red-500 text-xs font-bold mt-2">{errors.description[0]}</div>}
               </div>
             </div>
 
-            {/* Section 3: Evidence */}
-            <div className="agr-card p-4 mb-5">
-              <div className="d-flex align-items-center mb-4 text-primary">
-                <ImageIcon size={18} className="me-2" />
-                <h3 className="h6 fw-bold mb-0 text-uppercase">Supporting Evidence</h3>
+            {/* Evidence Section */}
+            <div className="bg-white border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[2rem] p-8 lg:p-10">
+              <div className="flex items-center gap-2 mb-6 text-[#22543d] font-black text-[10px] uppercase tracking-widest border-b border-slate-100 pb-3">
+                <ImageIcon size={16} /> Supporting Evidence
               </div>
 
-              <div className="bg-light-soft p-4 rounded-xl border border-dashed text-center position-relative hover-shadow-sm transition-all">
+              <div className="relative border-2 border-dashed border-slate-200 rounded-[1.5rem] bg-slate-50 hover:bg-slate-100 transition-colors group">
                 <input 
                   type="file" id="evidence-upload" hidden accept="image/*" 
                   onChange={e => setAttachment(e.target.files[0])} 
                 />
-                <label htmlFor="evidence-upload" className="mb-0 cursor-pointer d-block">
-                  <div className="mb-3 text-muted opacity-50"><ImageIcon size={48} /></div>
-                  <h4 className="h6 fw-bold mb-1">{attachment ? attachment.name : 'Choose a file or drop it here'}</h4>
-                  <p className="very-small text-muted mb-0">PDF, JPG, PNG accepted (Max 5MB)</p>
+                <label htmlFor="evidence-upload" className="flex flex-col items-center justify-center w-full py-10 cursor-pointer">
+                  <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mb-4 transition-all duration-300 ${attachment ? 'bg-emerald-100 text-emerald-600' : 'bg-white border border-slate-200 text-slate-400 group-hover:scale-110 shadow-sm'}`}>
+                    <ImageIcon size={32} />
+                  </div>
+                  <h4 className="text-base font-black text-slate-800 mb-1">{attachment ? attachment.name : 'Click to Upload Payload Buffer'}</h4>
+                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">PDF, JPG, PNG accepted (Max 5MB)</p>
+                  
                   {attachment && (
-                    <div className="mt-3 text-primary very-small fw-bold animate-fade-in d-flex align-items-center justify-content-center">
-                      <CheckCircle size={14} className="me-1" /> File selected
+                    <div className="mt-6 text-emerald-600 bg-emerald-50 px-4 py-2 rounded-xl text-xs font-black tracking-widest uppercase flex items-center justify-center gap-2 animate-scale-in border border-emerald-200">
+                      <CheckCircle size={16} strokeWidth={3} /> File Encoded
                     </div>
                   )}
                 </label>
               </div>
-              {errors.attachment && <div className="text-danger very-small mt-2 text-center">{errors.attachment[0]}</div>}
+              {errors.attachment && <div className="text-red-500 text-xs font-bold mt-2 text-center">{errors.attachment[0]}</div>}
             </div>
 
-            {/* Feedback Sidebar Helper */}
-            <div className="info-box bg-primary-10 border border-primary-20 p-4 rounded-xl mb-5 d-flex gap-4">
-              <AlertCircle size={28} className="text-primary flex-shrink-0" />
-              <div>
-                <h5 className="h6 fw-bold mb-2">Our Dispute Policy</h5>
-                <p className="very-small text-muted mb-0 leading-relaxed">
-                  Complaints filed through this portal are reviewed within 24-48 institutional hours. 
-                  Resolution status updates will be sent to your platform notification center. 
-                  Inaccurate or misleading reports may impact your Trust Score.
-                </p>
-              </div>
-            </div>
-
-            <div className="d-flex flex-column-reverse flex-md-row gap-3">
+            <div className="flex flex-col-reverse sm:flex-row gap-5 mt-4">
               <button 
                 type="button" 
-                className="btn-agr btn-outline flex-grow-1 py-3 fw-bold"
-                onClick={() => navigate(-1)}
+                className="w-full sm:w-1/3 bg-slate-100 hover:bg-slate-200 text-slate-700 py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-sm hover:-translate-y-1 active:scale-95"
+                onClick={() => navigate('/farmer-dashboard')}
               >
-                Cancel Report
+                Abort Protocol
               </button>
               <button 
                 type="submit" 
-                className="btn-agr btn-primary flex-grow-1 py-3 fw-bold d-flex align-items-center justify-content-center shadow-lg"
+                className="w-full sm:flex-1 bg-[#22543d] hover:bg-[#1a402e] text-white py-4 rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-[0_8px_20px_rgba(34,84,61,0.3)] hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-70 disabled:hover:translate-y-0"
                 disabled={loading}
               >
-                {loading ? 'Processing Submission...' : <><Send size={18} className="me-2" /> File Official Report</>}
+                {loading ? <><span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span> Processing Block...</> : <><Send size={18} strokeWidth={3} /> Dispatch Official Report</>}
               </button>
             </div>
           </form>
+        </div>
+
+        {/* Sidebar Info */}
+        <div className="lg:col-span-4 lg:sticky lg:top-8">
+          <div className="bg-sky-50 border border-sky-100 rounded-[2rem] p-8 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-4 opacity-10 blur-[1px]"><AlertCircle size={100} /></div>
+            <div className="flex items-center gap-4 mb-4 relative z-10">
+              <div className="w-12 h-12 bg-sky-100 text-sky-600 rounded-2xl flex items-center justify-center shrink-0">
+                <AlertCircle size={24} strokeWidth={3} />
+              </div>
+              <h5 className="font-black text-sky-900 text-lg leading-tight">Ministry Dispute Policy</h5>
+            </div>
+            
+            <p className="text-sm text-sky-800/80 font-medium leading-relaxed relative z-10">
+              Reports filed through this centralized terminal are rapidly sequenced to administration authorities and rigorously reviewed within 24-48 institutional hours. 
+              <br/><br/>
+              Resolution vectors and status payloads will be propagated directly to your local disposition grid. Ensure all factual metadata is precise—inaccurate protocol uploads may negatively impact your institutional rating.
+            </p>
+          </div>
         </div>
       </div>
     </div>

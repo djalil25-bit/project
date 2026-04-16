@@ -1,3 +1,16 @@
+/* ───────────────────────────────────
+   TAILWIND CSS DIRECTIVES
+   Must appear before all other rules
+─────────────────────────────────── */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ───────────────────────────────────
+   ADMIN CSS IMPORT
+─────────────────────────────────── */
+@import './admin.css';
+
 :root {
   /* Colors */
   --primary: #2e7d32;

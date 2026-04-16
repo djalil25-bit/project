@@ -77,121 +77,161 @@ function CategoryManager() {
   };
 
   return (
-    <div className="category-manager-page">
-      <div className="agr-breadcrumb">
+    <div className="min-h-screen p-6 space-y-6 anim-fade-up">
+
+      {/* ── Breadcrumb ────────────────────────────────── */}
+      <div className="adm-breadcrumb">
         <Link to="/admin-dashboard">Admin Hub</Link>
-        <span className="agr-breadcrumb-sep"><ChevronRight size={12} /></span>
-        <span>Product Classifications</span>
+        <ChevronRight size={12} className="text-slate-600" />
+        <span className="text-slate-500">Product Classifications</span>
       </div>
 
-      <div className="page-header mb-4">
-        <div className="d-flex align-items-center">
-          <Layers className="text-primary me-3" size={32} />
-          <div>
-            <h1 className="page-title">Domain Taxonomy</h1>
-            <p className="page-subtitle text-muted">Initialize and manage standard categories for the product catalog.</p>
-          </div>
+      {/* ── Page Header ──────────────────────────────── */}
+      <div className="flex items-center gap-4">
+        <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center">
+          <Layers className="text-emerald-400" size={24} />
+        </div>
+        <div>
+          <h1 className="text-xl font-extrabold text-slate-100 tracking-tight">Domain Taxonomy</h1>
+          <p className="text-slate-500 text-sm">Initialize and manage standard categories for the product catalog.</p>
         </div>
       </div>
 
-      <div className="row g-4">
-        <div className="col-lg-4">
-          <div className="agr-card p-4 shadow-sm border-primary-soft">
-            <h3 className="h6 fw-bold mb-4 d-flex align-items-center">
-               <PlusCircle size={18} className="text-primary me-2" /> New Classification
-            </h3>
-            
-            {error && (
-              <div className="alert-agr alert-danger mb-4 py-2">
-                <AlertCircle size={16} className="me-2" /> <span className="small">{error}</span>
-              </div>
-            )}
-            
-            {success && (
-              <div className="alert-agr alert-success mb-4 py-2">
-                <CheckCircle size={16} className="me-2" /> <span className="small">{success}</span>
-              </div>
-            )}
+      {/* ── Main Content Grid ─────────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-            <form onSubmit={handleSubmit} className="agr-form">
-              <div className="row g-2 mb-3">
-                <div className="col-9">
-                  <label className="form-label small">Domain Name *</label>
-                  <input type="text" className="form-input" placeholder="e.g. Legumes" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
-                </div>
-                <div className="col-3">
-                  <label className="form-label small">Icon</label>
-                  <input type="text" className="form-input text-center" placeholder="🌱" value={formData.icon} onChange={e => setFormData({ ...formData, icon: e.target.value })} maxLength="10" />
-                </div>
+        {/* ── Left: Form Panel ─────────────────────────── */}
+        <div className="glass-card p-6">
+          <h3 className="font-bold text-slate-200 flex items-center gap-2 mb-5">
+            <PlusCircle size={16} className="text-emerald-400" />
+            {editingId ? 'Edit Classification' : 'New Classification'}
+          </h3>
+
+          {error && (
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm mb-4">
+              <AlertCircle size={14} /> {error}
+            </div>
+          )}
+          {success && (
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm mb-4">
+              <CheckCircle size={14} /> {success}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-4 gap-3">
+              <div className="col-span-3">
+                <label className="adm-label">Domain Name *</label>
+                <input
+                  type="text"
+                  className="adm-input"
+                  placeholder="e.g. Legumes"
+                  value={formData.name}
+                  onChange={e => setFormData({ ...formData, name: e.target.value })}
+                  required
+                />
               </div>
-              <div className="form-group mb-4">
-                <label className="form-label small">Taxonomic Description</label>
-                <textarea className="form-input" style={{ minHeight: 100 }} placeholder="Scope of products included..." value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} />
+              <div>
+                <label className="adm-label">Icon</label>
+                <input
+                  type="text"
+                  className="adm-input text-center text-lg"
+                  placeholder="🌱"
+                  value={formData.icon}
+                  onChange={e => setFormData({ ...formData, icon: e.target.value })}
+                  maxLength="10"
+                />
               </div>
-              <div className="d-flex gap-2">
-                <button className={`btn-agr w-100 py-2 d-flex align-items-center justify-content-center ${editingId ? 'btn-success' : 'btn-primary'}`} type="submit" disabled={submitting}>
-                  <Plus size={18} className="me-2" /> {submitting ? 'Saving...' : (editingId ? 'Update Domain' : 'Add Domain')}
-                </button>
-                <button className="btn-agr btn-icon-outline" type="button" title="Reset Form" onClick={() => { setFormData({ name: '', description: '', icon: '🌱' }); setEditingId(null); }}>
-                  <X size={18} />
-                </button>
-              </div>
-            </form>
-          </div>
+            </div>
+
+            <div>
+              <label className="adm-label">Taxonomic Description</label>
+              <textarea
+                className="adm-input"
+                style={{ minHeight: 90 }}
+                placeholder="Scope of products included..."
+                value={formData.description}
+                onChange={e => setFormData({ ...formData, description: e.target.value })}
+              />
+            </div>
+
+            <div className="flex gap-2 pt-1">
+              <button
+                className={`adm-btn flex-1 justify-center py-2.5 ${editingId ? 'adm-btn-success' : 'adm-btn-primary'}`}
+                type="submit"
+                disabled={submitting}
+              >
+                <Plus size={16} /> {submitting ? 'Saving...' : (editingId ? 'Update Domain' : 'Add Domain')}
+              </button>
+              <button
+                className="adm-btn adm-btn-ghost adm-btn-icon"
+                type="button"
+                title="Reset Form"
+                onClick={() => { setFormData({ name: '', description: '', icon: '🌱' }); setEditingId(null); }}
+              >
+                <X size={16} />
+              </button>
+            </div>
+          </form>
         </div>
 
-        <div className="col-lg-8">
-          <div className="agr-card overflow-hidden">
-            <div className="agr-card-header bg-light-soft border-bottom p-3 d-flex justify-content-between align-items-center">
-              <h3 className="h6 fw-bold mb-0 d-flex align-items-center">
-                 <Layers size={16} className="text-primary me-2" /> Registered Taxonomy ({categories.length})
+        {/* ── Right: Table Panel ───────────────────────── */}
+        <div className="lg:col-span-2 space-y-4">
+          <div className="glass-card overflow-hidden">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
+              <h3 className="font-bold text-slate-200 flex items-center gap-2">
+                <Layers size={16} className="text-emerald-400" /> Registered Taxonomy
+                <span className="adm-badge adm-badge-approved ml-1">{categories.length}</span>
               </h3>
             </div>
+
             {loading ? (
-              <div className="flex-center py-5">
-                <div className="spinner-agr"></div>
-                <span className="ms-3 text-muted">Calculating domains...</span>
+              <div className="flex items-center justify-center gap-3 py-12">
+                <div className="adm-spinner"></div>
+                <span className="text-slate-500 text-sm">Calculating domains...</span>
               </div>
             ) : (
-              <div className="table-responsive">
-                <table className="table-agr h6 table-hover">
+              <div className="overflow-x-auto">
+                <table className="admin-table">
                   <thead>
                     <tr>
-                      <th className="ps-4">Classification</th>
+                      <th className="pl-6">Classification</th>
                       <th>Scope / Description</th>
-                      <th className="text-end pe-4">Operations</th>
+                      <th style={{ textAlign: 'right', paddingRight: '1.5rem' }}>Operations</th>
                     </tr>
                   </thead>
                   <tbody>
                     {categories.length === 0 ? (
                       <tr>
                         <td colSpan="3">
-                          <div className="table-empty py-5 text-center">
-                             <Search size={40} className="text-muted mb-3 opacity-25" />
-                             <p className="small text-muted mb-0">No taxonomic domains identified.</p>
+                          <div className="flex flex-col items-center gap-3 py-14 text-slate-600">
+                            <Search size={40} className="opacity-20" />
+                            <p className="text-sm">No taxonomic domains identified.</p>
                           </div>
                         </td>
                       </tr>
                     ) : categories.map(c => (
                       <tr key={c.id}>
-                        <td className="ps-4">
-                           <div className="d-flex align-items-center">
-                             <span className="me-3 fs-5">{c.icon || '🌱'}</span>
-                             <div className="fw-bold text-dark">{c.name}</div>
-                           </div>
+                        <td className="pl-6">
+                          <div className="flex items-center gap-3">
+                            <span className="text-2xl">{c.icon || '🌱'}</span>
+                            <div className="font-semibold text-slate-200">{c.name}</div>
+                          </div>
                         </td>
                         <td>
-                           <div className="very-small text-muted lh-sm" style={{maxWidth: '300px'}}>
-                              {c.description || <span className="fst-italic opacity-50">No scope defined</span>}
-                           </div>
+                          <div className="text-xs text-slate-500 leading-relaxed" style={{ maxWidth: '300px' }}>
+                            {c.description || <span className="italic opacity-50">No scope defined</span>}
+                          </div>
                         </td>
-                        <td className="text-end pe-4">
-                          <button className="btn-icon text-primary me-2" title="Edit" onClick={() => handleEdit(c)}>
-                            <Layers size={16} />
-                          </button>
-                          <button className="btn-icon text-danger" title="Remove" onClick={() => handleDelete(c.id)}>
-                            <Trash2 size={16} />
-                          </button>
+                        <td>
+                          <div className="flex items-center justify-end gap-2 pr-6">
+                            <button className="adm-btn adm-btn-ghost adm-btn-icon" title="Edit" onClick={() => handleEdit(c)}>
+                              <Layers size={14} className="text-blue-400" />
+                            </button>
+                            <button className="adm-btn adm-btn-ghost adm-btn-icon" title="Remove" onClick={() => handleDelete(c.id)}>
+                              <Trash2 size={14} className="text-red-400" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -200,14 +240,13 @@ function CategoryManager() {
               </div>
             )}
           </div>
-          
-          <div className="mt-4 p-3 bg-light-soft rounded-lg d-flex align-items-center">
-             <Info size={18} className="text-primary me-3 opacity-50" />
-             <div className="very-small text-muted">
-               Categories defined here are used to group products in the marketplace and for price index filtering.
-             </div>
+
+          <div className="adm-info-block">
+            <Info size={16} className="shrink-0 mt-0.5 opacity-60" />
+            <div>Categories defined here are used to group products in the marketplace and for price index filtering.</div>
           </div>
         </div>
+
       </div>
     </div>
   );
