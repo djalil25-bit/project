@@ -1,0 +1,13 @@
+{
+  "venvPath": "c:\\projet-mem\\p1\\backend",
+  "venv": "venv",
+  "pythonVersion": "3.12",
+  "pythonPlatform": "Windows",
+  "extraPaths": [
+    "backend"
+  ],
+  "exclude": [
+    "frontend/node_modules",
+    "backend/venv"
+  ]
+}
