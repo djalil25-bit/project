@@ -8,6 +8,9 @@ class DeliveryStatusChoices(models.TextChoices):
     ASSIGNED = 'assigned', 'Assigned'
     PICKED_UP = 'picked_up', 'Picked Up'
     IN_TRANSIT = 'in_transit', 'In Transit'
+    REFUSED_DELIVERY = 'refused_delivery', 'Refused Delivery'
+    RETURN_IN_PROGRESS = 'return_in_progress', 'Return in Progress'
+    RETURNED = 'returned', 'Returned'
     DELIVERED = 'delivered', 'Delivered'
     CANCELLED = 'cancelled', 'Cancelled'
 
@@ -27,11 +30,20 @@ class DeliveryRequest(TimeStampedModel):
     notes = models.TextField(blank=True, default='')
     vehicle_size = models.CharField(max_length=50, blank=True, default='', help_text="Required truck capacity or vehicle size")
 
+    # Assignment details
+    assigned_vehicle_id = models.CharField(max_length=50, blank=True, null=True, help_text="ID of the vehicle from transporter's fleet")
+    assigned_vehicle_info = models.JSONField(default=dict, blank=True, help_text="Snapshot of vehicle details at acceptance")
+
     # Proof of Delivery (PoD)
     pod_photo = models.ImageField(upload_to='pod/', null=True, blank=True)
     pod_recipient_name = models.CharField(max_length=100, blank=True, default='')
     pod_notes = models.TextField(blank=True, default='')
     pod_completed_at = models.DateTimeField(null=True, blank=True)
+
+    @property
+    def total_quantity(self):
+        from django.db.models import Sum
+        return self.order.items.aggregate(total=Sum('quantity'))['total'] or 0
 
     def __str__(self):
         return f"Delivery for Order #{self.order.id} - {self.status}"

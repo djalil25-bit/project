@@ -11,10 +11,13 @@ import {
 const OrderStatusBadge = ({ status }) => {
   const s = status?.toUpperCase() || '';
   const map = {
-    PENDING:   { cls: 'bg-amber-100 text-amber-800 border-amber-200',   icon: <Clock size={12} />,         label: 'Pending'   },
-    CONFIRMED: { cls: 'bg-emerald-600 text-white border-emerald-700 shadow-sm font-black',  icon: <CheckCircle size={12} />,   label: 'Confirmed' },
-    DELIVERED: { cls: 'bg-emerald-100 text-emerald-800 border-emerald-200',  icon: <Truck size={12} />,         label: 'Delivered' },
-    REJECTED:  { cls: 'bg-red-100 text-red-800 border-red-200',   icon: <XCircle size={12} />,       label: 'Rejected'  },
+    PENDING:            { cls: 'bg-amber-100 text-amber-800 border-amber-200',   icon: <Clock size={12} />,         label: 'Pending'   },
+    CONFIRMED:          { cls: 'bg-emerald-600 text-white border-emerald-700 shadow-sm font-black',  icon: <CheckCircle size={12} />,   label: 'Confirmed' },
+    DELIVERED:          { cls: 'bg-slate-900 text-white border-slate-900 shadow-sm font-black',  icon: <Truck size={12} />,         label: 'Delivered' },
+    REFUSED_DELIVERY:   { cls: 'bg-rose-100 text-rose-800 border-rose-200 font-black', icon: <ShieldAlert size={12} />, label: 'Refused' },
+    RETURN_IN_PROGRESS: { cls: 'bg-rose-50 text-rose-700 border-rose-200 border-dashed animate-pulse', icon: <Truck size={12} />,      label: 'Returning' },
+    RETURNED:           { cls: 'bg-emerald-600 text-white border-emerald-700 shadow-sm font-black', icon: <CheckCircle size={12} />, label: 'Returned' },
+    REJECTED:           { cls: 'bg-red-100 text-red-800 border-red-200',   icon: <XCircle size={12} />,       label: 'Rejected'  },
   };
   const b = map[s] || { cls: 'bg-slate-100 text-slate-600 border-slate-200', icon: null, label: s };
   return <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-extrabold border ${b.cls}`}>{b.icon} {b.label}</span>;
@@ -29,11 +32,14 @@ const DeliveryBadge = ({ order }) => {
   if (!hasReq)                     return <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-slate-100 text-slate-500 border border-slate-200 rounded-full text-[10px] font-extrabold">Not Sent</span>;
 
   const map = {
-    OPEN:      { cls: 'bg-indigo-50 text-indigo-700 border-indigo-200',  label: 'Awaiting' },
-    ASSIGNED:  { cls: 'bg-blue-100 text-blue-800 border-blue-200', label: 'Assigned'             },
-    PICKED_UP: { cls: 'bg-purple-100 text-purple-800 border-purple-200',  label: 'In Transit'           },
-    IN_TRANSIT:{ cls: 'bg-purple-100 text-purple-800 border-purple-200',  label: 'In Transit'           },
-    CANCELLED: { cls: 'bg-red-100 text-red-800 border-red-200', label: 'Cancelled'            },
+    OPEN:               { cls: 'bg-indigo-50 text-indigo-700 border-indigo-200',  label: 'Awaiting' },
+    ASSIGNED:           { cls: 'bg-blue-100 text-blue-800 border-blue-200', label: 'Assigned'             },
+    PICKED_UP:          { cls: 'bg-purple-100 text-purple-800 border-purple-200',  label: 'In Transit'           },
+    IN_TRANSIT:         { cls: 'bg-purple-100 text-purple-800 border-purple-200',  label: 'In Transit'           },
+    REFUSED_DELIVERY:   { cls: 'bg-rose-100 text-rose-800 border-rose-200', label: 'Refused' },
+    RETURN_IN_PROGRESS: { cls: 'bg-rose-50 text-rose-700 border-rose-200 border-dashed animate-pulse', label: 'Returning' },
+    RETURNED:           { cls: 'bg-emerald-600 text-white border-emerald-700 font-black', label: 'Returned' },
+    CANCELLED:          { cls: 'bg-red-100 text-red-800 border-red-200', label: 'Cancelled'            },
   };
   const b = map[reqStatus] || { cls: 'bg-slate-100 text-slate-600 border-slate-200', label: reqStatus || 'Unknown' };
   return <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-extrabold border ${b.cls}`}>{b.label}</span>;
@@ -83,6 +89,7 @@ export default function OrderList() {
     if (filter === 'ALL')        match = true;
     else if (filter === 'DELIVERED') match = o.delivery_status?.toUpperCase() === 'DELIVERED';
     else if (filter === 'CONFIRMED') match = o.status?.toUpperCase() === 'CONFIRMED' && o.delivery_status?.toUpperCase() !== 'DELIVERED';
+    else if (filter === 'RETURNED') match = o.status?.toUpperCase() === 'RETURNED';
     else match = o.status?.toUpperCase() === filter;
 
     const locNum   = o.farmer_order_number ? `F-${String(o.farmer_order_number).padStart(3,'0')}` : String(o.id);
@@ -95,6 +102,7 @@ export default function OrderList() {
     { key: 'ALL',       label: 'All Log'   },
     { key: 'PENDING',   label: 'Pending'   },
     { key: 'CONFIRMED', label: 'Confirmed' },
+    { key: 'RETURNED',  label: 'Returned'  },
     { key: 'REJECTED',  label: 'Rejected'  },
     { key: 'DELIVERED', label: 'Completed' },
   ];
@@ -315,6 +323,40 @@ export default function OrderList() {
                                       </div>
                                     )}
                                   </div>
+                                )}
+
+                                {o.refusal_reason && (
+                                   <div className="mt-4 bg-rose-50 border border-rose-200 rounded-2xl p-5 shadow-sm relative overflow-hidden group">
+                                      <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><ShieldAlert size={48} /></div>
+                                      <div className="flex items-center gap-2 text-rose-600 mb-4 border-b border-rose-100 pb-3">
+                                         <ShieldAlert size={16} />
+                                         <h6 className="font-black text-[10px] uppercase tracking-widest m-0">Refusal Intelligence</h6>
+                                      </div>
+                                      <div className="space-y-4 relative z-10">
+                                         <div className="flex flex-col gap-1">
+                                            <span className="text-[9px] font-black text-rose-400 uppercase">Primary Discrepancy</span>
+                                            <div className="text-[11px] font-black text-rose-900 border-l-2 border-rose-300 pl-3 py-1 bg-white/40">{o.refusal_reason}</div>
+                                         </div>
+                                         {o.refusal_note && (
+                                            <div className="flex flex-col gap-1">
+                                               <span className="text-[9px] font-black text-rose-400 uppercase">Field Observations</span>
+                                               <p className="text-[10px] text-rose-800 font-medium italic leading-snug bg-white/40 p-2 rounded-lg border border-rose-100">"{o.refusal_note}"</p>
+                                            </div>
+                                         )}
+                                         <div className="pt-2 flex flex-col gap-2">
+                                            <div className="flex justify-between items-center text-[9px]">
+                                               <span className="font-bold text-rose-400 uppercase">Logged At:</span>
+                                               <span className="font-black text-rose-700">{new Date(o.refused_at).toLocaleString()}</span>
+                                            </div>
+                                            {o.returned_at && (
+                                              <div className="flex justify-between items-center text-[9px]">
+                                                 <span className="font-bold text-emerald-500 uppercase">Finalized At:</span>
+                                                 <span className="font-black text-emerald-700">{new Date(o.returned_at).toLocaleString()}</span>
+                                              </div>
+                                            )}
+                                         </div>
+                                      </div>
+                                   </div>
                                 )}
 
                                 {o.delivery_request?.pod_completed_at && (

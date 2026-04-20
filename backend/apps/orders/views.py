@@ -166,7 +166,44 @@ class OrderViewSet(viewsets.ModelViewSet):
             pass
             
         return Response(OrderSerializer(order, context={'request': request}).data)
-
+        
+    @action(detail=True, methods=['post'], permission_classes=[IsBuyerRole])
+    def cancel(self, request, pk=None):
+        order = self.get_object()
+        if order.status != OrderStatusChoices.PENDING:
+            return Response({"error": "Only pending orders can be canceled."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            with transaction.atomic():
+                order.status = OrderStatusChoices.CANCELLED
+                order.save()
+                
+                # Restore stock safely
+                for item in order.items.all():
+                    if item.product:
+                        # Re-fetch product within atomic lock to avoid race conditions
+                        from apps.catalog.models import Product
+                        product = Product.objects.select_for_update().get(id=item.product.id)
+                        product.stock += item.quantity
+                        product.save()
+                
+                from apps.notifications.models import create_notification, NotificationType
+                # Notify the farmer(s)
+                farmer_ids = order.items.values_list('farmer', flat=True).distinct()
+                from apps.accounts.models import User
+                farmers = User.objects.filter(id__in=farmer_ids)
+                
+                for farmer in farmers:
+                    create_notification(
+                        user=farmer,
+                        message=f"Order #{order.id} was canceled by the buyer.",
+                        notif_type=NotificationType.ORDER_REJECTED,
+                        link=f"/farmer/orders"
+                    )
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            
+        return Response({"status": "cancelled", "message": "Order canceled and stock restored."})
 
     def handle_exception(self, exc):
         if isinstance(exc, ValueError):
@@ -228,12 +265,15 @@ class FarmerOrderViewSet(viewsets.ViewSet):
                 if order.status == OrderStatusChoices.PENDING:
                     order.status = OrderStatusChoices.REJECTED
                     order.save()
-                    # Restore stock
+                    # Restore stock correctly within a lock
                     farmer_items = order.items.filter(farmer=request.user)
-                    for item in farmer_items:
-                        if item.product:
-                            item.product.stock += item.quantity
-                            item.product.save()
+                    with transaction.atomic():
+                        for item in farmer_items:
+                            if item.product:
+                                from apps.catalog.models import Product
+                                product = Product.objects.select_for_update().get(id=item.product.id)
+                                product.stock += item.quantity
+                                product.save()
                     
                     create_notification(
                         user=order.buyer,

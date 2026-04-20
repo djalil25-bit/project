@@ -38,6 +38,7 @@ import InvoicePage from './pages/buyer/InvoicePage';
 import Wishlist from './pages/buyer/Wishlist';
 import CategoryManager from './pages/admin/CategoryManager';
 import CatalogManager from './pages/admin/CatalogManager';
+import CatalogPriceHistory from './pages/admin/CatalogPriceHistory';
 import VehicleSettings from './pages/transporter/VehicleSettings';
 import ZoneSettings from './pages/transporter/ZoneSettings';
 import Profile from './pages/Profile';
@@ -74,6 +75,11 @@ function App() {
           <Route path="/admin-dashboard/catalog" element={
             <ProtectedRoute allowedRoles={['admin']}>
               <CatalogManager />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin-dashboard/catalog/:id/price-history" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <CatalogPriceHistory />
             </ProtectedRoute>
           } />
           <Route path="/admin-dashboard/categories" element={

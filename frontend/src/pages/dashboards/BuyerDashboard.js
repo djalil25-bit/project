@@ -331,119 +331,109 @@ function BuyerDashboard() {
         ))}
       </div>
 
-      {/* ── SLEEK ACTION BAR (SEARCH & CLICK-TO-TOGGLE CATEGORIES) ──────────────────── */}
-      <div className="bg-white rounded-3xl shadow-lg border border-slate-200 p-2 flex items-center gap-3 sticky top-4 z-40">
-        <div className="relative flex-1">
-           <Search size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400" />
+      {/* ── SLEEK COMPACT FILTER BAR ──────────────────── */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sticky top-4 z-40 space-y-4">
+        <div className="flex items-center gap-3 relative">
+           <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
            <input
               type="text"
-              placeholder="Query Marketplace Index..."
-              className="w-full pl-14 pr-4 py-4 bg-slate-50/50 hover:bg-white border-none rounded-2xl text-sm font-black text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:shadow-indigo-100 transition-all uppercase tracking-widest"
+              placeholder="Search products, farms, or categories..."
+              className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition-all"
               value={search} onChange={e => setSearch(e.target.value)}
            />
         </div>
         
-        <div className="relative" ref={categoryRef}>
-           <button 
-             className={`h-full flex items-center gap-3 px-6 py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all border ${showCategories ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-600/20' : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-400 hover:text-indigo-600'}`}
-             onClick={() => setShowCategories(!showCategories)}
-           >
-             <ListFilter size={16} className={showCategories ? 'animate-pulse' : ''} />
-             <span className="hidden sm:inline">{activeCategory === 'All' ? 'Parameters' : activeCategory}</span>
-           </button>
-
-           {/* Category Dropdown (Professional Search Bar Integration) */}
-           {showCategories && (
-             <div className="absolute right-0 mt-3 w-72 bg-white border border-slate-200 shadow-[0_20px_60px_rgba(0,0,0,0.12)] rounded-[2rem] overflow-hidden animate-slide-in flex flex-col z-50">
-                <div className="px-6 py-5 bg-slate-50 border-b border-slate-100 font-black text-[9px] uppercase tracking-[0.3em] text-slate-400">
-                  Refine Acquisition Vector
-                </div>
-                <div className="p-3 space-y-1.5 max-h-[400px] overflow-y-auto">
-                  <button
-                    className={`w-full text-left px-5 py-4 rounded-2xl text-[10px] font-black tracking-widest uppercase transition-all flex items-center justify-between ${activeCategory === 'All' ? 'bg-slate-900 text-indigo-400 shadow-md' : 'text-slate-600 hover:bg-slate-100'}`}
-                    onClick={() => { setActiveCategory('All'); setShowCategories(false); }}
-                  >
-                    All Available Assets
-                    {activeCategory === 'All' && <CheckCircle size={14} />}
-                  </button>
-                  <div className="h-px bg-slate-100 mx-3 my-1" />
-                  {categories.filter(c => c.name !== 'All').map(c => (
-                    <button
-                      key={c.id}
-                      className={`w-full text-left px-5 py-4 rounded-2xl text-[10px] font-bold tracking-widest uppercase transition-all flex items-center justify-between ${activeCategory === c.name ? 'bg-indigo-50 text-indigo-700 border border-indigo-100' : 'text-slate-600 hover:bg-slate-50'}`}
-                      onClick={() => { setActiveCategory(c.name); setShowCategories(false); }}
-                    >
-                      {c.name}
-                      {activeCategory === c.name && <div className="w-1.5 h-1.5 rounded-full bg-indigo-600" />}
-                    </button>
-                  ))}
-                </div>
-             </div>
-           )}
+        {/* Horizontal Scrollable Categories */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          <div className="flex items-center gap-1.5 mr-2 border-r border-slate-200 pr-4 shrink-0 text-[10px] font-black uppercase tracking-widest text-slate-400">
+             <ListFilter size={14} /> Categories
+          </div>
+          
+          <button
+            className={`shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all border ${activeCategory === 'All' ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-200' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300'}`}
+            onClick={() => setActiveCategory('All')}
+          >
+            All Products
+          </button>
+          
+          {categories.filter(c => c.name !== 'All').map(c => (
+            <button
+              key={c.id}
+              className={`shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all border ${activeCategory === c.name ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-200' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300'}`}
+              onClick={() => setActiveCategory(c.name)}
+            >
+              {c.name}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* ── SQUARE COMPONENT ARCHITECTURE (STITCH UI OVERRIDE) ──────────────── */}
-      <div className="pt-2">
-         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      {/* ── PREMIUM MARKETPLACE GRID ──────────────── */}
+      <div className="pt-4">
+         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
            {filteredProducts.map((p, idx) => (
              <div 
                key={p.id} 
-               className="group bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-indigo-200 flex flex-col animate-fade-in"
+               className="group bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)] hover:-translate-y-1 hover:border-indigo-300 flex flex-col animate-fade-in"
                style={{ animationDelay: `${idx * 40}ms` }}
              >
-               {/* 1. Square Foundation: Image Section */}
-               <div className="relative w-full aspect-square overflow-hidden cursor-pointer" onClick={() => setSelectedProduct(p)}>
+               {/* Image Container: High-fidelity horizontal aspect ratio */}
+               <div className="relative w-full h-44 sm:h-48 overflow-hidden cursor-pointer bg-slate-50" onClick={() => setSelectedProduct(p)}>
                   {p.image
-                    ? <img src={p.image} alt={p.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                    : <div className="w-full h-full bg-slate-50 flex items-center justify-center text-slate-200"><Package size={48} /></div>
+                    ? <img src={p.image} alt={p.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    : <div className="w-full h-full flex items-center justify-center text-slate-300"><Package size={40} /></div>
                   }
                   <QualityBadge quality={p.quality} />
                   
-                  {/* Action Overlay */}
-                  <div className="absolute top-3 right-3 z-10">
+                  {/* Action Overlay: Favorite */}
+                  <div className="absolute top-3 right-3 z-10 transition-transform active:scale-90">
                      <button
-                       className={`w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-md transition-all shadow-sm ${p.is_favorite ? 'bg-rose-500 text-white' : 'bg-white/90 text-slate-400 hover:text-rose-500 hover:scale-110'}`}
+                       className={`w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md shadow-sm border ${p.is_favorite ? 'bg-rose-500 border-rose-600 text-white' : 'bg-white/90 border-white text-slate-400 hover:text-rose-500'}`}
                        onClick={e => { e.stopPropagation(); toggleFavorite(p); }}
                      >
-                       <Heart size={18} fill={p.is_favorite ? 'currentColor' : 'none'} strokeWidth={2.5} />
+                       <Heart size={14} fill={p.is_favorite ? 'currentColor' : 'none'} strokeWidth={2.5} />
                      </button>
                   </div>
                </div>
                
-               {/* 2. Typography & Information Polish */}
-               <div className="flex flex-col flex-1 p-5">
-                  <h4 className="text-lg font-bold text-slate-900 truncate mb-1 cursor-pointer hover:text-indigo-600 transition-colors" onClick={() => setSelectedProduct(p)}>
-                     {p.title}
-                  </h4>
+               {/* Typography & Actions */}
+               <div className="flex flex-col flex-1 p-4">
+                  <div className="flex justify-between items-start mb-1.5 gap-2">
+                     <h4 className="text-base font-black text-slate-900 leading-tight line-clamp-2 cursor-pointer hover:text-indigo-600 transition-colors" onClick={() => setSelectedProduct(p)}>
+                        {p.title}
+                     </h4>
+                     {p.stock === 0 && <span className="shrink-0 bg-slate-100 text-slate-500 font-bold text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded">Out</span>}
+                  </div>
                   
-                  <div className="flex items-center gap-1.5 text-sm text-slate-500 font-medium mb-3">
-                    <MapPin size={14} className="text-indigo-500" />
-                    <span className="truncate">{p.farm_name || 'Algeria'}</span>
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 font-semibold mb-3">
+                    <span className="flex items-center gap-1 truncate"><Building2 size={12} className="text-indigo-400" /> {p.farm_name || 'Algeria'}</span>
                   </div>
 
-                  <div className="text-2xl font-extrabold text-indigo-600 mb-2">
-                     {parseFloat(p.price).toLocaleString()} <span className="text-xs font-bold text-slate-400">DZD/{p.unit}</span>
-                  </div>
+                  <div className="mt-auto">
+                    <div className="flex items-end gap-1 mb-0.5">
+                      <span className="text-2xl font-black text-indigo-700 leading-none tracking-tight">{parseFloat(p.price).toLocaleString()}</span>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">DZD/{p.unit}</span>
+                    </div>
 
-                  <BenchmarkDisplay comparison={p.official_price_comparison} type="card" />
+                    <BenchmarkDisplay comparison={p.official_price_comparison} type="card" />
 
-                  {/* 3. The Dual-Action Button Row */}
-                  <div className="flex items-center gap-3 mt-4 w-full">
-                     <button
-                       className="w-1/2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 rounded-xl transition-colors text-sm text-center cursor-pointer flex items-center justify-center gap-2"
-                       onClick={() => setSelectedProduct(p)}
-                     >
-                       <Eye size={16} /> View
-                     </button>
-                     <button
-                       className="w-1/2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-xl shadow-md shadow-indigo-200 transition-all active:scale-95 text-sm text-center cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
-                       onClick={() => addToCart(p.id)}
-                       disabled={cartLoading || p.stock === 0}
-                     >
-                       {p.stock === 0 ? <XCircle size={16} /> : <Plus size={16} />}
-                       {p.stock === 0 ? 'Empty' : 'Add'}
-                     </button>
+                    {/* Compact Button Row */}
+                    <div className="grid grid-cols-2 gap-2 mt-4">
+                       <button
+                         className="bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold py-2 rounded-xl transition-all text-xs flex items-center justify-center gap-1.5 focus:ring-2 focus:ring-slate-200 outline-none"
+                         onClick={() => setSelectedProduct(p)}
+                       >
+                         <Eye size={14} /> View
+                       </button>
+                       <button
+                         className={`font-bold py-2 rounded-xl transition-all text-xs flex items-center justify-center gap-1.5 active:scale-95 outline-none ${p.stock === 0 ? 'bg-slate-100 text-slate-400 border border-transparent' : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-[0_4px_10px_rgba(79,70,229,0.2)] focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600'}`}
+                         onClick={() => addToCart(p.id)}
+                         disabled={cartLoading || p.stock === 0}
+                       >
+                         {p.stock === 0 ? <XCircle size={14} /> : <ShoppingCart size={14} />}
+                         {p.stock === 0 ? 'Empty' : 'Add to Cart'}
+                       </button>
+                    </div>
                   </div>
                </div>
              </div>

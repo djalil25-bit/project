@@ -8,6 +8,7 @@ import {
   Plus,
   Minus,
   ChevronRight,
+  ChevronLeft,
   ShieldCheck,
   CheckCircle,
   AlertCircle,
@@ -21,7 +22,8 @@ import {
   Building2,
   TrendingDown,
   TrendingUp,
-  Activity
+  Activity,
+  Phone
 } from 'lucide-react';
 
 function CartPage() {
@@ -67,15 +69,20 @@ function CartPage() {
     } finally { setCartLoading(false); }
   };
 
-  const updateQuantity = async (productId, currentQty, delta) => {
+  const updateQuantity = async (productId, currentQty, delta, maxStock) => {
     const newQty = Math.round(currentQty) + delta;
     if (newQty < 1) return removeFromCart(productId);
+    if (newQty > maxStock) {
+      showMsg('danger', `Cannot exceed available stock (${maxStock}).`);
+      return;
+    }
     setCartLoading(true);
     try {
       const res = await api.patch(`/cart/items/${productId}/`, { quantity: newQty });
       setCart(res.data);
     } catch (err) {
-      showMsg('danger', 'Adjustment protocol failed.');
+      const errorMsg = err.response?.data?.quantity?.[0] || err.response?.data?.error || 'Adjustment protocol failed.';
+      showMsg('danger', errorMsg);
     } finally { setCartLoading(false); }
   };
 
@@ -192,51 +199,82 @@ function CartPage() {
                    const price = parseFloat(p.price || 0);
                    const subTotal = item.quantity * price;
                    return (
-                     <div key={item.id} className={`p-6 md:p-8 flex flex-col md:flex-row items-center gap-8 transition-all hover:bg-slate-50/50 group ${cartLoading ? 'opacity-40 grayscale pointer-events-none' : ''}`}>
-                        
-                        {/* Asset Identity */}
-                        <div className="w-28 h-28 bg-white rounded-3xl overflow-hidden shadow-md border-2 border-white group-hover:border-indigo-100 transition-all flex shrink-0">
-                           {p.image ? (
-                             <img src={p.image} alt={p.productName || p.title} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
-                           ) : (
-                             <div className="w-full h-full bg-slate-50 flex items-center justify-center text-slate-200"><Package size={40} /></div>
-                           )}
-                        </div>
+                      <div key={item.id} className={`p-6 grid grid-cols-1 md:grid-cols-12 items-center gap-8 transition-all hover:bg-slate-50 group border-b border-slate-100 last:border-0 ${cartLoading ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
+                         
+                         {/* Product Image & Info Column */}
+                         <div className="md:col-span-7 flex flex-row items-center gap-6">
+                            {/* Image Box */}
+                            <div className="w-24 h-24 bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200 group-hover:border-indigo-300 transition-colors flex shrink-0">
+                               {p.image ? (
+                                 <img src={p.image} alt={p.productName || p.title} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                               ) : (
+                                 <div className="w-full h-full bg-slate-50 flex items-center justify-center text-slate-300"><Package size={32} /></div>
+                               )}
+                            </div>
 
-                        <div className="flex-1 min-w-0 text-center md:text-left space-y-1">
-                           <div className="flex flex-col md:flex-row md:items-center gap-2">
-                              <span className="text-[9px] font-black uppercase tracking-[0.2em] text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded w-fit mx-auto md:mx-0 border border-indigo-100">{p.category_name}</span>
-                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1 justify-center md:justify-start">
-                                 <Building2 size={12}/> {p.farm_name}
-                              </span>
-                           </div>
-                           <h4 className="text-xl font-black text-slate-900 tracking-tight leading-tight">{p.productName || p.title}</h4>
-                           <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">{price.toLocaleString()} DZD / {p.unit} Base</div>
-                        </div>
+                            {/* Info Block */}
+                            <div className="flex flex-col justify-center py-1">
+                               <h4 className="text-xl font-black text-slate-900 tracking-tight leading-none mb-2" title={p.productName || p.title || 'Unknown Product'}>
+                                  {p.productName || p.title || 'Unknown Product'}
+                               </h4>
+                               
+                               <div className="flex flex-col gap-1.5 mb-2.5">
+                                  <div className="flex items-center gap-2 text-xs text-slate-500 font-bold">
+                                     <Building2 size={14} className="text-indigo-400 shrink-0"/> 
+                                     <span>{p.farm_name || 'AgriGov Vendor'}</span>
+                                  </div>
+                                  <div className="flex items-center">
+                                     <span className="inline-block text-[10px] font-black uppercase tracking-widest text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-100 leading-none">
+                                        {p.category_name || 'Item'}
+                                     </span>
+                                  </div>
+                               </div>
 
-                        {/* Interactive Logic */}
-                        <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12 w-full md:w-auto">
-                           
-                           {/* Premium Volume Controller */}
-                           <div className="flex items-center bg-white border-2 border-slate-100 rounded-2xl shadow-sm h-14 p-1 group-hover:border-indigo-100 transition-all">
-                              <button className="w-12 h-full flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all" onClick={() => updateQuantity(item.product, item.quantity, -1)}><Minus size={16}/></button>
-                              <div className="w-14 h-full flex items-center justify-center font-mono font-black text-lg text-slate-900">{item.quantity}</div>
-                              <button className="w-12 h-full flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all" onClick={() => updateQuantity(item.product, item.quantity, 1)}><Plus size={16}/></button>
-                           </div>
+                               <div className="text-sm font-black text-slate-800">
+                                  {price.toLocaleString()} <span className="text-[10px] uppercase font-bold tracking-widest text-slate-400 ml-1">DZD/{p.unit}</span>
+                               </div>
+                            </div>
+                         </div>
 
-                           <div className="flex flex-col items-center md:items-end w-32">
-                              <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Net Valuation</div>
-                              <div className="font-black text-indigo-600 text-xl tracking-tighter">{subTotal.toLocaleString()} <span className="text-[10px]">DZD</span></div>
-                           </div>
+                         {/* Actions & Metrics Column */}
+                         <div className="md:col-span-5 flex flex-row items-center justify-between md:justify-end gap-6 bg-slate-50/50 md:bg-transparent p-4 md:p-0 rounded-2xl md:rounded-none">
+                            
+                            {/* Distinct Quantity Stepper */}
+                            <div className="flex items-center bg-white border border-slate-200 rounded-xl shadow-sm h-12 p-1.5 shrink-0 w-[130px] justify-between group-hover:border-indigo-300 transition-colors">
+                               <button 
+                                 className="w-8 h-full flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors active:scale-95 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400" 
+                                 onClick={() => updateQuantity(item.product, item.quantity, -1, p.stock)}
+                               >
+                                 <Minus size={16} strokeWidth={2.5}/>
+                               </button>
+                               <div className="flex-1 flex items-center justify-center font-mono font-black text-base text-slate-900 bg-slate-50/50 rounded-md mx-1 select-none h-full">{item.quantity}</div>
+                               <button 
+                                 className="w-8 h-full flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors active:scale-95 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400" 
+                                 onClick={() => updateQuantity(item.product, item.quantity, 1, p.stock)}
+                                 disabled={item.quantity >= p.stock}
+                               >
+                                 <Plus size={16} strokeWidth={2.5}/>
+                               </button>
+                            </div>
 
-                           <button 
-                             className="w-12 h-12 rounded-2xl flex items-center justify-center text-slate-200 hover:text-white hover:bg-rose-600 border border-slate-100 hover:border-rose-600 transition-all hover:shadow-lg active:scale-90"
-                             onClick={() => removeFromCart(item.product)}
-                           >
-                             <Trash2 size={20} />
-                           </button>
-                        </div>
-                     </div>
+                            <div className="flex items-center gap-6 shrink-0">
+                               {/* Value Subtotal */}
+                               <div className="flex flex-col items-end w-28 text-right">
+                                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Net Val</div>
+                                  <div className="font-black text-slate-900 text-xl tracking-tight truncate w-full">{subTotal.toLocaleString()} <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">DZD</span></div>
+                               </div>
+
+                               {/* Delete Action Wrapper */}
+                               <button 
+                                 className="w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 bg-white hover:text-rose-600 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 transition-all shadow-sm hover:shadow active:scale-95 shrink-0"
+                                 onClick={() => removeFromCart(item.product)}
+                                 title="Remove Product"
+                               >
+                                 <Trash2 size={18} />
+                               </button>
+                            </div>
+                         </div>
+                      </div>
                    );
                  })}
                </div>
@@ -247,73 +285,88 @@ function CartPage() {
         {/* RIGHT: Terminal Authorization */}
         <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-8">
            {cartItemCount > 0 && (
-             <div className="bg-slate-900 rounded-[2.5rem] shadow-2xl p-8 relative overflow-hidden border border-slate-800">
-                {/* Decorative Grid Overlay */}
-                <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#4f46e5 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
-                
-                <h3 className="text-xl font-black text-white mb-8 flex items-center gap-3 relative z-10">
-                   <FileText size={24} className="text-indigo-500"/> Dispatch Sum
+             <div className="bg-white rounded-[2rem] shadow-xl shadow-slate-200/40 p-8 border border-slate-200">
+                <h3 className="text-xl font-black text-slate-900 mb-6 flex items-center gap-3">
+                   <FileText size={24} className="text-indigo-600"/> Dispatch Summary
                 </h3>
 
-                <div className="space-y-6 mb-10 relative z-10">
-                   <div className="flex justify-between items-center group">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Asset Volume</span>
-                      <div className="flex items-center gap-2">
-                         <div className="h-px w-12 bg-slate-800" />
-                         <span className="font-mono font-black text-sm text-white">{cartItemCount} Nodes</span>
-                      </div>
+                <div className="space-y-4 mb-8">
+                   <div className="flex justify-between items-center group border-b border-slate-100 pb-4">
+                      <span className="text-xs font-bold text-slate-500">Asset Volume</span>
+                      <span className="font-bold text-slate-900">{cartItemCount} Products</span>
                    </div>
-                   <div className="flex justify-between items-center group">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Fulfillment Mode</span>
-                      <span className="font-bold text-xs text-indigo-400 bg-indigo-500/10 px-3 py-1 rounded-lg border border-indigo-500/20">Standard Rail</span>
+                   <div className="flex justify-between items-center group border-b border-slate-100 pb-4">
+                      <span className="text-xs font-bold text-slate-500">Fulfillment</span>
+                      <span className="font-bold text-xs text-indigo-700 bg-indigo-50 px-3 py-1 rounded border border-indigo-100">Standard</span>
                    </div>
-                   <div className="flex justify-between items-end pt-8 border-t border-slate-800">
+                   <div className="flex justify-between items-end pt-4">
                       <div>
-                         <div className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-1">Total Valuation</div>
-                         <div className="text-4xl font-black text-white tracking-tighter">{cartTotal.toLocaleString()} <span className="text-sm font-medium text-slate-500 italic">DZD</span></div>
+                         <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Valuation</div>
+                         <div className="text-4xl font-black text-slate-900 tracking-tighter leading-none">{cartTotal.toLocaleString()} <span className="text-sm font-bold text-slate-400 uppercase tracking-widest ml-1">DZD</span></div>
                       </div>
-                      <Activity size={32} className="text-indigo-500/50 mb-1" />
                    </div>
                 </div>
 
                 {!showCheckout ? (
                   <button 
-                    className="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-5 rounded-2xl font-black text-xs uppercase tracking-[0.3em] shadow-2xl shadow-indigo-900/40 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 relative z-10 border border-indigo-500/30"
+                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-indigo-600/30 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3"
                     onClick={() => setShowCheckout(true)}
                   >
-                    Initiate Authorization <ChevronRight size={18} />
+                    Proceed to Delivery <ChevronRight size={18} />
                   </button>
                 ) : (
-                  <div className="space-y-6 relative z-10 animate-fade-in">
-                     <div className="bg-slate-800/50 rounded-3xl p-6 border border-slate-700/50 space-y-6">
+                  <div className="space-y-6 animate-slide-in">
+                     <div className="bg-slate-50/80 rounded-2xl p-6 border border-slate-200 space-y-5 shadow-inner">
                         <div>
-                           <label className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500 mb-2 block flex items-center gap-2"><MapPin size={12}/> Global Coordinates</label>
-                           <textarea className="w-full bg-slate-900 border border-slate-700 rounded-xl p-4 text-xs font-bold text-white focus:outline-none focus:border-indigo-500 transition-all placeholder-slate-600 resize-none h-20" 
-                             placeholder="Secure delivery address trace..."
-                             value={checkoutAddress} onChange={e => setCheckoutAddress(e.target.value)} />
+                           <label className="text-[11px] font-black uppercase tracking-widest text-slate-500 mb-2.5 flex items-center gap-2">
+                              <MapPin size={14} className="text-indigo-500" /> Wilaya (Region)
+                           </label>
+                           <input 
+                             className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-sm placeholder-slate-400" 
+                             type="text"
+                             placeholder="e.g. Algiers, Oran, Constantine" 
+                             value={checkoutWilaya} 
+                             onChange={e => setCheckoutWilaya(e.target.value)} 
+                           />
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                           <div>
-                              <input className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs font-bold text-white focus:outline-none focus:border-indigo-500 transition-all placeholder-slate-600" type="text"
-                                placeholder="Wilaya" value={checkoutWilaya} onChange={e => setCheckoutWilaya(e.target.value)} />
-                           </div>
-                           <div>
-                              <input className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs font-bold text-white focus:outline-none focus:border-indigo-500 transition-all placeholder-slate-600" type="tel"
-                                placeholder="Comms Link" value={checkoutPhone} onChange={e => setCheckoutPhone(e.target.value)} />
-                           </div>
+
+                        <div>
+                           <label className="text-[11px] font-black uppercase tracking-widest text-slate-500 mb-2.5 flex items-center gap-2">
+                              <FileText size={14} className="text-indigo-500" /> Detailed Address & Location
+                           </label>
+                           <textarea 
+                             className="w-full bg-white border border-slate-200 rounded-xl p-4 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder-slate-400 resize-none h-28 shadow-sm leading-relaxed" 
+                             placeholder="Enter strict delivery details, building number, street name, and any specific landmarks..."
+                             value={checkoutAddress} 
+                             onChange={e => setCheckoutAddress(e.target.value)} 
+                           />
                         </div>
-                        <div className="pt-2">
+                        
+                        <div>
+                           <label className="text-[11px] font-black uppercase tracking-widest text-slate-500 mb-2.5 flex items-center gap-2">
+                              <Phone size={14} className="text-indigo-500" /> Contact Number
+                           </label>
+                           <input 
+                             className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-sm placeholder-slate-400" 
+                             type="tel"
+                             placeholder="e.g. 0555 12 34 56" 
+                             value={checkoutPhone} 
+                             onChange={e => setCheckoutPhone(e.target.value)} 
+                           />
+                        </div>
+                        
+                        <div className="pt-3">
                            <button
-                             className="w-full bg-white hover:bg-slate-50 text-slate-900 py-5 rounded-2xl font-black text-xs uppercase tracking-[0.3em] shadow-2xl transition-all shadow-white/5 active:scale-95 flex items-center justify-center gap-3 disabled:opacity-50"
+                             className="w-full bg-slate-900 hover:bg-slate-800 text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg shadow-slate-900/30 transition-all active:scale-95 flex items-center justify-center gap-3 disabled:opacity-50"
                              onClick={handleCheckout}
                              disabled={checkoutLoading}
                            >
-                             {checkoutLoading ? <><div className="w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" /> Authorizing...</> : <><ShieldCheck size={18} /> Seal Protocol</>}
+                             {checkoutLoading ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Processing...</> : <><ShieldCheck size={18} /> Confirm Order</>}
                            </button>
                         </div>
                      </div>
-                     <button className="w-full text-slate-500 hover:text-white transition-colors text-[10px] font-black uppercase tracking-[0.2em]" onClick={() => setShowCheckout(false)}>
-                        Abort Authorization
+                     <button className="w-full text-slate-400 hover:text-slate-600 transition-colors text-[10px] font-black uppercase tracking-widest p-2" onClick={() => setShowCheckout(false)}>
+                        <ChevronLeft size={12} className="inline mr-1 mb-0.5" /> Back to Summary
                      </button>
                   </div>
                 )}

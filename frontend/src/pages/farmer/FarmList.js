@@ -87,15 +87,15 @@ export default function FarmList() {
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
             {farms.map((farm, idx) => (
               <div 
                 key={farm.id} 
-                className="group relative bg-white border border-slate-200 rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_30px_60px_rgba(34,84,61,0.12)] transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] transform hover:-translate-y-2 flex flex-col"
+                className="group relative bg-white border border-slate-200 rounded-[2rem] overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(34,84,61,0.08)] transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] transform hover:-translate-y-1 flex flex-col sm:flex-row"
                 style={{ animationDelay: `${idx * 0.05}s` }}
               >
                 {/* Image Cover/Gradient fallback */}
-                <div className="relative h-56 overflow-hidden bg-slate-100 cursor-pointer" onClick={() => navigate(`/farmer-dashboard/farms/${farm.id}`)}>
+                <div className="relative w-full sm:w-2/5 h-64 sm:h-auto overflow-hidden bg-slate-100 cursor-pointer shrink-0" onClick={() => navigate(`/farmer-dashboard/farms/${farm.id}`)}>
                   {farm.image ? (
                     <img src={farm.image} alt={farm.name} className="w-full h-full object-cover transition-transform duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)] group-hover:scale-110" />
                   ) : (
@@ -107,60 +107,60 @@ export default function FarmList() {
                   <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md text-white border border-white/20 px-3 py-1.5 rounded-full text-[10px] font-black tracking-widest shadow-lg">
                     ZONE #{farm.id.toString().padStart(4, '0')}
                   </div>
-                  {/* Interactive Details Overlay */}
-                  <div className="absolute inset-0 bg-[#22543d]/70 opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-out flex items-center justify-center backdrop-blur-md pointer-events-none">
-                    <span className="bg-white text-[#22543d] px-6 py-3 rounded-2xl text-sm font-black flex items-center gap-2 shadow-2xl transform translate-y-8 group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.23,1,0.32,1)]">
-                      <ExternalLink size={18} strokeWidth={2.5}/> Open Dossier
-                    </span>
-                  </div>
                 </div>
 
                 {/* Card Payload */}
-                <div className="p-8 flex flex-col flex-grow bg-white">
-                  <h4 className="text-2xl font-black text-slate-900 mb-3 truncate tracking-tight" title={farm.name}>{farm.name}</h4>
-                  
-                  <div className="flex items-start gap-2.5 mb-6">
-                    <MapPin size={18} className="text-amber-500 mt-0.5 shrink-0" strokeWidth={2.5} />
-                    <span className="text-slate-600 font-bold text-sm leading-snug line-clamp-2">
-                      {farm.location}
-                    </span>
-                  </div>
-
-                  {/* Surface Chips */}
-                  <div className="flex flex-wrap gap-2.5 mb-6">
-                    {farm.size_hectares && (
-                      <span className="inline-flex items-center gap-1.5 bg-slate-50 text-slate-700 border border-slate-200 px-3 py-1.5 rounded-lg text-xs font-black shadow-sm transform transition-transform group-hover:scale-105 duration-300">
-                        <Maximize2 size={12} className="text-[#22543d]" strokeWidth={3} /> {farm.size_hectares} HA
+                <div className="p-6 sm:p-8 flex flex-col flex-grow bg-white justify-between">
+                  <div>
+                    <div className="flex justify-between items-start gap-4 mb-2">
+                       <h4 className="text-xl font-black text-slate-900 truncate tracking-tight cursor-pointer hover:text-[#22543d]" title={farm.name} onClick={() => navigate(`/farmer-dashboard/farms/${farm.id}`)}>
+                         {farm.name}
+                       </h4>
+                       <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 px-2 py-1 rounded-md text-[10px] font-black shadow-sm shrink-0">
+                          <Sprout size={10} className="text-emerald-600" strokeWidth={3} /> ACTIVE
+                       </span>
+                    </div>
+                    
+                    <div className="flex items-start gap-2 mb-5">
+                      <MapPin size={16} className="text-amber-500 mt-0.5 shrink-0" strokeWidth={2.5} />
+                      <span className="text-slate-500 font-bold text-sm leading-snug line-clamp-2">
+                        {farm.location}
                       </span>
-                    )}
-                    <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 px-3 py-1.5 rounded-lg text-xs font-black shadow-sm transform transition-transform group-hover:scale-105 duration-300 cursor-default">
-                      <Sprout size={12} className="text-emerald-600" strokeWidth={3} /> Node Secure
-                    </span>
-                  </div>
+                    </div>
 
-                  {farm.description && (
-                    <p className="text-sm text-slate-500 leading-relaxed mb-6 line-clamp-2 italic border-l-4 border-[#22543d]/20 pl-4 py-1">
-                      “{farm.description}”
-                    </p>
-                  )}
+                    {/* Surface Chips */}
+                    <div className="flex flex-wrap gap-2 mb-5">
+                      {farm.size_hectares && (
+                        <span className="inline-flex items-center gap-1.5 bg-slate-50 text-slate-700 border border-slate-200 px-2.5 py-1.5 rounded-lg text-xs font-black shadow-sm">
+                          <Maximize2 size={12} className="text-[#22543d]" strokeWidth={3} /> {farm.size_hectares} HA
+                        </span>
+                      )}
+                    </div>
+
+                    {farm.description && (
+                      <p className="text-xs text-slate-500 leading-relaxed mb-6 line-clamp-2">
+                        {farm.description}
+                      </p>
+                    )}
+                  </div>
 
                   {/* Operational Toolbar */}
-                  <div className="mt-auto pt-5 border-t border-slate-100 flex items-center gap-3">
+                  <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-end gap-2">
                     <button 
-                      className="flex-1 bg-slate-50 hover:bg-[#22543d] border border-slate-200 hover:border-[#1a402e] text-slate-700 hover:text-white py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 shadow-sm"
+                      className="flex bg-slate-50 hover:bg-[#22543d] border border-slate-200 hover:border-[#1a402e] text-slate-700 hover:text-white px-4 py-2 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 items-center justify-center gap-2 shadow-sm mr-auto"
                       onClick={() => navigate(`/farmer-dashboard/farms/${farm.id}`)}
                     >
-                      <ExternalLink size={14} strokeWidth={3} /> Full View
+                      <ExternalLink size={14} strokeWidth={3} /> View
                     </button>
                     <button 
-                      className="w-11 h-11 flex items-center justify-center bg-slate-50 hover:bg-amber-50 border border-slate-200 hover:border-amber-300 text-slate-400 hover:text-amber-600 rounded-xl transition-all duration-300 shadow-sm"
+                      className="w-10 h-10 flex items-center justify-center bg-slate-50 hover:bg-amber-50 border border-slate-200 hover:border-amber-300 text-slate-400 hover:text-amber-600 rounded-xl transition-all duration-300 shadow-sm"
                       title="Edit farm parameters"
                       onClick={() => navigate(`/farmer-dashboard/farm/edit/${farm.id}`)}
                     >
                       <Edit3 size={16} strokeWidth={2.5} />
                     </button>
                     <button 
-                      className="w-11 h-11 flex items-center justify-center bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-300 text-slate-400 hover:text-red-600 rounded-xl transition-all duration-300 shadow-sm"
+                      className="w-10 h-10 flex items-center justify-center bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-300 text-slate-400 hover:text-red-600 rounded-xl transition-all duration-300 shadow-sm"
                       title="Purge farm locally"
                       onClick={() => deleteFarm(farm.id)}
                     >

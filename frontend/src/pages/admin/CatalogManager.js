@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../../api/axiosConfig';
 import { 
   BookOpen, 
@@ -12,10 +13,12 @@ import {
   ChevronRight,
   Search,
   Layers,
-  Archive
+  Archive,
+  LineChart
 } from 'lucide-react';
 
 const CatalogManager = () => {
+  const navigate = useNavigate();
   const [catalog, setCatalog] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -196,6 +199,9 @@ const CatalogManager = () => {
                     </td>
                     <td>
                       <div className="flex items-center justify-end gap-2">
+                        <button className="adm-btn adm-btn-ghost adm-btn-icon" title="View Price History" onClick={() => navigate(`/admin-dashboard/catalog/${item.id}/price-history`)}>
+                          <LineChart size={14} className="text-amber-400" />
+                        </button>
                         <button className="adm-btn adm-btn-ghost adm-btn-icon" title="Update" onClick={() => handleEdit(item)}>
                           <Edit size={14} className="text-blue-400" />
                         </button>

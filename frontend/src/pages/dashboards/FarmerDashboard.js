@@ -42,29 +42,29 @@ export default function FarmerDashboard() {
 
   const kpis = stats ? [
     {
-      icon: <Sprout size={28} strokeWidth={2.5} className="text-emerald-500 drop-shadow-sm" />,
-      bgIconCls: 'bg-emerald-500/10 text-emerald-600',
+      icon: <Sprout size={28} strokeWidth={2.5} className="text-white drop-shadow-sm" />,
+      bgIconCls: 'bg-emerald-500 shadow-emerald-500/30',
       value: stats.my_products_count,
       label: 'Active Listings',
       micro: 'Products on marketplace',
     },
     {
-      icon: <ShoppingBag size={28} strokeWidth={2.5} className="text-amber-500 drop-shadow-sm" />,
-      bgIconCls: 'bg-amber-500/10 text-amber-600',
+      icon: <ShoppingBag size={28} strokeWidth={2.5} className="text-white drop-shadow-sm" />,
+      bgIconCls: 'bg-amber-500 shadow-amber-500/30',
       value: stats.pending_orders,
       label: 'Pending Orders',
       micro: 'Awaiting your confirmation',
     },
     {
-      icon: <TrendingUp size={28} strokeWidth={2.5} className="text-blue-500 drop-shadow-sm" />,
-      bgIconCls: 'bg-blue-500/10 text-blue-600',
+      icon: <TrendingUp size={28} strokeWidth={2.5} className="text-white drop-shadow-sm" />,
+      bgIconCls: 'bg-blue-500 shadow-blue-500/30',
       value: stats.total_items_sold,
       label: 'Units Sold',
       micro: 'Total across all products',
     },
     {
-      icon: <DollarSign size={28} strokeWidth={2.5} className="text-emerald-600 drop-shadow-sm" />,
-      bgIconCls: 'bg-emerald-600/10 text-emerald-700',
+      icon: <DollarSign size={28} strokeWidth={2.5} className="text-white drop-shadow-sm" />,
+      bgIconCls: 'bg-emerald-700 shadow-emerald-700/30',
       value: null,
       rawRevenue: stats.total_revenue,
       label: 'Total Revenue',
@@ -128,17 +128,17 @@ export default function FarmerDashboard() {
           {kpis.map((k, i) => (
             <div 
               key={i} 
-              className="group flex flex-col justify-between bg-gradient-to-br from-white to-slate-50 border border-slate-200 rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(34,84,61,0.12)] hover:border-[#22543d]/30 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] transform hover:-translate-y-2 cursor-pointer relative overflow-hidden"
+              className="group flex flex-col justify-between bg-white border border-slate-200 rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(34,84,61,0.08)] hover:border-[#22543d]/30 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] transform hover:-translate-y-2 cursor-pointer relative overflow-hidden"
               onClick={() => {
                 if (k.label === 'Active Listings') navigate('/farmer-dashboard/products');
                 if (k.label === 'Pending Orders') navigate('/farmer/orders?status=PENDING');
               }}
             >
-              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-slate-100 to-transparent rounded-full -mr-10 -mt-10 opacity-50 group-hover:scale-150 transition-transform duration-700 ease-out pointer-events-none" />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-slate-50 to-transparent rounded-full -mr-10 -mt-10 opacity-50 group-hover:scale-150 transition-transform duration-700 ease-out pointer-events-none" />
               
               <div className="flex items-center gap-4 mb-4 relative z-10">
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-inner ${k.bgIconCls.replace('10 text', '500 text-white').replace('text-emerald-500/10 text-emerald-600', 'bg-emerald-500 text-white').replace('text-emerald-600/10 text-emerald-700', 'bg-[#22543d] text-white').replace('bg-emerald-500 text-white', 'bg-emerald-500 text-white').replace('bg-amber-500/10 text-amber-600', 'bg-amber-500 text-white').replace('bg-blue-500/10 text-blue-600', 'bg-blue-500 text-white').replace('bg-[#22543d] text-white', 'bg-[#22543d] text-white')} transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3`}>
-                  {React.cloneElement(k.icon, { className: 'text-white' })}
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-lg ${k.bgIconCls} transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3`}>
+                  {k.icon}
                 </div>
                 <div className="text-xs font-black uppercase tracking-widest text-slate-500">{k.label}</div>
               </div>

@@ -1,7 +1,14 @@
 from rest_framework import serializers
-from .models import Order, OrderItem, OrderStatusChoices
+from .models import Order, OrderItem, OrderStatusChoices, OrderTimeline
 from apps.payments.serializers import PaymentSerializer
 from apps.catalog.serializers import ProductSerializer
+
+class OrderTimelineSerializer(serializers.ModelSerializer):
+    actor_name = serializers.CharField(source='actor.full_name', read_only=True)
+    
+    class Meta:
+        model = OrderTimeline
+        fields = ('id', 'status', 'actor_name', 'note', 'created_at')
 
 class ProductDetailMini(serializers.Serializer):
     """Minimal product info embedded inside order items for buyer view."""
@@ -63,6 +70,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
+    timeline = OrderTimelineSerializer(many=True, read_only=True)
     payment = PaymentSerializer(read_only=True)
     # delivery_request_details = serializers.SerializerMethodField()
     buyer_name = serializers.CharField(source='buyer.full_name', read_only=True)
@@ -74,9 +82,13 @@ class OrderSerializer(serializers.ModelSerializer):
             'id', 'buyer', 'buyer_name', 'buyer_email', 'total_price', 'status',
             'delivery_status', 'delivery_address', 'wilaya', 'buyer_phone',
             'payment_method', 'notes', 'preferred_delivery_date',
-            'items', 'payment', 'created_at', 'updated_at', 'farmer_order_number'
+            'items', 'payment', 'timeline', 'created_at', 'updated_at', 'farmer_order_number',
+            'refusal_reason', 'refusal_note', 'refused_at', 'returned_at'
         )
-        read_only_fields = ('buyer', 'total_price', 'status', 'farmer_order_number')
+        read_only_fields = (
+            'buyer', 'total_price', 'status', 'farmer_order_number', 
+            'refusal_reason', 'refusal_note', 'refused_at', 'returned_at'
+        )
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)

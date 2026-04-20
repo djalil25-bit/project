@@ -3,31 +3,33 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../api/axiosConfig';
 import {
   Truck,
-  Package,
   ClipboardList,
-  DollarSign,
   MapPin,
   Clock,
   CheckCircle,
-  XCircle,
-  ChevronRight,
+  Package,
+  DollarSign,
   Navigation,
-  X,
   Camera,
-  AlertTriangle,
+  X
 } from 'lucide-react';
 import ProofOfDeliveryModal from '../../components/logistics/ProofOfDeliveryModal';
+import VehicleSelectionModal from '../../components/logistics/VehicleSelectionModal';
+import RefusalModal from '../../components/logistics/RefusalModal';
 
 const StatusBadge = ({ status }) => {
   const map = {
-    open:       { label: 'Available',   cls: 'status-open' },
-    assigned:   { label: 'Assigned',    cls: 'status-assigned' },
-    picked_up:  { label: 'Picked Up',   cls: 'status-picked_up' },
-    in_transit: { label: 'In Transit',  cls: 'status-in_transit' },
-    delivered:  { label: 'Delivered',   cls: 'status-delivered' },
+    open:                { label: 'Available',   cls: 'bg-amber-100 text-amber-800 border-amber-200' },
+    assigned:            { label: 'Assigned',    cls: 'bg-indigo-100 text-indigo-800 border-indigo-200' },
+    picked_up:           { label: 'Picked Up',   cls: 'bg-purple-100 text-purple-800 border-purple-200 shadow-sm' },
+    in_transit:          { label: 'In Transit',  cls: 'bg-blue-100 text-blue-800 border-blue-200 shadow-sm animate-pulse' },
+    refused_delivery:    { label: 'Refused',     cls: 'bg-rose-100 text-rose-800 border-rose-200 font-bold' },
+    return_in_progress:  { label: 'Returning',   cls: 'bg-rose-50 text-rose-700 border-rose-200 border-dashed animate-pulse' },
+    returned:            { label: 'Returned',    cls: 'bg-emerald-600 text-white border-emerald-700 shadow-sm font-black' },
+    delivered:           { label: 'Delivered',   cls: 'bg-slate-900 text-white border-slate-900 shadow-sm font-black' },
   };
-  const { label, cls } = map[status] || { label: status, cls: '' };
-  return <span className={`status-badge ${cls}`}>{label}</span>;
+  const { label, cls } = map[status] || { label: status, cls: 'bg-slate-100 text-slate-600 border-slate-200' };
+  return <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${cls}`}>{label}</span>;
 };
 
 function TransporterDashboard() {
@@ -39,6 +41,8 @@ function TransporterDashboard() {
   const [actionLoading, setActionLoading] = useState(null);
   const [viewingCargo, setViewingCargo] = useState(null);
   const [podTarget, setPodTarget] = useState(null);
+  const [acceptanceTarget, setAcceptanceTarget] = useState(null);
+  const [refusalTarget, setRefusalTarget] = useState(null);
 
   const fetchData = async () => {
     setLoading(true);
@@ -55,13 +59,16 @@ function TransporterDashboard() {
 
   useEffect(() => { fetchData(); }, []);
 
-  const handleAccept = async (id) => {
+  const handleAccept = async (id, vehicleId) => {
     setActionLoading(id + '_accept');
     try {
-      await api.post(`/deliveries/${id}/accept/`);
+      await api.post(`/deliveries/${id}/accept/`, { vehicle_id: vehicleId });
       fetchData();
-    } catch { alert('Failed to accept delivery'); }
-    finally { setActionLoading(null); }
+      setActiveTab('mine'); // Switch to active missions automatically
+    } catch (err) { 
+      const msg = err.response?.data?.error || 'Failed to accept mission';
+      throw new Error(msg); // Let the modal handle error display
+    } finally { setActionLoading(null); }
   };
 
   const handleStatusUpdate = async (id, status) => {
@@ -73,13 +80,36 @@ function TransporterDashboard() {
     finally { setActionLoading(null); }
   };
 
+  const handleRefuse = async (id, data) => {
+    setActionLoading(id + '_refuse');
+    try {
+      await api.post(`/deliveries/${id}/refuse/`, data);
+      fetchData();
+    } catch (err) {
+      const msg = err.response?.data?.error || 'Refusal Protocol Failed.';
+      throw new Error(msg);
+    } finally { setActionLoading(null); }
+  };
+
+  const handleMarkReturned = async (id) => {
+    if (!window.confirm("Confirm return to farmer? This will finalize the cycle and restore stock.")) return;
+    setActionLoading(id + '_return');
+    try {
+      await api.post(`/deliveries/${id}/mark_returned/`);
+      fetchData();
+      setActiveTab('done');
+    } catch { 
+      alert('Failed to complete return protocol.'); 
+    } finally { setActionLoading(null); }
+  };
+
   const openCount = deliveries.filter(d => d.status === 'open').length;
 
   const filtered = activeTab === 'open'
     ? deliveries.filter(d => d.status === 'open')
     : activeTab === 'mine'
-    ? deliveries.filter(d => d.transporter != null && d.status !== 'delivered')
-    : deliveries.filter(d => d.status === 'delivered');
+    ? deliveries.filter(d => d.transporter != null && !['delivered', 'returned'].includes(d.status))
+    : deliveries.filter(d => ['delivered', 'returned'].includes(d.status));
 
   if (loading) return (
     <div className="flex-center py-5" style={{ minHeight: '60vh', gap: '0.75rem' }}>
@@ -225,10 +255,18 @@ function TransporterDashboard() {
                         <Navigation size={11} />
                         {(d.delivery_location || d.order_detail?.delivery_address)?.substring(0, 28)}...
                       </div>
-                      {d.vehicle_size && (
+                      {d.vehicle_size && !d.assigned_vehicle_info && (
                         <span className="status-badge status-assigned very-small" style={{ fontSize: '0.62rem', alignSelf: 'flex-start', marginTop: 2 }}>
-                          {d.vehicle_size} vehicle
+                          {d.vehicle_size} vehicle req.
                         </span>
+                      )}
+                      {d.assigned_vehicle_info && (
+                        <div className="mt-2 p-1.5 bg-indigo-50 border border-indigo-100 rounded-lg flex items-center gap-2 w-fit">
+                           <Truck size={10} className="text-indigo-600" />
+                           <span className="text-[9px] font-black text-indigo-900 uppercase tracking-tight">
+                              {d.assigned_vehicle_info.plate} — {d.assigned_vehicle_info.model}
+                           </span>
+                        </div>
                       )}
                     </div>
                   </td>
@@ -250,11 +288,11 @@ function TransporterDashboard() {
                   <td style={{ textAlign: 'right' }}>
                     {d.status === 'open' && (
                       <button
-                        className="btn-agr btn-primary btn-sm rounded-pill px-3 fw-bold"
-                        onClick={() => handleAccept(d.id)}
+                        className="btn-agr btn-primary btn-sm rounded-pill px-3 fw-bold shadow-sm"
+                        onClick={() => setAcceptanceTarget(d)}
                         disabled={actionLoading === d.id + '_accept'}
                       >
-                        {actionLoading === d.id + '_accept' ? 'Processing...' : 'Accept Mission'}
+                        {actionLoading === d.id + '_accept' ? 'Authorizing...' : 'Accept Mission'}
                       </button>
                     )}
                     {d.status === 'assigned' && (
@@ -274,12 +312,29 @@ function TransporterDashboard() {
                       </button>
                     )}
                     {d.status === 'in_transit' && (
-                      <button
-                        className="btn-agr btn-dark btn-sm rounded-pill px-3 fw-bold"
-                        onClick={() => setPodTarget(d)}
-                      >
-                        Confirm Delivery
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          className="btn-agr btn-primary btn-sm rounded-pill px-3 fw-bold shadow-sm"
+                          onClick={() => setRefusalTarget(d)}
+                        >
+                          Refused Delivery
+                        </button>
+                        <button
+                          className="btn-agr btn-dark btn-sm rounded-pill px-3 fw-bold"
+                          onClick={() => setPodTarget(d)}
+                        >
+                          Mark Delivered
+                        </button>
+                      </div>
+                    )}
+                    {d.status === 'return_in_progress' && (
+                       <button
+                         className="btn-agr btn-success btn-sm rounded-pill px-4 fw-bold shadow-md animate-pulse"
+                         onClick={() => handleMarkReturned(d.id)}
+                         disabled={actionLoading === d.id + '_return'}
+                       >
+                         {actionLoading === d.id + '_return' ? 'Processing...' : 'Complete Return to Farmer'}
+                       </button>
                     )}
                     {d.status === 'delivered' && (
                       <div className="d-flex flex-column align-items-end gap-1">
@@ -322,52 +377,60 @@ function TransporterDashboard() {
               <button className="btn-icon" onClick={() => setViewingCargo(null)}><X size={16} /></button>
             </div>
             <div className="modal-body p-0">
-              <div className="p-3 bg-light-soft border-bottom">
-                <div className="d-flex align-items-center gap-4">
-                  <div>
-                    <div className="very-small text-muted text-uppercase fw-bold">Origin</div>
-                    <div className="small fw-bold d-flex align-items-center gap-1 mt-1">
-                      <MapPin size={11} className="text-success" />
-                      {viewingCargo.pickup_location}
-                    </div>
+              <div className="p-4 bg-slate-50 border-bottom">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden group">
+                     <MapPin size={48} className="absolute -right-2 -top-2 text-slate-100 group-hover:text-emerald-50 transition-colors" />
+                     <div className="very-small text-slate-400 text-uppercase font-black tracking-widest mb-1 relative z-10">Pickup Point</div>
+                     <div className="small font-black text-slate-800 d-flex align-items-center gap-1.5 relative z-10">
+                        <div className="w-5 h-5 rounded bg-emerald-500 text-white flex items-center justify-center shrink-0"><MapPin size={10} /></div>
+                        {viewingCargo.pickup_location}
+                     </div>
                   </div>
-                  <div className="text-muted">→</div>
-                  <div>
-                    <div className="very-small text-muted text-uppercase fw-bold">Destination</div>
-                    <div className="small fw-bold d-flex align-items-center gap-1 mt-1">
-                      <Navigation size={11} className="text-primary" />
-                      {viewingCargo.delivery_location}
-                    </div>
+                  <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden group">
+                     <Navigation size={48} className="absolute -right-2 -top-2 text-slate-100 group-hover:text-blue-50 transition-colors" />
+                     <div className="very-small text-slate-400 text-uppercase font-black tracking-widest mb-1 relative z-10">Delivery Node</div>
+                     <div className="small font-black text-slate-800 d-flex align-items-center gap-1.5 relative z-10">
+                        <div className="w-5 h-5 rounded bg-blue-600 text-white flex items-center justify-center shrink-0"><Navigation size={10} /></div>
+                        {viewingCargo.delivery_location}
+                     </div>
                   </div>
                 </div>
               </div>
+
+              <div className="bg-white px-2 py-1 border-bottom d-flex align-items-center justify-between">
+                 <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-3 py-2">Inventory Ledger</div>
+                 <div className="text-[9px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-pill mx-3">Order #{viewingCargo.order} — {viewingCargo.order_detail?.buyer_name}</div>
+              </div>
+
               <div className="table-responsive" style={{ maxHeight: 400 }}>
                 <table className="agr-table mb-0">
                   <thead>
-                    <tr>
-                      <th>Product / Item</th>
-                      <th className="text-end">Quantity</th>
-                      <th className="text-center">Quality</th>
+                    <tr className="bg-slate-50 text-slate-500 uppercase text-[9px] font-black tracking-[0.1em]">
+                      <th className="ps-4">Product / Node</th>
+                      <th className="text-center">Origin</th>
+                      <th className="text-end">Payload</th>
+                      <th className="text-center pe-4">Quality</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="divide-y divide-slate-50">
                     {viewingCargo.order_detail?.items?.map(item => (
-                      <tr key={item.id} className="hover-bg-light">
-                        <td>
-                          <div className="fw-bold small">{item.product_name}</div>
-                          {item.product_detail?.category_name && (
-                            <div className="very-small text-muted">{item.product_detail.category_name}</div>
-                          )}
-                        </td>
-                        <td className="text-end">
-                          <span className="fw-bold">{item.quantity}</span>
-                          <span className="ms-1 text-muted very-small">{item.product_unit}</span>
+                      <tr key={item.id} className="hover-bg-light transition-colors group">
+                        <td className="ps-4 py-3">
+                          <div className="fw-black text-slate-900 small">{item.product_name}</div>
+                          <div className="very-small text-muted font-bold uppercase tracking-tighter mt-0.5 group-hover:text-primary transition-colors">ID: {item.id}</div>
                         </td>
                         <td className="text-center">
-                          {item.product_detail?.quality
-                            ? <span className="status-badge status-assigned very-small">{item.product_detail.quality}</span>
-                            : <span className="text-muted very-small">Standard</span>
-                          }
+                           <div className="very-small font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded d-inline-block border border-emerald-100 shadow-sm">{item.farm_name || "Unknown Farm"}</div>
+                        </td>
+                        <td className="text-end">
+                          <span className="fw-black text-slate-800">{parseFloat(item.quantity).toLocaleString()}</span>
+                          <span className="ms-1 text-slate-400 very-small font-black uppercase">{item.product_unit}</span>
+                        </td>
+                        <td className="text-center pe-4">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-tighter ${item.product_quality?.toLowerCase() === 'premium' ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}`}>
+                             {item.product_quality || 'Standard'}
+                          </span>
                         </td>
                       </tr>
                     ))}
@@ -394,6 +457,24 @@ function TransporterDashboard() {
           isOpen={!!podTarget}
           onClose={() => setPodTarget(null)}
           onSuccess={() => { fetchData(); setActiveTab('done'); }}
+        />
+      )}
+
+      {acceptanceTarget && (
+        <VehicleSelectionModal
+          isOpen={!!acceptanceTarget}
+          mission={acceptanceTarget}
+          onClose={() => setAcceptanceTarget(null)}
+          onAccept={handleAccept}
+        />
+      )}
+
+      {refusalTarget && (
+        <RefusalModal
+          isOpen={!!refusalTarget}
+          mission={refusalTarget}
+          onClose={() => setRefusalTarget(null)}
+          onConfirm={handleRefuse}
         />
       )}
     </div>
