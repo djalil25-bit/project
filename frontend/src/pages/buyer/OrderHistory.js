@@ -377,23 +377,41 @@ function OrderHistory() {
                                           })}
                                         </div>
 
-                                        <div className="bg-slate-900 text-white p-5 rounded-2xl shadow-lg relative overflow-hidden group">
-                                           <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none group-hover:scale-125 transition-transform"><FileText size={80} /></div>
-                                           <div className="flex justify-between items-end relative z-10">
-                                              <div>
-                                                 <div className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Financial Settlement</div>
-                                                 <div className="text-2xl font-black text-blue-400 tracking-tighter">{parseFloat(o.total_price).toLocaleString()} <span className="text-xs text-slate-500 uppercase">DZD</span></div>
-                                              </div>
-                                              {o.delivery_status?.toUpperCase() === 'DELIVERED' && (
-                                                <Link
-                                                  to={`/buyer-dashboard/invoices/${o.id}`}
-                                                  className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all backdrop-blur-sm border border-white/10"
-                                                >
-                                                  Invoice Portal
-                                                </Link>
-                                              )}
-                                           </div>
-                                        </div>
+                                        <div className="bg-slate-900 text-white p-6 rounded-2xl shadow-lg relative overflow-hidden group">
+                                            <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none group-hover:scale-125 transition-transform"><FileText size={80} /></div>
+                                            <div className="relative z-10 space-y-4">
+                                               <div className="flex justify-between items-center text-[10px] uppercase font-black tracking-widest text-slate-400 border-b border-white/10 pb-3">
+                                                  <span>Order Summary</span>
+                                                  <span className="text-blue-400">#AG-{o.id.toString().padStart(5, '0')}</span>
+                                               </div>
+                                               
+                                               <div className="space-y-2">
+                                                  <div className="flex justify-between items-center text-xs font-bold">
+                                                     <span className="text-slate-500">Products Subtotal</span>
+                                                     <span className="text-slate-300">{parseFloat(o.order_subtotal || 0).toLocaleString()} DZD</span>
+                                                  </div>
+                                                  <div className="flex justify-between items-center text-xs font-bold">
+                                                     <span className="text-slate-500">Transport Logistics</span>
+                                                     <span className="text-indigo-400">+{parseFloat(o.transport_fee || 0).toLocaleString()} DZD</span>
+                                                  </div>
+                                               </div>
+
+                                               <div className="flex justify-between items-end pt-3 border-t border-white/10">
+                                                  <div>
+                                                     <div className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Financial Settlement</div>
+                                                     <div className="text-3xl font-black text-white tracking-tighter">{parseFloat(o.total_price).toLocaleString()} <span className="text-xs text-slate-500 uppercase">DZD</span></div>
+                                                  </div>
+                                                  {o.delivery_status?.toUpperCase() === 'DELIVERED' && (
+                                                    <Link
+                                                      to={`/buyer-dashboard/invoices/${o.id}`}
+                                                      className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all backdrop-blur-sm border border-white/10"
+                                                    >
+                                                      Invoice Portal
+                                                    </Link>
+                                                  )}
+                                               </div>
+                                            </div>
+                                         </div>
                                      </div>
                                   </div>
 

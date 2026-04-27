@@ -79,9 +79,9 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = (
-            'id', 'buyer', 'buyer_name', 'buyer_email', 'total_price', 'status',
-            'delivery_status', 'delivery_address', 'wilaya', 'buyer_phone',
-            'payment_method', 'notes', 'preferred_delivery_date',
+            'id', 'buyer', 'buyer_name', 'buyer_email', 'order_subtotal', 'transport_fee',
+            'total_price', 'status', 'delivery_status', 'delivery_address', 'wilaya', 'commune',
+            'buyer_phone', 'payment_method', 'notes', 'preferred_delivery_date',
             'items', 'payment', 'timeline', 'created_at', 'updated_at', 'farmer_order_number',
             'refusal_reason', 'refusal_note', 'refused_at', 'returned_at'
         )
@@ -121,6 +121,7 @@ class OrderSerializer(serializers.ModelSerializer):
 class CheckoutSerializer(serializers.Serializer):
     delivery_address = serializers.CharField(required=True)
     wilaya = serializers.CharField(required=False, allow_blank=True, default='')
+    commune = serializers.CharField(required=False, allow_blank=True, default='')
     buyer_phone = serializers.CharField(required=False, allow_blank=True, default='')
     payment_method = serializers.ChoiceField(
         choices=['cash_on_delivery', 'bank_transfer', 'mobile_payment'],

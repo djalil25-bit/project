@@ -71,37 +71,82 @@ class ProductSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, data):
+        from decimal import Decimal, InvalidOperation
+
+        # --- Farm ownership check ---
+        # `data.get('farm')` yields the Farm *object* (PrimaryKeyRelatedField converts it).
+        # Fall back to the existing instance farm on partial updates.
         farm = data.get('farm', getattr(self.instance, 'farm', None))
         request = self.context.get('request')
-        if farm and request and getattr(farm, 'owner_id', None) != request.user.id:
-            raise serializers.ValidationError({"farm": "Product must belong to one of your own farms."})
-        
-        # Strict Price Validation against CatalogProduct range
+        if farm is not None and request is not None:
+            farm_owner_id = getattr(farm, 'owner_id', None)
+            if farm_owner_id is not None and farm_owner_id != request.user.id:
+                raise serializers.ValidationError(
+                    {"farm": "Product must belong to one of your own farms."}
+                )
+
+        # --- Price range validation ---
+        # On partial updates catalog_product may not be in `data`; fall back to instance.
         catalog_product = data.get('catalog_product', getattr(self.instance, 'catalog_product', None))
         price = data.get('price', getattr(self.instance, 'price', None))
-        
-        if catalog_product and price is not None:
-            min_p = catalog_product.min_price
-            max_p = catalog_product.max_price
-            
-            if (min_p is not None and price < min_p) or (max_p is not None and price > max_p):
-                # Return field-specific error
-                raise serializers.ValidationError({
-                    "price": "Your price is outside the admin-approved range. Please review the admin prices."
-                })
 
-        if price is not None and price <= 0:
-            raise serializers.ValidationError({"price": "Price must be positive."})
-            
+        if catalog_product is not None and price is not None:
+            # Ensure both sides are Decimal to avoid str/float comparison bugs.
+            try:
+                price_dec = Decimal(str(price))
+                raw_min_p = Decimal(str(catalog_product.min_price)) if catalog_product.min_price is not None else None
+                raw_max_p = Decimal(str(catalog_product.max_price)) if catalog_product.max_price is not None else None
+            except InvalidOperation:
+                price_dec = raw_min_p = raw_max_p = None
+
+            if price_dec is not None:
+                # Defensive normalization: ensure min is lower and max is upper
+                min_p = raw_min_p
+                max_p = raw_max_p
+                if raw_min_p is not None and raw_max_p is not None:
+                    min_p = min(raw_min_p, raw_max_p)
+                    max_p = max(raw_min_p, raw_max_p)
+
+                too_low  = min_p is not None and price_dec < min_p
+                too_high = max_p is not None and price_dec > max_p
+                if too_low or too_high:
+                    hint = ""
+                    if min_p is not None and max_p is not None:
+                        hint = f" Allowed range: {min_p} – {max_p} DZD."
+                    elif min_p is not None:
+                        hint = f" Minimum allowed: {min_p} DZD."
+                    elif max_p is not None:
+                        hint = f" Maximum allowed: {max_p} DZD."
+                    raise serializers.ValidationError({
+                        "price": (
+                            "Your asking price is outside the admin-approved range."
+                            + hint
+                        )
+                    })
+
+        if price is not None:
+            try:
+                if Decimal(str(price)) <= 0:
+                    raise serializers.ValidationError({"price": "Price must be positive."})
+            except InvalidOperation:
+                raise serializers.ValidationError({"price": "Invalid price value."})
+
         stock = data.get('stock', getattr(self.instance, 'stock', None))
-        if stock is not None and stock < 0:
-            raise serializers.ValidationError({"stock": "Stock cannot be negative."})
-        
-        category = data.get('category', getattr(self.instance, 'category_id', None))
-        # Ensure category is present if catalog_product is not
+        if stock is not None:
+            try:
+                if Decimal(str(stock)) < 0:
+                    raise serializers.ValidationError({"stock": "Stock cannot be negative."})
+            except InvalidOperation:
+                raise serializers.ValidationError({"stock": "Invalid stock value."})
+
+        # --- Category requirement ---
+        # Allow instance.category (object) or instance.category_id (int) as fallback.
+        category = data.get('category') or getattr(self.instance, 'category', None)
         if not catalog_product and not category:
-            raise serializers.ValidationError({"category": "Category is required if not selecting from catalog."})
-            
+            raise serializers.ValidationError(
+                {"category": "Category is required if not selecting from catalog."}
+            )
+
         return data
 
 class FavoriteSerializer(serializers.ModelSerializer):

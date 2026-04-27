@@ -29,7 +29,9 @@ class PaymentMethodChoices(models.TextChoices):
 
 class Order(TimeStampedModel):
     buyer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders')
-    total_price = models.DecimalField(max_digits=12, decimal_places=2)
+    order_subtotal = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    transport_fee = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    total_price = models.DecimalField(max_digits=12, decimal_places=2, help_text="Includes transport_fee")
     status = models.CharField(
         max_length=50, 
         choices=OrderStatusChoices.choices, 
@@ -50,6 +52,7 @@ class Order(TimeStampedModel):
     # Delivery info
     delivery_address = models.TextField()
     wilaya = models.CharField(max_length=100, blank=True, default='')
+    commune = models.CharField(max_length=100, blank=True, default='')
     # Buyer contact
     buyer_phone = models.CharField(max_length=30, blank=True, default='')
     # Order metadata

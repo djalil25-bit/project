@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { ALGERIAN_WILAYAS } from '../../utils/constants';
 import api from '../../api/axiosConfig';
 import {
   ShoppingCart,
@@ -35,12 +36,15 @@ function CartPage() {
   const [checkoutAddress, setCheckoutAddress] = useState('');
   const [checkoutPhone, setCheckoutPhone] = useState('');
   const [checkoutWilaya, setCheckoutWilaya] = useState('');
+  const [checkoutCommune, setCheckoutCommune] = useState('');
   const [checkoutPayment, setCheckoutPayment] = useState('cash_on_delivery');
   const [checkoutNotes, setCheckoutNotes] = useState('');
   const [checkoutDate, setCheckoutDate] = useState('');
   
   const [showCheckout, setShowCheckout] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [estimateLoading, setEstimateLoading] = useState(false);
+  const [transportEstimate, setTransportEstimate] = useState(null);
   const [message, setMessage] = useState(null);
 
   const fetchCart = async () => {
@@ -86,6 +90,35 @@ function CartPage() {
     } finally { setCartLoading(false); }
   };
 
+  const fetchTransportEstimate = async () => {
+    if (!checkoutWilaya) {
+      setTransportEstimate(null);
+      return;
+    }
+    setEstimateLoading(true);
+    try {
+      const res = await api.post('/orders/estimate_delivery/', {
+        wilaya: checkoutWilaya,
+        commune: checkoutCommune
+      });
+      setTransportEstimate(res.data);
+    } catch (err) {
+      console.error("Estimation failed:", err);
+      setTransportEstimate(null);
+    } finally {
+      setEstimateLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (showCheckout && checkoutWilaya) {
+      const timer = setTimeout(() => {
+        fetchTransportEstimate();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [checkoutWilaya, checkoutCommune, cart?.items, showCheckout]);
+
   const handleCheckout = async () => {
     if (!checkoutAddress.trim()) { showMsg('danger', 'Global coordinates required.'); return; }
     if (!checkoutPhone.trim()) { showMsg('danger', 'Communication link required.'); return; }
@@ -95,6 +128,7 @@ function CartPage() {
         delivery_address: checkoutAddress,
         buyer_phone: checkoutPhone,
         wilaya: checkoutWilaya,
+        commune: checkoutCommune,
         payment_method: checkoutPayment,
         notes: checkoutNotes,
         preferred_delivery_date: checkoutDate || null,
@@ -290,45 +324,89 @@ function CartPage() {
                    <FileText size={24} className="text-indigo-600"/> Dispatch Summary
                 </h3>
 
-                <div className="space-y-4 mb-8">
-                   <div className="flex justify-between items-center group border-b border-slate-100 pb-4">
-                      <span className="text-xs font-bold text-slate-500">Asset Volume</span>
-                      <span className="font-bold text-slate-900">{cartItemCount} Products</span>
-                   </div>
-                   <div className="flex justify-between items-center group border-b border-slate-100 pb-4">
-                      <span className="text-xs font-bold text-slate-500">Fulfillment</span>
-                      <span className="font-bold text-xs text-indigo-700 bg-indigo-50 px-3 py-1 rounded border border-indigo-100">Standard</span>
-                   </div>
-                   <div className="flex justify-between items-end pt-4">
-                      <div>
-                         <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Valuation</div>
-                         <div className="text-4xl font-black text-slate-900 tracking-tighter leading-none">{cartTotal.toLocaleString()} <span className="text-sm font-bold text-slate-400 uppercase tracking-widest ml-1">DZD</span></div>
-                      </div>
-                   </div>
-                </div>
+                 <div className="space-y-4 mb-8">
+                    <div className="flex justify-between items-center group border-b border-slate-100 pb-4">
+                       <span className="text-xs font-bold text-slate-500">Asset Volume</span>
+                       <span className="font-bold text-slate-900">{cartItemCount} Products</span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center group border-b border-slate-100 pb-4">
+                       <span className="text-xs font-bold text-slate-500">Subtotal</span>
+                       <span className="font-bold text-slate-900">{cartTotal.toLocaleString()} DZD</span>
+                    </div>
 
-                {!showCheckout ? (
-                  <button 
-                    className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-indigo-600/30 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3"
-                    onClick={() => setShowCheckout(true)}
-                  >
-                    Proceed to Delivery <ChevronRight size={18} />
-                  </button>
-                ) : (
-                  <div className="space-y-6 animate-slide-in">
-                     <div className="bg-slate-50/80 rounded-2xl p-6 border border-slate-200 space-y-5 shadow-inner">
-                        <div>
-                           <label className="text-[11px] font-black uppercase tracking-widest text-slate-500 mb-2.5 flex items-center gap-2">
-                              <MapPin size={14} className="text-indigo-500" /> Wilaya (Region)
-                           </label>
-                           <input 
-                             className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-sm placeholder-slate-400" 
-                             type="text"
-                             placeholder="e.g. Algiers, Oran, Constantine" 
-                             value={checkoutWilaya} 
-                             onChange={e => setCheckoutWilaya(e.target.value)} 
-                           />
-                        </div>
+                    <div className="group border-b border-slate-100 pb-4">
+                       <div className="flex justify-between items-center mb-1">
+                          <span className="text-xs font-bold text-slate-500">Transport Fee</span>
+                          <span className={`${estimateLoading ? 'animate-pulse text-indigo-400' : 'font-bold text-indigo-600'}`}>
+                             {estimateLoading ? 'Estimating...' : transportEstimate ? `${transportEstimate.grand_total_transport.toLocaleString()} DZD` : '---'}
+                          </span>
+                       </div>
+                       {transportEstimate && !estimateLoading && (
+                          <div className="flex flex-col gap-1 mt-2">
+                             {transportEstimate.estimates.map((est, idx) => (
+                                <div key={idx} className="flex justify-between items-center text-[9px] bg-slate-50 px-2 py-1 rounded border border-slate-100">
+                                   <span className="text-slate-400 font-bold uppercase truncate max-w-[120px]">{est.farm_name}</span>
+                                   <span className="text-indigo-600 font-black">{est.transport_fee.toLocaleString()} DZD</span>
+                                </div>
+                             ))}
+                             <div className="mt-1 text-[9px] font-medium text-slate-400 px-1 italic">
+                                * Calculated per farmer origin
+                             </div>
+                          </div>
+                       )}
+                    </div>
+
+                    <div className="flex justify-between items-end pt-4">
+                       <div>
+                          <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Final Total</div>
+                          <div className="text-4xl font-black text-slate-900 tracking-tighter leading-none">
+                             {estimateLoading ? '---' : (transportEstimate ? transportEstimate.grand_total.toLocaleString() : cartTotal.toLocaleString())}
+                             <span className="text-sm font-bold text-slate-400 uppercase tracking-widest ml-1">DZD</span>
+                          </div>
+                       </div>
+                    </div>
+                 </div>
+
+                 {!showCheckout ? (
+                   <button 
+                     className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-indigo-600/30 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3"
+                     onClick={() => setShowCheckout(true)}
+                   >
+                     Setup Delivery Parameter <ChevronRight size={18} />
+                   </button>
+                 ) : (
+                   <div className="space-y-6 animate-slide-in">
+                      <div className="bg-slate-50/80 rounded-2xl p-6 border border-slate-200 space-y-5 shadow-inner">
+                         <div className="grid grid-cols-2 gap-4">
+                            <div>
+                               <label className="text-[11px] font-black uppercase tracking-widest text-slate-500 mb-2.5 flex items-center gap-2">
+                                  <MapPin size={14} className="text-indigo-500" /> Wilaya
+                               </label>
+                               <select 
+                                 className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm" 
+                                 value={checkoutWilaya} 
+                                 onChange={e => setCheckoutWilaya(e.target.value)}
+                               >
+                                 <option value="">Select Region</option>
+                                 {ALGERIAN_WILAYAS.map(w => (
+                                    <option key={w.id} value={w.id}>{w.id} - {w.name}</option>
+                                 ))}
+                               </select>
+                            </div>
+                            <div>
+                               <label className="text-[11px] font-black uppercase tracking-widest text-slate-500 mb-2.5 flex items-center gap-2">
+                                  <Building2 size={14} className="text-indigo-500" /> Commune
+                               </label>
+                               <input 
+                                 className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm placeholder-slate-300"
+                                 type="text"
+                                 placeholder="e.g. Bir Mourad Raïs"
+                                 value={checkoutCommune}
+                                 onChange={e => setCheckoutCommune(e.target.value)}
+                               />
+                            </div>
+                         </div>
 
                         <div>
                            <label className="text-[11px] font-black uppercase tracking-widest text-slate-500 mb-2.5 flex items-center gap-2">

@@ -5,7 +5,9 @@ from apps.common.models import TimeStampedModel
 class Farm(TimeStampedModel):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='farms')
     name = models.CharField(max_length=255)
-    location = models.CharField(max_length=255)
+    location = models.CharField(max_length=255) # Keep for broad display
+    wilaya = models.CharField(max_length=100, blank=True, default='')
+    commune = models.CharField(max_length=100, blank=True, default='')
     size_hectares = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to='farms/', null=True, blank=True,

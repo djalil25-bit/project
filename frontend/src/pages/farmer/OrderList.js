@@ -293,9 +293,9 @@ export default function OrderList() {
 
                             <div className="p-6 bg-white">
                               <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#22543d] mb-4 pb-2 border-b border-slate-200 border-dashed">
-                                <User size={14} /> Vector Intel
+                                <User size={14} /> Vector Intel & Economy
                               </div>
-                              <div className="space-y-2">
+                              <div className="space-y-2 mb-6">
                                 <div className="flex justify-between items-center bg-slate-50 px-3 py-2 rounded-lg border border-slate-100">
                                   <span className="text-xs font-bold text-slate-500">Comm Link:</span>
                                   <span className="text-xs font-black text-slate-800 truncate pl-2">{o.buyer_phone || 'UNAVAILABLE'}</span>
@@ -307,6 +307,28 @@ export default function OrderList() {
                                     {o.delivery_address}
                                   </span>
                                 </div>
+                              </div>
+
+                              <div className="bg-slate-900 text-white p-4 rounded-xl shadow-md border border-slate-800">
+                                <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-slate-400 mb-3 border-b border-white/5 pb-2">
+                                  <span>Economic Breakdown</span>
+                                  <span className="text-emerald-400">DZD (Net)</span>
+                                </div>
+                                <div className="space-y-2">
+                                  <div className="flex justify-between items-center text-xs font-bold">
+                                    <span className="text-slate-400">Merchandise Subtotal</span>
+                                    <span>{parseFloat(o.order_subtotal || 0).toLocaleString()}</span>
+                                  </div>
+                                  <div className="flex justify-between items-center text-xs font-bold">
+                                    <span className="text-slate-400">Transport Logistics</span>
+                                    <span className="text-indigo-300">+{parseFloat(o.transport_fee || 0).toLocaleString()}</span>
+                                  </div>
+                                  <div className="flex justify-between items-center pt-2 border-t border-white/10 mt-1">
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Gross Total</span>
+                                    <span className="text-lg font-black text-emerald-400">{(parseFloat(o.order_subtotal || 0) + parseFloat(o.transport_fee || 0)).toLocaleString()}</span>
+                                  </div>
+                                </div>
+                              </div>
 
                                 {o.status?.toUpperCase() === 'CONFIRMED' && (
                                   <div className="mt-4 pt-2">
@@ -388,12 +410,10 @@ export default function OrderList() {
                                 </div>
                               </div>
                             </div>
-
                           </div>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
+                        </td>
+                        </tr>
+                      )}
                 </React.Fragment>
               ))}
             </tbody>

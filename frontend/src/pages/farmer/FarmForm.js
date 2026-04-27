@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import api from '../../api/axiosConfig';
 import { useNavigate, Link, useParams } from 'react-router-dom';
+import { ALGERIAN_WILAYAS } from '../../utils/constants';
 import {
   Home, MapPin, Maximize2, Save, FileText,
   ChevronRight, ArrowLeft, Info, Upload, X, AlertTriangle
@@ -8,7 +9,7 @@ import {
 
 export default function FarmForm() {
   const [formData, setFormData] = useState({
-    name: '', location: '', size_hectares: '', description: '',
+    name: '', location: '', wilaya: '', commune: '', size_hectares: '', description: '',
   });
   const [imageFile, setImageFile]     = useState(null);
   const [imagePreview, setPreview]    = useState(null);
@@ -27,6 +28,8 @@ export default function FarmForm() {
         setFormData({
           name: res.data.name || '',
           location: res.data.location || '',
+          wilaya: res.data.wilaya || '',
+          commune: res.data.commune || '',
           size_hectares: res.data.size_hectares || '',
           description: res.data.description || '',
         });
@@ -173,21 +176,54 @@ export default function FarmForm() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-[1fr_160px] gap-5">
                   <div className="space-y-2">
                     <label className="text-[11px] font-black uppercase tracking-widest text-[#22543d] flex items-center gap-2">
                       <MapPin size={14} className="text-emerald-500" />
-                      Location <span className="text-red-500">*</span>
+                      Detailed Location <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text" name="location"
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-black text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#22543d] focus:border-transparent transition-all shadow-sm placeholder-slate-400"
-                      placeholder="Province, District or City"
+                      placeholder="Village, street, or address details"
                       value={formData.location}
                       onChange={handleChange}
                       required
                     />
                   </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                       <label className="text-[11px] font-black uppercase tracking-widest text-[#22543d] flex items-center gap-2">
+                          Wilaya <span className="text-red-500">*</span>
+                       </label>
+                       <select 
+                         name="wilaya"
+                         className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-black text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#22543d] focus:border-transparent transition-all shadow-sm"
+                         value={formData.wilaya}
+                         onChange={handleChange}
+                         required
+                       >
+                         <option value="">Select Wilaya</option>
+                         {ALGERIAN_WILAYAS.map(w => (
+                           <option key={w.id} value={w.id}>{w.id} - {w.name}</option>
+                         ))}
+                       </select>
+                    </div>
+                    <div className="space-y-2">
+                       <label className="text-[11px] font-black uppercase tracking-widest text-[#22543d] flex items-center gap-2">
+                          Commune <span className="text-red-500">*</span>
+                       </label>
+                       <input 
+                         type="text" name="commune"
+                         className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-black text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#22543d] focus:border-transparent transition-all shadow-sm placeholder-slate-400"
+                         placeholder="e.g. Ain El Turk"
+                         value={formData.commune}
+                         onChange={handleChange}
+                         required
+                       />
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
                     <label className="text-[11px] font-black uppercase tracking-widest text-[#22543d] flex items-center gap-2">
                       <Maximize2 size={14} className="text-emerald-500" />
@@ -201,7 +237,6 @@ export default function FarmForm() {
                       onChange={handleChange}
                     />
                   </div>
-                </div>
               </div>
 
               {/* Description */}

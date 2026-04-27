@@ -57,7 +57,8 @@ export default function ProductForm() {
             image: null,
           });
           if (p.catalog_product) {
-            const item = fetchedCatalog.find(i => i.id === parseInt(p.catalog_product));
+            // API may return catalog_product as int or string – use Number() to handle both
+            const item = fetchedCatalog.find(i => i.id === Number(p.catalog_product));
             if (item) setSelCatalog(item);
           }
         }
@@ -76,11 +77,15 @@ export default function ProductForm() {
     if (fieldErrors[name]) setFErrors({ ...fieldErrors, [name]: null });
 
     if (name === 'catalog_product') {
-      const item = catalog.find(i => i.id === parseInt(value));
-      setSelCatalog(item);
+      // Use Number() so both string IDs and integer IDs returned by the API match
+      const item = catalog.find(i => i.id === Number(value));
+      setSelCatalog(item || null);
       if (item) {
+        // Use functional form of setFormData to avoid stale-closure overwriting the
+        // catalog_product change that was just set two lines above.
         setFormData(prev => ({
           ...prev,
+          catalog_product: value,
           price: item.ref_price || '',
           title: item.name,
           category: item.category,
@@ -88,6 +93,7 @@ export default function ProductForm() {
         }));
       }
       setFErrors({});
+      return; // prevent the generic setFormData below from overwriting
     }
   };
 
@@ -97,10 +103,23 @@ export default function ProductForm() {
 
     if (selCatalog) {
       const price = parseFloat(formData.price);
-      const minP  = parseFloat(selCatalog.min_price);
-      const maxP  = parseFloat(selCatalog.max_price);
-      if ((!isNaN(minP) && price < minP) || (!isNaN(maxP) && price > maxP)) {
-        setFErrors({ price: 'Your price is outside the admin-approved range. Please review the official pricing.' });
+      const rawMinP  = selCatalog.min_price !== null ? parseFloat(selCatalog.min_price) : null;
+      const rawMaxP  = selCatalog.max_price !== null ? parseFloat(selCatalog.max_price) : null;
+      
+      let minP = rawMinP;
+      let maxP = rawMaxP;
+      if (rawMinP !== null && rawMaxP !== null && !isNaN(rawMinP) && !isNaN(rawMaxP)) {
+        minP = Math.min(rawMinP, rawMaxP);
+        maxP = Math.max(rawMinP, rawMaxP);
+      }
+
+      const tooLow  = minP !== null && !isNaN(minP) && price < minP;
+      const tooHigh = maxP !== null && !isNaN(maxP) && price > maxP;
+      if (tooLow || tooHigh) {
+        const rangeHint = (minP !== null && maxP !== null)
+          ? ` Allowed range: ${minP} – ${maxP} DZD.`
+          : minP !== null ? ` Minimum: ${minP} DZD.` : ` Maximum: ${maxP} DZD.`;
+        setFErrors({ price: 'Your asking price is outside the admin-approved range.' + rangeHint });
         return;
       }
     }
@@ -128,10 +147,22 @@ export default function ProductForm() {
     } catch (err) {
       const resData = err.response?.data;
       if (resData && typeof resData === 'object') {
-        setFErrors(resData);
-        setError(resData.detail || resData.non_field_errors?.[0] || resData.price?.[0] || 'Submission failed. Please check the fields.');
+        // Surface field-level errors so the farmer can see exactly what failed
+        const fieldErrs = {};
+        const topMessages = [];
+        Object.entries(resData).forEach(([key, val]) => {
+          const msg = Array.isArray(val) ? val[0] : (typeof val === 'string' ? val : JSON.stringify(val));
+          if (key === 'detail' || key === 'non_field_errors') {
+            topMessages.push(msg);
+          } else {
+            fieldErrs[key] = msg;
+            topMessages.push(`${key.charAt(0).toUpperCase() + key.slice(1)}: ${msg}`);
+          }
+        });
+        setFErrors(fieldErrs);
+        setError(topMessages.length > 0 ? topMessages.join(' | ') : 'Submission failed. Please check the fields.');
       } else {
-        setError('Failed to list product. Please check your connection.');
+        setError('Failed to submit. Please check your connection and try again.');
       }
     } finally { setLoading(false); }
   };
@@ -360,7 +391,17 @@ export default function ProductForm() {
                 <div className="bg-black/20 p-4 rounded-2xl border border-white/10">
                   <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 mb-1">Recommended Range</div>
                   <div className="text-xl font-black tracking-tight">
-                    {selCatalog.min_price} – {selCatalog.max_price} <span className="text-xs font-bold text-emerald-300 ml-1">DZD / {selCatalog.default_unit}</span>
+                    {(() => {
+                      const rMin = selCatalog.min_price !== null ? parseFloat(selCatalog.min_price) : null;
+                      const rMax = selCatalog.max_price !== null ? parseFloat(selCatalog.max_price) : null;
+                      let dMin = selCatalog.min_price;
+                      let dMax = selCatalog.max_price;
+                      if (rMin !== null && rMax !== null && !isNaN(rMin) && !isNaN(rMax) && rMin > rMax) {
+                        dMin = selCatalog.max_price;
+                        dMax = selCatalog.min_price;
+                      }
+                      return `${dMin} – ${dMax}`;
+                    })()} <span className="text-xs font-bold text-emerald-300 ml-1">DZD / {selCatalog.default_unit}</span>
                   </div>
                   <div className="text-xs font-medium text-emerald-100/70 mt-2 leading-tight">Based on latest market stabilization data for {selCatalog.name}.</div>
                 </div>

@@ -9,6 +9,7 @@ from .serializers import OrderSerializer, CheckoutSerializer, FarmerOrderItemSta
 from apps.cart.models import Cart
 from apps.payments.models import Payment, PaymentStatusChoices
 from apps.accounts.permissions import IsBuyerRole, IsFarmerRole
+from apps.logistics.services import TransportPricingService
 
 class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
@@ -19,6 +20,70 @@ class OrderViewSet(viewsets.ModelViewSet):
         if user.role == 'buyer':
             return Order.objects.filter(buyer=user).order_by('-created_at')
         return Order.objects.none()
+
+    @action(detail=False, methods=['post'], permission_classes=[IsBuyerRole])
+    def estimate_delivery(self, request):
+        user = request.user
+        wilaya = request.data.get('wilaya', '')
+        commune = request.data.get('commune', '')
+        
+        if not wilaya:
+            return Response({"error": "Wilaya required for estimation."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            cart = Cart.objects.get(buyer=user)
+        except Cart.DoesNotExist:
+            return Response({"error": "Cart is empty."}, status=status.HTTP_400_BAD_REQUEST)
+
+        cart_items = list(cart.items.select_related('product', 'product__farmer', 'product__farm').all())
+        if not cart_items:
+            return Response({"error": "Cart is empty."}, status=status.HTTP_400_BAD_REQUEST)
+
+        from collections import defaultdict
+        items_by_farmer = defaultdict(list)
+        for item in cart_items:
+            items_by_farmer[item.product.farmer_id].append(item)
+
+        estimates = []
+        grand_total_transport = Decimal('0.00')
+        grand_total_subtotal = Decimal('0.00')
+
+        for fid, items in items_by_farmer.items():
+            farmer = items[0].product.farmer
+            farm = items[0].product.farm
+            
+            # Use farm's wilaya/commune if available, fallback to legacy location or empty
+            origin_wilaya = farm.wilaya if farm and farm.wilaya else ""
+            origin_commune = farm.commune if farm and farm.commune else ""
+            
+            total_qty = sum(item.quantity for item in items)
+            subtotal = sum(item.product.price * item.quantity for item in items)
+            
+            est = TransportPricingService.estimate_order_transport(
+                origin_wilaya, origin_commune,
+                wilaya, commune,
+                total_qty
+            )
+            
+            estimates.append({
+                'farmer_id': fid,
+                'farmer_name': farmer.full_name,
+                'farm_name': farm.name if farm else "Unknown",
+                'subtotal': subtotal,
+                'transport_fee': est['total_transport'],
+                'total': subtotal + est['total_transport'],
+                'details': est
+            })
+            
+            grand_total_transport += est['total_transport']
+            grand_total_subtotal += subtotal
+
+        return Response({
+            'estimates': estimates,
+            'grand_total_subtotal': grand_total_subtotal,
+            'grand_total_transport': grand_total_transport,
+            'grand_total': grand_total_subtotal + grand_total_transport
+        })
 
     @action(detail=False, methods=['post'], permission_classes=[IsBuyerRole], serializer_class=CheckoutSerializer)
     def checkout(self, request):
@@ -32,13 +97,14 @@ class OrderViewSet(viewsets.ModelViewSet):
         except Cart.DoesNotExist:
             return Response({"error": "Cart is empty."}, status=status.HTTP_400_BAD_REQUEST)
 
-        cart_items = list(cart.items.select_related('product', 'product__farmer').all())
+        cart_items = list(cart.items.select_related('product', 'product__farmer', 'product__farm').all())
         if not cart_items:
             return Response({"error": "Cart is empty."}, status=status.HTTP_400_BAD_REQUEST)
 
         vdata = serializer.validated_data
         delivery_address = vdata['delivery_address']
         wilaya = vdata.get('wilaya', '')
+        commune = vdata.get('commune', '')
         buyer_phone = vdata.get('buyer_phone', '')
         payment_method = vdata.get('payment_method', 'cash_on_delivery')
         notes = vdata.get('notes', '')
@@ -73,7 +139,20 @@ class OrderViewSet(viewsets.ModelViewSet):
                 for fid, items in items_by_farmer_id.items():
                     farmer = farmer_map[fid]
                     # Calculate total for this farmer's items only
-                    farmer_total = sum(item.product.price * item.quantity for item in items)
+                    farmer_subtotal = sum(item.product.price * item.quantity for item in items)
+                    total_qty = sum(item.quantity for item in items)
+                    
+                    # Calculate transport fee
+                    farm = items[0].product.farm
+                    origin_wilaya = farm.wilaya if farm and farm.wilaya else ""
+                    origin_commune = farm.commune if farm and farm.commune else ""
+                    
+                    est = TransportPricingService.estimate_order_transport(
+                        origin_wilaya, origin_commune,
+                        wilaya, commune,
+                        total_qty
+                    )
+                    transport_fee = est['total_transport']
 
                     # Compute next farmer-scoped display order number (atomic inside transaction)
                     existing_farmer_orders = OrderItem.objects.filter(farmer=farmer).values('order').distinct().count()
@@ -82,10 +161,13 @@ class OrderViewSet(viewsets.ModelViewSet):
                     # Create ONE order per farmer
                     order = Order.objects.create(
                         buyer=user,
-                        total_price=farmer_total,
+                        order_subtotal=farmer_subtotal,
+                        transport_fee=transport_fee,
+                        total_price=farmer_subtotal + transport_fee,
                         status=OrderStatusChoices.PENDING,
                         delivery_address=delivery_address,
                         wilaya=wilaya,
+                        commune=commune,
                         buyer_phone=buyer_phone,
                         payment_method=payment_method,
                         notes=notes,
@@ -108,7 +190,7 @@ class OrderViewSet(viewsets.ModelViewSet):
 
                     Payment.objects.create(
                         order=order,
-                        amount=farmer_total,
+                        amount=farmer_subtotal + transport_fee,
                         status=PaymentStatusChoices.PENDING,
                         method=payment_method
                     )

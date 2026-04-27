@@ -69,13 +69,19 @@ class ProductViewSet(viewsets.ModelViewSet):
         return super().create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
-        partial = kwargs.get('partial', False)
+        partial = kwargs.pop('partial', False)
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         if not serializer.is_valid():
             print(f"DEBUG: Product update failed validation: {serializer.errors}")
+            print(f"DEBUG: Update request.data keys: {list(request.data.keys())}")
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return super().update(request, *args, **kwargs)
+        # Reuse the validated serializer directly — calling super().update() would
+        # re-instantiate the serializer from scratch, losing already-parsed file data.
+        self.perform_update(serializer)
+        if getattr(instance, '_prefetched_objects_cache', None):
+            instance._prefetched_objects_cache = {}
+        return Response(serializer.data)
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:
