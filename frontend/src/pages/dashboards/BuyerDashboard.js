@@ -65,77 +65,79 @@ function ProductSplitModal({ product, onClose, onAddToCart, cartLoading }) {
   const p = product;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-fade-in" onClick={onClose}>
-      <div 
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl overflow-hidden flex flex-col md:flex-row transform transition-all animate-scale-in"
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-md animate-fade-in" onClick={onClose}>
+      <div
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col sm:flex-row transform transition-all animate-scale-in max-h-[90vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}
       >
-        <div className="w-full md:w-5/12 bg-slate-50 relative flex flex-col items-center justify-center p-8 min-h-[300px] md:min-h-[500px] border-r border-slate-100">
+        {/* Image Pane */}
+        <div className="w-full sm:w-5/12 bg-slate-50 relative flex flex-col items-center justify-center p-6 min-h-[200px] sm:min-h-[360px] border-b sm:border-b-0 sm:border-r border-slate-100 shrink-0">
           <QualityBadge quality={p.quality} />
           {p.image ? (
-            <img src={p.image} alt={p.title} className="w-full h-full object-contain drop-shadow-xl max-h-[350px]" />
+            <img src={p.image} alt={p.title} className="w-full h-full object-contain drop-shadow-lg max-h-[260px]" />
           ) : (
-             <Package size={100} className="text-slate-200" />
+            <Package size={72} className="text-slate-200" />
           )}
-          <div className="absolute bottom-6 w-full px-6">
-             <BenchmarkDisplay comparison={p.official_price_comparison} type="modal" />
+          <div className="w-full mt-4">
+            <BenchmarkDisplay comparison={p.official_price_comparison} type="modal" />
           </div>
         </div>
 
-        <div className="w-full md:w-7/12 p-8 flex flex-col">
-          <div className="flex justify-between items-start mb-4">
+        {/* Info Pane */}
+        <div className="w-full sm:w-7/12 p-5 sm:p-6 flex flex-col">
+          <div className="flex justify-between items-start mb-3">
             <div>
-              <div className="text-[10px] font-black uppercase tracking-widest text-indigo-600 mb-2 bg-indigo-50 px-2 py-1 rounded inline-block">{p.category_name}</div>
-              <h2 className="text-3xl font-black text-slate-900 tracking-tight leading-tight">{p.title}</h2>
+              <div className="text-[10px] font-black uppercase tracking-widest text-indigo-600 mb-1.5 bg-indigo-50 px-2 py-0.5 rounded inline-block">{p.category_name}</div>
+              <h2 className="text-xl font-black text-slate-900 tracking-tight leading-tight">{p.title}</h2>
             </div>
-            <button className="w-10 h-10 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-full flex items-center justify-center transition-colors shrink-0" onClick={onClose}>
-              <X size={20} />
+            <button className="w-9 h-9 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-full flex items-center justify-center transition-colors shrink-0 ml-2" onClick={onClose}>
+              <X size={18} />
             </button>
           </div>
 
-          <div className="flex items-baseline gap-2 mb-6 border-b border-slate-100 pb-6">
-            <span className="text-5xl font-black text-slate-900 tracking-tighter">{parseFloat(p.price).toLocaleString()}</span>
-            <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">DZD / {p.unit}</span>
+          <div className="flex items-baseline gap-2 mb-3 border-b border-slate-100 pb-3">
+            <span className="text-2xl font-black text-slate-900 tracking-tighter">{parseFloat(p.price).toLocaleString()}</span>
+            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">DZD / {p.unit}</span>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
-              <div className="text-xs uppercase font-black tracking-widest text-slate-400 mb-1">Available Stock</div>
-              <div className="font-extrabold text-slate-800 text-base flex items-center gap-2"><BarChart2 size={16} className="text-indigo-500"/> {parseFloat(p.stock || 0).toLocaleString()} {p.unit}</div>
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+              <div className="text-[9px] uppercase font-black tracking-widest text-slate-400 mb-1">Stock</div>
+              <div className="font-black text-slate-800 text-sm flex items-center gap-1.5"><BarChart2 size={14} className="text-indigo-500"/> {parseFloat(p.stock || 0).toLocaleString()} {p.unit}</div>
             </div>
-            <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
-              <div className="text-xs uppercase font-black tracking-widest text-slate-400 mb-1">Origin Node</div>
-              <div className="font-extrabold text-slate-800 text-base flex items-center gap-2 truncate" title={p.farm_name}><Wheat size={16} className="text-amber-500"/> {p.farm_name}</div>
+            <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+              <div className="text-[9px] uppercase font-black tracking-widest text-slate-400 mb-1">Farm</div>
+              <div className="font-black text-slate-800 text-sm flex items-center gap-1.5 truncate" title={p.farm_name}><Wheat size={14} className="text-amber-500 shrink-0"/> <span className="truncate">{p.farm_name}</span></div>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 mb-6 pt-4 border-t border-slate-100">
-             <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-black text-xl shadow-inner shrink-0">
-               {p.farmer_name?.charAt(0) || 'F'}
-             </div>
-             <div>
-                <div className="font-bold text-base text-slate-900 leading-tight">{p.farmer_name}</div>
-                <VerifiedBadge isVerified={p.farmer_is_verified} />
-             </div>
+          <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100">
+            <div className="w-9 h-9 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-black text-base shadow-inner shrink-0">
+              {p.farmer_name?.charAt(0) || 'F'}
+            </div>
+            <div>
+              <div className="font-bold text-sm text-slate-900 leading-tight">{p.farmer_name}</div>
+              <VerifiedBadge isVerified={p.farmer_is_verified} />
+            </div>
           </div>
 
           {p.description && (
-            <p className="text-sm text-slate-500 font-medium leading-relaxed mb-auto overflow-y-auto max-h-32 pr-2 border-l-2 border-indigo-100 pl-4">{p.description}</p>
+            <p className="text-sm text-slate-500 font-medium leading-relaxed mb-4 overflow-y-auto max-h-20 pr-1 border-l-2 border-indigo-100 pl-3">{p.description}</p>
           )}
 
-          <div className="mt-8 pt-6 border-t border-slate-100 flex items-center gap-4">
-             <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl h-14 overflow-hidden shadow-inner">
-               <button className="w-12 h-full flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors" onClick={() => setQty(Math.max(1, qty - 1))} disabled={p.stock === 0}><Minus size={16}/></button>
-               <div className="w-14 h-full flex items-center justify-center font-black text-lg text-slate-900 bg-white border-x border-slate-100">{qty}</div>
-               <button className="w-12 h-full flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors" onClick={() => setQty(Math.min(p.stock, qty + 1))} disabled={p.stock === 0}><Plus size={16}/></button>
-             </div>
-              <button
-               className="flex-1 h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black text-sm uppercase tracking-widest transition-all hover:shadow-[0_8px_25px_rgba(16,185,129,0.3)] active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
-               onClick={() => { onAddToCart(p.id, qty); onClose(); }}
-               disabled={cartLoading || p.stock === 0}
-             >
-               {p.stock === 0 ? <><XCircle size={18} /> Sold Out</> : <><ShoppingCart size={18} /> Add {(parseFloat(p.price) * qty).toLocaleString()} DZD</>}
-             </button>
+          <div className="mt-auto pt-3 border-t border-slate-100 flex items-center gap-2">
+            <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl h-10 overflow-hidden shadow-inner">
+              <button className="w-9 h-full flex items-center justify-center text-slate-500 hover:text-indigo-600 transition-colors" onClick={() => setQty(Math.max(1, qty - 1))} disabled={p.stock === 0}><Minus size={13}/></button>
+              <div className="w-10 h-full flex items-center justify-center font-black text-sm text-slate-900 bg-white border-x border-slate-100">{qty}</div>
+              <button className="w-9 h-full flex items-center justify-center text-slate-500 hover:text-indigo-600 transition-colors" onClick={() => setQty(Math.min(p.stock, qty + 1))} disabled={p.stock === 0}><Plus size={13}/></button>
+            </div>
+            <button
+              className="flex-1 h-10 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black text-xs uppercase tracking-wide transition-all active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50 shadow-md"
+              onClick={() => { onAddToCart(p.id, qty); onClose(); }}
+              disabled={cartLoading || p.stock === 0}
+            >
+              {p.stock === 0 ? <><XCircle size={14} /> Sold Out</> : <><ShoppingCart size={14} /> Add to Cart · {(parseFloat(p.price) * qty).toLocaleString()} DZD</>}
+            </button>
           </div>
         </div>
       </div>
@@ -260,10 +262,10 @@ function BuyerDashboard() {
         <div className="absolute inset-0 bg-gradient-to-r from-indigo-900/30 to-transparent pointer-events-none" />
         <div className="z-10 flex flex-col">
           <div className="flex items-center gap-2 text-indigo-400 text-[9px] font-black uppercase tracking-widest mb-1 opacity-80">
-            <ShieldCheck size={12} /> Marketplace Curation Node
+            <ShieldCheck size={12} /> Buyer Marketplace
           </div>
           <h1 className="text-xl md:text-2xl font-black text-white tracking-tight leading-none">
-            Asset Index
+            Product Catalog
           </h1>
         </div>
         <div className="z-10 mt-3 md:mt-0 flex items-center gap-2 w-full md:w-auto">
@@ -279,61 +281,25 @@ function BuyerDashboard() {
       {/* ── UNIFORM KPI METRICS (RESOLVING OVERFLOWS & PURE TAILWIND) ──────────────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { 
-            label: 'Procured Volume', 
-            value: (
-              <span className="truncate block overflow-hidden">
-                {buyerStats.totalSpent.toLocaleString()} <span className="text-[0.6em] text-white/60 font-medium">DZD</span>
-              </span>
-            ), 
-            icon: <FileText size={20}/>
-          },
-          { 
-            label: 'Active Transit', 
-            value: (
-              <span className="truncate block overflow-hidden">
-                {buyerStats.inTransit} <span className="text-[0.6em] text-white/60 font-medium">Nodes</span>
-              </span>
-            ), 
-            icon: <Truck size={20}/>
-          },
-          { 
-            label: 'Global Assets', 
-            value: (
-              <span className="truncate block overflow-hidden">
-                {products.length} <span className="text-[0.6em] text-white/60 font-medium">Indices</span>
-              </span>
-            ), 
-            icon: <Package size={20}/>
-          },
-          { 
-            label: 'Starred Nodes', 
-            value: (
-              <span className="truncate block overflow-hidden">
-                {products.filter(p => p.is_favorite).length} <span className="text-[0.6em] text-white/60 font-medium">Favs</span>
-              </span>
-            ), 
-            icon: <Heart size={20}/>
-          },
+          { label: 'Total Spent', value: <span className="truncate block">{buyerStats.totalSpent.toLocaleString()} <span className="text-[0.6em] text-white/60 font-medium">DZD</span></span>, icon: <FileText size={18}/> },
+          { label: 'In Transit', value: <span className="truncate block">{buyerStats.inTransit} <span className="text-[0.6em] text-white/60 font-medium">orders</span></span>, icon: <Truck size={18}/> },
+          { label: 'Products Available', value: <span className="truncate block">{products.length}</span>, icon: <Package size={18}/> },
+          { label: 'Saved Items', value: <span className="truncate block">{products.filter(p => p.is_favorite).length}</span>, icon: <Heart size={18}/> },
         ].map((k, i) => (
-          <div key={i} className="bg-gradient-to-br from-indigo-600 to-blue-700 rounded-2xl p-6 shadow-lg shadow-indigo-950/10 flex items-center gap-4 relative overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl border border-white/10 group">
-             <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-125 transition-transform duration-700">
-                {k.icon && React.cloneElement(k.icon, { size: 100 })}
-             </div>
-             <div className="w-12 h-12 rounded-xl bg-white/10 text-white flex items-center justify-center shrink-0 border border-white/10">
-                {k.icon}
-             </div>
+          <div key={i} className="bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-2xl p-4 shadow-md flex items-center gap-3 relative overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-lg border border-white/10 group">
+             <div className="absolute -right-3 -bottom-3 opacity-5 group-hover:scale-125 transition-transform duration-700">{k.icon && React.cloneElement(k.icon, { size: 72 })}</div>
+             <div className="w-10 h-10 rounded-xl bg-white/10 text-white flex items-center justify-center shrink-0 border border-white/10">{k.icon}</div>
              <div className="min-w-0 flex-1 relative z-10">
-                <div className="text-[10px] font-bold uppercase tracking-widest leading-none mb-1.5 text-indigo-100/70">{k.label}</div>
-                <div className="text-[clamp(1rem,2.5vw,1.6rem)] font-black tracking-tight leading-tight truncate text-white">{k.value}</div>
+                <div className="text-[9px] font-bold uppercase tracking-widest leading-none mb-1 text-indigo-100/70">{k.label}</div>
+                <div className="text-[clamp(0.9rem,2vw,1.35rem)] font-black tracking-tight leading-tight truncate text-white">{k.value}</div>
              </div>
           </div>
         ))}
       </div>
 
-      {/* ── SLEEK COMPACT FILTER BAR ──────────────────── */}
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sticky top-4 z-40 space-y-4">
-        <div className="flex items-center gap-3 relative">
+      {/* ── FILTER BAR ────────────────────────────────────────── */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 px-3 py-2 sticky top-4 z-30 flex flex-col md:flex-row items-stretch md:items-center gap-2">
+        <div className="flex-1 relative">
            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
            <input
               type="text"
@@ -377,8 +343,8 @@ function BuyerDashboard() {
                className="group bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)] hover:-translate-y-1 hover:border-indigo-300 flex flex-col animate-fade-in"
                style={{ animationDelay: `${idx * 40}ms` }}
              >
-               {/* Image Container: High-fidelity horizontal aspect ratio */}
-               <div className="relative w-full h-44 sm:h-48 overflow-hidden cursor-pointer bg-slate-50" onClick={() => setSelectedProduct(p)}>
+               {/* Image Container */}
+               <div className="relative w-full h-36 overflow-hidden cursor-pointer bg-slate-50" onClick={() => setSelectedProduct(p)}>
                   {p.image
                     ? <img src={p.image} alt={p.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                     : <div className="w-full h-full flex items-center justify-center text-slate-300"><Package size={40} /></div>
@@ -440,13 +406,11 @@ function BuyerDashboard() {
            ))}
 
            {filteredProducts.length === 0 && (
-             <div className="col-span-full bg-white border border-dashed border-slate-300 rounded-[2.5rem] p-16 text-center shadow-sm">
-               <Search size={48} className="text-slate-300 mx-auto mb-4" />
-               <h4 className="text-xl font-black text-slate-800 mb-2">No assets available</h4>
-               <p className="text-sm font-medium text-slate-500 mb-6 max-w-sm mx-auto">Zero results match your filters. Adjust category or search node.</p>
-               <button className="bg-slate-900 hover:bg-slate-800 text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest shadow-md transition-all active:scale-95" onClick={() => { setSearch(''); setActiveCategory('All'); }}>
-                 Reset Dashboard Search
-               </button>
+             <div className="col-span-full bg-white border border-dashed border-slate-300 rounded-2xl p-12 text-center shadow-sm">
+               <Search size={36} className="text-slate-300 mx-auto mb-3" />
+               <h4 className="text-lg font-black text-slate-800 mb-2">No products found</h4>
+               <p className="text-sm font-medium text-slate-500 mb-5 max-w-sm mx-auto">No results match your current filters.</p>
+               <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest shadow-md transition-all active:scale-95" onClick={() => { setSearch(''); setActiveCategory('All'); }}>Clear Filters</button>
              </div>
            )}
          </div>

@@ -159,28 +159,28 @@ function CartPage() {
       {/* ── BREADCRUMBS & HEADER ───────────────────────── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-indigo-600 mb-4 bg-indigo-50 px-3 py-1 rounded-full w-fit border border-indigo-100 shadow-sm">
+          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-indigo-600 mb-3 bg-indigo-50 px-3 py-1 rounded-full w-fit border border-indigo-100 shadow-sm">
             <Link to="/buyer-dashboard" className="hover:text-indigo-800 transition-colors">Marketplace</Link>
             <ChevronRight size={10} className="text-indigo-300" />
-            <span className="text-indigo-900 font-black">Procurement Terminal</span>
+            <span className="text-indigo-900 font-black">My Cart</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight flex items-center gap-4">
-            <div className="p-3 bg-white rounded-2xl shadow-sm border border-slate-100 text-indigo-600">
-               <ShoppingCart size={40} strokeWidth={2.5} />
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+            <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-indigo-600">
+               <ShoppingCart size={22} strokeWidth={2.5} />
             </div>
-            My Payload
+            My Cart
           </h1>
-          <p className="text-slate-500 font-medium mt-3 leading-relaxed max-w-xl text-lg">
-            Finalize asset acquisition and routing parameters before authorizing the dispatch protocol.
+          <p className="text-slate-500 font-medium mt-2 max-w-xl text-sm">
+            Review your items and complete your order.
           </p>
         </div>
-        <div className="flex items-center gap-4 bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm">
-           <div className="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-inner">
-              <Package size={28} />
+        <div className="flex items-center gap-3 bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+           <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-inner">
+              <Package size={20} />
            </div>
            <div>
-              <div className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Total Assets</div>
-              <div className="text-2xl font-black text-slate-900 leading-none tracking-tighter">{cartItemCount} Indices</div>
+              <div className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Total Items</div>
+              <div className="text-lg font-black text-slate-900 leading-none">{cartItemCount}</div>
            </div>
         </div>
       </div>
@@ -198,32 +198,32 @@ function CartPage() {
         
         {/* LEFT: Payload Registry */}
         <div className="lg:col-span-8 space-y-6">
-          <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
-             <div className="bg-slate-50/50 p-6 border-b border-slate-100 flex items-center justify-between">
-                <div className="flex items-center gap-3 font-black text-[10px] uppercase tracking-[0.3em] text-slate-500">
-                   <ShieldCheck size={16} className="text-indigo-600" /> Secure Asset List
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+             <div className="bg-slate-50 px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
+                <div className="flex items-center gap-2 font-black text-[10px] uppercase tracking-widest text-slate-500">
+                   <ShieldCheck size={14} className="text-indigo-600" /> Cart Items
                 </div>
                 {cartItemCount > 0 && (
-                   <div className="text-[10px] font-black text-indigo-600 bg-white px-4 py-1.5 rounded-full border border-indigo-100 shadow-sm uppercase tracking-widest">
-                      {cartTotal.toLocaleString()} DZD Total
+                   <div className="text-[10px] font-black text-indigo-600 bg-white px-3 py-1 rounded-full border border-indigo-100 shadow-sm">
+                      {cartTotal.toLocaleString()} DZD
                    </div>
                 )}
              </div>
 
              {cartItemCount === 0 ? (
-               <div className="p-20 text-center flex flex-col items-center justify-center">
-                 <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-8 text-slate-200 shadow-inner">
-                   <ShoppingBag size={48} />
+               <div className="p-12 text-center flex flex-col items-center justify-center">
+                 <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-5 text-slate-300 shadow-inner">
+                   <ShoppingBag size={32} />
                  </div>
-                 <h4 className="text-2xl font-black text-slate-800 mb-2">Registry Negative</h4>
-                 <p className="text-slate-500 font-medium mb-10 max-w-sm mx-auto">
-                   Zero assets identified for procurement. Re-engage the market index to source produce.
+                 <h4 className="text-lg font-black text-slate-800 mb-2">Your cart is empty</h4>
+                 <p className="text-slate-500 font-medium mb-6 max-w-sm mx-auto text-sm">
+                   Browse the marketplace and add products to your cart.
                  </p>
-                 <button 
-                   className="bg-indigo-600 hover:bg-indigo-700 text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-indigo-900/10 active:scale-95"
+                 <button
+                   className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-md active:scale-95"
                    onClick={() => navigate('/buyer-dashboard')}
                  >
-                   Re-Engage Market
+                   Browse Products
                  </button>
                </div>
              ) : (
@@ -294,8 +294,8 @@ function CartPage() {
                             <div className="flex items-center gap-6 shrink-0">
                                {/* Value Subtotal */}
                                <div className="flex flex-col items-end w-28 text-right">
-                                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Net Val</div>
-                                  <div className="font-black text-slate-900 text-xl tracking-tight truncate w-full">{subTotal.toLocaleString()} <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">DZD</span></div>
+                                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Subtotal</div>
+                                  <div className="font-black text-slate-900 text-sm">{subTotal.toLocaleString()} <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">DZD</span></div>
                                </div>
 
                                {/* Delete Action Wrapper */}
@@ -317,17 +317,17 @@ function CartPage() {
         </div>
 
         {/* RIGHT: Terminal Authorization */}
-        <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-8">
+        <div className="lg:col-span-4 space-y-5 lg:sticky lg:top-6">
            {cartItemCount > 0 && (
-             <div className="bg-white rounded-[2rem] shadow-xl shadow-slate-200/40 p-8 border border-slate-200">
-                <h3 className="text-xl font-black text-slate-900 mb-6 flex items-center gap-3">
-                   <FileText size={24} className="text-indigo-600"/> Dispatch Summary
+             <div className="bg-white rounded-2xl shadow-sm p-5 border border-slate-200">
+                <h3 className="text-sm font-black text-slate-900 mb-4 flex items-center gap-2">
+                   <FileText size={18} className="text-indigo-600"/> Order Summary
                 </h3>
 
                  <div className="space-y-4 mb-8">
-                    <div className="flex justify-between items-center group border-b border-slate-100 pb-4">
-                       <span className="text-xs font-bold text-slate-500">Asset Volume</span>
-                       <span className="font-bold text-slate-900">{cartItemCount} Products</span>
+                    <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+                       <span className="text-xs font-semibold text-slate-500">Items</span>
+                       <span className="font-bold text-slate-900 text-sm">{cartItemCount}</span>
                     </div>
                     
                     <div className="flex justify-between items-center group border-b border-slate-100 pb-4">
@@ -357,12 +357,12 @@ function CartPage() {
                        )}
                     </div>
 
-                    <div className="flex justify-between items-end pt-4">
+                    <div className="flex justify-between items-end pt-3">
                        <div>
-                          <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Final Total</div>
-                          <div className="text-4xl font-black text-slate-900 tracking-tighter leading-none">
+                          <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Total</div>
+                          <div className="text-2xl font-black text-slate-900 tracking-tighter leading-none">
                              {estimateLoading ? '---' : (transportEstimate ? transportEstimate.grand_total.toLocaleString() : cartTotal.toLocaleString())}
-                             <span className="text-sm font-bold text-slate-400 uppercase tracking-widest ml-1">DZD</span>
+                             <span className="text-xs font-bold text-slate-400 uppercase ml-1">DZD</span>
                           </div>
                        </div>
                     </div>
@@ -370,10 +370,10 @@ function CartPage() {
 
                  {!showCheckout ? (
                    <button 
-                     className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-indigo-600/30 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3"
+                     className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-95 flex items-center justify-center gap-3"
                      onClick={() => setShowCheckout(true)}
                    >
-                     Setup Delivery Parameter <ChevronRight size={18} />
+                     Proceed to Checkout <ChevronRight size={16} />
                    </button>
                  ) : (
                    <div className="space-y-6 animate-slide-in">

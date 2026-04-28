@@ -99,18 +99,18 @@ export default function OrderList() {
   });
 
   const filterTabs = [
-    { key: 'ALL',       label: 'All Log'   },
+    { key: 'ALL',       label: 'All'   },
     { key: 'PENDING',   label: 'Pending'   },
     { key: 'CONFIRMED', label: 'Confirmed' },
     { key: 'RETURNED',  label: 'Returned'  },
     { key: 'REJECTED',  label: 'Rejected'  },
-    { key: 'DELIVERED', label: 'Completed' },
+    { key: 'DELIVERED', label: 'Delivered' },
   ];
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
       <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-t-[#22543d] animate-spin" />
-      <span className="text-sm font-bold text-slate-500 uppercase tracking-widest animate-pulse">Fetching Ledger...</span>
+      <span className="text-sm font-bold text-slate-500 uppercase tracking-widest animate-pulse">Loading orders...</span>
     </div>
   );
 
@@ -123,13 +123,13 @@ export default function OrderList() {
           <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-[#22543d] mb-2">
             <Link to="/farmer-dashboard" className="hover:underline">Farmer Hub</Link>
             <ChevronRight size={12} className="text-slate-400" />
-            <span className="text-slate-400 flex items-center gap-1"><ListOrdered size={12}/> Global Registry</span>
+            <span className="text-slate-400 flex items-center gap-1"><ListOrdered size={12}/> Orders</span>
           </div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-4">
             <button className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-full transition-colors" onClick={() => navigate('/farmer-dashboard')}>
               <ChevronLeft size={20} />
             </button>
-            Transaction Registry
+            My Orders
           </h1>
         </div>
       </div>
@@ -141,7 +141,7 @@ export default function OrderList() {
           <input
             type="text"
             className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#22543d] transition-all text-sm font-semibold text-slate-700 placeholder-slate-400"
-            placeholder="Scan registry by ID or Buyer Alias..."
+            placeholder="Search by Order ID or Buyer Name..."
             value={searchTerm}
             onChange={e => setSearch(e.target.value)}
           />
@@ -164,18 +164,18 @@ export default function OrderList() {
 
       {/* ── RESPONSIVE TABLE CONTAINER ─────────────────────────────────── */}
       <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden relative w-full">
-        <div className="w-full max-w-full overflow-x-auto hide-scrollbar">
-          <table className="w-full min-w-[1000px] text-left border-collapse table-auto">
+        <div className="w-full max-w-full overflow-x-auto">
+          <table className="w-full min-w-[860px] text-left border-collapse">
             <thead>
-              <tr className="bg-[#22543d] text-white uppercase text-xs font-semibold tracking-wider">
-                <th className="px-5 py-4 w-24">ID</th>
-                <th className="px-5 py-4 w-auto">Buyer Ref</th>
-                <th className="px-5 py-4 w-20 text-center">Nodes</th>
-                <th className="px-5 py-4 w-auto text-right">Value (DZD)</th>
-                <th className="px-5 py-4 w-40">State</th>
-                <th className="px-5 py-4 w-40">Logistics</th>
-                <th className="px-5 py-4 w-32 text-center">Date</th>
-                <th className="px-5 py-4 w-20 text-right">Access</th>
+              <tr className="bg-[#22543d] text-emerald-100 uppercase text-[10px] font-black tracking-widest">
+                <th className="px-4 py-3 w-24">Order</th>
+                <th className="px-4 py-3">Buyer</th>
+                <th className="px-4 py-3 w-16 text-center">Items</th>
+                <th className="px-4 py-3 w-32 text-right">Total (DZD)</th>
+                <th className="px-4 py-3 w-32">Status</th>
+                <th className="px-4 py-3 w-32">Delivery</th>
+                <th className="px-4 py-3 w-28 text-center">Date</th>
+                <th className="px-4 py-3 w-24 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -186,41 +186,43 @@ export default function OrderList() {
                       <div className="w-16 h-16 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center mb-4">
                         <ListOrdered size={32} className="text-slate-300" />
                       </div>
-                      <h2 className="text-lg font-black text-slate-800 mb-1">No Transactions</h2>
-                      <p className="text-slate-500 text-sm font-medium">Zero registry matches found.</p>
+                      <h2 className="text-lg font-black text-slate-800 mb-1">No Orders</h2>
+                      <p className="text-slate-500 text-sm font-medium">No orders match your search.</p>
                     </div>
                   </td>
                 </tr>
               ) : filteredOrders.map(o => (
                 <React.Fragment key={o.id}>
-                  <tr className="bg-white even:bg-slate-50 hover:bg-emerald-50/50 transition-colors group cursor-pointer border-b border-slate-100 last:border-b-0" onClick={() => setExpanded(expandedRow === o.id ? null : o.id)}>
-                    <td className="px-5 py-4">
-                      <div className="font-semibold text-[#22543d] text-sm whitespace-nowrap">#{fmtNum(o)}</div>
+                  <tr className="bg-white hover:bg-emerald-50/40 transition-colors group cursor-pointer border-b border-slate-100 last:border-b-0" onClick={() => setExpanded(expandedRow === o.id ? null : o.id)}>
+                    <td className="px-4 py-3">
+                      <span className="font-black text-[#22543d] text-xs">#{fmtNum(o)}</span>
                     </td>
-                    <td className="px-5 py-4 flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-xs uppercase shrink-0 shadow-sm border border-slate-300">
-                        {o.buyer_name?.charAt(0) || 'U'}
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-7 h-7 rounded-full bg-[#22543d]/10 text-[#22543d] flex items-center justify-center font-black text-xs shrink-0 border border-[#22543d]/20">
+                          {o.buyer_name?.charAt(0) || 'U'}
+                        </div>
+                        <span className="font-semibold text-xs text-slate-700 truncate max-w-[140px]">{o.buyer_name}</span>
                       </div>
-                      <span className="font-medium text-sm text-slate-700">{o.buyer_name}</span>
                     </td>
-                    <td className="px-5 py-4 text-center">
-                      <span className="text-slate-600 text-sm font-semibold bg-white/50 px-2.5 py-1 rounded-md border border-slate-200">{o.items?.length || 0}</span>
+                    <td className="px-4 py-3 text-center">
+                      <span className="text-slate-600 text-xs font-bold bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">{o.items?.length || 0}</span>
                     </td>
-                    <td className="px-5 py-4 text-right">
-                      <span className="font-semibold text-slate-700 text-sm whitespace-nowrap">{String(o.farmer_total || o.total_price || 0)}</span>
+                    <td className="px-4 py-3 text-right">
+                      <span className="font-bold text-slate-800 text-xs whitespace-nowrap">{Number(o.farmer_total || o.total_price || 0).toLocaleString()}</span>
                     </td>
-                    <td className="px-5 py-4"><OrderStatusBadge status={o.status} /></td>
-                    <td className="px-5 py-4"><DeliveryBadge order={o} /></td>
-                    <td className="px-5 py-4 text-xs text-center font-medium text-slate-500 whitespace-nowrap">
+                    <td className="px-4 py-3"><OrderStatusBadge status={o.status} /></td>
+                    <td className="px-4 py-3"><DeliveryBadge order={o} /></td>
+                    <td className="px-4 py-3 text-[10px] text-center font-semibold text-slate-400 whitespace-nowrap">
                       {new Date(o.created_at).toLocaleDateString('en-GB')}
                     </td>
-                    <td className="px-5 py-4 text-right" onClick={(e) => e.stopPropagation()}>
+                    <td className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                       <div className="flex gap-1.5 justify-end">
                         {o.status?.toUpperCase() === 'PENDING' && (
                           <>
                             <button
                               className="w-7 h-7 flex items-center justify-center bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white border border-emerald-200 hover:border-emerald-500 rounded-lg transition-all shadow-sm transform hover:scale-110"
-                              title="Resolve"
+                              title="Confirm"
                               onClick={() => handleAction(o.id, 'confirm')}
                               disabled={actionLoading === o.id + '_confirm'}
                             >
@@ -264,7 +266,7 @@ export default function OrderList() {
 
                             <div className="p-6">
                               <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#22543d] mb-4 pb-2 border-b border-slate-200 border-dashed">
-                                <Package size={14} /> Payload Schema
+                                <Package size={14} /> Order Items
                               </div>
                               <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
                                 <table className="w-full text-left border-collapse table-fixed text-xs">
@@ -272,7 +274,7 @@ export default function OrderList() {
                                     <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-[9px] font-black tracking-widest">
                                       <th className="px-3 py-2 w-1/2 truncate">Identifier</th>
                                       <th className="px-3 py-2 w-1/4 text-center truncate">Vol</th>
-                                      <th className="px-3 py-2 w-1/4 text-right truncate">Net Value</th>
+                                      <th className="px-3 py-2 w-1/4 text-right truncate">Net Total</th>
                                     </tr>
                                   </thead>
                                   <tbody className="divide-y divide-slate-100">
@@ -293,15 +295,15 @@ export default function OrderList() {
 
                             <div className="p-6 bg-white">
                               <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#22543d] mb-4 pb-2 border-b border-slate-200 border-dashed">
-                                <User size={14} /> Vector Intel & Economy
+                                <User size={14} /> Delivery & Totals
                               </div>
                               <div className="space-y-2 mb-6">
                                 <div className="flex justify-between items-center bg-slate-50 px-3 py-2 rounded-lg border border-slate-100">
-                                  <span className="text-xs font-bold text-slate-500">Comm Link:</span>
+                                  <span className="text-xs font-bold text-slate-500">Phone:</span>
                                   <span className="text-xs font-black text-slate-800 truncate pl-2">{o.buyer_phone || 'UNAVAILABLE'}</span>
                                 </div>
                                 <div className="flex justify-between items-center bg-slate-50 px-3 py-2 rounded-lg border border-slate-100">
-                                  <span className="text-xs font-bold text-slate-500">Destination:</span>
+                                  <span className="text-xs font-bold text-slate-500">Delivery Address:</span>
                                   <span className="text-[10px] font-extrabold text-slate-800 text-right truncate max-w-[60%]">
                                     {o.wilaya && <span className="text-[#22543d] mr-1">{o.wilaya} /</span>}
                                     {o.delivery_address}
@@ -311,20 +313,20 @@ export default function OrderList() {
 
                               <div className="bg-slate-900 text-white p-4 rounded-xl shadow-md border border-slate-800">
                                 <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-slate-400 mb-3 border-b border-white/5 pb-2">
-                                  <span>Economic Breakdown</span>
+                                  <span>Order Totals</span>
                                   <span className="text-emerald-400">DZD (Net)</span>
                                 </div>
                                 <div className="space-y-2">
                                   <div className="flex justify-between items-center text-xs font-bold">
-                                    <span className="text-slate-400">Merchandise Subtotal</span>
+                                    <span className="text-slate-400">Subtotal</span>
                                     <span>{parseFloat(o.order_subtotal || 0).toLocaleString()}</span>
                                   </div>
                                   <div className="flex justify-between items-center text-xs font-bold">
-                                    <span className="text-slate-400">Transport Logistics</span>
+                                    <span className="text-slate-400">Transport Fee</span>
                                     <span className="text-indigo-300">+{parseFloat(o.transport_fee || 0).toLocaleString()}</span>
                                   </div>
                                   <div className="flex justify-between items-center pt-2 border-t border-white/10 mt-1">
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Gross Total</span>
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Total</span>
                                     <span className="text-lg font-black text-emerald-400">{(parseFloat(o.order_subtotal || 0) + parseFloat(o.transport_fee || 0)).toLocaleString()}</span>
                                   </div>
                                 </div>
@@ -337,11 +339,11 @@ export default function OrderList() {
                                         className="w-full flex items-center justify-center gap-2 bg-[#22543d] hover:bg-[#1a402e] text-white py-2.5 rounded-lg text-xs font-extrabold shadow-md transition-transform hover:-translate-y-0.5"
                                         onClick={() => navigate(`/farmer/orders/${o.id}/request-delivery`)}
                                       >
-                                        <Truck size={14} strokeWidth={2.5} /> Deploy Transporter
+                                        <Truck size={14} strokeWidth={2.5} /> Request Delivery
                                       </button>
                                     ) : (
                                       <div className="w-full flex items-center justify-center gap-2 bg-emerald-50 text-emerald-700 py-2.5 rounded-lg text-xs font-black border border-emerald-200">
-                                        <CheckCircle size={14} /> Logistics Linked
+                                        <CheckCircle size={14} /> Delivery Requested
                                       </div>
                                     )}
                                   </div>
@@ -352,27 +354,27 @@ export default function OrderList() {
                                       <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform"><ShieldAlert size={48} /></div>
                                       <div className="flex items-center gap-2 text-rose-600 mb-4 border-b border-rose-100 pb-3">
                                          <ShieldAlert size={16} />
-                                         <h6 className="font-black text-[10px] uppercase tracking-widest m-0">Refusal Intelligence</h6>
+                                         <h6 className="font-black text-[10px] uppercase tracking-widest m-0">Refusal Reason</h6>
                                       </div>
                                       <div className="space-y-4 relative z-10">
                                          <div className="flex flex-col gap-1">
-                                            <span className="text-[9px] font-black text-rose-400 uppercase">Primary Discrepancy</span>
+                                            <span className="text-[9px] font-black text-rose-400 uppercase">Reason</span>
                                             <div className="text-[11px] font-black text-rose-900 border-l-2 border-rose-300 pl-3 py-1 bg-white/40">{o.refusal_reason}</div>
                                          </div>
                                          {o.refusal_note && (
                                             <div className="flex flex-col gap-1">
-                                               <span className="text-[9px] font-black text-rose-400 uppercase">Field Observations</span>
+                                               <span className="text-[9px] font-black text-rose-400 uppercase">Note</span>
                                                <p className="text-[10px] text-rose-800 font-medium italic leading-snug bg-white/40 p-2 rounded-lg border border-rose-100">"{o.refusal_note}"</p>
                                             </div>
                                          )}
                                          <div className="pt-2 flex flex-col gap-2">
                                             <div className="flex justify-between items-center text-[9px]">
-                                               <span className="font-bold text-rose-400 uppercase">Logged At:</span>
+                                               <span className="font-bold text-rose-400 uppercase">Refused On:</span>
                                                <span className="font-black text-rose-700">{new Date(o.refused_at).toLocaleString()}</span>
                                             </div>
                                             {o.returned_at && (
                                               <div className="flex justify-between items-center text-[9px]">
-                                                 <span className="font-bold text-emerald-500 uppercase">Finalized At:</span>
+                                                 <span className="font-bold text-emerald-500 uppercase">Returned On:</span>
                                                  <span className="font-black text-emerald-700">{new Date(o.returned_at).toLocaleString()}</span>
                                               </div>
                                             )}
@@ -385,11 +387,11 @@ export default function OrderList() {
                                   <div className="mt-4 bg-slate-50 border border-slate-200 p-4 rounded-xl relative overflow-hidden group">
                                     <div className="absolute top-0 right-0 p-3 opacity-5 group-hover:scale-110 transition-transform"><ShieldAlert size={48} /></div>
                                     <div className="flex items-center gap-1.5 text-[10px] font-black uppercase text-[#22543d] tracking-widest mb-2">
-                                      <CheckCircle size={12} /> POD Handover Log
+                                      <CheckCircle size={12} /> Proof of Delivery
                                     </div>
                                     <div className="space-y-1 relative z-10 text-xs">
                                       <div className="flex justify-between items-center">
-                                        <span className="font-bold text-slate-500">Signatory:</span> 
+                                        <span className="font-bold text-slate-500">Signed By:</span> 
                                         <span className="font-black text-slate-800 truncate pl-2">{o.delivery_request.pod_recipient_name}</span>
                                       </div>
                                       <div className="font-bold text-slate-400 text-[10px] text-right">
@@ -400,12 +402,12 @@ export default function OrderList() {
                                 )}
 
                                 <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between gap-2">
-                                  <span className="text-[9px] font-black tracking-widest uppercase text-slate-400">Encountered Anomaly?</span>
+                                  <span className="text-[9px] font-black tracking-widest uppercase text-slate-400">Have a problem?</span>
                                   <Link
                                     to={`/complaints/new?order_id=${o.id}&type=PAYMENT`}
                                     className="flex items-center justify-center gap-1.5 text-[10px] font-black text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors rounded-lg px-3 py-1.5"
                                   >
-                                    <ShieldAlert size={12} /> Grievance API
+                                    <ShieldAlert size={12} /> File Complaint
                                   </Link>
                                 </div>
                               </div>

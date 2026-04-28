@@ -159,7 +159,7 @@ const DeliveryStatusBadge = ({ o }) => {
 
 /* ─── Filter tabs ─────────────────────────────────────────── */
 const FILTER_TABS = [
-  { key: 'all',       label: 'All Log' },
+  { key: 'all',       label: 'All' },
   { key: 'pending',   label: 'Pending' },
   { key: 'confirmed', label: 'Confirmed' },
   { key: 'returned',  label: 'Returned' },
@@ -207,10 +207,10 @@ function OrderHistory() {
           <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-blue-600 mb-2">
             <Link to="/buyer-dashboard" className="hover:underline hover:text-blue-800 transition-colors">Marketplace</Link>
             <ChevronRight size={10} className="text-slate-400" />
-            <span className="text-slate-400 flex items-center gap-1"><ClipboardList size={10}/> Order Log</span>
+            <span className="text-slate-400 flex items-center gap-1"><ClipboardList size={10}/> Orders</span>
           </div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-            <ClipboardList size={20} className="text-blue-600" strokeWidth={2.5} /> Master Logistics
+            <ClipboardList size={20} className="text-blue-600" strokeWidth={2.5} /> My Orders
           </h1>
         </div>
         <Link to="/buyer-dashboard/invoices" className="flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest transition-all shadow-[0_4px_10px_rgba(0,0,0,0.1)] active:scale-95">
@@ -239,7 +239,7 @@ function OrderHistory() {
       {loading ? (
         <div className="flex flex-col items-center justify-center min-h-[40vh] gap-3">
           <div className="w-8 h-8 rounded-full border-4 border-slate-200 border-t-blue-600 animate-spin" />
-          <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest animate-pulse">Scanning ledgers...</span>
+          <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest animate-pulse">Loading orders...</span>
         </div>
       ) : (
         <div className="w-full">
@@ -248,16 +248,16 @@ function OrderHistory() {
               <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
                 <ShoppingBag size={32} className="text-slate-300" />
               </div>
-              <h4 className="text-sm font-black text-slate-800 mb-1">No trace data available</h4>
+              <h4 className="text-sm font-black text-slate-800 mb-1">No orders found</h4>
               <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-6">
-                {activeFilter === 'all' ? "Your logistics ledger is empty." : `Zero nodes match status [${activeFilter}].`}
+                {activeFilter === 'all' ? "You have not placed any orders yet." : `No orders match filter [${activeFilter}].`}
               </p>
               {activeFilter !== 'all' ? (
                 <button className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest flex items-center gap-1 transition-colors" onClick={() => setActiveFilter('all')}>
                   <RefreshCw size={12} className="text-slate-400" /> Reset Filter
                 </button>
               ) : (
-                <Link to="/buyer-dashboard" className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest shadow-[0_4px_10px_rgba(37,99,235,0.2)] transition-all">Browse Map</Link>
+                <Link to="/buyer-dashboard" className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest shadow-[0_4px_10px_rgba(37,99,235,0.2)] transition-all">Browse Products</Link>
               )}
             </div>
           ) : (
@@ -265,12 +265,12 @@ function OrderHistory() {
               <div className="w-full overflow-x-auto">
                 <table className="w-full text-left border-collapse table-auto">
                   <thead>
-                     <tr className="bg-slate-900 text-white uppercase text-[8px] font-black tracking-widest">
-                       <th className="px-3 py-2 w-28 border-b border-slate-800">Route Ref</th>
-                       <th className="px-3 py-2 w-24 border-b border-slate-800 hidden sm:table-cell">Auth Date</th>
+                     <tr className="bg-indigo-700 text-indigo-100 uppercase text-[8px] font-black tracking-widest">
+                       <th className="px-3 py-2 w-28 border-b border-slate-800">Order</th>
+                       <th className="px-3 py-2 w-24 border-b border-slate-800 hidden sm:table-cell">Date</th>
                        <th className="px-3 py-2 w-48 border-b border-slate-800 hidden md:table-cell">Payload</th>
                        <th className="px-3 py-2 border-b border-slate-800 text-right">Value (DZD)</th>
-                       <th className="px-3 py-2 border-b border-slate-800 text-center">Node State</th>
+                       <th className="px-3 py-2 border-b border-slate-800 text-center">Status</th>
                        <th className="px-3 py-2 border-b border-slate-800 text-center">Logistics</th>
                        <th className="px-3 py-2 w-12 border-b border-slate-800 text-right">Ext</th>
                      </tr>
@@ -328,7 +328,7 @@ function OrderHistory() {
                                    <div className="flex items-center justify-between mb-4">
                                       <div className="flex items-center gap-2">
                                          <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shadow-inner"><RefreshCw size={16} /></div>
-                                         <h3 className="font-black text-xs uppercase tracking-widest m-0">Live Flux Tracker</h3>
+                                         <h3 className="font-black text-xs uppercase tracking-widest m-0">Delivery Progress</h3>
                                       </div>
                                       <FarmerStatusBadge status={o.status} />
                                    </div>
@@ -343,9 +343,9 @@ function OrderHistory() {
                                         <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
                                           <div className="flex items-center gap-2">
                                             <Package size={18} className="text-blue-600" />
-                                            <h6 className="font-black text-xs uppercase tracking-widest m-0">Asset Payload Matrix</h6>
+                                            <h6 className="font-black text-xs uppercase tracking-widest m-0">Order Items</h6>
                                           </div>
-                                          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter bg-slate-50 px-2 py-1 rounded">{o.items?.length} Discrete Nodes</div>
+                                          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter bg-slate-50 px-2 py-1 rounded">{o.items?.length} items</div>
                                         </div>
 
                                         <div className="space-y-3 mb-6">
@@ -398,7 +398,7 @@ function OrderHistory() {
 
                                                <div className="flex justify-between items-end pt-3 border-t border-white/10">
                                                   <div>
-                                                     <div className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Financial Settlement</div>
+                                                     <div className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Total</div>
                                                      <div className="text-3xl font-black text-white tracking-tighter">{parseFloat(o.total_price).toLocaleString()} <span className="text-xs text-slate-500 uppercase">DZD</span></div>
                                                   </div>
                                                   {o.delivery_status?.toUpperCase() === 'DELIVERED' && (
@@ -406,7 +406,7 @@ function OrderHistory() {
                                                       to={`/buyer-dashboard/invoices/${o.id}`}
                                                       className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all backdrop-blur-sm border border-white/10"
                                                     >
-                                                      Invoice Portal
+                                                      View Invoice
                                                     </Link>
                                                   )}
                                                </div>
@@ -425,7 +425,7 @@ function OrderHistory() {
                                         </div>
                                         <div className="space-y-4">
                                            <div className="flex flex-col gap-1 text-[11px]">
-                                              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Authorized Target</span>
+                                              <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Delivery Address</span>
                                               <div className="font-bold text-slate-800 leading-tight bg-slate-50 p-3 rounded-xl border border-slate-100 italic">
                                                 {o.delivery_address}{o.wilaya ? `, ${o.wilaya}` : ''}
                                               </div>
@@ -498,8 +498,8 @@ function OrderHistory() {
                                      {o.status === 'PENDING' && (
                                         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-center">
                                            <Clock size={32} className="text-amber-500 mx-auto mb-3" />
-                                           <h6 className="font-black text-xs uppercase tracking-widest text-amber-800 mb-2">Pending Supplier Auth</h6>
-                                           <p className="text-[10px] text-amber-700 font-medium mb-4 leading-normal">The supplier has not yet verified this transaction. You may abort the sequence to restore credits instantly.</p>
+                                           <h6 className="font-black text-xs uppercase tracking-widest text-amber-800 mb-2">Awaiting Confirmation</h6>
+                                           <p className="text-[10px] text-amber-700 font-medium mb-4 leading-normal">The farmer has not yet confirmed this order. You may cancel it now to restore your stock.</p>
                                            <button 
                                              onClick={async () => {
                                                if(!window.confirm("Abort this transaction? Stock will be restored automatically.")) return;
@@ -507,7 +507,7 @@ function OrderHistory() {
                                              }}
                                              className="w-full bg-amber-600 hover:bg-amber-500 text-white py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-md transition-all active:scale-95"
                                            >
-                                             Abort Sequence
+                                             Cancel Order
                                            </button>
                                         </div>
                                      )}
@@ -516,7 +516,7 @@ function OrderHistory() {
                                      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm overflow-hidden flex-1">
                                         <div className="flex items-center gap-2 mb-6 border-b border-slate-50 pb-4">
                                           <Clock size={16} className="text-blue-600" />
-                                          <h6 className="font-black text-xs uppercase tracking-widest m-0">Flux Logs</h6>
+                                          <h6 className="font-black text-xs uppercase tracking-widest m-0">Order Timeline</h6>
                                         </div>
                                         <div className="space-y-6 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[1.5px] before:bg-slate-100">
                                            {o.timeline?.slice().reverse().map((entry, idx) => (

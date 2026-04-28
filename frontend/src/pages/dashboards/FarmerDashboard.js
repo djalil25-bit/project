@@ -45,7 +45,7 @@ export default function FarmerDashboard() {
       icon: <Sprout size={28} strokeWidth={2.5} className="text-white drop-shadow-sm" />,
       bgIconCls: 'bg-emerald-500 shadow-emerald-500/30',
       value: stats.my_products_count,
-      label: 'Active Listings',
+      label: 'Active Products',
       micro: 'Products on marketplace',
     },
     {
@@ -76,46 +76,46 @@ export default function FarmerDashboard() {
     <div className="max-w-7xl mx-auto px-4 py-8 space-y-8 animate-fade-in relative z-0">
 
       {/* ── HERO WIDGET ───────────────────────────────────────────────── */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-[#22543d] via-[#1a402e] to-slate-900 rounded-3xl shadow-[0_20px_50px_rgba(34,84,61,0.35)] text-white p-6 lg:p-8 border border-white/10">
-        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-10 w-48 h-48 bg-[#22543d] rounded-full blur-2xl opacity-50 pointer-events-none" />
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#22543d] via-[#1a402e] to-slate-900 rounded-2xl shadow-[0_12px_30px_rgba(34,84,61,0.25)] text-white p-5 lg:p-6 border border-white/10">
+        <div className="absolute top-0 right-0 -mr-12 -mt-12 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-8 w-36 h-36 bg-[#22543d] rounded-full blur-2xl opacity-40 pointer-events-none" />
         
-        <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/20 border border-emerald-400/30 rounded-full text-emerald-300 text-xs font-bold uppercase tracking-wider mb-5 backdrop-blur-sm">
-              <BadgeCheck size={14} /> Certified Producer Workspace
+        <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-emerald-500/20 border border-emerald-400/30 rounded-full text-emerald-300 text-[10px] font-bold uppercase tracking-wider mb-3 backdrop-blur-sm">
+              <BadgeCheck size={12} /> Certified Producer Workspace
             </div>
-            <h1 className="text-4xl sm:text-5xl font-black text-white mb-4 tracking-tight drop-shadow-md">
+            <h1 className="text-2xl sm:text-3xl font-black text-white mb-2 tracking-tight drop-shadow-md">
               Welcome back, Farmer.
             </h1>
-            <p className="text-slate-300 text-lg sm:text-xl font-medium leading-relaxed mb-8 max-w-2xl">
-              Manage your agricultural operations, track your sales directly with buyers, and optimize your listings based on official Ministry data.
+            <p className="text-slate-300 text-sm font-medium leading-relaxed mb-4 max-w-xl">
+              Manage your agricultural operations, track your sales directly with buyers, and optimize your products based on official Ministry data.
             </p>
             
             {/* Quick Actions Strip inside Hero */}
-            <div className="flex flex-wrap gap-4">
-              <button onClick={() => navigate('/farmer-dashboard/product/new')} className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl font-extrabold shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all transform hover:-translate-y-1 hover:scale-105 active:scale-95 duration-300">
-                <Plus size={18} strokeWidth={3} /> Add New Listing
+            <div className="flex flex-wrap gap-3">
+              <button onClick={() => navigate('/farmer-dashboard/product/new')} className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-white rounded-lg font-extrabold text-sm shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all transform hover:-translate-y-0.5 hover:scale-105 active:scale-95 duration-200">
+                <Plus size={16} strokeWidth={3} /> Add New Product
               </button>
-              <button onClick={() => navigate('/farmer-dashboard/stats')} className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl font-extrabold backdrop-blur-md transition-all transform hover:-translate-y-1 hover:scale-105 active:scale-95 duration-300">
-                <TrendingUp size={18} strokeWidth={3} /> View Analytics
+              <button onClick={() => navigate('/farmer-dashboard/stats')} className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg font-extrabold text-sm backdrop-blur-md transition-all transform hover:-translate-y-0.5 hover:scale-105 active:scale-95 duration-200">
+                <TrendingUp size={16} strokeWidth={3} /> View Analytics
               </button>
             </div>
           </div>
 
           {/* Intelligence Column */}
-          <div className="w-full lg:w-80 bg-white/5 border border-white/10 backdrop-blur-xl rounded-3xl p-6 shadow-2xl shrink-0 group hover:bg-white/10 transition-colors duration-500">
-            <h3 className="text-sm font-black text-emerald-400 uppercase tracking-widest mb-4 flex items-center gap-2 border-b border-white/10 pb-3">
-              <CloudSun size={18} strokeWidth={2.5} /> Market Intel
+          <div className="w-full lg:w-64 bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl p-4 shadow-xl shrink-0 group hover:bg-white/10 transition-colors duration-500">
+            <h3 className="text-xs font-black text-emerald-400 uppercase tracking-widest mb-3 flex items-center gap-2 border-b border-white/10 pb-2">
+              <CloudSun size={14} strokeWidth={2.5} /> Market Intel
             </h3>
-            <div className="space-y-4">
-               <div className="flex items-center justify-between bg-black/20 p-3 rounded-xl border border-white/5">
-                <span className="text-sm text-slate-300 font-bold">Farm Status</span>
-                <span className="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 text-xs font-black rounded-lg flex items-center gap-1.5 border border-emerald-500/30"><Activity size={12}/> Operational</span>
+            <div className="space-y-2">
+               <div className="flex items-center justify-between bg-black/20 p-2.5 rounded-xl border border-white/5">
+                <span className="text-xs text-slate-300 font-bold">Farm Status</span>
+                <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] font-black rounded-md flex items-center gap-1 border border-emerald-500/30"><Activity size={10}/> Operational</span>
               </div>
-              <div className="flex items-center justify-between bg-black/20 p-3 rounded-xl border border-white/5">
-                <span className="text-sm text-slate-300 font-bold">Market Signal</span>
-                <span className="px-2.5 py-1 bg-amber-500/20 text-amber-300 text-xs font-black rounded-lg flex items-center gap-1.5 border border-amber-500/30"><Target size={12}/> High Demand</span>
+              <div className="flex items-center justify-between bg-black/20 p-2.5 rounded-xl border border-white/5">
+                <span className="text-xs text-slate-300 font-bold">Market Signal</span>
+                <span className="px-2 py-0.5 bg-amber-500/20 text-amber-300 text-[10px] font-black rounded-md flex items-center gap-1 border border-amber-500/30"><Target size={10}/> High Demand</span>
               </div>
             </div>
           </div>
@@ -130,7 +130,7 @@ export default function FarmerDashboard() {
               key={i} 
               className="group flex flex-col justify-between bg-white border border-slate-200 rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(34,84,61,0.08)] hover:border-[#22543d]/30 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] transform hover:-translate-y-2 cursor-pointer relative overflow-hidden"
               onClick={() => {
-                if (k.label === 'Active Listings') navigate('/farmer-dashboard/products');
+                if (k.label === 'Active Products') navigate('/farmer-dashboard/products');
                 if (k.label === 'Pending Orders') navigate('/farmer/orders?status=PENDING');
               }}
             >

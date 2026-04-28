@@ -74,7 +74,7 @@ export default function ProductList() {
   const toggleActive = async (id, cur) => {
     try {
       await api.patch(`/products/${id}/`, { is_active: !cur });
-      showToast(`Listing ${!cur ? 'published' : 'hidden'} successfully!`);
+      showToast(`Product ${!cur ? 'published' : 'hidden'} successfully!`);
       // Update local state instead of full refetch for smoother UX
       setProducts(prev => prev.map(p => p.id === id ? { ...p, is_active: !cur } : p));
     } catch (err) { 
@@ -84,10 +84,10 @@ export default function ProductList() {
   };
 
   const deleteProduct = async (id) => {
-    if (!window.confirm('Delete this listing? This action is permanent.')) return;
+    if (!window.confirm('Delete this product? This action is permanent.')) return;
     try {
       await api.delete(`/products/${id}/`);
-      showToast('Listing purged from ecosystem.');
+      showToast('Product removed successfully.');
       setProducts(prev => prev.filter(p => p.id !== id));
     } catch { 
       showToast('Failed to delete product', 'error');
@@ -115,9 +115,9 @@ export default function ProductList() {
   );
 
   const tabs = [
-    { key: 'ALL',      label: 'All Matrix', count: products.length },
-    { key: 'ACTIVE',   label: 'Published',  count: products.filter(p => p.is_active).length },
-    { key: 'INACTIVE', label: 'Hidden',     count: products.filter(p => !p.is_active).length },
+    { key: 'ALL',      label: 'All Products', count: products.length },
+    { key: 'ACTIVE',   label: 'Published',    count: products.filter(p => p.is_active).length },
+    { key: 'INACTIVE', label: 'Hidden',       count: products.filter(p => !p.is_active).length },
   ];
 
   return (
@@ -139,7 +139,7 @@ export default function ProductList() {
           <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-[#22543d] mb-2">
             <Link to="/farmer-dashboard" className="hover:underline">Farmer Hub</Link>
             <ChevronRight size={12} className="text-slate-400" />
-            <span className="text-slate-400 flex items-center gap-1"><Package size={12}/> My Listings</span>
+            <span className="text-slate-400 flex items-center gap-1"><Package size={12}/> My Products</span>
           </div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">Marketplace Inventory</h1>
         </div>
@@ -147,7 +147,7 @@ export default function ProductList() {
           className="inline-flex items-center justify-center gap-2 bg-[#22543d] hover:bg-[#1a402e] text-white px-5 py-2.5 rounded-xl text-sm font-extrabold shadow-[0_4px_15px_rgba(34,84,61,0.2)] transition-all hover:-translate-y-1 active:scale-95"
           onClick={() => navigate('/farmer-dashboard/product/new')}
         >
-          <Plus size={16} strokeWidth={2.5} /> Inject Listing
+          <Plus size={16} strokeWidth={2.5} /> Add Product
         </button>
       </div>
 
@@ -198,9 +198,9 @@ export default function ProductList() {
         </div>
       </div>
 
-      <div className="text-[10px] font-black text-slate-400 mb-4 px-1 uppercase tracking-widest flex justify-between items-center">
-        <span className="flex items-center gap-2">Matrix Resolution: <span className="text-slate-600">{filtered.length} Object{filtered.length !== 1 ? 's' : ''}</span></span>
-        {searchTerm && <span className="text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-100 flex items-center gap-1.5"><Search size={10} strokeWidth={3}/> Query Engine Active</span>}
+      <div className="text-[10px] font-semibold text-slate-400 mb-3 px-1 flex justify-between items-center">
+        <span>{filtered.length} product{filtered.length !== 1 ? 's' : ''} found</span>
+        {searchTerm && <span className="text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-100 flex items-center gap-1"><Search size={9} strokeWidth={3}/> Filtered</span>}
       </div>
 
       {/* ── ZERO-SCROLL DATA GRID ─────────────────────────────────────────────── */}
@@ -209,7 +209,7 @@ export default function ProductList() {
           <div className="w-20 h-20 bg-slate-50 border border-slate-100 rounded-[2rem] flex items-center justify-center mb-6 shadow-inner text-slate-300">
             <Package size={40} strokeWidth={1.5} />
           </div>
-          <h2 className="text-xl font-black text-slate-800 mb-2 tracking-tight uppercase">Void Sector Detected</h2>
+          <h2 className="text-xl font-black text-slate-800 mb-2 tracking-tight uppercase">No Products Found</h2>
           <p className="text-slate-500 text-sm font-medium mb-8 max-w-xs leading-relaxed">No data parameters in the current registry match your selection criteria.</p>
           {(searchTerm || catFilter || statusFilter !== 'ALL') ? (
             <button className="bg-white border border-slate-200 hover:border-slate-400 text-slate-900 px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-sm active:scale-95" onClick={() => { setSearch(''); setCat(''); setStatus('ALL'); }}>
@@ -217,17 +217,17 @@ export default function ProductList() {
             </button>
           ) : (
             <button className="bg-[#22543d] border border-[#1a402e] text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg hover:bg-[#1a402e] transition-all transform active:scale-95" onClick={() => navigate('/farmer-dashboard/product/new')}>
-              Initialize New Listing
+              Add New Product
             </button>
           )}
         </div>
       ) : (
-        <div className="bg-white border border-slate-200 rounded-[2rem] shadow-[0_15px_40px_rgb(0,0,0,0.04)] overflow-hidden relative w-full">
+        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden relative w-full">
           <div className="w-full max-w-full overflow-x-auto hide-scrollbar">
-            <table className="w-full min-w-[1100px] text-left border-collapse table-fixed">
+          <table className="w-full min-w-[900px] text-left border-collapse table-fixed">
               <thead>
                 <tr className="bg-slate-50/80 text-slate-500 uppercase text-[9px] tracking-widest font-black border-b border-slate-100">
-                  <th className="px-6 py-4 w-72 truncate">Listing Registry</th>
+                  <th className="px-6 py-4 w-72 truncate">Product Registry</th>
                   <th className="px-6 py-4 w-36 truncate">Classification</th>
                   <th className="px-6 py-4 w-44 truncate">Production Origin</th>
                   <th className="px-6 py-4 w-36 truncate text-right">Unit Val (DZD)</th>
@@ -238,80 +238,79 @@ export default function ProductList() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {filtered.map(p => (
-                  <tr key={p.id} className={`hover:bg-slate-50/50 transition-colors group ${!p.is_active ? 'opacity-70 bg-slate-50/30' : ''}`}>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-lg border border-slate-200 overflow-hidden bg-slate-50 shrink-0 flex items-center justify-center shadow-sm">
+                  {filtered.map(p => (
+                  <tr key={p.id} className={`hover:bg-slate-50/60 transition-colors group ${!p.is_active ? 'opacity-60' : ''}`}>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg border border-slate-200 overflow-hidden bg-slate-50 shrink-0 flex items-center justify-center">
                           {p.image ? (
                             <img src={p.image} alt={p.title} className="w-full h-full object-cover" />
                           ) : (
-                            <Leaf size={16} className="text-slate-300" />
+                            <Leaf size={13} className="text-slate-300" />
                           )}
                         </div>
                         <div className="min-w-0">
-                          <div className="font-black text-xs text-slate-900 truncate" title={p.title}>{p.title}</div>
+                          <div className="font-bold text-xs text-slate-900 truncate" title={p.title}>{p.title}</div>
                           <PriceCompBadge comparison={p.official_price_comparison} />
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <span className="inline-block px-2.5 py-1 bg-slate-100 text-slate-600 rounded-lg text-[9px] font-black uppercase tracking-widest border border-slate-200/50 truncate max-w-full">
-                        {p.category_name || 'UNDEF'}
+                    <td className="px-4 py-3">
+                      <span className="inline-block px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-[9px] font-bold uppercase tracking-wide border border-slate-200/50 truncate max-w-full">
+                        {p.category_name || '—'}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
-                      <div className="text-[10px] font-extrabold text-[#22543d] flex items-center gap-1.5 truncate" title={p.farm_name}>
-                        <Home size={10} className="text-emerald-500" /> {p.farm_name || 'GLOBAL'}
+                    <td className="px-4 py-3">
+                      <div className="text-[10px] font-semibold text-[#22543d] flex items-center gap-1 truncate" title={p.farm_name}>
+                        <Home size={9} className="text-emerald-500 shrink-0" /> {p.farm_name || '—'}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="font-black text-slate-900 text-xs truncate w-full tracking-tight">{Number(p.price).toLocaleString()}</div>
-                      <div className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">DZD / {p.unit}</div>
+                    <td className="px-4 py-3 text-right">
+                      <div className="font-black text-slate-900 text-xs">{Number(p.price).toLocaleString()}</div>
+                      <div className="text-[9px] font-bold text-slate-400 uppercase">DZD / {p.unit}</div>
                     </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className={`font-black text-xs flex justify-end items-center gap-1.5 ${p.stock < 10 ? 'text-red-600' : 'text-slate-800'}`}>
-                        {p.stock}
-                        {p.stock < 10 && <AlertCircle size={10} className="animate-pulse" />}
+                    <td className="px-4 py-3 text-right">
+                      <div className={`font-bold text-xs flex justify-end items-center gap-1 ${p.stock < 10 ? 'text-red-600' : 'text-slate-700'}`}>
+                        {p.stock}{p.stock < 10 && <AlertCircle size={9} className="animate-pulse" />}
                       </div>
-                      <div className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter mt-0.5">{p.unit}S</div>
+                      <div className="text-[9px] font-bold text-slate-400 uppercase mt-0.5">{p.unit}s</div>
                     </td>
-                    <td className="px-6 py-4 truncate">
+                    <td className="px-4 py-3">
                       <QualityBadge quality={p.quality} />
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-3">
                       {p.is_active ? (
-                        <div className="inline-flex items-center gap-1.5 text-emerald-600 font-black text-[9px] tracking-widest bg-emerald-50 px-2.5 py-1.5 rounded-lg border border-emerald-100 shadow-sm">
-                          <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" /> PUBLISHED
+                        <div className="inline-flex items-center gap-1 text-emerald-600 font-black text-[9px] tracking-wide bg-emerald-50 px-2 py-1 rounded border border-emerald-100">
+                          <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" /> LIVE
                         </div>
                       ) : (
-                        <div className="inline-flex items-center gap-1.5 text-slate-500 font-black text-[9px] tracking-widest bg-slate-100 px-2.5 py-1.5 rounded-lg border border-slate-200 shadow-sm">
-                          <EyeOff size={10} strokeWidth={3} /> HIDDEN
+                        <div className="inline-flex items-center gap-1 text-slate-500 font-black text-[9px] tracking-wide bg-slate-100 px-2 py-1 rounded border border-slate-200">
+                          <EyeOff size={9} strokeWidth={3} /> HIDDEN
                         </div>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-right pr-6">
-                      <div className="flex gap-2 justify-end">
+                    <td className="px-4 py-3 text-right pr-4">
+                      <div className="flex gap-1.5 justify-end">
                         <button
-                          className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all hover:scale-110 shadow-sm border ${p.is_active ? 'bg-white text-slate-400 border-slate-200 hover:text-amber-500 hover:border-amber-200' : 'bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-200'}`}
-                          title={p.is_active ? 'Hide Listing' : 'Publish Listing'}
+                          className={`w-8 h-8 flex items-center justify-center rounded-lg transition-all hover:scale-105 border ${p.is_active ? 'bg-white text-slate-400 border-slate-200 hover:text-amber-500 hover:border-amber-200' : 'bg-amber-50 text-amber-600 border-amber-200 hover:bg-amber-100'}`}
+                          title={p.is_active ? 'Hide Product' : 'Publish Product'}
                           onClick={() => toggleActive(p.id, p.is_active)}
                         >
-                          {p.is_active ? <EyeOff size={14} strokeWidth={2.5} /> : <Eye size={14} strokeWidth={2.5} />}
+                          {p.is_active ? <EyeOff size={13} strokeWidth={2.5} /> : <Eye size={13} strokeWidth={2.5} />}
                         </button>
                         <button
-                          className="w-9 h-9 flex items-center justify-center bg-white text-emerald-700 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 rounded-xl transition-all hover:scale-110 shadow-sm"
-                          title="Edit Configuration"
+                          className="w-8 h-8 flex items-center justify-center bg-white text-emerald-700 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 rounded-lg transition-all hover:scale-105"
+                          title="Edit Product"
                           onClick={() => navigate(`/farmer-dashboard/product/edit/${p.id}`)}
                         >
-                          <Edit3 size={14} strokeWidth={2.5} />
+                          <Edit3 size={13} strokeWidth={2.5} />
                         </button>
                         <button
-                          className="w-9 h-9 flex items-center justify-center bg-white text-red-400 hover:text-white hover:bg-red-500 border border-slate-200 hover:border-red-500 rounded-xl transition-all hover:scale-110 shadow-sm"
-                          title="Purge Listing"
+                          className="w-8 h-8 flex items-center justify-center bg-white text-red-400 hover:text-white hover:bg-red-500 border border-slate-200 hover:border-red-400 rounded-lg transition-all hover:scale-105"
+                          title="Delete Product"
                           onClick={() => deleteProduct(p.id)}
                         >
-                          <Trash2 size={14} strokeWidth={2.5} />
+                          <Trash2 size={13} strokeWidth={2.5} />
                         </button>
                       </div>
                     </td>

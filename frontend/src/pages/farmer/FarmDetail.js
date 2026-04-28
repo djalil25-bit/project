@@ -205,7 +205,7 @@ export default function FarmDetail() {
             Products on This Farm
           </div>
           <span style={{ fontSize: '0.78rem', color: '#9ca3af', fontWeight: 600 }}>
-            {products.length} listing{products.length !== 1 ? 's' : ''}
+            {products.length} product{products.length !== 1 ? 's' : ''}
           </span>
         </div>
 

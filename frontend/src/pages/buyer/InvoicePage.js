@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import api from '../../api/axiosConfig';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import {
-  FileText, Printer, Download, ChevronRight, Package,
-  MapPin, Calendar, CreditCard, User, Truck, CheckCircle,
+  FileText, Printer, ChevronRight, Package,
+  MapPin, Calendar, CreditCard, CheckCircle,
   ArrowLeft, ShoppingBag
 } from 'lucide-react';
 import QRDisplay from '../../components/common/QRDisplay';
@@ -25,74 +25,82 @@ function InvoiceList() {
   }, []);
 
   if (loading) return (
-    <div className="flex-center py-5">
-      <div className="spinner-agr" />
-      <span className="ms-3 text-muted small">Loading invoices...</span>
+    <div className="flex flex-col items-center justify-center min-h-[40vh] gap-3">
+      <div className="w-9 h-9 rounded-full border-4 border-slate-200 border-t-indigo-600 animate-spin" />
+      <span className="text-xs font-black text-slate-500 uppercase tracking-widest animate-pulse">Loading invoices...</span>
     </div>
   );
 
   return (
-    <div className="invoice-list-page animate-fade-in">
-      <div className="agr-breadcrumb">
-        <Link to="/buyer-dashboard">Marketplace</Link>
-        <span className="agr-breadcrumb-sep"><ChevronRight size={12} /></span>
-        <Link to="/buyer-dashboard/orders">My Orders</Link>
-        <span className="agr-breadcrumb-sep"><ChevronRight size={12} /></span>
-        <span>Invoices</span>
+    <div className="max-w-5xl mx-auto px-4 md:px-8 py-8 animate-fade-in">
+
+      {/* Breadcrumb */}
+      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-indigo-600 mb-5 bg-indigo-50 px-3 py-1 rounded-full w-fit border border-indigo-100 shadow-sm">
+        <Link to="/buyer-dashboard" className="hover:text-indigo-800 transition-colors">Marketplace</Link>
+        <ChevronRight size={10} className="text-indigo-300" />
+        <Link to="/buyer-dashboard/orders" className="hover:text-indigo-800 transition-colors">My Orders</Link>
+        <ChevronRight size={10} className="text-indigo-300" />
+        <span className="text-indigo-900">Invoices</span>
       </div>
 
-      <div className="page-header">
-        <div>
-          <h1 className="page-title d-flex align-items-center">
-            <FileText className="text-primary me-3" size={28} /> My Invoices
-          </h1>
-          <p className="page-subtitle text-muted">Printable invoices for all your completed orders.</p>
-        </div>
+      {/* Header */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+          <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-indigo-600">
+            <FileText size={22} strokeWidth={2.5} />
+          </div>
+          My Invoices
+        </h1>
+        <p className="text-slate-500 font-medium mt-1.5 text-sm">Printable invoices for all your completed orders.</p>
       </div>
 
       {orders.length === 0 ? (
-        <div className="agr-card p-5 text-center mt-4">
-          <ShoppingBag size={64} className="text-muted mb-3 opacity-25" />
-          <h3 className="h4 text-muted">No invoices yet</h3>
-          <p className="small text-muted mb-4">Invoices are generated for orders that have been fully delivered.</p>
-          <Link to="/buyer-dashboard/orders" className="btn-agr btn-primary">View My Orders</Link>
+        <div className="bg-white rounded-2xl border border-dashed border-slate-200 p-12 text-center shadow-sm">
+          <ShoppingBag size={36} className="text-slate-300 mx-auto mb-3" />
+          <h3 className="text-lg font-black text-slate-800 mb-2">No invoices yet</h3>
+          <p className="text-sm text-slate-500 mb-5">Invoices are generated for orders that have been fully delivered.</p>
+          <Link to="/buyer-dashboard/orders" className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-md active:scale-95">
+            View My Orders
+          </Link>
         </div>
       ) : (
-        <div className="agr-card overflow-hidden mt-4">
-          <div className="table-responsive">
-            <table className="agr-table mb-0">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[580px] text-left border-collapse">
               <thead>
-                <tr>
-                  <th>Invoice #</th>
-                  <th>Date</th>
-                  <th>Items</th>
-                  <th className="text-end">Total</th>
-                  <th className="text-end">Actions</th>
+                <tr className="bg-indigo-700 text-indigo-100 uppercase text-[10px] font-black tracking-widest">
+                  <th className="px-4 py-3">Invoice #</th>
+                  <th className="px-4 py-3">Date</th>
+                  <th className="px-4 py-3">Items</th>
+                  <th className="px-4 py-3 text-right">Total</th>
+                  <th className="px-4 py-3 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-slate-100">
                 {orders.map(o => (
-                  <tr key={o.id} className="hover-bg-light">
-                    <td>
-                      <span className="fw-bold text-primary">INV-{o.id.toString().padStart(5, '0')}</span>
-                      <div className="very-small text-muted mt-1">Order #AG-{o.id.toString().padStart(5, '0')}</div>
+                  <tr key={o.id} className="hover:bg-indigo-50/30 transition-colors">
+                    <td className="px-4 py-3">
+                      <div className="font-black text-indigo-600 text-xs">INV-{o.id.toString().padStart(5, '0')}</div>
+                      <div className="text-[10px] text-slate-400 font-medium mt-0.5">Order #AG-{o.id.toString().padStart(5, '0')}</div>
                     </td>
-                    <td>
-                      <div className="d-flex align-items-center">
-                        <Calendar size={13} className="text-muted me-2" />
-                        <span className="small">{new Date(o.created_at).toLocaleDateString()}</span>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-1.5 text-xs text-slate-600 font-semibold">
+                        <Calendar size={12} className="text-slate-400" />
+                        {new Date(o.created_at).toLocaleDateString('en-GB')}
                       </div>
                     </td>
-                    <td>
-                      <div className="small">{o.items?.length} item{o.items?.length !== 1 ? 's' : ''}</div>
+                    <td className="px-4 py-3 text-xs text-slate-600 font-semibold">
+                      {o.items?.length} item{o.items?.length !== 1 ? 's' : ''}
                     </td>
-                    <td className="text-end fw-bold">{parseFloat(o.total_price).toLocaleString()} DZD</td>
-                    <td className="text-end">
+                    <td className="px-4 py-3 text-right font-black text-slate-800 text-xs">
+                      {parseFloat(o.total_price).toLocaleString()} DZD
+                    </td>
+                    <td className="px-4 py-3 text-right">
                       <button
-                        className="btn-agr btn-primary btn-sm d-inline-flex align-items-center gap-1"
+                        className="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-widest transition-all shadow-sm active:scale-95"
                         onClick={() => navigate(`/buyer-dashboard/invoices/${o.id}`)}
                       >
-                        <FileText size={14} /> View
+                        <FileText size={12} /> View
                       </button>
                     </td>
                   </tr>
@@ -129,17 +137,17 @@ function InvoiceDetail() {
   };
 
   if (loading) return (
-    <div className="flex-center py-5">
-      <div className="spinner-agr" />
-      <span className="ms-3 text-muted small">Loading invoice...</span>
+    <div className="flex flex-col items-center justify-center min-h-[40vh] gap-3">
+      <div className="w-9 h-9 rounded-full border-4 border-slate-200 border-t-indigo-600 animate-spin" />
+      <span className="text-xs font-black text-slate-500 uppercase tracking-widest animate-pulse">Loading invoice...</span>
     </div>
   );
 
   if (!order) return (
-    <div className="agr-card p-5 text-center">
-      <FileText size={48} className="text-muted mb-3 opacity-25" />
-      <p className="text-muted">Invoice not found.</p>
-      <button className="btn-agr btn-primary" onClick={() => navigate(-1)}>Go Back</button>
+    <div className="max-w-lg mx-auto px-4 py-20 text-center">
+      <FileText size={40} className="text-slate-300 mx-auto mb-3" />
+      <p className="text-slate-500 text-sm mb-4">Invoice not found.</p>
+      <button className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-md active:scale-95" onClick={() => navigate(-1)}>Go Back</button>
     </div>
   );
 
@@ -147,74 +155,82 @@ function InvoiceDetail() {
   const orderNum   = `#AG-${order.id.toString().padStart(5, '0')}`;
 
   return (
-    <div className="invoice-detail-page animate-fade-in">
-      {/* Toolbar (hidden on print) */}
-      <div className="invoice-toolbar no-print d-flex justify-content-between align-items-center mb-4">
-        <button className="btn-agr btn-outline d-flex align-items-center gap-2" onClick={() => navigate(-1)}>
-          <ArrowLeft size={16} /> Back to Invoices
+    <div className="max-w-4xl mx-auto px-4 md:px-8 py-8 animate-fade-in">
+
+      {/* Toolbar */}
+      <div className="no-print flex justify-between items-center mb-5">
+        <button
+          className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-xl font-black text-xs uppercase tracking-widest border border-slate-200 shadow-sm transition-all active:scale-95"
+          onClick={() => navigate(-1)}
+        >
+          <ArrowLeft size={14} /> Back
         </button>
-        <div className="d-flex gap-2">
-          <button className="btn-agr btn-outline d-flex align-items-center gap-2" onClick={handlePrint}>
-            <Printer size={16} /> Print
-          </button>
-        </div>
+        <button
+          className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-95"
+          onClick={handlePrint}
+        >
+          <Printer size={14} /> Print Invoice
+        </button>
       </div>
 
       {/* Invoice Body */}
-      <div className="invoice-card agr-card p-5" ref={printRef} id="invoice-print">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 md:p-8" ref={printRef} id="invoice-print">
+
         {/* Header */}
-        <div className="d-flex justify-content-between align-items-start mb-5">
+        <div className="flex justify-between items-start mb-7 pb-5 border-b border-slate-100">
           <div>
-            <div className="d-flex align-items-center gap-2 mb-2">
-              <Package size={28} className="text-primary" />
-              <span className="h4 fw-bold text-primary mb-0">AgriGov Market</span>
+            <div className="flex items-center gap-2 mb-1">
+              <Package size={22} className="text-indigo-600" />
+              <span className="text-lg font-black text-indigo-700">AgriGov Market</span>
             </div>
-            <div className="text-muted small">Direct Farm-to-Consumer Marketplace</div>
+            <div className="text-xs text-slate-400 font-medium">Direct Farm-to-Consumer Marketplace</div>
           </div>
-          <div className="text-end d-flex gap-4 align-items-start">
+          <div className="text-right flex gap-5 items-start">
             <div className="no-print">
-               <QRDisplay value={`AG-INV-${order.id}`} size={80} title="Verify" />
+              <QRDisplay value={`AG-INV-${order.id}`} size={70} title="Verify" />
             </div>
             <div>
-              <div className="h3 fw-bold text-dark mb-1">{invoiceNum}</div>
-              <span className="inline-badge badge-status-delivered"><CheckCircle size={11} className="me-1" />DELIVERED</span>
-              <div className="very-small text-muted mt-2">Order Ref: {orderNum}</div>
-              <div className="very-small text-muted">{new Date(order.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</div>
+              <div className="text-2xl font-black text-slate-900 mb-1">{invoiceNum}</div>
+              <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-200">
+                <CheckCircle size={10} /> Delivered
+              </span>
+              <div className="text-[10px] text-slate-400 font-medium mt-2">Order Ref: {orderNum}</div>
+              <div className="text-[10px] text-slate-400 font-medium">{new Date(order.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</div>
             </div>
           </div>
         </div>
 
         {/* Buyer & Delivery Info */}
-        <div className="row g-4 mb-5">
-          <div className="col-md-6">
-            <div className="invoice-section-title">Bill To</div>
-            <div className="fw-bold">{order.buyer_name}</div>
-            <div className="small text-muted">{order.buyer_email}</div>
-            {order.buyer_phone && <div className="small text-muted">{order.buyer_phone}</div>}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+          <div>
+            <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Bill To</div>
+            <div className="font-black text-slate-800 text-sm">{order.buyer_name}</div>
+            <div className="text-xs text-slate-500 font-medium">{order.buyer_email}</div>
+            {order.buyer_phone && <div className="text-xs text-slate-500 font-medium">{order.buyer_phone}</div>}
           </div>
-          <div className="col-md-6">
-            <div className="invoice-section-title">Delivery Address</div>
-            <div className="small d-flex align-items-start">
-              <MapPin size={13} className="text-danger me-1 mt-1 flex-shrink-0" />
+          <div>
+            <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Delivery Address</div>
+            <div className="text-xs text-slate-600 font-medium flex items-start gap-1.5">
+              <MapPin size={12} className="text-rose-500 shrink-0 mt-0.5" />
               <span>{order.delivery_address}{order.wilaya ? `, ${order.wilaya}` : ''}</span>
             </div>
-            <div className="very-small text-muted mt-1 d-flex align-items-center">
-              <CreditCard size={11} className="me-1" />
+            <div className="text-xs text-slate-500 font-medium mt-1 flex items-center gap-1">
+              <CreditCard size={11} className="text-slate-400" />
               {order.payment_method?.replace(/_/g, ' ') || 'Cash on Delivery'}
             </div>
           </div>
         </div>
 
         {/* Items Table */}
-        <div className="invoice-items-table mb-4">
-          <table className="w-100" style={{ borderCollapse: 'collapse' }}>
+        <div className="mb-5 overflow-x-auto">
+          <table className="w-full min-w-[500px] text-left border-collapse">
             <thead>
-              <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
-                <th className="py-2 text-left very-small text-muted text-uppercase" style={{ width: '40%' }}>Product</th>
-                <th className="py-2 text-left very-small text-muted text-uppercase" style={{ width: '20%' }}>Farmer</th>
-                <th className="py-2 text-right very-small text-muted text-uppercase" style={{ width: '12%' }}>Qty</th>
-                <th className="py-2 text-right very-small text-muted text-uppercase" style={{ width: '14%' }}>Unit Price</th>
-                <th className="py-2 text-right very-small text-muted text-uppercase" style={{ width: '14%' }}>Subtotal</th>
+              <tr className="border-b-2 border-slate-200">
+                <th className="pb-2 text-left text-[10px] text-slate-400 uppercase tracking-widest font-black w-[38%]">Product</th>
+                <th className="pb-2 text-left text-[10px] text-slate-400 uppercase tracking-widest font-black w-[20%]">Farmer</th>
+                <th className="pb-2 text-right text-[10px] text-slate-400 uppercase tracking-widest font-black w-[12%]">Qty</th>
+                <th className="pb-2 text-right text-[10px] text-slate-400 uppercase tracking-widest font-black w-[15%]">Unit Price</th>
+                <th className="pb-2 text-right text-[10px] text-slate-400 uppercase tracking-widest font-black w-[15%]">Subtotal</th>
               </tr>
             </thead>
             <tbody>
@@ -225,20 +241,20 @@ function InvoiceDetail() {
                 const qty       = parseFloat(item.quantity || 0);
                 const sub       = unitPrice * qty;
                 return (
-                  <tr key={item.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                  <tr key={item.id} className="border-b border-slate-100">
                     <td className="py-3">
-                      <div className="fw-bold small">{name}</div>
+                      <div className="font-black text-xs text-slate-800">{name}</div>
                       {item.product_detail?.category_name && (
-                        <div className="very-small text-muted">{item.product_detail.category_name}</div>
+                        <div className="text-[10px] text-slate-400 font-medium">{item.product_detail.category_name}</div>
                       )}
                     </td>
                     <td className="py-3">
-                      <div className="small">{item.farmer_name || '—'}</div>
-                      {item.farm_name && <div className="very-small text-muted">{item.farm_name}</div>}
+                      <div className="text-xs text-slate-600 font-semibold">{item.farmer_name || '—'}</div>
+                      {item.farm_name && <div className="text-[10px] text-slate-400">{item.farm_name}</div>}
                     </td>
-                    <td className="py-3 text-end small">{qty} {unit}</td>
-                    <td className="py-3 text-end small">{unitPrice.toLocaleString()} DZD</td>
-                    <td className="py-3 text-end fw-bold small">{sub.toLocaleString(undefined, { maximumFractionDigits: 0 })} DZD</td>
+                    <td className="py-3 text-right text-xs text-slate-600 font-semibold">{qty} {unit}</td>
+                    <td className="py-3 text-right text-xs text-slate-600 font-semibold">{unitPrice.toLocaleString()} DZD</td>
+                    <td className="py-3 text-right text-xs font-black text-slate-800">{sub.toLocaleString(undefined, { maximumFractionDigits: 0 })} DZD</td>
                   </tr>
                 );
               })}
@@ -247,27 +263,27 @@ function InvoiceDetail() {
         </div>
 
         {/* Totals */}
-        <div className="d-flex justify-content-end">
-          <div style={{ minWidth: '280px' }}>
-            <div className="d-flex justify-content-between mb-2 small">
-              <span className="text-muted">Subtotal</span>
-              <span className="fw-bold">{parseFloat(order.total_price).toLocaleString()} DZD</span>
+        <div className="flex justify-end">
+          <div className="w-64">
+            <div className="flex justify-between items-center py-2 border-b border-slate-100 text-xs">
+              <span className="text-slate-500 font-medium">Subtotal</span>
+              <span className="font-black text-slate-800">{parseFloat(order.total_price).toLocaleString()} DZD</span>
             </div>
-            <div className="d-flex justify-content-between mb-2 small">
-              <span className="text-muted">Delivery</span>
-              <span className="text-muted">Included</span>
+            <div className="flex justify-between items-center py-2 border-b border-slate-100 text-xs">
+              <span className="text-slate-500 font-medium">Delivery</span>
+              <span className="text-slate-400 font-medium">Included</span>
             </div>
-            <div className="d-flex justify-content-between pt-2 border-top">
-              <span className="fw-bold">TOTAL</span>
-              <span className="h5 fw-bold text-primary mb-0">{parseFloat(order.total_price).toLocaleString()} DZD</span>
+            <div className="flex justify-between items-center py-3">
+              <span className="font-black text-sm text-slate-800">Total</span>
+              <span className="font-black text-lg text-indigo-700">{parseFloat(order.total_price).toLocaleString()} DZD</span>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="mt-5 pt-4 border-top text-center very-small text-muted">
-          <p className="mb-0">Thank you for shopping with AgriGov Market · Direct from Algerian Farms</p>
-          <p className="mb-0">This is a computer-generated invoice and does not require a signature.</p>
+        <div className="mt-6 pt-5 border-t border-slate-100 text-center">
+          <p className="text-[11px] text-slate-400 font-medium">Thank you for shopping with AgriGov Market · Direct from Algerian Farms</p>
+          <p className="text-[11px] text-slate-400 font-medium">This is a computer-generated invoice and does not require a signature.</p>
         </div>
       </div>
     </div>

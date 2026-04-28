@@ -101,28 +101,28 @@ export default function FarmForm() {
         </button>
       </div>
 
-      <div className="max-w-3xl">
-        <div className="bg-white rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden">
-          <div className="px-6 py-4 bg-slate-50/50 border-b border-slate-100/80">
-            <h3 className="text-sm font-black text-slate-700 uppercase tracking-widest flex items-center gap-2">
-              <Home size={16} className="text-[#22543d]" /> Farm Configuration
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 items-start">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className="px-5 py-3.5 bg-slate-50 border-b border-slate-100 flex items-center gap-2">
+            <div className="w-1 h-4 bg-[#22543d] rounded-full" />
+            <h3 className="text-xs font-black text-slate-700 uppercase tracking-widest flex items-center gap-2">
+              <Home size={14} className="text-[#22543d]" /> Farm Details
             </h3>
           </div>
           
-          <div className="p-6 sm:p-8">
+          <div className="p-5 sm:p-6">
             {error && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-start gap-3 text-red-600 text-sm font-bold shadow-sm">
-                <AlertTriangle size={18} className="shrink-0 mt-0.5" /> <div>{error}</div>
+              <div className="mb-4 p-3.5 bg-red-50 border border-red-100 rounded-xl flex items-start gap-2.5 text-red-600 text-xs font-bold shadow-sm">
+                <AlertTriangle size={16} className="shrink-0 mt-0.5" /> <div>{error}</div>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-8">
+            <form onSubmit={handleSubmit} className="space-y-5">
 
-              {/* Farm Photo */}
-              <div className="space-y-5">
-                <div className="text-[10px] uppercase tracking-widest font-black text-slate-400 border-b border-slate-100 pb-2 flex justify-between items-center">
-                  <span>Farm Identity</span>
-                  <span className="text-[9px] text-slate-400 lowercase font-medium">(optional)</span>
+              {/* Farm Details */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black text-slate-400 pb-1.5 border-b border-slate-100">
+                  <div className="w-1 h-3 bg-[#22543d] rounded-full" /> Location & Identity
                 </div>
 
                 <div className="space-y-2">
@@ -157,9 +157,11 @@ export default function FarmForm() {
                 </div>
               </div>
 
-              {/* Farm Details */}
-              <div className="space-y-5">
-                <div className="text-[10px] uppercase tracking-widest font-black text-slate-400 border-b border-slate-100 pb-2">Geographical Details</div>
+              {/* Geographical Details */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black text-slate-400 pb-1.5 border-b border-slate-100">
+                  <div className="w-1 h-3 bg-[#22543d] rounded-full" /> Geographical Details
+                </div>
 
                 <div className="space-y-2">
                   <label className="text-[11px] font-black uppercase tracking-widest text-[#22543d] flex items-center gap-2">
@@ -240,8 +242,10 @@ export default function FarmForm() {
               </div>
 
               {/* Description */}
-              <div className="space-y-5">
-                <div className="text-[10px] uppercase tracking-widest font-black text-slate-400 border-b border-slate-100 pb-2">Operational Context</div>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black text-slate-400 pb-1.5 border-b border-slate-100">
+                  <div className="w-1 h-3 bg-[#22543d] rounded-full" /> About This Farm
+                </div>
                 <div className="space-y-2">
                   <label className="text-[11px] font-black uppercase tracking-widest text-[#22543d] flex items-center gap-2">
                     <FileText size={14} className="text-emerald-500" />
@@ -261,18 +265,17 @@ export default function FarmForm() {
                 </div>
               </div>
 
-              {/* Actions */}
-              <div className="flex flex-row-reverse sm:flex-row gap-4 pt-4 border-t border-slate-100">
+              <div className="flex gap-3 pt-4 border-t border-slate-100">
                 <button
                   type="submit"
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-[#22543d] hover:bg-[#1a402e] text-emerald-50 rounded-xl text-sm font-black uppercase tracking-wider transition-all transform active:scale-95 shadow-md disabled:opacity-50 disabled:pointer-events-none"
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-[#22543d] hover:bg-[#1a402e] text-white rounded-xl text-sm font-black uppercase tracking-wide transition-all active:scale-95 shadow-md disabled:opacity-50 disabled:pointer-events-none"
                   disabled={loading}
                 >
-                  {loading ? 'Saving…' : <><Save size={16} /> Save Farm</>}
+                  {loading ? 'Saving…' : <><Save size={15} /> Save Farm</>}
                 </button>
                 <button
                   type="button"
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center px-8 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-bold uppercase tracking-wider transition-all"
+                  className="inline-flex items-center justify-center px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-bold uppercase tracking-wide transition-all"
                   onClick={() => navigate('/farmer-dashboard/farms')}
                 >
                   Discard
@@ -282,6 +285,59 @@ export default function FarmForm() {
 
           </div>
         </div>
+
+        {/* ── Right sidebar: Image upload ── */}
+        <div className="sticky top-6 space-y-4">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div className="px-5 py-3.5 bg-slate-50 border-b border-slate-100 flex items-center gap-2">
+              <div className="w-1 h-4 bg-[#22543d] rounded-full" />
+              <h3 className="text-xs font-black text-slate-700 uppercase tracking-widest">Farm Photo</h3>
+              <span className="ml-auto text-[9px] text-slate-400 font-medium">(optional)</span>
+            </div>
+            <div className="p-4">
+              <div className="space-y-3">
+                {imagePreview || existingImage ? (
+                  <div className="relative w-full rounded-xl overflow-hidden border border-slate-200 shadow-sm group">
+                    <img src={imagePreview || existingImage} alt="Farm preview" className="w-full h-auto object-cover max-h-48" />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <button type="button" className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow-lg transition-all" onClick={clearImage} title="Remove image">
+                        <X size={16} strokeWidth={3} />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    className="w-full border-2 border-dashed border-slate-200 hover:border-[#22543d] bg-slate-50 hover:bg-emerald-50/30 rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-colors group"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <div className="w-10 h-10 bg-white border border-slate-200 rounded-full flex items-center justify-center mb-3 shadow-sm text-slate-400 group-hover:text-emerald-500 group-hover:border-emerald-200 transition-colors">
+                      <Upload size={18} />
+                    </div>
+                    <div className="text-xs font-black text-slate-600 mb-1">Click to upload</div>
+                    <div className="text-[10px] font-medium text-slate-400">JPG, PNG, WEBP — max 10 MB</div>
+                  </div>
+                )}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  onChange={handleImageChange}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4">
+            <div className="text-[10px] font-black uppercase tracking-widest text-emerald-700 mb-2 flex items-center gap-1.5">
+              <Info size={12} className="text-emerald-600" /> Tip
+            </div>
+            <p className="text-xs font-medium text-emerald-800 leading-relaxed">
+              A clear farm photo helps buyers trust your products and increases your visibility on the marketplace.
+            </p>
+          </div>
+        </div>
+
       </div>
     </div>
   );

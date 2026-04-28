@@ -79,33 +79,33 @@ const Wishlist = () => {
       {/* ── BREADCRUMBS & HEADER ───────────────────────── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-indigo-600 mb-4 bg-indigo-50 px-3 py-1 rounded-full w-fit border border-indigo-100 shadow-sm">
+          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-indigo-600 mb-3 bg-indigo-50 px-3 py-1 rounded-full w-fit border border-indigo-100 shadow-sm">
             <Link to="/buyer-dashboard" className="hover:text-indigo-800 transition-colors">Marketplace</Link>
             <ChevronRight size={10} className="text-indigo-300" />
-            <span className="text-indigo-900 font-black">Curated Crate</span>
+            <span className="text-indigo-900 font-black">My Wishlist</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight flex items-center gap-4">
-            <div className="p-3 bg-white rounded-2xl shadow-sm border border-slate-100 text-rose-500">
-               <Heart size={40} fill="currentColor" strokeWidth={2.5} />
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+            <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-rose-500">
+               <Heart size={22} fill="currentColor" strokeWidth={2.5} />
             </div>
             My Wishlist
           </h1>
-          <p className="text-slate-500 font-medium mt-3 leading-relaxed max-w-xl text-lg">
-            High-fidelity curation of premium produce for future acquisition and procurement.
+          <p className="text-slate-500 font-medium mt-2 max-w-xl text-sm">
+            Your saved products for future purchases.
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <button 
-            className="bg-white hover:bg-slate-50 text-slate-700 px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest border border-slate-200 transition-all shadow-sm active:scale-95 flex items-center gap-2"
+        <div className="flex items-center gap-2">
+          <button
+            className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest border border-slate-200 transition-all shadow-sm active:scale-95"
             onClick={() => navigate('/buyer-dashboard')}
           >
-            <ChevronLeft size={16} /> Market Index
+            <ChevronLeft size={14} /> Browse Market
           </button>
-          <button 
-            className="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-indigo-900/10 active:scale-95 flex items-center gap-2 border border-indigo-500/50"
+          <button
+            className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-md active:scale-95"
             onClick={() => navigate('/buyer/cart')}
           >
-            <ShoppingCart size={18} /> View Payload
+            <ShoppingCart size={14} /> View Cart
           </button>
         </div>
       </div>
@@ -119,23 +119,23 @@ const Wishlist = () => {
       )}
 
       {favorites.length === 0 ? (
-        <div className="bg-white rounded-[2.5rem] border-2 border-dashed border-slate-200 p-20 text-center flex flex-col items-center justify-center shadow-sm max-w-4xl mx-auto">
-          <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-8 text-slate-300 shadow-inner">
-            <Heart size={48} />
+        <div className="bg-white rounded-2xl border border-dashed border-slate-200 p-12 text-center flex flex-col items-center justify-center shadow-sm max-w-2xl mx-auto">
+          <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-5 text-slate-300 shadow-inner">
+            <Heart size={32} />
           </div>
-          <h3 className="text-3xl font-black text-slate-800 mb-3 tracking-tight">Curation Node Empty</h3>
-          <p className="text-slate-500 font-medium mb-10 max-w-md mx-auto leading-relaxed">
-            Begin sourcing your premium produce and star your favorites to build your acquisition portfolio.
+          <h3 className="text-xl font-black text-slate-800 mb-2 tracking-tight">Your wishlist is empty</h3>
+          <p className="text-slate-500 font-medium mb-6 max-w-md mx-auto text-sm">
+            Browse the marketplace and save your favorite products here.
           </p>
           <button 
-            className="bg-slate-900 hover:bg-indigo-600 text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-slate-900/10 active:scale-95"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-md active:scale-95"
             onClick={() => navigate('/buyer-dashboard')}
           >
-            Explore Market Index
+            Browse Products
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {favorites.map(fav => {
             const p = fav.product_detail;
             if (!p) return null;
@@ -164,37 +164,37 @@ const Wishlist = () => {
                 </div>
 
                 {/* 2. Text & Typography Polish */}
-                <div className="flex flex-col flex-1 p-5">
-                   <h4 className="text-lg font-bold text-slate-900 leading-tight mb-1 group-hover:text-indigo-600 transition-colors">
+                <div className="flex flex-col flex-1 p-3">
+                   <h4 className="text-sm font-black text-slate-900 leading-tight mb-0.5 group-hover:text-indigo-600 transition-colors line-clamp-2">
                       {p.title}
                    </h4>
-                   <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                   <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1">
                       <Wheat size={12} className="text-amber-500" /> {p.farm_name}
                    </div>
 
                    <div className="mt-auto">
-                      <div className="text-xl font-extrabold text-slate-900 mb-4">
+                      <div className="text-sm font-black text-slate-900 mb-2">
                          {parseFloat(p.price).toLocaleString()} <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">DZD/{p.unit}</span>
                       </div>
 
                       <div className="flex items-center gap-2">
                          <button
-                           className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-black py-3 rounded-xl shadow-md shadow-indigo-200 transition-all active:scale-95 text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 disabled:opacity-50"
+                           className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-black h-9 rounded-xl shadow-sm transition-all active:scale-95 text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 disabled:opacity-50"
                            onClick={() => addToCart(p.id)}
                            disabled={cartLoading || p.stock <= 0}
                          >
                            {p.stock <= 0 ? (
-                             <><AlertCircle size={14} /> Sold Out</>
+                             <><AlertCircle size={12} /> Out</>
                            ) : (
-                             <><Plus size={14} /> Add</>
+                             <><Plus size={12} /> Add</>
                            )}
                          </button>
                          <button
-                           className="w-12 h-12 bg-slate-50 hover:bg-rose-50 text-slate-300 hover:text-rose-500 rounded-xl transition-all border border-slate-100 flex items-center justify-center active:scale-90"
-                           title="Decommit Asset"
+                           className="w-9 h-9 bg-slate-50 hover:bg-rose-50 text-slate-400 hover:text-rose-500 rounded-xl transition-all border border-slate-200 flex items-center justify-center active:scale-90 shrink-0"
+                           title="Remove"
                            onClick={() => removeFavorite(p.id)}
                          >
-                           <Trash2 size={16} />
+                           <Trash2 size={13} />
                          </button>
                       </div>
                    </div>

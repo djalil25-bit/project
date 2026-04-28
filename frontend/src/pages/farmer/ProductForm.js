@@ -139,7 +139,7 @@ export default function ProductForm() {
         setSuccess('Product updated successfully!');
       } else {
         await api.post('/products/', data);
-        setSuccess('Product listed successfully!');
+        setSuccess('Product added to marketplace successfully!');
       }
       setFormData({ catalog_product:'', description:'', price:'', stock:'', farm:'', title:'', category:'', unit:'', quality:'STANDARD', image:null });
       setSelCatalog(null);
@@ -173,17 +173,17 @@ export default function ProductForm() {
       <div className="f-breadcrumb">
         <Link to="/farmer-dashboard">Farmer Hub</Link>
         <span className="f-breadcrumb-sep"><ChevronRight size={11} /></span>
-        <span>{isEdit ? 'Edit Produce' : 'List New Produce'}</span>
+        <span>{isEdit ? 'Edit Product' : 'Add New Product'}</span>
       </div>
 
       {/* Page header */}
       <div className="flex justify-between items-start flex-wrap gap-4 mb-8">
         <div>
           <h1 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">
-            {isEdit ? 'Edit Your Produce' : 'List Your Produce'}
+            {isEdit ? 'Edit Product' : 'Add New Product'}
           </h1>
           <p className="text-sm font-medium text-slate-500 mt-2">
-            {isEdit ? 'Update your harvest details and pricing.' : 'Register your fresh harvest to the AgriGov marketplace.'}
+            {isEdit ? 'Update your product details and pricing.' : 'Register your product on the AgriGov marketplace.'}
           </p>
         </div>
         <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 transition-colors shadow-sm">
@@ -194,36 +194,40 @@ export default function ProductForm() {
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8 items-start">
 
         {/* ── Form card ── */}
-        <div className="bg-white rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-200 overflow-hidden">
-          <div className="px-6 py-4 bg-slate-50/50 border-b border-slate-100/80">
-            <h3 className="text-sm font-black text-slate-700 uppercase tracking-widest flex items-center gap-2">
-              <Package size={16} className="text-[#22543d]" /> Listing Configuration
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className="px-5 py-3.5 bg-slate-50 border-b border-slate-100 flex items-center gap-2">
+            <div className="w-1 h-4 bg-[#22543d] rounded-full" />
+            <h3 className="text-xs font-black text-slate-700 uppercase tracking-widest flex items-center gap-2">
+              <Package size={14} className="text-[#22543d]" /> Product Configuration
             </h3>
           </div>
           
-          <div className="p-6 sm:p-8">
+          <div className="p-5 sm:p-6">
             {error && (
-              <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-start gap-3 text-red-600 text-sm font-bold shadow-sm">
-                <AlertTriangle size={18} className="shrink-0 mt-0.5" /> <div>{error}</div>
+              <div className="mb-4 p-3.5 bg-red-50 border border-red-100 rounded-xl flex items-start gap-2.5 text-red-600 text-xs font-bold shadow-sm">
+                <AlertTriangle size={16} className="shrink-0 mt-0.5" /> <div>{error}</div>
               </div>
             )}
             {success && (
-              <div className="mb-6 p-4 bg-emerald-50 border border-emerald-100 rounded-2xl flex items-start gap-3 text-emerald-600 text-sm font-bold shadow-sm">
-                <ShieldCheck size={18} className="shrink-0 mt-0.5" /> <div>{success}</div>
+              <div className="mb-4 p-3.5 bg-emerald-50 border border-emerald-100 rounded-xl flex items-start gap-2.5 text-emerald-600 text-xs font-bold shadow-sm">
+                <ShieldCheck size={16} className="shrink-0 mt-0.5" /> <div>{success}</div>
               </div>
             )}
             {farms.length === 0 && !loading && (
-              <div className="mb-6 p-4 bg-amber-50 border border-amber-100 rounded-2xl flex items-start gap-3 text-amber-700 text-sm font-bold shadow-sm">
-                <Info size={18} className="shrink-0 mt-0.5" />
+              <div className="mb-4 p-3.5 bg-amber-50 border border-amber-100 rounded-xl flex items-start gap-2.5 text-amber-700 text-xs font-bold shadow-sm">
+                <Info size={16} className="shrink-0 mt-0.5" />
                 <div>No active farms found. <Link to="/farmer-dashboard/farm/new" className="underline text-amber-900 font-black hover:text-amber-600">Register a farm</Link> to start selling.</div>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-8">
+            <form onSubmit={handleSubmit} className="space-y-5">
 
               {/* Section: Product */}
-              <div className="space-y-5">
-                <div className="text-[10px] uppercase tracking-widest font-black text-slate-400 border-b border-slate-100 pb-2">Product Identifiers</div>
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black text-slate-400 pb-1.5 border-b border-slate-100">
+                  <div className="w-1 h-3 bg-[#22543d] rounded-full" />
+                  Product Identifiers
+                </div>
 
                 <div className="space-y-2">
                   <label className="text-[11px] font-black uppercase tracking-widest text-[#22543d] flex items-center gap-2">
@@ -268,8 +272,10 @@ export default function ProductForm() {
               </div>
 
               {/* Section: Pricing & Quantity */}
-              <div className="space-y-5">
-                <div className="text-[10px] uppercase tracking-widest font-black text-slate-400 border-b border-slate-100 pb-2">Trading Parameters</div>
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black text-slate-400 pb-1.5 border-b border-slate-100">
+                  <div className="w-1 h-3 bg-[#22543d] rounded-full" /> Pricing & Stock
+                </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div className="space-y-2">
@@ -305,8 +311,10 @@ export default function ProductForm() {
               </div>
 
               {/* Section: Details */}
-              <div className="space-y-5">
-                <div className="text-[10px] uppercase tracking-widest font-black text-slate-400 border-b border-slate-100 pb-2">Quality & Imagery</div>
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black text-slate-400 pb-1.5 border-b border-slate-100">
+                  <div className="w-1 h-3 bg-[#22543d] rounded-full" /> Quality & Imagery
+                </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div className="space-y-2">
@@ -353,21 +361,17 @@ export default function ProductForm() {
                 </div>
               </div>
 
-              {/* Actions */}
-              <div className="flex flex-row-reverse sm:flex-row gap-4 pt-4 border-t border-slate-100">
+              <div className="flex gap-3 pt-4 border-t border-slate-100">
                 <button
                   type="submit"
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-8 py-3.5 bg-[#22543d] hover:bg-[#1a402e] text-emerald-50 rounded-xl text-sm font-black uppercase tracking-wider transition-all transform active:scale-95 shadow-md disabled:opacity-50 disabled:pointer-events-none"
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-[#22543d] hover:bg-[#1a402e] text-white rounded-xl text-sm font-black uppercase tracking-wide transition-all active:scale-95 shadow-md disabled:opacity-50 disabled:pointer-events-none"
                   disabled={loading || farms.length === 0}
                 >
-                  {loading
-                    ? 'Processing…'
-                    : <><Save size={16} /> {isEdit ? 'Save Changes' : 'List Product'}</>
-                  }
+                  {loading ? 'Processing…' : <><Save size={15} /> {isEdit ? 'Save Changes' : 'Add Product'}</>}
                 </button>
                 <button
                   type="button"
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center px-8 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-bold uppercase tracking-wider transition-all"
+                  className="inline-flex items-center justify-center px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-bold uppercase tracking-wide transition-all"
                   onClick={() => navigate('/farmer-dashboard/products')}
                 >
                   Discard
@@ -378,9 +382,9 @@ export default function ProductForm() {
         </div>
 
         {/* ── Sidebar info panel ── */}
-        <div className="sticky top-8 space-y-6">
+        <div className="sticky top-6 space-y-4">
           {selCatalog ? (
-            <div className="bg-gradient-to-br from-[#22543d] to-[#1a402e] text-white rounded-[2rem] p-6 shadow-xl relative overflow-hidden border border-[#1a402e]">
+            <div className="bg-gradient-to-br from-[#22543d] to-[#1a402e] text-white rounded-2xl p-5 shadow-lg relative overflow-hidden border border-[#1a402e]">
               <div className="absolute top-0 right-0 p-4 opacity-5"><Info size={80}/></div>
               
               <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-emerald-300 mb-6 relative z-10">
@@ -418,7 +422,7 @@ export default function ProductForm() {
                 <div className="flex items-start gap-3 bg-emerald-500/20 p-4 rounded-xl border border-emerald-500/30">
                   <ShieldCheck size={20} className="text-emerald-300 shrink-0 mt-0.5" />
                   <div className="text-xs font-medium text-emerald-100 leading-snug">
-                    Listing within the recommended price range increases your visibility on the buyer marketplace.
+                    Pricing within the recommended range increases your visibility on the buyer marketplace.
                   </div>
                 </div>
               </div>

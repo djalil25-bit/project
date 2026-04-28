@@ -101,7 +101,7 @@ export default function FarmerStats() {
         {[
           { icon: <DollarSign size={24} />, color: 'emerald', val: `${(data?.total_revenue || 0).toLocaleString()} DZD`, label: 'Total Gross Revenue' },
           { icon: <ListOrdered size={24} />, color: 'blue', val: data?.total_orders || 0, label: 'Confirmed Transactions' },
-          { icon: <Tractor size={24} />, color: 'amber', val: data?.best_farms?.length || 0, label: 'Top-Yielding Sectors' },
+          { icon: <Tractor size={24} />, color: 'amber', val: data?.best_farms?.length || 0, label: 'Top-Yielding Farms' },
           { icon: <Sprout size={24} />, color: 'indigo', val: data?.best_products?.length || 0, label: 'High-Demand Varieties' },
         ].map((k, i) => {
           const bgMap = {
@@ -125,21 +125,21 @@ export default function FarmerStats() {
       </div>
 
       {/* ── CHARTS ROW ─────────────────────────────────── */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         
         {/* Revenue Trend Area */}
-        <div className="xl:col-span-2 bg-white border border-slate-200 rounded-[2rem] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-lg transition-shadow duration-300">
-          <div className="flex justify-between items-center mb-8 border-b border-slate-100 pb-4">
-            <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
-              <TrendingUp size={20} className="text-[#22543d]" strokeWidth={3} /> Revenue Trend Vector
+        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
+          <div className="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
+            <h3 className="text-sm font-black text-slate-800 flex items-center gap-2">
+              <TrendingUp size={16} className="text-[#22543d]" strokeWidth={3} /> Revenue Trend
             </h3>
-            <span className="bg-slate-100 text-slate-500 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border border-slate-200">Periodic</span>
+            <span className="bg-slate-100 text-slate-500 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border border-slate-200">Periodic</span>
           </div>
 
-          <div className="w-full h-[300px]">
+          <div className="w-full h-[220px]">
             {data?.revenue_trend?.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={data.revenue_trend} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <AreaChart data={data.revenue_trend} margin={{ top: 5, right: 8, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id={AREA_GRAD} x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%"   stopColor="#22543d" stopOpacity={0.4} />
@@ -147,34 +147,35 @@ export default function FarmerStats() {
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b', fontWeight: 700 }} dy={10} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b', fontWeight: 700 }} tickFormatter={v => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v} width={45} dx={-10} />
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b', fontWeight: 700 }} dy={8} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b', fontWeight: 700 }} tickFormatter={v => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v} width={38} dx={-6} />
                   <Tooltip content={<AgriTooltip />} />
                   <Area type="monotone" dataKey="revenue" name="Revenue"
-                    stroke="#22543d" strokeWidth={3} fill={`url(#${AREA_GRAD})`}
-                    dot={{ r: 4, fill: '#22543d', strokeWidth: 2, stroke: '#fff' }}
-                    activeDot={{ r: 6, fill: '#16a34a', stroke: '#fff', strokeWidth: 2 }}
+                    stroke="#22543d" strokeWidth={2.5} fill={`url(#${AREA_GRAD})`}
+                    dot={{ r: 3, fill: '#22543d', strokeWidth: 2, stroke: '#fff' }}
+                    activeDot={{ r: 5, fill: '#16a34a', stroke: '#fff', strokeWidth: 2 }}
                   />
                 </AreaChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-full flex items-center justify-center text-slate-400 font-bold text-sm">Insufficient temporal data to render vector.</div>
+              <div className="h-full flex items-center justify-center text-slate-400 font-bold text-sm">No revenue data available yet.</div>
             )}
           </div>
         </div>
 
         {/* Orders Bar */}
-        <div className="xl:col-span-1 bg-white border border-slate-200 rounded-[2rem] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-lg transition-shadow duration-300">
-          <div className="flex justify-between items-center mb-8 border-b border-slate-100 pb-4">
-            <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
-              <ListOrdered size={20} className="text-[#22543d]" strokeWidth={3} /> Transaction Volume
+        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
+          <div className="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
+            <h3 className="text-sm font-black text-slate-800 flex items-center gap-2">
+              <ListOrdered size={16} className="text-[#22543d]" strokeWidth={3} /> Transaction Volume
             </h3>
+            <span className="bg-slate-100 text-slate-500 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border border-slate-200">Orders</span>
           </div>
 
-          <div className="w-full h-[300px]">
+          <div className="w-full h-[220px]">
             {data?.orders_trend?.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data.orders_trend} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <BarChart data={data.orders_trend} margin={{ top: 5, right: 8, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id={BAR_GRAD} x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%"   stopColor="#22543d" stopOpacity={1} />
@@ -182,15 +183,15 @@ export default function FarmerStats() {
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b', fontWeight: 700 }} dy={10} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b', fontWeight: 700 }} allowDecimals={false} width={45} />
+                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b', fontWeight: 700 }} dy={8} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b', fontWeight: 700 }} allowDecimals={false} width={38} />
                   <Tooltip content={<AgriTooltip />} cursor={{ fill: 'rgba(34,84,61,0.05)' }} />
-                  <Bar dataKey="orders" name="Orders" fill={`url(#${BAR_GRAD})`} radius={[6,6,0,0]} maxBarSize={45} />
+                  <Bar dataKey="orders" name="Orders" fill={`url(#${BAR_GRAD})`} radius={[5,5,0,0]} maxBarSize={36} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
               <div className="h-full flex items-center justify-center text-slate-400 font-bold text-sm flex-col gap-2">
-                <BarChart2 size={32} className="text-slate-200" />
+                <BarChart2 size={28} className="text-slate-200" />
                 No transactions recorded.
               </div>
             )}
