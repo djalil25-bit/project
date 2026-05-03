@@ -310,3 +310,64 @@ class FarmerAnalyticsAPIView(APIView):
             'total_revenue': float(totals['total_revenue'] or 0),
             'total_orders': totals['total_orders'] or 0,
         })
+
+from django.db.models import Q
+from rest_framework import status
+from apps.admin_ops.models import AdminMessage, MessageStatusChoices, MessageChannelChoices
+from apps.admin_ops.serializers import AdminMessageSerializer
+
+class ActorMessageAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        if user.role == RoleChoices.ADMIN:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("Admins should use admin_ops endpoints.")
+
+        # Inbox / History for actor
+        qs = AdminMessage.objects.filter(Q(recipient=user) | Q(sender=user)).order_by('-created_at')
+        return Response(AdminMessageSerializer(qs, many=True).data)
+
+    def post(self, request):
+        user = request.user
+        if user.role == RoleChoices.ADMIN:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("Admins should use admin_ops endpoints.")
+
+        parent_id = request.data.get('parent_id')
+        body = request.data.get('body')
+
+        if not parent_id or not body:
+            return Response({"error": "parent_id and body are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            parent_msg = AdminMessage.objects.get(id=parent_id)
+        except AdminMessage.DoesNotExist:
+            return Response({"error": "Parent message not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        if not parent_msg.is_reply_allowed:
+            return Response({"error": "Replies are not allowed for this message."}, status=status.HTTP_403_FORBIDDEN)
+
+        admin_recipient = parent_msg.sender if parent_msg.sender and parent_msg.sender.role == RoleChoices.ADMIN else User.objects.filter(role=RoleChoices.ADMIN).first()
+        
+        reply = AdminMessage.objects.create(
+            sender=user,
+            recipient=admin_recipient,
+            channel=MessageChannelChoices.IN_APP,
+            subject=f"Re: {parent_msg.subject}",
+            body=body,
+            status=MessageStatusChoices.SENT,
+            parent=parent_msg,
+            sent_at=timezone.now()
+        )
+
+        from apps.notifications.models import create_notification, NotificationType
+        create_notification(
+            user=admin_recipient,
+            message=f"New reply from {user.full_name or user.email}: {body[:50]}...",
+            notif_type=NotificationType.GENERAL,
+            link=f"/admin-dashboard/messages?tab=inbox"
+        )
+
+        return Response(AdminMessageSerializer(reply).data, status=status.HTTP_201_CREATED)

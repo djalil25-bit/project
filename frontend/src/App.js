@@ -44,7 +44,14 @@ import ZoneSettings from './pages/transporter/ZoneSettings';
 import Profile from './pages/Profile';
 import UserComplaints from './pages/complaints/UserComplaints';
 import ComplaintFormPage from './pages/complaints/ComplaintFormPage';
+import ActorMessages from './pages/shared/ActorMessages';
 import ComplaintManager from './pages/admin/ComplaintManager';
+import AdminTransactions from './pages/admin/AdminTransactions';
+import AdminAccounts from './pages/admin/AdminAccounts';
+import AdminAlerts from './pages/admin/AdminAlerts';
+import AdminMessages from './pages/admin/AdminMessages';
+import AdminMonitoring from './pages/admin/AdminMonitoring';
+import AccountPending from './pages/AccountPending';
 
 function App() {
   return (
@@ -90,6 +97,31 @@ function App() {
           <Route path="/admin-dashboard/complaints" element={
             <ProtectedRoute allowedRoles={['admin']}>
               <ComplaintManager />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin-dashboard/transactions" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminTransactions />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin-dashboard/accounts" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminAccounts />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin-dashboard/alerts" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminAlerts />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin-dashboard/messages" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminMessages />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin-dashboard/monitoring" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminMonitoring />
             </ProtectedRoute>
           } />
           <Route path="/farmer-dashboard" element={
@@ -209,12 +241,24 @@ function App() {
               <UserComplaints />
             </ProtectedRoute>
           } />
+          <Route path="/messages" element={
+            <ProtectedRoute allowedRoles={['farmer', 'buyer', 'transporter']}>
+              <ActorMessages />
+            </ProtectedRoute>
+          } />
           <Route path="/complaints/new" element={
             <ProtectedRoute allowedRoles={['admin', 'farmer', 'buyer', 'transporter']}>
               <ComplaintFormPage />
             </ProtectedRoute>
           } />
         </Route>
+
+        {/* Standalone Protected Routes (No Layout) */}
+        <Route path="/pending" element={
+          <ProtectedRoute allowedRoles={['admin', 'farmer', 'buyer', 'transporter']}>
+            <AccountPending />
+          </ProtectedRoute>
+        } />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -277,15 +277,15 @@ function CartPage() {
                             <div className="flex items-center bg-white border border-slate-200 rounded-xl shadow-sm h-12 p-1.5 shrink-0 w-[130px] justify-between group-hover:border-indigo-300 transition-colors">
                                <button 
                                  className="w-8 h-full flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors active:scale-95 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400" 
-                                 onClick={() => updateQuantity(item.product, item.quantity, -1, p.stock)}
+                                 onClick={() => updateQuantity(item.product, Number(item.quantity), -1, Number(p.stock))}
                                >
                                  <Minus size={16} strokeWidth={2.5}/>
                                </button>
                                <div className="flex-1 flex items-center justify-center font-mono font-black text-base text-slate-900 bg-slate-50/50 rounded-md mx-1 select-none h-full">{item.quantity}</div>
                                <button 
                                  className="w-8 h-full flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors active:scale-95 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400" 
-                                 onClick={() => updateQuantity(item.product, item.quantity, 1, p.stock)}
-                                 disabled={item.quantity >= p.stock}
+                                 onClick={() => updateQuantity(item.product, Number(item.quantity), 1, Number(p.stock))}
+                                 disabled={Number(item.quantity) >= Number(p.stock)}
                                >
                                  <Plus size={16} strokeWidth={2.5}/>
                                </button>

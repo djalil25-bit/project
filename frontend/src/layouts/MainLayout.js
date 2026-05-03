@@ -39,10 +39,12 @@ import {
   Sprout,
   Leaf,
   BarChart3,
-  ListOrdered
+  ListOrdered,
+  Users
 } from 'lucide-react';
 import VerifiedBadge from '../components/common/VerifiedBadge';
 import AgriGovLogo from '../components/common/AgriGovLogo';
+import GlobalSearchBar from '../components/admin/GlobalSearchBar';
 
 const MainLayout = () => {
   const { user, logout } = useAuth();
@@ -125,6 +127,11 @@ const MainLayout = () => {
     admin: [
       { label: t('nav_dashboard'), path: '/admin-dashboard', icon: <LayoutDashboard size={18} /> },
       { label: t('nav_analytics'), path: '/admin-dashboard/analytics', icon: <TrendingUp size={18} /> },
+      { label: t('nav_transactions'), path: '/admin-dashboard/transactions', icon: <ShoppingBag size={18} /> },
+      { label: t('nav_accounts'), path: '/admin-dashboard/accounts', icon: <Users size={18} /> },
+      { label: t('nav_alerts'), path: '/admin-dashboard/alerts', icon: <ShieldAlert size={18} /> },
+      { label: t('nav_messages'), path: '/admin-dashboard/messages', icon: <MessageSquare size={18} /> },
+      { label: t('nav_monitoring'), path: '/admin-dashboard/monitoring', icon: <BarChart3 size={18} /> },
       { label: t('nav_catalog'), path: '/admin-dashboard/catalog', icon: <ClipboardList size={18} /> },
       { label: t('nav_categories'), path: '/admin-dashboard/categories', icon: <FolderTree size={18} /> },
       { label: t('nav_complaint_center'), path: '/admin-dashboard/complaints', icon: <ShieldAlert size={18} /> },
@@ -136,7 +143,7 @@ const MainLayout = () => {
       { label: t('nav_orders'), path: '/farmer/orders', icon: <ListOrdered size={18} strokeWidth={2.2} /> },
       { label: t('nav_my_products'), path: '/farmer/products', icon: <Sprout size={18} strokeWidth={2.2} /> },
       { label: t('nav_harvests'), path: '/farmer-dashboard/harvests', icon: <Wheat size={18} strokeWidth={2.2} /> },
-      { label: t('nav_complaints'), path: '/complaints', icon: <MessageSquare size={18} strokeWidth={2.2} /> },
+      { label: t('nav_complaints'), path: '/complaints', icon: <ShieldAlert size={18} strokeWidth={2.2} /> },
     ],
     buyer: [
       { label: t('nav_marketplace'), path: '/buyer-dashboard', icon: <ShoppingCart size={18} /> },
@@ -144,13 +151,13 @@ const MainLayout = () => {
       { label: t('nav_my_cart'), path: '/buyer/cart', icon: <ShoppingBag size={18} /> },
       { label: t('nav_my_orders'), path: '/buyer-dashboard/orders', icon: <History size={18} /> },
       { label: t('nav_invoices'), path: '/buyer-dashboard/invoices', icon: <CreditCard size={18} /> },
-      { label: t('nav_complaints'), path: '/complaints', icon: <MessageSquare size={18} /> },
+      { label: t('nav_complaints'), path: '/complaints', icon: <ShieldAlert size={18} /> },
     ],
     transporter: [
       { label: t('nav_marketboard'), path: '/transporter-dashboard', icon: <Truck size={18} /> },
       { label: t('nav_my_fleet'), path: '/transporter-dashboard/vehicles', icon: <Truck size={18} /> },
       { label: t('nav_zones'), path: '/transporter-dashboard/zones', icon: <MapPin size={18} /> },
-      { label: t('nav_complaints'), path: '/complaints', icon: <MessageSquare size={18} /> },
+      { label: t('nav_complaints'), path: '/complaints', icon: <ShieldAlert size={18} /> },
     ],
   };
 
@@ -227,6 +234,9 @@ const MainLayout = () => {
             <h2 className="current-page-title">{currentPageLabel}</h2>
           </div>
 
+          {/* Global Search (admin only) */}
+          {user?.role === 'admin' && <GlobalSearchBar />}
+
           <div className="topbar-right">
 
             {/* Language Switcher */}
@@ -269,6 +279,20 @@ const MainLayout = () => {
               aria-label="Toggle theme"
             >
               {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+            </button>
+
+            {/* Messages Inbox Shortcut (All Users) */}
+            <button
+              className={`topbar-icon-btn notif-btn`}
+              onClick={() => { 
+                navigate(user?.role === 'admin' ? '/admin-dashboard/messages?tab=inbox' : '/messages'); 
+                setShowNotifDropdown(false); setShowUserMenu(false); setShowLangMenu(false); 
+              }}
+              title="Messages"
+              aria-label="Messages"
+            >
+              <MessageSquare size={18} />
+              {/* Note: Unread message count badge can be implemented here via an API endpoint */}
             </button>
 
             {/* Notifications */}
@@ -357,11 +381,12 @@ const MainLayout = () => {
                   <div className="user-header-role">{t(`role_${user?.role}`)}</div>
                 </div>
                 <div className="user-header-avatar">
-                  {user?.profile_picture ? (
+                  {(user?.profile_image || user?.profile_picture) ? (
                     <img
-                      src={user.profile_picture.startsWith('http') ? user.profile_picture : `http://localhost:8000${user.profile_picture}`}
+                      src={`${(user.profile_image || user.profile_picture).startsWith('http') ? (user.profile_image || user.profile_picture) : `http://localhost:8000${user.profile_image || user.profile_picture}`}?t=${new Date().getTime()}`}
                       alt={user.full_name}
                       className="avatar-img"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
                     />
                   ) : (
                     <div className={`avatar-placeholder avatar-role-${user?.role}`} style={{ borderColor: accent }}>
@@ -375,8 +400,16 @@ const MainLayout = () => {
               {showUserMenu && (
                 <div className="user-dropdown">
                   <div className="user-dropdown-header">
-                    <div className="user-dropdown-avatar" style={{ background: `${accent}20`, borderColor: accent }}>
-                      {user?.full_name?.charAt(0).toUpperCase() || 'U'}
+                    <div className="user-dropdown-avatar" style={{ background: `${accent}20`, borderColor: accent, overflow: 'hidden' }}>
+                      {(user?.profile_image || user?.profile_picture) ? (
+                        <img
+                          src={`${(user.profile_image || user.profile_picture).startsWith('http') ? (user.profile_image || user.profile_picture) : `http://localhost:8000${user.profile_image || user.profile_picture}`}?t=${new Date().getTime()}`}
+                          alt={user.full_name}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                      ) : (
+                        user?.full_name?.charAt(0).toUpperCase() || 'U'
+                      )}
                     </div>
                     <div>
                       <div className="user-dropdown-name">{user?.full_name}</div>

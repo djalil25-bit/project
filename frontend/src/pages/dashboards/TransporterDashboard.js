@@ -105,6 +105,11 @@ function TransporterDashboard() {
 
   const openCount = deliveries.filter(d => d.status === 'open').length;
 
+  const hasActiveMission = deliveries.some(d => 
+    d.transporter != null && 
+    ['assigned', 'picked_up', 'in_transit'].includes(d.status)
+  );
+
   const filtered = activeTab === 'open'
     ? deliveries.filter(d => d.status === 'open')
     : activeTab === 'mine'
@@ -287,13 +292,20 @@ function TransporterDashboard() {
                   <td><StatusBadge status={d.status} /></td>
                   <td style={{ textAlign: 'right' }}>
                     {d.status === 'open' && (
-                      <button
-                        className="btn-agr btn-primary btn-sm rounded-pill px-3 fw-bold shadow-sm"
-                        onClick={() => setAcceptanceTarget(d)}
-                        disabled={actionLoading === d.id + '_accept'}
-                      >
-                        {actionLoading === d.id + '_accept' ? 'Authorizing...' : 'Accept Mission'}
-                      </button>
+                      <div className="d-flex flex-column align-items-end gap-1">
+                        <button
+                          className={`btn-agr btn-sm rounded-pill px-3 fw-bold shadow-sm ${hasActiveMission ? 'bg-slate-200 text-slate-500 cursor-not-allowed border-0' : 'btn-primary'}`}
+                          onClick={() => setAcceptanceTarget(d)}
+                          disabled={actionLoading === d.id + '_accept' || hasActiveMission}
+                        >
+                          {actionLoading === d.id + '_accept' ? 'Authorizing...' : 'Accept Mission'}
+                        </button>
+                        {hasActiveMission && (
+                          <div className="text-muted text-[10px] italic">
+                            Complete your current mission to unlock more.
+                          </div>
+                        )}
+                      </div>
                     )}
                     {d.status === 'assigned' && (
                       <button

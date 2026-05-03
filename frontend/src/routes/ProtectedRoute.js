@@ -16,6 +16,11 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     return <Navigate to={`/${user.role}-dashboard`} replace />;
   }
 
+  // If user is accessing a protected route (like a dashboard) but is pending, redirect to pending page
+  if (user && user.status && user.status.toUpperCase() === 'PENDING' && window.location.pathname !== '/pending' && window.location.pathname !== '/profile') {
+      return <Navigate to="/pending" replace />;
+  }
+
   return children;
 };
 

@@ -99,15 +99,15 @@ const CatalogManager = () => {
   );
 
   return (
-    <div className="min-h-screen p-6 space-y-6 anim-fade-up">
+    <div className="min-h-screen p-6 space-y-6 anim-fade-up admin-mode">
 
       {/* ── Page Header ────────────────────────────────── */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h1 className="text-xl font-extrabold text-slate-100 flex items-center gap-3">
-            <BookOpen className="text-emerald-400" size={28} /> Master Catalog
+          <h1 className="text-xl font-extrabold text-gray-900 flex items-center gap-3">
+            <BookOpen className="text-blue-600" size={28} /> Master Catalog
           </h1>
-          <p className="text-slate-500 text-sm mt-1">Standardize agricultural products and enforce price guardrails.</p>
+          <p className="text-gray-500 text-sm mt-1">Standardize agricultural products and enforce price guardrails.</p>
         </div>
         <button
           className="adm-btn adm-btn-primary px-5 py-2.5 shrink-0"
@@ -120,10 +120,10 @@ const CatalogManager = () => {
       {/* ── Catalog Table Card ──────────────────────────── */}
       <div className="glass-card overflow-hidden">
         {/* Card Header */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 px-6 py-4 border-b border-white/5">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 px-6 py-4 border-b border-gray-100">
           <div className="flex items-center gap-2">
-            <Archive size={16} className="text-emerald-400" />
-            <h3 className="font-bold text-slate-200">Available Standardized Units</h3>
+            <Archive size={16} className="text-blue-600" />
+            <h3 className="font-bold text-gray-800">Available Standardized Units</h3>
             <span className="adm-badge adm-badge-approved ml-1">{catalog.length} Items</span>
           </div>
           <div className="flex items-center gap-2">
@@ -143,7 +143,7 @@ const CatalogManager = () => {
         {loading ? (
           <div className="flex items-center justify-center gap-3 py-16">
             <div className="adm-spinner"></div>
-            <span className="text-slate-500 text-sm">Indexing catalog...</span>
+            <span className="text-gray-400 text-sm">Indexing catalog...</span>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -161,7 +161,7 @@ const CatalogManager = () => {
                 {filteredCatalog.length === 0 ? (
                   <tr>
                     <td colSpan="5">
-                      <div className="flex flex-col items-center gap-3 py-16 text-slate-600">
+                      <div className="flex flex-col items-center gap-3 py-16 text-gray-400">
                         <Search size={40} className="opacity-20" />
                         <p className="text-sm">No catalog products match this criteria.</p>
                       </div>
@@ -171,36 +171,36 @@ const CatalogManager = () => {
                   <tr key={item.id} className="anim-fade-up">
                     <td>
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
-                          <Tag size={14} className="text-emerald-400" />
+                        <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center shrink-0">
+                          <Tag size={14} className="text-blue-600" />
                         </div>
                         <div>
-                          <div className="font-semibold text-slate-200">{item.name}</div>
-                          <div className="text-xs text-slate-500 mt-0.5">{item.description?.substring(0, 50)}...</div>
+                          <div className="font-semibold text-gray-800">{item.name}</div>
+                          <div className="text-xs text-gray-500 mt-0.5">{item.description?.substring(0, 50)}...</div>
                         </div>
                       </div>
                     </td>
                     <td>
-                      <span className="adm-badge adm-badge-ghost flex items-center gap-1 w-fit" style={{ background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.1)' }}>
+                      <span className="adm-badge flex items-center gap-1 w-fit" style={{ background: '#F3F4F6', color: '#6B7280', border: '1px solid #E5E7EB' }}>
                         <Layers size={11} />
                         {categories.find(c => c.id === item.category)?.name || 'Unmapped'}
                       </span>
                     </td>
                     <td>
                       <div className="text-sm">
-                        <span className="text-red-400">Min: {item.min_price}</span>
-                        <span className="mx-2 text-slate-600">|</span>
-                        <span className="text-emerald-400">Max: {item.max_price}</span>
-                        <span className="ml-1 text-xs text-slate-500">{item.unit}</span>
+                        <span className="text-red-600">Min: {item.min_price}</span>
+                        <span className="mx-2 text-gray-300">|</span>
+                        <span className="text-green-600">Max: {item.max_price}</span>
+                        <span className="ml-1 text-xs text-gray-500">{item.unit}</span>
                       </div>
                     </td>
                     <td>
-                      <span className="font-bold text-emerald-400">{item.official_price} <small className="text-xs text-slate-500">DZD/{item.unit}</small></span>
+                      <span className="font-bold text-blue-600">{item.official_price} <small className="text-xs text-gray-500">DZD/{item.unit}</small></span>
                     </td>
                     <td>
                       <div className="flex items-center justify-end gap-2">
                         <button className="adm-btn adm-btn-ghost adm-btn-icon" title="View Price History" onClick={() => navigate(`/admin-dashboard/catalog/${item.id}/price-history`)}>
-                          <LineChart size={14} className="text-amber-400" />
+                          <LineChart size={14} className="text-amber-500" />
                         </button>
                         <button className="adm-btn adm-btn-ghost adm-btn-icon" title="Update" onClick={() => handleEdit(item)}>
                           <Edit size={14} className="text-blue-400" />
@@ -224,9 +224,9 @@ const CatalogManager = () => {
           <div className="adm-modal">
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
               {/* Modal Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
-                <h3 className="font-bold text-slate-200 flex items-center gap-2">
-                  <Plus className="text-emerald-400" size={18} />
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+                <h3 className="font-bold text-gray-800 flex items-center gap-2">
+                  <Plus className="text-blue-600" size={18} />
                   {editingId ? 'Modify Catalog Entry' : 'New Catalog Registration'}
                 </h3>
                 <button type="button" className="adm-btn adm-btn-ghost adm-btn-icon" onClick={() => setShowModal(false)}>
@@ -237,7 +237,7 @@ const CatalogManager = () => {
               {/* Modal Body */}
               <div className="p-6 overflow-y-auto flex-1 space-y-4">
                 {error && (
-                  <div className="flex items-center gap-2 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+                  <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm">
                     <Info size={16} /> {error}
                   </div>
                 )}
@@ -284,7 +284,7 @@ const CatalogManager = () => {
               </div>
 
               {/* Modal Footer */}
-              <div className="flex gap-3 px-6 py-4 border-t border-white/5 bg-white/2">
+              <div className="flex gap-3 px-6 py-4 border-t border-gray-100 bg-gray-50">
                 <button type="submit" className="adm-btn adm-btn-primary flex-1 justify-center py-2.5" disabled={submitting}>
                   <Save size={16} /> {submitting ? 'Finalizing...' : 'Save Registry'}
                 </button>

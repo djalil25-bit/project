@@ -2,7 +2,7 @@ from django.urls import path
 from .views import (
     AdminDashboardStatsAPIView, AdminAnalyticsAPIView,
     FarmerDashboardStatsAPIView, FarmerAnalyticsAPIView,
-    TransporterDashboardStatsAPIView
+    TransporterDashboardStatsAPIView, ActorMessageAPIView
 )
 
 urlpatterns = [
@@ -11,4 +11,5 @@ urlpatterns = [
     path('farmer-stats/', FarmerDashboardStatsAPIView.as_view(), name='farmer_stats'),
     path('farmer-analytics/', FarmerAnalyticsAPIView.as_view(), name='farmer_analytics'),
     path('transporter-stats/', TransporterDashboardStatsAPIView.as_view(), name='transporter_stats'),
+    path('actor-messages/', ActorMessageAPIView.as_view(), name='actor_messages'),
 ]

@@ -81,6 +81,20 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
         if delivery.status != DeliveryStatusChoices.OPEN:
             return Response({"error": "This delivery is no longer open."}, status=status.HTTP_400_BAD_REQUEST)
         
+        # Transporter active mission limit validation
+        if DeliveryRequest.objects.filter(
+            transporter=request.user,
+            status__in=[
+                DeliveryStatusChoices.ASSIGNED,
+                DeliveryStatusChoices.PICKED_UP,
+                DeliveryStatusChoices.IN_TRANSIT
+            ]
+        ).exists():
+            return Response(
+                {"error": "You cannot accept a new mission until your current mission is completed."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
         vehicle_id = request.data.get('vehicle_id')
         if not vehicle_id:
             return Response({"error": "You must select a vehicle to accept this mission."}, status=status.HTTP_400_BAD_REQUEST)

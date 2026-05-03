@@ -1,274 +1,296 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../../api/axiosConfig';
-import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  PieChart, Pie, Cell, LineChart, Line, AreaChart, Area
-} from 'recharts';
-import { 
-  TrendingUp, Users, Package, Activity, AlertCircle, 
-  Trophy, Medal, Award, ShoppingCart, Calendar, Filter
-} from 'lucide-react';
+import adminApi from '../../api/adminApi';
+import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { TrendingUp, Package, Trophy, Medal, Award, Calendar, ChevronRight, MapPin, Eye, Download } from 'lucide-react';
 
-const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
-const ROLE_COLORS = {
-  'farmer': '#10b981',
-  'buyer': '#3b82f6', 
-  'transporter': '#f59e0b'
-};
+const tooltipStyle = { borderRadius:10, border:'1px solid #E5E7EB', background:'#fff', boxShadow:'0 4px 12px rgba(0,0,0,0.1)', color:'#1F2937' };
+const getRankIcon = i => i===0?<Trophy className="text-yellow-500" size={18}/>:i===1?<Medal className="text-gray-400" size={18}/>:<Award className="text-orange-400" size={18}/>;
 
 const AdminAnalytics = () => {
-  const [data, setData] = useState(null);
+  const [apiData, setApiData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState('product');
   const [timeframe, setTimeframe] = useState('all');
 
+  // Product tab state
+  const [products, setProducts] = useState([]);
+  const [selProductId, setSelProductId] = useState(null);
+  const [prodData, setProdData] = useState(null);
+  const [prodLoading, setProdLoading] = useState(false);
+
+  // Zone tab state
+  const [zones, setZones] = useState([]);
+  const [selZone, setSelZone] = useState('');
+  const [zoneData, setZoneData] = useState(null);
+  const [zoneLoading, setZoneLoading] = useState(false);
+
+  // Leaderboard state
+  const [leaders, setLeaders] = useState([]);
+  const [leadersLoading, setLeadersLoading] = useState(false);
+
+  // Fetch main analytics from existing dashboard endpoint
   useEffect(() => {
-    fetchAnalytics();
+    const fetch = async () => {
+      try {
+        setLoading(true);
+        const res = await api.get(`/dashboards/admin-analytics/?timeframe=${timeframe}`);
+        setApiData(res.data);
+      } catch { setApiData({ revenue_trend:[], users_trend:[] }); }
+      finally { setLoading(false); }
+    };
+    fetch();
   }, [timeframe]);
 
-  const fetchAnalytics = async () => {
-    try {
-      setLoading(true);
-      const res = await api.get(`/dashboards/admin-analytics/?timeframe=${timeframe}`);
-      setData(res.data);
-    } catch (err) {
-      setError('Failed to load analytics data. Please ensure the backend is reachable.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Fetch product list for dropdown
+  useEffect(() => {
+    adminApi.get('/analytics/products/').then(res => {
+      setProducts(res.data.products || []);
+      if (res.data.products?.length > 0) setSelProductId(res.data.products[0].id);
+    }).catch(() => {});
+  }, []);
 
-  const getRankIcon = (index) => {
-    switch(index) {
-      case 0: return <Trophy className="text-amber-400" size={20} />;
-      case 1: return <Medal className="text-slate-400" size={20} />;
-      case 2: return <Award className="text-emerald-400" size={20} />;
-      default: return null;
-    }
-  };
+  // Fetch product detail when selection changes
+  useEffect(() => {
+    if (!selProductId) return;
+    setProdLoading(true);
+    adminApi.get('/analytics/products/', { params: { product_id: selProductId } })
+      .then(res => setProdData(res.data))
+      .catch(() => setProdData(null))
+      .finally(() => setProdLoading(false));
+  }, [selProductId]);
 
-  if (loading && !data) {
-    return (
-      <div className="flex items-center justify-center gap-3 py-20">
-        <div className="adm-spinner"></div>
-        <span className="text-slate-500 text-sm">Gathering metrics...</span>
-      </div>
-    );
-  }
+  // Fetch zones for dropdown
+  useEffect(() => {
+    adminApi.get('/analytics/zones/').then(res => {
+      setZones(res.data.zones || []);
+      if (res.data.zones?.length > 0) setSelZone(res.data.zones[0]);
+    }).catch(() => {});
+  }, []);
 
-  if (error) {
-    return (
-      <div className="flex items-center gap-3 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
-        <AlertCircle size={18} /> {error}
-      </div>
-    );
-  }
+  // Fetch zone detail
+  useEffect(() => {
+    if (!selZone) return;
+    setZoneLoading(true);
+    adminApi.get('/analytics/zones/', { params: { zone: selZone } })
+      .then(res => setZoneData(res.data))
+      .catch(() => setZoneData(null))
+      .finally(() => setZoneLoading(false));
+  }, [selZone]);
 
-  const chartTooltipStyle = {
-    borderRadius: '10px',
-    border: 'none',
-    background: '#1e293b',
-    boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
-    color: '#e2e8f0',
-  };
+  // Fetch leaderboard
+  useEffect(() => {
+    if (activeTab !== 'leaderboard') return;
+    setLeadersLoading(true);
+    adminApi.get('/analytics/top-sellers/')
+      .then(res => setLeaders(res.data.sellers || []))
+      .catch(() => setLeaders([]))
+      .finally(() => setLeadersLoading(false));
+  }, [activeTab]);
+
+  if (loading && !apiData) return <div className="flex items-center justify-center gap-3 py-20"><div className="adm-spinner"></div><span className="text-gray-400 text-sm">Loading analytics...</span></div>;
+
+  const tabs = [
+    { key:'product', label:'Product Performance', icon:<Package size={14}/> },
+    { key:'zone', label:'Zone Analysis', icon:<MapPin size={14}/> },
+    { key:'leaderboard', label:'Top Sellers', icon:<Trophy size={14}/> },
+  ];
 
   return (
-    <div className="min-h-screen p-6 space-y-6 anim-fade-up">
+    <div className="min-h-screen p-6 space-y-6 anim-fade-up admin-mode">
+      <div className="adm-breadcrumb"><Link to="/admin-dashboard">Dashboard</Link><ChevronRight size={12}/><span>Analytics</span></div>
 
-      {/* ── Page Header ──────────────────────────────────── */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center">
-            <TrendingUp className="text-emerald-400" size={24} />
-          </div>
-          <div>
-            <h1 className="text-xl font-extrabold text-slate-100 tracking-tight">Platform Analytics</h1>
-            <p className="text-slate-500 text-sm">Comprehensive overview of platform growth, revenue, and entity distributions.</p>
-          </div>
+          <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center"><TrendingUp className="text-blue-600" size={24}/></div>
+          <div><h1 className="text-xl font-extrabold text-gray-900">Platform Analytics</h1><p className="text-gray-500 text-sm">Product performance, zone analysis, and seller rankings.</p></div>
         </div>
-
-        <div className="flex items-center gap-2 glass-card-light px-4 py-2.5">
-          <Calendar className="text-emerald-400" size={16} />
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wide mr-2">Interval:</span>
-          <select
-            className="adm-input border-0 bg-transparent text-emerald-400 font-bold text-sm p-0 focus:ring-0 focus:shadow-none cursor-pointer"
-            style={{ width: '120px' }}
-            value={timeframe}
-            onChange={(e) => setTimeframe(e.target.value)}
-          >
-            <option value="all">All Time</option>
-            <option value="year">This Year</option>
-            <option value="month">This Month</option>
+        <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-4 py-2.5 shadow-sm">
+          <Calendar className="text-blue-600" size={16}/>
+          <select className="bg-transparent text-blue-600 font-bold text-sm outline-none cursor-pointer" value={timeframe} onChange={e=>setTimeframe(e.target.value)}>
+            <option value="all">All Time</option><option value="year">This Year</option><option value="month">This Month</option>
           </select>
         </div>
       </div>
 
-      {data && (
+      <div className="adm-tab-bar w-fit">
+        {tabs.map(t=><button key={t.key} className={`adm-tab ${activeTab===t.key?'active':''}`} onClick={()=>setActiveTab(t.key)}>{t.icon} {t.label}</button>)}
+      </div>
+
+      {/* Product Performance */}
+      {activeTab==='product' && (
         <div className="space-y-6">
-
-          {/* ── Top 3 Farmers ───────────────────────────── */}
-          <div className="glass-card p-6">
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="font-bold text-slate-200 flex items-center gap-2">
-                <Trophy size={18} className="text-amber-400" /> Top 3 Farmers by Sales
-              </h3>
-              <span className="text-xs text-slate-500 font-semibold uppercase tracking-widest">Top Producers this period</span>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {data.top_farmers?.length > 0 ? data.top_farmers.map((farmer, index) => (
-                <div key={farmer.id} className="glass-card-light p-4 anim-scale-in hover:border-emerald-500/25 transition-colors"
-                     style={{ animationDelay: `${index * 0.1}s` }}>
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center border border-white/10">
-                      {getRankIcon(index)}
-                    </div>
-                    <span className="text-xs text-slate-500 font-bold uppercase">Rank #{index + 1}</span>
-                  </div>
-                  <div className="font-bold text-slate-200 mb-1">{farmer.name}</div>
-                  <div className="flex items-baseline gap-1 mb-3">
-                    <span className="text-xl font-extrabold text-emerald-400">{farmer.sales.toLocaleString()}</span>
-                    <span className="text-xs text-slate-500">DZD</span>
-                  </div>
-                  <div className="flex items-center justify-between pt-2 border-t border-white/5">
-                    <div className="flex items-center gap-1 text-xs text-slate-500">
-                      <ShoppingCart size={11} /> {farmer.orders} Orders
-                    </div>
-                    <div className="w-24 h-1.5 bg-slate-700 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-emerald-500 rounded-full transition-all"
-                        style={{ width: `${(farmer.sales / data.top_farmers[0].sales) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              )) : (
-                <div className="col-span-3 text-center py-8 text-slate-600 text-sm">No producer data found for this period.</div>
-              )}
-            </div>
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-semibold text-gray-600">Product:</label>
+            <select className="adm-input w-auto" value={selProductId || ''} onChange={e=>setSelProductId(e.target.value)}>
+              {products.map(p=><option key={p.id} value={p.id}>{p.title} ({p.category__name})</option>)}
+            </select>
           </div>
 
-          {/* ── Revenue + Role Distribution ──────────────── */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-            <div className="glass-card p-6 lg:col-span-2">
-              <h3 className="font-bold text-slate-200 flex items-center gap-2 mb-5">
-                <Activity size={16} className="text-emerald-400" /> Revenue Generation (Monthly)
-              </h3>
-              <div style={{ width: '100%', height: 280 }}>
-                {data.revenue_trend?.length > 0 ? (
-                  <ResponsiveContainer>
-                    <AreaChart data={data.revenue_trend} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                      <defs>
-                        <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                          <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-                      <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
-                      <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} tickFormatter={(v) => `${v}`} />
-                      <Tooltip formatter={(value) => [`${value} DZD`, 'Revenue']} contentStyle={chartTooltipStyle} />
-                      <Area type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorRevenue)" />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="flex items-center justify-center h-full text-slate-600 text-sm">No revenue data available</div>
-                )}
-              </div>
+          {prodLoading ? <div className="glass-card p-12 text-center text-gray-400">Loading product data...</div> :
+           !prodData ? <div className="glass-card p-12 text-center text-gray-400">Select a product to view analytics.</div> : (
+          <>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                {l:'Total Units Sold', v: prodData.total_units},
+                {l:'Total Revenue', v: `${Number(prodData.total_revenue).toLocaleString()}`, s:'DZD'},
+                {l:'Unique Sellers', v: prodData.unique_sellers},
+                {l:'Unique Buyers', v: prodData.unique_buyers},
+              ].map((c,i)=>(
+                <div key={i} className="glass-card p-4"><div className="text-xs text-gray-500 mb-1">{c.l}</div><div className="text-xl font-extrabold text-gray-900">{c.v} {c.s&&<span className="text-xs text-gray-400 font-normal">{c.s}</span>}</div></div>
+              ))}
             </div>
 
-            <div className="glass-card p-6">
-              <h3 className="font-bold text-slate-200 flex items-center gap-2 mb-5">
-                <Users size={16} className="text-blue-400" /> Role Distribution
-              </h3>
-              <div style={{ width: '100%', height: 240 }}>
-                {data.role_distribution?.length > 0 ? (
-                  <ResponsiveContainer>
-                    <PieChart>
-                      <Pie
-                        data={data.role_distribution}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={80}
-                        paddingAngle={5}
-                        dataKey="value"
-                      >
-                        {data.role_distribution.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={ROLE_COLORS[entry.name] || COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip contentStyle={chartTooltipStyle} />
-                      <Legend iconType="circle" />
-                    </PieChart>
-                  </ResponsiveContainer>
-                ) : (
-                  <div className="flex items-center justify-center h-full text-slate-600 text-sm">No role data available</div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* ── Top Products + Registrations ─────────────── */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-            <div className="glass-card p-6">
-              <div className="flex items-center justify-between mb-5">
-                <h3 className="font-bold text-slate-200 flex items-center gap-2">
-                  <Package size={16} className="text-emerald-400" /> Top 3 Best-Sellers
-                </h3>
-                <span className="text-xs text-slate-500 font-semibold uppercase tracking-widest">Most demanded products</span>
-              </div>
-
-              <div className="space-y-2">
-                {data.top_products?.length > 0 ? data.top_products.map((product, index) => (
-                  <div key={product.id}
-                       className="flex items-center gap-4 p-3 rounded-xl bg-white/3 hover:bg-white/5 transition-colors anim-fade-up"
-                       style={{ animationDelay: `${index * 0.1}s` }}>
-                    <div className="text-2xl font-extrabold text-slate-700 w-8 shrink-0">0{index + 1}</div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-semibold text-slate-200 truncate">{product.name}</div>
-                      <div className="text-xs text-slate-500">{product.quantity.toLocaleString()} units sold</div>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <div className="font-bold text-emerald-400 text-sm">{product.revenue.toLocaleString()} <span className="text-xs text-slate-500">DZD</span></div>
-                      <div className="w-16 h-1 bg-slate-700 rounded-full mt-1.5 ml-auto overflow-hidden">
-                        <div
-                          className="h-full bg-emerald-500 rounded-full"
-                          style={{ width: `${(product.revenue / data.top_products[0].revenue) * 100}%` }}
-                        />
+            {/* Top 3 Sellers */}
+            {prodData.top_sellers?.length > 0 && (
+              <div className="glass-card p-6">
+                <h3 className="font-bold text-gray-800 flex items-center gap-2 mb-5"><Trophy size={18} className="text-yellow-500"/> Top Sellers</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {prodData.top_sellers.map((s,i)=>(
+                    <div key={i} className="p-4 rounded-xl border border-gray-200 bg-gray-50 hover:shadow-md transition-shadow anim-scale-in" style={{animationDelay:`${i*0.1}s`}}>
+                      <div className="flex items-center justify-between mb-3"><div className="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm">{getRankIcon(i)}</div><span className="text-xs text-gray-400 font-bold">#{s.rank}</span></div>
+                      <div className="font-bold text-gray-800 mb-2">{s.farmer__full_name}</div>
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        <div><span className="text-gray-400">Units</span><div className="font-bold text-gray-700">{Number(s.units).toLocaleString()}</div></div>
+                        <div><span className="text-gray-400">Revenue</span><div className="font-bold text-blue-600">{Number(s.revenue).toLocaleString()} DZD</div></div>
                       </div>
                     </div>
-                  </div>
-                )) : (
-                  <div className="text-center py-10 text-slate-600 text-sm">No product sales recorded yet.</div>
-                )}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
-            <div className="glass-card p-6">
-              <h3 className="font-bold text-slate-200 flex items-center gap-2 mb-5">
-                <Users size={16} className="text-blue-400" /> New Registrations (Monthly)
-              </h3>
-              <div style={{ width: '100%', height: 280 }}>
-                {data.users_trend?.length > 0 ? (
+            {/* Sales Trend */}
+            {prodData.trend?.length > 0 && (
+              <div className="glass-card p-6">
+                <h3 className="font-bold text-gray-800 mb-4">Sales Trend (30 Days)</h3>
+                <div style={{width:'100%',height:280}}>
                   <ResponsiveContainer>
-                    <BarChart data={data.users_trend} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-                      <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
-                      <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
-                      <Tooltip cursor={{ fill: 'rgba(59,130,246,0.07)' }} contentStyle={chartTooltipStyle} />
-                      <Bar dataKey="users" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                    </BarChart>
+                    <AreaChart data={prodData.trend} margin={{top:10,right:10,left:0,bottom:0}}>
+                      <defs><linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#0066CC" stopOpacity={0.2}/><stop offset="95%" stopColor="#0066CC" stopOpacity={0}/></linearGradient></defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB"/>
+                      <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fill:'#9CA3AF',fontSize:11}} interval={4}/>
+                      <YAxis axisLine={false} tickLine={false} tick={{fill:'#9CA3AF',fontSize:11}}/>
+                      <Tooltip contentStyle={tooltipStyle}/>
+                      <Area type="monotone" dataKey="sales" stroke="#0066CC" strokeWidth={2} fillOpacity={1} fill="url(#colorSales)"/>
+                    </AreaChart>
                   </ResponsiveContainer>
-                ) : (
-                  <div className="flex items-center justify-center h-full text-slate-600 text-sm">No user registration data</div>
-                )}
+                </div>
+              </div>
+            )}
+
+            {/* Price Analysis */}
+            <div className="glass-card p-6">
+              <h3 className="font-bold text-gray-800 mb-4">Price Analysis</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div><label className="adm-label">Average Price</label><span className="text-lg font-bold text-gray-900">{Number(prodData.avg_price).toFixed(0)} DZD</span></div>
+                <div><label className="adm-label">Min Price</label><span className="text-lg font-bold text-gray-900">{Number(prodData.min_price).toFixed(0)} DZD</span></div>
+                <div><label className="adm-label">Max Price</label><span className="text-lg font-bold text-gray-900">{Number(prodData.max_price).toFixed(0)} DZD</span></div>
               </div>
             </div>
+          </>
+          )}
+        </div>
+      )}
 
+      {/* Zone Analysis */}
+      {activeTab==='zone' && (
+        <div className="space-y-6">
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-semibold text-gray-600">Zone:</label>
+            <select className="adm-input w-auto" value={selZone} onChange={e=>setSelZone(e.target.value)}>
+              {zones.map(z=><option key={z} value={z}>{z}</option>)}
+            </select>
           </div>
+
+          {zoneLoading ? <div className="glass-card p-12 text-center text-gray-400">Loading zone data...</div> :
+           !zoneData ? <div className="glass-card p-12 text-center text-gray-400">Select a zone to view analytics.</div> :
+           zones.length === 0 ? <div className="glass-card p-12 text-center text-gray-400">No zone data available yet. Orders need wilaya information.</div> : (
+          <>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              {[
+                {l:'GMV', v:`${(zoneData.gmv/1e6).toFixed(2)}M`, s:'DZD'},
+                {l:'Orders', v:zoneData.order_count},
+                {l:'Avg Order', v:Number(zoneData.avg_order).toLocaleString(), s:'DZD'},
+                {l:'Farmers', v:zoneData.farmers},
+                {l:'Buyers', v:zoneData.buyers},
+              ].map((c,i)=>(
+                <div key={i} className="glass-card p-4"><div className="text-xs text-gray-500 mb-1">{c.l}</div><div className="text-xl font-extrabold text-gray-900">{c.v} {c.s&&<span className="text-xs text-gray-400 font-normal">{c.s}</span>}</div></div>
+              ))}
+            </div>
+
+            {zoneData.top_products?.length > 0 && (
+              <div className="glass-card p-6">
+                <h3 className="font-bold text-gray-800 mb-4">Top Products in {selZone}</h3>
+                <div className="space-y-2">{zoneData.top_products.map((p,i)=>(
+                  <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-gray-100">
+                    <div className="text-lg font-extrabold text-gray-300 w-6">{i+1}</div>
+                    <div className="flex-1"><div className="font-semibold text-gray-800 text-sm">{p.product__title}</div><div className="text-xs text-gray-400">{Number(p.units).toLocaleString()} units</div></div>
+                    <div className="text-sm font-bold text-blue-600">{Number(p.revenue).toLocaleString()} DZD</div>
+                  </div>
+                ))}</div>
+              </div>
+            )}
+          </>
+          )}
+        </div>
+      )}
+
+      {/* Leaderboard */}
+      {activeTab==='leaderboard' && (
+        <div className="space-y-6">
+          <div className="glass-card p-6">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="font-bold text-gray-800 flex items-center gap-2"><Trophy size={18} className="text-yellow-500"/> Revenue Leaderboard</h3>
+            </div>
+            {leadersLoading ? <div className="py-8 text-center text-gray-400">Loading leaderboard...</div> :
+             leaders.length === 0 ? <div className="py-8 text-center text-gray-400">No sales data available yet.</div> : (
+            <div className="space-y-3">
+              {leaders.map((s,i)=>(
+                <div key={i} className="flex items-center gap-4 p-4 rounded-xl border border-gray-200 bg-gray-50 hover:shadow-sm transition-shadow">
+                  <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm">{getRankIcon(i)}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-bold text-gray-800">{s.farmer__full_name}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-extrabold text-blue-600">{Number(s.revenue).toLocaleString()} <span className="text-xs text-gray-400 font-normal">DZD</span></div>
+                    {leaders[0]?.revenue > 0 && <div className="w-32 h-1.5 bg-gray-200 rounded-full mt-1 overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{width:`${(s.revenue/leaders[0].revenue)*100}%`}}/></div>}
+                  </div>
+                </div>
+              ))}
+            </div>
+            )}
+          </div>
+
+          {/* Revenue + User charts from existing API */}
+          {apiData && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="glass-card p-6">
+                <h3 className="font-bold text-gray-800 mb-4">Revenue Trend</h3>
+                <div style={{width:'100%',height:260}}>
+                  {apiData.revenue_trend?.length > 0 ? (
+                    <ResponsiveContainer><AreaChart data={apiData.revenue_trend} margin={{top:10,right:10,left:0,bottom:0}}>
+                      <defs><linearGradient id="cr" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#0066CC" stopOpacity={0.2}/><stop offset="95%" stopColor="#0066CC" stopOpacity={0}/></linearGradient></defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB"/><XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill:'#9CA3AF',fontSize:11}}/><YAxis axisLine={false} tickLine={false} tick={{fill:'#9CA3AF',fontSize:11}}/>
+                      <Tooltip contentStyle={tooltipStyle}/><Area type="monotone" dataKey="revenue" stroke="#0066CC" strokeWidth={2} fillOpacity={1} fill="url(#cr)"/>
+                    </AreaChart></ResponsiveContainer>
+                  ) : <div className="flex items-center justify-center h-full text-gray-400 text-sm">No revenue data</div>}
+                </div>
+              </div>
+              <div className="glass-card p-6">
+                <h3 className="font-bold text-gray-800 mb-4">User Registrations</h3>
+                <div style={{width:'100%',height:260}}>
+                  {apiData.users_trend?.length > 0 ? (
+                    <ResponsiveContainer><BarChart data={apiData.users_trend} margin={{top:10,right:10,left:0,bottom:0}}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB"/><XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill:'#9CA3AF',fontSize:11}}/><YAxis axisLine={false} tickLine={false} tick={{fill:'#9CA3AF',fontSize:11}}/>
+                      <Tooltip contentStyle={tooltipStyle}/><Bar dataKey="users" fill="#0066CC" radius={[4,4,0,0]}/>
+                    </BarChart></ResponsiveContainer>
+                  ) : <div className="flex items-center justify-center h-full text-gray-400 text-sm">No data</div>}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

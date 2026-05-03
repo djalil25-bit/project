@@ -64,39 +64,39 @@ function PriceManager() {
   };
 
   return (
-    <div className="min-h-screen p-6 space-y-6 anim-fade-up">
+    <div className="min-h-screen p-6 space-y-6 anim-fade-up admin-mode">
 
       {/* ── Breadcrumb ────────────────────────────────── */}
       <div className="adm-breadcrumb">
         <Link to="/admin-dashboard">Admin Hub</Link>
         <ChevronRight size={12} className="text-slate-600" />
-        <span className="text-slate-500">Price Indexing</span>
+        <span className="text-gray-500">Price Indexing</span>
       </div>
 
       {/* ── Page Header ──────────────────────────────── */}
       <div className="flex items-center gap-4">
-        <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center">
-          <TrendingUp className="text-emerald-400" size={24} />
+        <div className="w-12 h-12 rounded-2xl bg-green-50 border border-green-200 flex items-center justify-center">
+          <TrendingUp className="text-green-600" size={24} />
         </div>
         <div>
-          <h1 className="text-xl font-extrabold text-slate-100 tracking-tight">Market Price Surveillance</h1>
-          <p className="text-slate-500 text-sm">Publish official wholesale reference prices to stabilize platform trade.</p>
+          <h1 className="text-xl font-extrabold text-gray-900 tracking-tight">Market Price Surveillance</h1>
+          <p className="text-gray-500 text-sm">Publish official wholesale reference prices to stabilize platform trade.</p>
         </div>
       </div>
 
       {/* ── Publication Form ──────────────────────────── */}
       <div className="glass-card p-6">
-        <h3 className="font-bold text-slate-200 flex items-center gap-2 mb-5">
-          <Plus size={16} className="text-emerald-400" /> New Index Publication
+        <h3 className="font-bold text-gray-800 flex items-center gap-2 mb-5">
+          <Plus size={16} className="text-blue-600" /> New Index Publication
         </h3>
 
         {error && (
-          <div className="flex items-center gap-2 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm mb-4">
+          <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm mb-4">
             <AlertCircle size={16} /> {error}
           </div>
         )}
         {success && (
-          <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm mb-4">
+          <div className="flex items-center gap-2 p-3 rounded-xl bg-green-50 border border-green-200 text-green-600 text-sm mb-4">
             <CheckCircle size={16} /> {success}
           </div>
         )}
@@ -145,8 +145,8 @@ function PriceManager() {
             <div>
               <label className="adm-label">Market Average (DZD)</label>
               <div className="relative">
-                <DollarSign size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-500" />
-                <input type="number" step="0.01" className="adm-input pl-9 font-bold text-emerald-400" placeholder="0.00" value={formData.reference_price} onChange={e => setFormData({ ...formData, reference_price: e.target.value })} required />
+                <DollarSign size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-600" />
+                <input type="number" step="0.01" className="adm-input pl-9 font-bold text-blue-600" placeholder="0.00" value={formData.reference_price} onChange={e => setFormData({ ...formData, reference_price: e.target.value })} required />
               </div>
             </div>
           </div>
@@ -181,9 +181,9 @@ function PriceManager() {
 
       {/* ── Price History Table ───────────────────────── */}
       <div className="glass-card overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
-          <h3 className="font-bold text-slate-200 flex items-center gap-2">
-            <Database size={16} className="text-emerald-400" /> Historic Price Registry
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <h3 className="font-bold text-gray-800 flex items-center gap-2">
+            <Database size={16} className="text-blue-600" /> Historic Price Registry
           </h3>
           <span className="adm-badge adm-badge-approved">{publications.length} Indices</span>
         </div>
@@ -191,7 +191,7 @@ function PriceManager() {
         {loading ? (
           <div className="flex items-center justify-center gap-3 py-12">
             <div className="adm-spinner"></div>
-            <span className="text-slate-500 text-sm">Retrieving index data...</span>
+            <span className="text-gray-400 text-sm">Retrieving index data...</span>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -219,19 +219,19 @@ function PriceManager() {
                 ) : publications.map(p => (
                   <tr key={p.id}>
                     <td className="pl-6">
-                      <span className="font-semibold text-slate-200">
+                      <span className="font-semibold text-gray-800">
                         {categories.find(c => c.id === p.category)?.name || 'Unknown'}
                       </span>
                     </td>
-                    <td><span className="text-xs text-slate-400">{p.effective_date}</span></td>
+                    <td><span className="text-xs text-gray-500">{p.effective_date}</span></td>
                     <td>
-                      <span className="text-xs text-red-400">{p.min_price} DZD</span>
-                      <span className="mx-1.5 text-slate-600">→</span>
-                      <span className="text-xs text-emerald-400">{p.max_price} DZD</span>
+                      <span className="text-xs text-red-600">{p.min_price} DZD</span>
+                      <span className="mx-1.5 text-gray-300">→</span>
+                      <span className="text-xs text-green-600">{p.max_price} DZD</span>
                     </td>
-                    <td><span className="font-bold text-emerald-400">{p.reference_price} DZD</span></td>
+                    <td><span className="font-bold text-blue-600">{p.reference_price} DZD</span></td>
                     <td>
-                      <span className="adm-badge" style={{ background: 'rgba(255,255,255,0.06)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.1)' }}>
+                      <span className="adm-badge" style={{ background: '#F3F4F6', color: '#6B7280', border: '1px solid #E5E7EB' }}>
                         {p.unit}
                       </span>
                     </td>

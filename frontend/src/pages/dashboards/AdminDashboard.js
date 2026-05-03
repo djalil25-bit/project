@@ -19,8 +19,15 @@ import {
   UserMinus,
   RefreshCw,
   Eye,
-  Search
+  Search,
+  AlertTriangle,
+  Bell,
+  ShieldAlert,
+  BarChart3,
+  ArrowUpRight,
+  DollarSign
 } from 'lucide-react';
+import AlertsPanel from '../../components/admin/AlertsPanel';
 
 const StatusBadge = ({ status }) => (
   <span className={`adm-badge adm-badge-${status}`}>
@@ -75,12 +82,12 @@ function AdminDashboard() {
   ];
 
   const STAT_CARDS = stats ? [
-    { icon: <Clock size={20}/>,       color: 'text-amber-400',   bg: 'bg-amber-400/10  border-amber-400/20',   value: stats.pending_users,   label: 'Pending Verifications'       },
-    { icon: <Users size={20}/>,       color: 'text-blue-400',    bg: 'bg-blue-400/10   border-blue-400/20',    value: stats.total_users,     label: 'System Platform Members'     },
-    { icon: <Wheat size={20}/>,       color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/20', value: stats.total_farmers,   label: 'Registered Producer Base'    },
-    { icon: <ShoppingCart size={20}/>,color: 'text-blue-400',    bg: 'bg-blue-400/10   border-blue-400/20',    value: stats.total_buyers,    label: 'Market Consumer Base'        },
-    { icon: <Package size={20}/>,     color: 'text-emerald-400', bg: 'bg-emerald-400/10 border-emerald-400/20', value: stats.total_products,  label: 'Live Marketplace Listings'   },
-    { icon: <ShoppingBag size={20}/>, color: 'text-violet-400',  bg: 'bg-violet-400/10 border-violet-400/20',  value: stats.total_orders,    label: 'Platform Transaction Volume' },
+    { icon: <Clock size={20}/>,       color: 'text-orange-500',  iconBg: 'bg-orange-50',  accent: 'stat-accent-orange', value: stats.pending_users,   label: 'Pending Verifications' },
+    { icon: <Users size={20}/>,       color: 'text-blue-600',    iconBg: 'bg-blue-50',    accent: 'stat-accent-blue',   value: stats.total_users,     label: 'Platform Members' },
+    { icon: <Wheat size={20}/>,       color: 'text-green-600',   iconBg: 'bg-green-50',   accent: 'stat-accent-green',  value: stats.total_farmers,   label: 'Registered Producers' },
+    { icon: <ShoppingCart size={20}/>,color: 'text-blue-600',    iconBg: 'bg-blue-50',    accent: 'stat-accent-blue',   value: stats.total_buyers,    label: 'Consumer Base' },
+    { icon: <Package size={20}/>,     color: 'text-green-600',   iconBg: 'bg-green-50',   accent: 'stat-accent-green',  value: stats.total_products,  label: 'Active Listings' },
+    { icon: <ShoppingBag size={20}/>, color: 'text-purple-600',  iconBg: 'bg-purple-50',  accent: 'stat-accent-purple', value: stats.total_orders,    label: 'Transaction Volume' },
   ] : [];
 
   return (
@@ -90,17 +97,17 @@ function AdminDashboard() {
       <div className="admin-hero-strip p-8 anim-fade-up">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div>
-            <div className="inline-flex items-center gap-2 text-emerald-300 text-xs font-bold uppercase tracking-widest mb-3">
-              <Activity size={13} /> Secure System Control
+            <div className="inline-flex items-center gap-2 text-blue-200 text-xs font-bold uppercase tracking-widest mb-3">
+              <Activity size={13} /> Administrative Control Center
             </div>
-            <h1 className="text-3xl font-extrabold text-white tracking-tight mb-2">Central Control</h1>
-            <p className="text-emerald-200/70 text-sm max-w-lg">
+            <h1 className="text-3xl font-extrabold text-white tracking-tight mb-2">Central Dashboard</h1>
+            <p className="text-blue-100/80 text-sm max-w-lg">
               Monitor system health, verify actors, and manage global marketplace parameters.
             </p>
           </div>
           <div className="flex gap-3 shrink-0">
             <button
-              className="adm-btn adm-btn-primary text-sm px-5 py-2.5"
+              className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white text-sm px-5 py-2.5 rounded-lg font-semibold flex items-center gap-2 transition-all"
               onClick={() => window.location.href='/admin-dashboard/analytics'}
             >
               <TrendingUp size={15} /> View Full Analytics
@@ -110,35 +117,66 @@ function AdminDashboard() {
         <div className="absolute top-4 right-6 text-5xl opacity-10 select-none">🛡️</div>
       </div>
 
+      {/* ── Quick Alerts Panel ──────────────────────────── */}
+      <AlertsPanel />
+
       {/* ── Stats Grid ──────────────────────────────────── */}
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
           {STAT_CARDS.map((card, i) => (
-            <div key={i} className={`glass-stat-card p-4 border ${card.bg} anim-fade-up`}
+            <div key={i} className={`glass-stat-card p-4 ${card.accent} anim-fade-up`}
                  style={{ animationDelay: `${i * 0.06}s` }}>
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${card.bg} ${card.color}`}>
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${card.iconBg} ${card.color}`}>
                 {card.icon}
               </div>
-              <div className="text-2xl font-extrabold text-white mb-0.5">{card.value}</div>
-              <div className="text-xs text-slate-400 leading-snug">{card.label}</div>
+              <div className="text-2xl font-extrabold text-gray-900 mb-0.5">{card.value}</div>
+              <div className="text-xs text-gray-500 leading-snug">{card.label}</div>
             </div>
           ))}
         </div>
       )}
 
       {/* ── Registry Management Card ─────────────────────── */}
+      {/* ── Recent Critical Alerts ──────────────────────── */}
+      {stats?.recent_alerts && stats.recent_alerts.length > 0 && (
+        <div className="glass-card overflow-hidden">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+            <div className="flex items-center gap-2">
+              <ShieldAlert size={18} className="text-red-600" />
+              <h3 className="font-bold text-gray-800 text-base">Recent Critical Alerts</h3>
+            </div>
+            <button className="adm-btn adm-btn-ghost text-xs" onClick={() => window.location.href='/admin-dashboard/alerts'}>View All</button>
+          </div>
+          <div className="divide-y divide-gray-100">
+            {stats.recent_alerts.map(a => (
+              <div key={a.id} className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className={`w-2 h-2 rounded-full ${a.severity === 'CRITICAL' ? 'bg-red-600' : a.severity === 'HIGH' ? 'bg-orange-500' : 'bg-yellow-400'}`}></div>
+                  <div>
+                    <div className="text-sm font-bold text-gray-800">{a.alert_type?.replace(/_/g, ' ')}</div>
+                    <div className="text-xs text-gray-500">{new Date(a.created_at).toLocaleString()}</div>
+                  </div>
+                </div>
+                <button className="adm-btn adm-btn-ghost text-xs" onClick={() => window.location.href='/admin-dashboard/alerts'}><Eye size={13}/> View</button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Registry Management Card ─────────────────────── */}
       <div className="glass-card overflow-hidden">
         {/* Card Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <div className="flex items-center gap-2">
-            <UserCheck size={18} className="text-emerald-400" />
-            <h3 className="font-bold text-slate-200 text-base">Registry Management</h3>
+            <UserCheck size={18} className="text-blue-600" />
+            <h3 className="font-bold text-gray-800 text-base">Registry Management</h3>
           </div>
-          <div className="text-xs text-slate-500 font-medium">Real-time Actor Monitoring</div>
+          <div className="text-xs text-gray-400 font-medium">Real-time Actor Monitoring</div>
         </div>
 
         {/* Tab Bar */}
-        <div className="px-6 py-3 border-b border-white/5">
+        <div className="px-6 py-3 border-b border-gray-100">
           <div className="adm-tab-bar w-fit">
             {TABS.map(tab => (
               <button
@@ -157,7 +195,7 @@ function AdminDashboard() {
         {loading ? (
           <div className="flex items-center justify-center gap-3 py-16">
             <div className="adm-spinner"></div>
-            <span className="text-slate-500 text-sm">Synchronizing user registry...</span>
+            <span className="text-gray-400 text-sm">Synchronizing user registry...</span>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -175,7 +213,7 @@ function AdminDashboard() {
                 {users.length === 0 ? (
                   <tr>
                     <td colSpan="5">
-                      <div className="flex flex-col items-center justify-center gap-3 py-16 text-slate-600">
+                      <div className="flex flex-col items-center justify-center gap-3 py-16 text-gray-400">
                         <AlertCircle size={48} className="opacity-20" />
                         <div className="text-sm">No entries found in this registry sector.</div>
                       </div>
@@ -185,15 +223,15 @@ function AdminDashboard() {
                   <React.Fragment key={u.id}>
                   <tr>
                     <td>
-                      <div className="font-semibold text-slate-200">{u.full_name}</div>
-                      <div className="text-xs text-slate-500 mt-0.5">{u.email}</div>
+                      <div className="font-semibold text-gray-800">{u.full_name}</div>
+                      <div className="text-xs text-gray-400 mt-0.5">{u.email}</div>
                     </td>
                     <td>
                       <span className={`adm-badge adm-badge-${u.role}`}>{u.role}</span>
                     </td>
                     <td><StatusBadge status={u.status} /></td>
                     <td>
-                      <div className="flex items-center gap-1.5 text-xs text-slate-500">
+                      <div className="flex items-center gap-1.5 text-xs text-gray-500">
                         <Clock size={11} className="opacity-50" />
                         {new Date(u.created_at).toLocaleDateString()}
                       </div>
@@ -247,26 +285,26 @@ function AdminDashboard() {
                   {expandedUser === u.id && (
                     <tr>
                       <td colSpan="5" className="p-0 border-0">
-                        <div className="px-6 py-4 bg-emerald-500/5 border-t border-emerald-500/10 anim-fade-up">
-                          <h6 className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+                        <div className="px-6 py-4 bg-blue-50 border-t border-blue-100 anim-fade-up">
+                          <h6 className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-3 flex items-center gap-2">
                             <Search size={13}/> User Request Details
                           </h6>
                           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <div>
                               <label className="adm-label">Full Name</label>
-                              <span className="text-slate-300 text-sm">{u.full_name}</span>
+                              <span className="text-gray-700 text-sm">{u.full_name}</span>
                             </div>
                             <div>
                               <label className="adm-label">Contact Email</label>
-                              <span className="text-slate-300 text-sm">{u.email}</span>
+                              <span className="text-gray-700 text-sm">{u.email}</span>
                             </div>
                             <div>
                               <label className="adm-label">Phone Number</label>
-                              <span className="text-slate-300 text-sm">{u.phone || 'N/A'}</span>
+                              <span className="text-gray-700 text-sm">{u.phone || 'N/A'}</span>
                             </div>
                             <div>
                               <label className="adm-label">Physical Address</label>
-                              <span className="text-slate-300 text-sm">{u.address || 'N/A'}</span>
+                              <span className="text-gray-700 text-sm">{u.address || 'N/A'}</span>
                             </div>
                           </div>
                         </div>

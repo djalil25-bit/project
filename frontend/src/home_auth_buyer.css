@@ -304,3 +304,68 @@
 .buyer-prices-preview-item:last-child { border-bottom: none; }
 .buyer-prices-preview-name { flex: 1; font-weight: 600; color: var(--gray-800); }
 .buyer-prices-preview-range { font-weight: 700; color: var(--primary-dark); font-size: 0.875rem; }
+
+/* ═══ MULTI-STEP REGISTER FORM ═══ */
+.ms-container { display: flex; min-height: 100vh; background: #f8f9fb; }
+.ms-sidebar { width: 320px; background: white; border-right: 1px solid var(--gray-200); padding: 2rem; display: flex; flex-direction: column; }
+.ms-sidebar-logo { display: flex; align-items: center; gap: 0.6rem; text-decoration: none; font-size: 1.25rem; font-weight: 800; color: var(--gray-900); margin-bottom: 2.5rem; }
+.ms-sidebar-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--gray-500); margin-bottom: 1rem; letter-spacing: 0.5px; }
+.ms-role-list { display: flex; flex-direction: column; gap: 0.75rem; flex: 1; }
+.ms-role-btn { display: flex; align-items: flex-start; gap: 1rem; padding: 1.25rem 1rem; background: white; border: 2px solid var(--gray-200); border-radius: 12px; cursor: pointer; transition: all 0.2s; text-align: left; }
+.ms-role-btn:hover { border-color: var(--gray-400); background: var(--gray-50); }
+.ms-role-btn.active { border-color: var(--active-color); background: var(--active-bg); }
+.ms-role-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: var(--gray-100); color: var(--gray-500); transition: all 0.2s; }
+.ms-role-btn.active .ms-role-icon { background: var(--active-color); color: white; }
+.ms-role-info { flex: 1; }
+.ms-role-name { display: block; font-weight: 700; font-size: 0.95rem; color: var(--gray-900); margin-bottom: 0.2rem; }
+.ms-role-btn.active .ms-role-name { color: var(--active-color); }
+.ms-role-desc { font-size: 0.75rem; color: var(--gray-500); line-height: 1.4; }
+.ms-sidebar-footer { margin-top: auto; padding-top: 2rem; border-top: 1px solid var(--gray-200); font-size: 0.8rem; color: var(--gray-500); text-align: center; }
+
+.ms-content { flex: 1; padding: 2rem 3rem; display: flex; flex-direction: column; overflow-y: auto; position: relative; }
+.ms-content-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; max-width: 700px; margin-left: auto; margin-right: auto; width: 100%; }
+.ms-back-link { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--gray-500); font-size: 0.875rem; font-weight: 600; text-decoration: none; transition: color 0.2s; }
+.ms-back-link:hover { color: var(--gray-900); }
+.ms-login-link { font-size: 0.875rem; color: var(--gray-600); }
+.ms-login-link a { font-weight: 700; color: var(--active-color); text-decoration: none; }
+.ms-login-link a:hover { text-decoration: underline; }
+
+.ms-form-wrapper { max-width: 700px; margin: 0 auto; width: 100%; background: white; border-radius: 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--gray-200); padding: 2.5rem; position: relative; overflow: hidden; }
+.ms-progress-bar { position: absolute; top: 0; left: 0; height: 4px; background: var(--active-color); transition: width 0.3s ease; }
+.ms-step-header { margin-bottom: 2rem; }
+.ms-step-title { font-size: 1.5rem; font-weight: 800; color: var(--gray-900); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+.ms-step-subtitle { color: var(--gray-500); font-size: 0.9rem; }
+
+.ms-step-body { animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.ms-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid var(--gray-100); }
+.ms-btn-prev { background: white; border: 2px solid var(--gray-200); color: var(--gray-700); font-weight: 700; padding: 0.7rem 1.25rem; border-radius: 10px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.4rem; }
+.ms-btn-prev:hover { border-color: var(--gray-400); background: var(--gray-50); }
+.ms-btn-next { background: var(--active-color); color: white; border: none; font-weight: 700; padding: 0.7rem 1.5rem; border-radius: 10px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 0.4rem; }
+.ms-btn-next:hover { filter: brightness(0.9); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.ms-btn-next:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.ms-dropzone { border: 2px dashed var(--gray-300); border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--gray-50); }
+.ms-dropzone.active { border-color: var(--active-color); background: var(--active-bg); }
+.ms-dropzone-icon { color: var(--gray-400); margin-bottom: 0.75rem; }
+.ms-dropzone.active .ms-dropzone-icon { color: var(--active-color); }
+.ms-dropzone-text { font-size: 0.9rem; font-weight: 600; color: var(--gray-700); margin-bottom: 0.25rem; }
+.ms-dropzone-hint { font-size: 0.75rem; color: var(--gray-500); }
+.ms-file-item { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: white; border: 1px solid var(--gray-200); border-radius: 8px; margin-top: 0.5rem; }
+.ms-file-info { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 600; color: var(--gray-800); }
+.ms-file-remove { color: var(--danger); background: none; border: none; cursor: pointer; padding: 0.25rem; display: flex; align-items: center; justify-content: center; border-radius: 4px; }
+.ms-file-remove:hover { background: #fee2e2; }
+
+@media (max-width: 991px) {
+  .ms-container { flex-direction: column; }
+  .ms-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--gray-200); padding: 1.5rem; }
+  .ms-role-list { flex-direction: row; flex-wrap: wrap; }
+  .ms-role-btn { flex: 1; min-width: 200px; padding: 1rem; }
+  .ms-sidebar-footer { display: none; }
+  .ms-content { padding: 1.5rem; }
+}
+@media (max-width: 600px) {
+  .ms-form-wrapper { padding: 1.5rem; }
+  .ms-role-list { flex-direction: column; }
+}

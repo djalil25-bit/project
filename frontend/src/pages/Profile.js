@@ -76,9 +76,13 @@ const Profile = () => {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       
-      updateUser(res.data); // sync global state
+      const updatedData = res.data;
+      updateUser(updatedData); // sync global state (Navbar, etc.)
+      setProfile(prev => ({ ...prev, ...updatedData })); // sync local state
+      
       showToast('Profile updated successfully!', 'success');
       setImageFile(null);
+      setImagePreview(null);
     } catch (err) {
       showToast('Update failed. Please check your data.', 'error');
     } finally { setUpdating(false); }
@@ -121,7 +125,7 @@ const Profile = () => {
                   <div className="profile-avatar-large">
                     {imagePreview || profile.profile_picture ? (
                       <img 
-                        src={imagePreview || (profile.profile_picture.startsWith('http') ? profile.profile_picture : `http://localhost:8000${profile.profile_picture}`)} 
+                        src={imagePreview || `${profile.profile_picture.startsWith('http') ? profile.profile_picture : `http://localhost:8000${profile.profile_picture}`}?t=${new Date().getTime()}`} 
                         alt="Profile" 
                       />
                     ) : (

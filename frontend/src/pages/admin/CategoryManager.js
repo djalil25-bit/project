@@ -77,23 +77,23 @@ function CategoryManager() {
   };
 
   return (
-    <div className="min-h-screen p-6 space-y-6 anim-fade-up">
+    <div className="min-h-screen p-6 space-y-6 anim-fade-up admin-mode">
 
       {/* ── Breadcrumb ────────────────────────────────── */}
       <div className="adm-breadcrumb">
         <Link to="/admin-dashboard">Admin Hub</Link>
         <ChevronRight size={12} className="text-slate-600" />
-        <span className="text-slate-500">Product Classifications</span>
+        <span className="text-gray-500">Product Classifications</span>
       </div>
 
       {/* ── Page Header ──────────────────────────────── */}
       <div className="flex items-center gap-4">
-        <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center">
-          <Layers className="text-emerald-400" size={24} />
+        <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center">
+          <Layers className="text-blue-600" size={24} />
         </div>
         <div>
-          <h1 className="text-xl font-extrabold text-slate-100 tracking-tight">Domain Taxonomy</h1>
-          <p className="text-slate-500 text-sm">Initialize and manage standard categories for the product catalog.</p>
+          <h1 className="text-xl font-extrabold text-gray-900 tracking-tight">Domain Taxonomy</h1>
+          <p className="text-gray-500 text-sm">Initialize and manage standard categories for the product catalog.</p>
         </div>
       </div>
 
@@ -102,18 +102,18 @@ function CategoryManager() {
 
         {/* ── Left: Form Panel ─────────────────────────── */}
         <div className="glass-card p-6">
-          <h3 className="font-bold text-slate-200 flex items-center gap-2 mb-5">
-            <PlusCircle size={16} className="text-emerald-400" />
+          <h3 className="font-bold text-gray-800 flex items-center gap-2 mb-5">
+            <PlusCircle size={16} className="text-blue-600" />
             {editingId ? 'Edit Classification' : 'New Classification'}
           </h3>
 
           {error && (
-            <div className="flex items-center gap-2 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm mb-4">
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm mb-4">
               <AlertCircle size={14} /> {error}
             </div>
           )}
           {success && (
-            <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm mb-4">
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-green-50 border border-green-200 text-green-600 text-sm mb-4">
               <CheckCircle size={14} /> {success}
             </div>
           )}
@@ -178,9 +178,9 @@ function CategoryManager() {
         {/* ── Right: Table Panel ───────────────────────── */}
         <div className="lg:col-span-2 space-y-4">
           <div className="glass-card overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
-              <h3 className="font-bold text-slate-200 flex items-center gap-2">
-                <Layers size={16} className="text-emerald-400" /> Registered Taxonomy
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+              <h3 className="font-bold text-gray-800 flex items-center gap-2">
+                <Layers size={16} className="text-blue-600" /> Registered Taxonomy
                 <span className="adm-badge adm-badge-approved ml-1">{categories.length}</span>
               </h3>
             </div>
@@ -188,7 +188,7 @@ function CategoryManager() {
             {loading ? (
               <div className="flex items-center justify-center gap-3 py-12">
                 <div className="adm-spinner"></div>
-                <span className="text-slate-500 text-sm">Calculating domains...</span>
+                <span className="text-gray-400 text-sm">Calculating domains...</span>
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -204,7 +204,7 @@ function CategoryManager() {
                     {categories.length === 0 ? (
                       <tr>
                         <td colSpan="3">
-                          <div className="flex flex-col items-center gap-3 py-14 text-slate-600">
+                          <div className="flex flex-col items-center gap-3 py-14 text-gray-400">
                             <Search size={40} className="opacity-20" />
                             <p className="text-sm">No taxonomic domains identified.</p>
                           </div>
@@ -215,11 +215,11 @@ function CategoryManager() {
                         <td className="pl-6">
                           <div className="flex items-center gap-3">
                             <span className="text-2xl">{c.icon || '🌱'}</span>
-                            <div className="font-semibold text-slate-200">{c.name}</div>
+                            <div className="font-semibold text-gray-800">{c.name}</div>
                           </div>
                         </td>
                         <td>
-                          <div className="text-xs text-slate-500 leading-relaxed" style={{ maxWidth: '300px' }}>
+                          <div className="text-xs text-gray-500 leading-relaxed" style={{ maxWidth: '300px' }}>
                             {c.description || <span className="italic opacity-50">No scope defined</span>}
                           </div>
                         </td>

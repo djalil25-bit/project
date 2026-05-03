@@ -123,13 +123,13 @@ const CatalogPriceHistory = () => {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-[#1e293b] border border-emerald-500/20 p-4 rounded-xl shadow-xl">
-          <p className="text-slate-300 font-semibold mb-2">{label}</p>
+        <div className="bg-white border border-gray-200 p-4 rounded-xl shadow-xl">
+          <p className="text-gray-700 font-semibold mb-2">{label}</p>
           {payload.map((entry, index) => (
             <div key={index} className="flex items-center gap-3 text-sm py-1">
               <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
-              <span className="text-slate-400 w-24">{entry.name}:</span>
-              <span className="font-bold text-white">{entry.value} DZD</span>
+              <span className="text-gray-600 w-24">{entry.name}:</span>
+              <span className="font-bold text-gray-900">{entry.value} DZD</span>
             </div>
           ))}
         </div>
@@ -144,24 +144,24 @@ const CatalogPriceHistory = () => {
       {/* ── Breadcrumb ────────────────────────────────── */}
       <div className="adm-breadcrumb">
         <Link to="/admin-dashboard">Admin Hub</Link>
-        <ChevronRight size={12} className="text-slate-600" />
+        <ChevronRight size={12} className="text-gray-400" />
         <Link to="/admin-dashboard/catalog">Master Catalog</Link>
-        <ChevronRight size={12} className="text-slate-600" />
-        <span className="text-slate-500">Price History</span>
+        <ChevronRight size={12} className="text-gray-400" />
+        <span className="text-gray-500">Price History</span>
       </div>
 
       {/* ── Page Header ──────────────────────────────── */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-500/25 flex items-center justify-center">
-            <TrendingUp className="text-amber-400" size={24} />
+          <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center">
+            <TrendingUp className="text-amber-500" size={24} />
           </div>
           <div>
-            <h1 className="text-xl font-extrabold text-slate-100 flex items-center gap-2">
+            <h1 className="text-xl font-extrabold text-gray-900 flex items-center gap-2">
               Price Evolution
-              {product && <span className="text-slate-500 font-medium">/ {product.name}</span>}
+              {product && <span className="text-gray-500 font-medium">/ {product.name}</span>}
             </h1>
-            <p className="text-slate-500 text-sm mt-1">Track index ranges and historical price trajectories over time.</p>
+            <p className="text-gray-500 text-sm mt-1">Track index ranges and historical price trajectories over time.</p>
           </div>
         </div>
         
@@ -173,76 +173,76 @@ const CatalogPriceHistory = () => {
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20">
           <div className="adm-spinner mb-4"></div>
-          <div className="text-slate-500 text-sm">Aggregating historical records...</div>
+          <div className="text-gray-500 text-sm">Aggregating historical records...</div>
         </div>
       ) : !product ? (
         <div className="glass-card p-12 text-center">
-          <Info className="mx-auto text-slate-600 mb-4" size={40} />
-          <h3 className="text-lg text-slate-300 font-bold">Product not found</h3>
+          <Info className="mx-auto text-gray-400 mb-4" size={40} />
+          <h3 className="text-lg text-gray-700 font-bold">Product not found</h3>
         </div>
       ) : (
         <>
           {/* ── Product Summary Stats ────────────────────── */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="glass-stat-card p-4 flex flex-col justify-between">
-              <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
-                <Layers size={14} className="text-emerald-400"/> Current Category
+              <div className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
+                <Layers size={14} className="text-blue-600"/> Current Category
               </div>
-              <div className="text-lg font-semibold text-slate-200">
+              <div className="text-lg font-semibold text-gray-800">
                 {product.category_name || "Uncategorized"}
               </div>
             </div>
             
             <div className="glass-stat-card p-4 flex flex-col justify-between">
-              <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
-                <TrendingUp size={14} className="text-red-400"/> Current Floor Minimum
+              <div className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
+                <TrendingUp size={14} className="text-red-500"/> Current Floor Minimum
               </div>
               <div className="flex items-baseline gap-2">
-                <div className="text-2xl font-bold text-red-400">
+                <div className="text-2xl font-bold text-red-500">
                   {product.min_price || "--"}
                 </div>
-                <div className="text-xs text-slate-500">DZD/{product.unit}</div>
+                <div className="text-xs text-gray-500">DZD/{product.unit}</div>
               </div>
             </div>
 
             <div className="glass-stat-card p-4 flex flex-col justify-between">
-              <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
-                <TrendingUp size={14} className="text-blue-400"/> Current Ceiling Max
+              <div className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
+                <TrendingUp size={14} className="text-blue-500"/> Current Ceiling Max
               </div>
               <div className="flex items-baseline gap-2">
-                <div className="text-2xl font-bold text-blue-400">
+                <div className="text-2xl font-bold text-blue-500">
                   {product.max_price || "--"}
                 </div>
-                <div className="text-xs text-slate-500">DZD/{product.unit}</div>
+                <div className="text-xs text-gray-500">DZD/{product.unit}</div>
               </div>
             </div>
 
             <div className="glass-stat-card p-4 flex flex-col justify-between">
-              <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
-                <TrendingUp size={14} className="text-emerald-400"/> Target Index Price
+              <div className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
+                <TrendingUp size={14} className="text-blue-600"/> Target Index Price
               </div>
               <div className="flex items-baseline gap-2">
-                <div className="text-2xl font-bold text-emerald-400">
+                <div className="text-2xl font-bold text-blue-600">
                   {product.ref_price || "--"}
                 </div>
-                <div className="text-xs text-slate-500">DZD/{product.unit}</div>
+                <div className="text-xs text-gray-500">DZD/{product.unit}</div>
               </div>
             </div>
           </div>
 
           {/* ── Filters & Chart Section ──────────────────── */}
           <div className="glass-card flex flex-col overflow-hidden">
-            <div className="flex flex-col md:flex-row items-center justify-between p-5 border-b border-white/5 gap-4">
+            <div className="flex flex-col md:flex-row items-center justify-between p-5 border-b border-gray-100 gap-4">
               <div className="flex items-center gap-2">
-                <TrendingUp className="text-amber-400" size={18} />
-                <h3 className="font-bold text-slate-200">Price Evolution Chart</h3>
+                <TrendingUp className="text-amber-500" size={18} />
+                <h3 className="font-bold text-gray-800">Price Evolution Chart</h3>
                 {isMocked && <span className="adm-badge adm-badge-warning ml-2">Displaying Demo Data</span>}
               </div>
               
               {/* Date Filters */}
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <Calendar size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                  <Calendar size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input 
                     type="date" 
                     className="adm-input pl-8 py-1.5 text-xs" 
@@ -251,9 +251,9 @@ const CatalogPriceHistory = () => {
                     onChange={(e) => setStartDate(e.target.value)}
                   />
                 </div>
-                <span className="text-slate-600">—</span>
+                <span className="text-gray-400">—</span>
                 <div className="relative">
-                  <Calendar size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                  <Calendar size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                   <input 
                     type="date" 
                     className="adm-input pl-8 py-1.5 text-xs" 
@@ -276,23 +276,23 @@ const CatalogPriceHistory = () => {
             
             <div className="p-6" style={{ height: '400px', width: '100%' }}>
               {chartData.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-slate-500">
+                <div className="h-full flex flex-col items-center justify-center text-gray-400">
                   <Filter size={32} className="mb-3 opacity-30" />
                   <p>No historical data available for this range.</p>
                 </div>
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
                   <RechartsLineChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.05)" vertical={false} />
                     <XAxis 
                       dataKey="chartDate" 
-                      tick={{ fill: '#64748b', fontSize: 12 }}
-                      axisLine={{ stroke: 'rgba(255,255,255,0.1)' }}
+                      tick={{ fill: '#6b7280', fontSize: 12 }}
+                      axisLine={{ stroke: 'rgba(0,0,0,0.1)' }}
                       tickLine={false}
                       dy={10}
                     />
                     <YAxis 
-                      tick={{ fill: '#64748b', fontSize: 12 }}
+                      tick={{ fill: '#6b7280', fontSize: 12 }}
                       axisLine={false}
                       tickLine={false}
                       dx={-10}
@@ -334,10 +334,10 @@ const CatalogPriceHistory = () => {
                       type="monotone" 
                       dataKey="indexPrice" 
                       name="Official Index Price" 
-                      stroke="#34d399" 
+                      stroke="#2563eb" 
                       strokeWidth={3}
-                      dot={{ fill: '#0f172a', stroke: '#34d399', strokeWidth: 2, r: 4 }}
-                      activeDot={{ fill: '#34d399', stroke: '#fff', strokeWidth: 2, r: 6 }}
+                      dot={{ fill: '#ffffff', stroke: '#2563eb', strokeWidth: 2, r: 4 }}
+                      activeDot={{ fill: '#2563eb', stroke: '#fff', strokeWidth: 2, r: 6 }}
                     />
                   </RechartsLineChart>
                 </ResponsiveContainer>
@@ -347,9 +347,9 @@ const CatalogPriceHistory = () => {
 
           {/* ── Table Section ────────────────────────────── */}
           <div className="glass-card overflow-hidden">
-            <div className="flex items-center justify-between p-5 border-b border-white/5">
-              <h3 className="font-bold text-slate-200 flex items-center gap-2">
-                <Database size={16} className="text-emerald-400" /> Historical Price Archive
+            <div className="flex items-center justify-between p-5 border-b border-gray-100">
+              <h3 className="font-bold text-gray-800 flex items-center gap-2">
+                <Database size={16} className="text-blue-600" /> Historical Price Archive
               </h3>
               <span className="adm-badge adm-badge-approved">{chartData.length} Records</span>
             </div>
@@ -370,7 +370,7 @@ const CatalogPriceHistory = () => {
                   {chartData.length === 0 ? (
                     <tr>
                       <td colSpan="6">
-                        <div className="py-12 text-center text-slate-500 text-sm">
+                        <div className="py-12 text-center text-gray-500 text-sm">
                           No history records exist.
                         </div>
                       </td>
@@ -380,38 +380,38 @@ const CatalogPriceHistory = () => {
                     [...chartData].reverse().map((row, idx) => (
                       <tr key={row.id || idx}>
                         <td className="pl-6">
-                          <span className="font-semibold text-slate-200">{row.chartDate}</span>
+                          <span className="font-semibold text-gray-800">{row.chartDate}</span>
                         </td>
                         <td>
                           <div className="flex items-center text-xs">
-                            <span className="text-red-400">{row.floor || '--'}</span>
-                            <span className="mx-2 text-slate-600">→</span>
-                            <span className="text-blue-400">{row.ceiling || '--'}</span>
+                            <span className="text-red-500">{row.floor || '--'}</span>
+                            <span className="mx-2 text-gray-400">→</span>
+                            <span className="text-blue-500">{row.ceiling || '--'}</span>
                           </div>
                         </td>
                         <td>
-                          <span className="font-bold text-emerald-400">{row.indexPrice} DZD</span>
+                          <span className="font-bold text-blue-600">{row.indexPrice} DZD</span>
                         </td>
                         <td>
                           {row.trendNum === 1 ? (
-                            <span className="flex items-center gap-1 text-red-400 text-xs font-bold bg-red-400/10 px-2 py-1 rounded w-fit">
+                            <span className="flex items-center gap-1 text-red-600 text-xs font-bold bg-red-50 px-2 py-1 rounded w-fit">
                               <ArrowUpRight size={14} /> UP
                             </span>
                           ) : row.trendNum === -1 ? (
-                            <span className="flex items-center gap-1 text-emerald-400 text-xs font-bold bg-emerald-400/10 px-2 py-1 rounded w-fit">
+                            <span className="flex items-center gap-1 text-blue-600 text-xs font-bold bg-blue-50 px-2 py-1 rounded w-fit">
                               <ArrowDownRight size={14} /> DOWN
                             </span>
                           ) : (
-                            <span className="flex items-center gap-1 text-slate-500 text-xs font-bold bg-slate-500/10 px-2 py-1 rounded w-fit">
+                            <span className="flex items-center gap-1 text-gray-500 text-xs font-bold bg-gray-100 px-2 py-1 rounded w-fit">
                               <Minus size={14} /> FLAT
                             </span>
                           )}
                         </td>
                         <td>
-                          <span className="adm-badge" style={{ background: 'rgba(255,255,255,0.04)', color: '#94a3b8' }}>Admin System</span>
+                          <span className="adm-badge" style={{ background: '#F3F4F6', color: '#6B7280', border: '1px solid #E5E7EB' }}>Admin System</span>
                         </td>
                         <td>
-                          <span className="text-sm text-slate-400">{row.notes || '—'}</span>
+                          <span className="text-sm text-gray-600">{row.notes || '—'}</span>
                         </td>
                       </tr>
                     ))
