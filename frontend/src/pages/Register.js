@@ -5,7 +5,8 @@ import api from '../api/axiosConfig';
 import {
   Leaf, ShoppingBag, Sprout, Truck, ChevronRight, ChevronLeft,
   UploadCloud, X, CheckCircle, ShieldCheck, Eye, EyeOff, Building2,
-  FileText, Image as ImageIcon, MapPin, Phone, User, Lock, Mail, CreditCard, LayoutDashboard
+  FileText, Image as ImageIcon, MapPin, Phone, User, Lock, Mail, CreditCard, LayoutDashboard,
+  BarChart3, ArrowLeft
 } from 'lucide-react';
 
 const WILAYAS = [
@@ -307,203 +308,213 @@ const Register = () => {
     switch (currentStep) {
       case 1:
         return (
-          <div className="ms-step-body">
-            <div className="auth-form-row">
-              <div className="auth-field">
-                <label className="auth-label"><User size={14} style={{verticalAlign:'middle',marginRight:4}}/> Full Name *</label>
-                <input className={`auth-input ${fieldErrors.full_name ? 'auth-input-error' : ''}`} placeholder="Firstname LASTNAME" value={formData.full_name} onChange={e => setField('full_name', e.target.value)} />
-                {fieldErrors.full_name && <span className="auth-field-error">{fieldErrors.full_name}</span>}
+          <div className="ms-step-body space-y-6">
+            
+            <div className="space-y-4">
+              <div className="auth-form-row">
+                <div className="auth-field">
+                  <label className="auth-label">Full Name *</label>
+                  <input className={`auth-input ${fieldErrors.full_name ? 'auth-input-error' : ''}`} placeholder="Firstname LASTNAME" value={formData.full_name} onChange={e => setField('full_name', e.target.value)} />
+                  {fieldErrors.full_name && <span className="auth-field-error">{fieldErrors.full_name}</span>}
+                </div>
+                <div className="auth-field">
+                  <label className="auth-label">Phone Number *</label>
+                  <input type="tel" className={`auth-input ${fieldErrors.phone ? 'auth-input-error' : ''}`} placeholder="+213 5XX XXX XXX" value={formData.phone} onChange={e => setField('phone', e.target.value)} />
+                  {fieldErrors.phone && <span className="auth-field-error">{fieldErrors.phone}</span>}
+                </div>
               </div>
               <div className="auth-field">
-                <label className="auth-label"><Phone size={14} style={{verticalAlign:'middle',marginRight:4}}/> Phone Number *</label>
-                <input type="tel" className={`auth-input ${fieldErrors.phone ? 'auth-input-error' : ''}`} placeholder="+213 5XX XXX XXX" value={formData.phone} onChange={e => setField('phone', e.target.value)} />
-                {fieldErrors.phone && <span className="auth-field-error">{fieldErrors.phone}</span>}
+                <label className="auth-label">Email address *</label>
+                <input type="email" className={`auth-input ${fieldErrors.email ? 'auth-input-error' : ''}`} placeholder="you@example.com" value={formData.email} onChange={e => setField('email', e.target.value)} />
+                {fieldErrors.email && <span className="auth-field-error">{fieldErrors.email}</span>}
+              </div>
+              <div className="auth-field">
+                <label className="auth-label">Wilaya *</label>
+                <select className={`auth-input auth-select ${fieldErrors.wilaya ? 'auth-input-error' : ''}`} value={formData.wilaya} onChange={e => setField('wilaya', e.target.value)}>
+                  <option value="">Select your wilaya</option>
+                  {WILAYAS.map(w => <option key={w} value={w}>{w}</option>)}
+                </select>
+                {fieldErrors.wilaya && <span className="auth-field-error">{fieldErrors.wilaya}</span>}
               </div>
             </div>
-            <div className="auth-field">
-              <label className="auth-label"><Mail size={14} style={{verticalAlign:'middle',marginRight:4}}/> Email address *</label>
-              <input type="email" className={`auth-input ${fieldErrors.email ? 'auth-input-error' : ''}`} placeholder="you@example.com" value={formData.email} onChange={e => setField('email', e.target.value)} />
-              {fieldErrors.email && <span className="auth-field-error">{fieldErrors.email}</span>}
-            </div>
-            <div className="auth-field">
-              <label className="auth-label"><MapPin size={14} style={{verticalAlign:'middle',marginRight:4}}/> Wilaya *</label>
-              <select className={`auth-input auth-select ${fieldErrors.wilaya ? 'auth-input-error' : ''}`} value={formData.wilaya} onChange={e => setField('wilaya', e.target.value)}>
-                <option value="">Select your wilaya</option>
-                {WILAYAS.map(w => <option key={w} value={w}>{w}</option>)}
-              </select>
-              {fieldErrors.wilaya && <span className="auth-field-error">{fieldErrors.wilaya}</span>}
-            </div>
+
           </div>
         );
       case 2:
         return (
-          <div className="ms-step-body">
-            {activeRole === 'farmer' && (
-              <>
-                <div className="auth-form-row">
-                  <div className="auth-field">
-                    <label className="auth-label">Farm Name *</label>
-                    <input className={`auth-input ${fieldErrors.farm_name?'auth-input-error':''}`} placeholder="e.g. Ferme El Baraka" value={formData.farm_name} onChange={e=>setField('farm_name',e.target.value)} />
-                    {fieldErrors.farm_name && <span className="auth-field-error">{fieldErrors.farm_name}</span>}
-                  </div>
-                  <div className="auth-field">
-                    <label className="auth-label">Farm Location *</label>
-                    <input className={`auth-input ${fieldErrors.farm_location?'auth-input-error':''}`} placeholder="e.g. Route de Blida" value={formData.farm_location} onChange={e=>setField('farm_location',e.target.value)} />
-                    {fieldErrors.farm_location && <span className="auth-field-error">{fieldErrors.farm_location}</span>}
-                  </div>
-                </div>
-                <div className="auth-field">
-                  <label className="auth-label">Production Type *</label>
-                  <select className={`auth-input auth-select ${fieldErrors.production_type?'auth-input-error':''}`} value={formData.production_type} onChange={e=>setField('production_type',e.target.value)}>
-                    <option value="">Select type</option>
-                    {['cereals','vegetables','fruits','livestock','mixed'].map(t=><option key={t} value={t}>{t.charAt(0).toUpperCase()+t.slice(1)}</option>)}
-                  </select>
-                  {fieldErrors.production_type && <span className="auth-field-error">{fieldErrors.production_type}</span>}
-                </div>
-              </>
-            )}
-            {activeRole === 'buyer' && (
-              <>
-                <div className="auth-field">
-                  <label className="auth-label">Buyer Type</label>
-                  <div style={{display:'flex',gap:16,marginTop:8}}>
-                    {['individual','business'].map(t=>(
-                      <label key={t} style={{display:'flex',alignItems:'center',gap:8,cursor:'pointer',fontWeight:formData.buyer_type===t?700:400}}>
-                        <input type="radio" name="buyer_type" value={t} checked={formData.buyer_type===t} onChange={()=>setField('buyer_type',t)} style={{accentColor: 'var(--active-color)', width:16, height:16}} />
-                        {t.charAt(0).toUpperCase()+t.slice(1)}
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                {formData.buyer_type === 'business' && (
+          <div className="ms-step-body space-y-6">
+            <div className="space-y-4">
+              {activeRole === 'farmer' && (
+                <>
                   <div className="auth-form-row">
                     <div className="auth-field">
-                      <label className="auth-label">Company Name *</label>
-                      <input className={`auth-input ${fieldErrors.company_name?'auth-input-error':''}`} placeholder="Your company name" value={formData.company_name} onChange={e=>setField('company_name',e.target.value)} />
-                      {fieldErrors.company_name && <span className="auth-field-error">{fieldErrors.company_name}</span>}
+                      <label className="auth-label">Farm Name *</label>
+                      <input className={`auth-input ${fieldErrors.farm_name?'auth-input-error':''}`} placeholder="e.g. Ferme El Baraka" value={formData.farm_name} onChange={e=>setField('farm_name',e.target.value)} />
+                      {fieldErrors.farm_name && <span className="auth-field-error">{fieldErrors.farm_name}</span>}
                     </div>
                     <div className="auth-field">
-                      <label className="auth-label">Tax Number <span style={{fontWeight:400,color:'var(--gray-500)'}}>(optional)</span></label>
-                      <input className="auth-input" placeholder="NIF / Tax ID" value={formData.tax_number} onChange={e=>setField('tax_number',e.target.value)} />
+                      <label className="auth-label">Farm Location *</label>
+                      <input className={`auth-input ${fieldErrors.farm_location?'auth-input-error':''}`} placeholder="e.g. Route de Blida" value={formData.farm_location} onChange={e=>setField('farm_location',e.target.value)} />
+                      {fieldErrors.farm_location && <span className="auth-field-error">{fieldErrors.farm_location}</span>}
                     </div>
                   </div>
-                )}
-              </>
-            )}
-            {activeRole === 'transporter' && (
-              <>
-                <div className="auth-form-row">
                   <div className="auth-field">
-                    <label className="auth-label">Vehicle Type *</label>
-                    <select className={`auth-input auth-select ${fieldErrors.vehicle_type?'auth-input-error':''}`} value={formData.vehicle_type} onChange={e=>setField('vehicle_type',e.target.value)}>
+                    <label className="auth-label">Production Type *</label>
+                    <select className={`auth-input auth-select ${fieldErrors.production_type?'auth-input-error':''}`} value={formData.production_type} onChange={e=>setField('production_type',e.target.value)}>
                       <option value="">Select type</option>
-                      {['truck','van','refrigerated','other'].map(t=><option key={t} value={t}>{t.charAt(0).toUpperCase()+t.slice(1)}</option>)}
+                      {['cereals','vegetables','fruits','livestock','mixed'].map(t=><option key={t} value={t}>{t.charAt(0).toUpperCase()+t.slice(1)}</option>)}
                     </select>
-                    {fieldErrors.vehicle_type && <span className="auth-field-error">{fieldErrors.vehicle_type}</span>}
+                    {fieldErrors.production_type && <span className="auth-field-error">{fieldErrors.production_type}</span>}
+                  </div>
+                </>
+              )}
+              {activeRole === 'buyer' && (
+                <>
+                  <div className="auth-field">
+                    <label className="auth-label">Buyer Type</label>
+                    <div style={{display:'flex',gap:16,marginTop:8}}>
+                      {['individual','business'].map(t=>(
+                        <label key={t} style={{display:'flex',alignItems:'center',gap:8,cursor:'pointer',fontWeight:formData.buyer_type===t?700:400}}>
+                          <input type="radio" name="buyer_type" value={t} checked={formData.buyer_type===t} onChange={()=>setField('buyer_type',t)} style={{accentColor: 'var(--active-color)', width:16, height:16}} />
+                          {t.charAt(0).toUpperCase()+t.slice(1)}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  {formData.buyer_type === 'business' && (
+                    <div className="auth-form-row">
+                      <div className="auth-field">
+                        <label className="auth-label">Company Name *</label>
+                        <input className={`auth-input ${fieldErrors.company_name?'auth-input-error':''}`} placeholder="Your company name" value={formData.company_name} onChange={e=>setField('company_name',e.target.value)} />
+                        {fieldErrors.company_name && <span className="auth-field-error">{fieldErrors.company_name}</span>}
+                      </div>
+                      <div className="auth-field">
+                        <label className="auth-label">Tax Number <span style={{fontWeight:400,color:'var(--gray-500)'}}>(optional)</span></label>
+                        <input className="auth-input" placeholder="NIF / Tax ID" value={formData.tax_number} onChange={e=>setField('tax_number',e.target.value)} />
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+              {activeRole === 'transporter' && (
+                <>
+                  <div className="auth-form-row">
+                    <div className="auth-field">
+                      <label className="auth-label">Vehicle Type *</label>
+                      <select className={`auth-input auth-select ${fieldErrors.vehicle_type?'auth-input-error':''}`} value={formData.vehicle_type} onChange={e=>setField('vehicle_type',e.target.value)}>
+                        <option value="">Select type</option>
+                        {['truck','van','refrigerated','other'].map(t=><option key={t} value={t}>{t.charAt(0).toUpperCase()+t.slice(1)}</option>)}
+                      </select>
+                      {fieldErrors.vehicle_type && <span className="auth-field-error">{fieldErrors.vehicle_type}</span>}
+                    </div>
+                    <div className="auth-field">
+                      <label className="auth-label">Capacity (tons)</label>
+                      <input type="number" min="0" step="0.5" className="auth-input" placeholder="e.g. 5" value={formData.capacity_tons} onChange={e=>setField('capacity_tons',e.target.value)} />
+                    </div>
                   </div>
                   <div className="auth-field">
-                    <label className="auth-label">Capacity (tons)</label>
-                    <input type="number" min="0" step="0.5" className="auth-input" placeholder="e.g. 5" value={formData.capacity_tons} onChange={e=>setField('capacity_tons',e.target.value)} />
+                    <label className="auth-label">Plate Number *</label>
+                    <input className={`auth-input ${fieldErrors.plate_number?'auth-input-error':''}`} placeholder="e.g. 12345-100-16" value={formData.plate_number} onChange={e=>setField('plate_number',e.target.value)} />
+                    {fieldErrors.plate_number && <span className="auth-field-error">{fieldErrors.plate_number}</span>}
                   </div>
-                </div>
-                <div className="auth-field">
-                  <label className="auth-label">Plate Number *</label>
-                  <input className={`auth-input ${fieldErrors.plate_number?'auth-input-error':''}`} placeholder="e.g. 12345-100-16" value={formData.plate_number} onChange={e=>setField('plate_number',e.target.value)} />
-                  {fieldErrors.plate_number && <span className="auth-field-error">{fieldErrors.plate_number}</span>}
-                </div>
-              </>
-            )}
+                </>
+              )}
+            </div>
           </div>
         );
       case 3:
         return (
-          <div className="ms-step-body">
-            {activeRole === 'farmer' && (
-              <>
+          <div className="ms-step-body space-y-6">
+            <div className="space-y-4">
+              {activeRole === 'farmer' && (
+                <>
+                  <Dropzone 
+                    label="Farmer ID Document *" 
+                    hint="PDF, JPG or PNG (max 5MB)" 
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    onDrop={(f) => setFile('farmer_id', f)}
+                    file={files.farmer_id}
+                    error={fieldErrors.farmer_id}
+                  />
+                  <Dropzone 
+                    label="Farm Photos (optional)" 
+                    hint="Multiple JPG or PNG images (max 5MB each)" 
+                    accept=".jpg,.jpeg,.png"
+                    multiple={true}
+                    onDrop={handleFarmPhotosDrop}
+                    files={files.farm_photos}
+                    error={fieldErrors.farm_photos}
+                  />
+                </>
+              )}
+              {activeRole === 'buyer' && formData.buyer_type === 'business' && (
                 <Dropzone 
-                  label="Farmer ID Document *" 
-                  hint="PDF, JPG or PNG (max 5MB)" 
+                  label="Trade Register *" 
+                  hint="Scan of official Trade Register. PDF, JPG or PNG (max 5MB)" 
                   accept=".pdf,.jpg,.jpeg,.png"
-                  onDrop={(f) => setFile('farmer_id', f)}
-                  file={files.farmer_id}
-                  error={fieldErrors.farmer_id}
+                  onDrop={(f) => setFile('trade_register', f)}
+                  file={files.trade_register}
+                  error={fieldErrors.trade_register}
                 />
-                <Dropzone 
-                  label="Farm Photos (optional)" 
-                  hint="Multiple JPG or PNG images (max 5MB each)" 
-                  accept=".jpg,.jpeg,.png"
-                  multiple={true}
-                  onDrop={handleFarmPhotosDrop}
-                  files={files.farm_photos}
-                  error={fieldErrors.farm_photos}
-                />
-              </>
-            )}
-            {activeRole === 'buyer' && formData.buyer_type === 'business' && (
-              <Dropzone 
-                label="Trade Register *" 
-                hint="Scan of official Trade Register. PDF, JPG or PNG (max 5MB)" 
-                accept=".pdf,.jpg,.jpeg,.png"
-                onDrop={(f) => setFile('trade_register', f)}
-                file={files.trade_register}
-                error={fieldErrors.trade_register}
-              />
-            )}
-            {activeRole === 'buyer' && formData.buyer_type === 'individual' && (
-              <div style={{textAlign:'center', padding: '3rem 0', color: 'var(--gray-500)'}}>
-                <CheckCircle size={48} style={{color: 'var(--active-color)', marginBottom: '1rem'}} />
-                <p>No documents required for individual buyers.</p>
-              </div>
-            )}
-            {activeRole === 'transporter' && (
-              <>
-                <Dropzone 
-                  label="Driving License *" 
-                  hint="Scan of Driving License. PDF, JPG or PNG (max 5MB)" 
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  onDrop={(f) => setFile('driving_license', f)}
-                  file={files.driving_license}
-                  error={fieldErrors.driving_license}
-                />
-                <Dropzone 
-                  label="Vehicle Registration (Carte Grise) *" 
-                  hint="Scan of Vehicle Registration. PDF, JPG or PNG (max 5MB)" 
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  onDrop={(f) => setFile('vehicle_registration', f)}
-                  file={files.vehicle_registration}
-                  error={fieldErrors.vehicle_registration}
-                />
-              </>
-            )}
+              )}
+              {activeRole === 'buyer' && formData.buyer_type === 'individual' && (
+                <div style={{textAlign:'center', padding: '3rem 0', color: 'var(--gray-500)'}}>
+                  <CheckCircle size={48} style={{color: 'var(--active-color)', marginBottom: '1rem'}} />
+                  <p>No documents required for individual buyers.</p>
+                </div>
+              )}
+              {activeRole === 'transporter' && (
+                <>
+                  <Dropzone 
+                    label="Driving License *" 
+                    hint="Scan of Driving License. PDF, JPG or PNG (max 5MB)" 
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    onDrop={(f) => setFile('driving_license', f)}
+                    file={files.driving_license}
+                    error={fieldErrors.driving_license}
+                  />
+                  <Dropzone 
+                    label="Vehicle Registration (Carte Grise) *" 
+                    hint="Scan of Vehicle Registration. PDF, JPG or PNG (max 5MB)" 
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    onDrop={(f) => setFile('vehicle_registration', f)}
+                    file={files.vehicle_registration}
+                    error={fieldErrors.vehicle_registration}
+                  />
+                </>
+              )}
+            </div>
           </div>
         );
       case 4:
         return (
-          <div className="ms-step-body">
-            <div className="auth-form-row">
-              <div className="auth-field">
-                <label className="auth-label">Password *</label>
-                <div className="auth-input-wrapper">
-                  <input type={showPassword ? 'text' : 'password'} className={`auth-input auth-input-icon-right ${fieldErrors.password ? 'auth-input-error' : ''}`} placeholder="min. 8 characters" value={formData.password} onChange={e => setField('password', e.target.value)} />
-                  <button type="button" className="auth-input-eye" onClick={() => setShowPassword(!showPassword)} tabIndex={-1}>
-                    {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
-                  </button>
+          <div className="ms-step-body space-y-6">
+            <div className="space-y-4">
+              <div className="auth-form-row">
+                <div className="auth-field">
+                  <label className="auth-label">Password *</label>
+                  <div className="auth-input-wrapper">
+                    <input type={showPassword ? 'text' : 'password'} className={`auth-input auth-input-icon-right ${fieldErrors.password ? 'auth-input-error' : ''}`} placeholder="min. 8 characters" value={formData.password} onChange={e => setField('password', e.target.value)} />
+                    <button type="button" className="auth-input-eye" onClick={() => setShowPassword(!showPassword)} tabIndex={-1}>
+                      {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                    </button>
+                  </div>
+                  {fieldErrors.password && <span className="auth-field-error">{fieldErrors.password}</span>}
                 </div>
-                {fieldErrors.password && <span className="auth-field-error">{fieldErrors.password}</span>}
-              </div>
-              <div className="auth-field">
-                <label className="auth-label">Confirm Password *</label>
-                <div className="auth-input-wrapper">
-                  <input type={showConfirm ? 'text' : 'password'} className={`auth-input auth-input-icon-right ${fieldErrors.confirm_password ? 'auth-input-error' : ''}`} placeholder="Repeat password" value={formData.confirm_password} onChange={e => setField('confirm_password', e.target.value)} />
-                  <button type="button" className="auth-input-eye" onClick={() => setShowConfirm(!showConfirm)} tabIndex={-1}>
-                    {showConfirm ? <EyeOff size={17} /> : <Eye size={17} />}
-                  </button>
+                <div className="auth-field">
+                  <label className="auth-label">Confirm Password *</label>
+                  <div className="auth-input-wrapper">
+                    <input type={showConfirm ? 'text' : 'password'} className={`auth-input auth-input-icon-right ${fieldErrors.confirm_password ? 'auth-input-error' : ''}`} placeholder="Repeat password" value={formData.confirm_password} onChange={e => setField('confirm_password', e.target.value)} />
+                    <button type="button" className="auth-input-eye" onClick={() => setShowConfirm(!showConfirm)} tabIndex={-1}>
+                      {showConfirm ? <EyeOff size={17} /> : <Eye size={17} />}
+                    </button>
+                  </div>
+                  {fieldErrors.confirm_password && <span className="auth-field-error">{fieldErrors.confirm_password}</span>}
                 </div>
-                {fieldErrors.confirm_password && <span className="auth-field-error">{fieldErrors.confirm_password}</span>}
               </div>
             </div>
 
-            <div className="auth-field" style={{marginTop: '1.5rem', background: 'var(--active-bg)', padding: '1.25rem', borderRadius: 12, border: '1px solid var(--gray-200)'}}>
+            <div className="auth-field mt-6 p-5 rounded-xl" style={{ background: 'var(--active-bg)', border: '1px solid var(--gray-200)' }}>
               <label className={`auth-checkbox-label ${fieldErrors.terms ? 'auth-checkbox-error' : ''}`} style={{color: 'var(--gray-900)'}}>
                 <input type="checkbox" checked={acceptTerms} onChange={e => { setAcceptTerms(e.target.checked); setFieldErrors(f => ({ ...f, terms: '' })); }} style={{accentColor: 'var(--active-color)'}} />
                 <span>
@@ -513,7 +524,7 @@ const Register = () => {
                   <Link to="/faq" style={{ color: 'var(--active-color)', fontWeight: 600 }}>privacy policy</Link>.
                 </span>
               </label>
-              {fieldErrors.terms && <span className="auth-field-error">{fieldErrors.terms}</span>}
+              {fieldErrors.terms && <span className="auth-field-error mt-1 block">{fieldErrors.terms}</span>}
             </div>
 
             {apiError && (
@@ -532,92 +543,152 @@ const Register = () => {
   const stepInfo = STEPS.find(s => s.id === currentStep);
 
   return (
-    <div className="ms-container" style={dynamicStyles}>
-      
-      {/* ── SIDEBAR ── */}
-      <aside className="ms-sidebar">
-        <Link to="/" className="ms-sidebar-logo">
-          <Leaf size={28} color="var(--active-color)" />
-          <span>AgriGov <strong>Market</strong></span>
-        </Link>
-
-        <h3 className="ms-sidebar-title">Select your profile</h3>
-        
-        <div className="ms-role-list">
-          {ROLES.map((r) => {
-            const Icon = r.icon;
-            const isActive = activeRole === r.value;
-            return (
-              <button 
-                key={r.value} 
-                className={`ms-role-btn ${isActive ? 'active' : ''}`} 
-                onClick={() => {
-                  if (currentStep !== 1 && !window.confirm('Changing role will reset your current progress. Continue?')) return;
-                  setActiveRole(r.value);
-                  setCurrentStep(1);
-                  setFieldErrors({});
-                  setApiError('');
-                }}
-              >
-                <div className="ms-role-icon"><Icon size={22} /></div>
-                <div className="ms-role-info">
-                  <span className="ms-role-name">{r.label}</span>
-                  <span className="ms-role-desc">{r.desc}</span>
-                </div>
-              </button>
-            )
-          })}
-        </div>
-
-        <div className="ms-sidebar-footer">
-          <ShieldCheck size={16} style={{marginBottom: 8, color: 'var(--gray-400)'}} />
-          <p style={{margin:0}}>Supervised by the Ministry of Agriculture. All data is securely processed.</p>
-        </div>
-      </aside>
-
-      {/* ── MAIN CONTENT ── */}
-      <main className="ms-content">
-        <header className="ms-content-header">
-          <Link to="/" className="ms-back-link"><ChevronLeft size={16} /> Home</Link>
-          <div className="ms-login-link">Already have an account? <Link to="/login">Sign in</Link></div>
-        </header>
-
-        <div className="ms-form-wrapper">
-          <div className="ms-progress-bar" style={{ width: `${(currentStep / STEPS.length) * 100}%` }}></div>
-          
-          <div className="ms-step-header">
-            <h2 className="ms-step-title">
-              {React.createElement(stepInfo.icon, { size: 26, color: 'var(--active-color)' })}
-              {stepInfo.title}
+    <div className="auth-page-wrapper" style={dynamicStyles}>
+      {/* ── LEFT PANEL ── */}
+      <div className="auth-left-panel auth-left-premium">
+        <div className="auth-left-overlay"></div>
+        <div className="auth-left-content-inner">
+          <Link to="/" className="auth-logo-link">
+            <Leaf size={26} />
+            <span>AgriGov <strong>Market</strong></span>
+          </Link>
+          <div className="auth-left-body">
+            <div className="auth-ministry-tag">
+              <Building2 size={14} />
+              Ministry of Agriculture
+            </div>
+            <h2 className="auth-left-headline">
+              Algeria's Official Agricultural Marketplace
             </h2>
-            <p className="ms-step-subtitle">Step {currentStep} of {STEPS.length} — {stepInfo.sub}</p>
+            <p className="auth-left-lead">
+              Join the official network to access reference prices, verified partners, and manage your agricultural activities securely.
+            </p>
+            <ul className="auth-features-list">
+              <li>
+                <div className="auth-feature-icon-box">
+                  <BarChart3 size={18} />
+                </div>
+                <span>Official reference prices published by the Ministry</span>
+              </li>
+              <li>
+                <div className="auth-feature-icon-box">
+                  <ShieldCheck size={18} />
+                </div>
+                <span>Verified and approved user network</span>
+              </li>
+              <li>
+                <div className="auth-feature-icon-box">
+                  <Truck size={18} />
+                </div>
+                <span>Integrated logistics across all wilayas</span>
+              </li>
+            </ul>
+            <div className="auth-trust-stats">
+              <div className="auth-trust-stat">
+                <span className="auth-trust-val">2800+</span>
+                <span className="auth-trust-lbl">Farmers</span>
+              </div>
+              <div className="auth-trust-sep"></div>
+              <div className="auth-trust-stat">
+                <span className="auth-trust-val">14k+</span>
+                <span className="auth-trust-lbl">Buyers</span>
+              </div>
+              <div className="auth-trust-sep"></div>
+              <div className="auth-trust-stat">
+                <span className="auth-trust-val">58</span>
+                <span className="auth-trust-lbl">Wilayas</span>
+              </div>
+            </div>
           </div>
-
-          <div style={{minHeight: 300}}>
-            {renderStepContent()}
-          </div>
-
-          <div className="ms-actions">
-            {currentStep > 1 ? (
-              <button type="button" className="ms-btn-prev" onClick={prevStep} disabled={loading}>
-                <ChevronLeft size={18} /> Back
-              </button>
-            ) : <div></div>}
-
-            {currentStep < STEPS.length ? (
-              <button type="button" className="ms-btn-next" onClick={nextStep}>
-                Continue <ChevronRight size={18} />
-              </button>
-            ) : (
-              <button type="button" className="ms-btn-next" onClick={handleSubmit} disabled={loading}>
-                {loading ? <span className="auth-spinner" style={{width:18,height:18,borderWidth:2}}></span> : <CheckCircle size={18} />}
-                {loading ? 'Creating account...' : 'Create Account'}
-              </button>
-            )}
+          <div className="auth-left-footer">
+            <CheckCircle size={14} />
+            Certified compliant platform — Officially validated data
           </div>
         </div>
-      </main>
+      </div>
 
+      {/* ── RIGHT PANEL ── */}
+      <div className="auth-right-panel auth-right-clean">
+        <div className="auth-form-wrapper" style={{maxWidth: '600px', width: '100%', margin: '0 auto', padding: '2rem'}}>
+          <Link to="/" className="auth-back-link" style={{marginBottom: '2rem', display: 'inline-flex'}}>
+            <ArrowLeft size={16} /> Back to Home
+          </Link>
+          
+          <div className="auth-form-header" style={{textAlign: 'left', marginBottom: '1.5rem'}}>
+            <h1 className="auth-form-title" style={{fontSize: '1.75rem'}}>Create Account</h1>
+            <p className="auth-form-subtitle">Already have an account? <Link to="/login" style={{color: 'var(--active-color)', fontWeight: 600}}>Sign in</Link></p>
+          </div>
+
+          {/* Role Selection Moved Above the Form Card */}
+          {currentStep === 1 && (
+            <div className="auth-role-selector bg-white p-1.5 rounded-2xl border border-gray-200 flex gap-2 mb-8 shadow-sm">
+              {ROLES.map((r) => {
+                const Icon = r.icon;
+                const isActive = activeRole === r.value;
+                return (
+                  <button 
+                    key={r.value} 
+                    type="button"
+                    className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-xl border-none cursor-pointer text-sm transition-all duration-200 ${isActive ? 'bg-white shadow-sm font-semibold' : 'bg-transparent text-gray-500 font-medium hover:text-gray-700'}`}
+                    style={isActive ? { color: r.color, backgroundColor: 'var(--active-bg)' } : {}}
+                    onClick={() => {
+                      if (currentStep !== 1 && !window.confirm('Changing role will reset your current progress. Continue?')) return;
+                      setActiveRole(r.value);
+                      setCurrentStep(1);
+                      setFieldErrors({});
+                      setApiError('');
+                    }}
+                  >
+                    <Icon size={18} />
+                    {r.label}
+                  </button>
+                )
+              })}
+            </div>
+          )}
+
+          {/* Unified Form Card */}
+          <div className="auth-form-card bg-white shadow-md rounded-2xl p-6 md:p-8" style={{border: '1px solid var(--gray-200)'}}>
+
+            <div className="ms-progress-bar" style={{ width: '100%', background: 'var(--gray-200)', height: '6px', borderRadius: '3px', marginBottom: '2rem', overflow: 'hidden' }}>
+              <div style={{ width: `${(currentStep / STEPS.length) * 100}%`, background: 'var(--active-color)', height: '100%', transition: 'width 0.3s ease' }}></div>
+            </div>
+            
+            <div className="ms-step-header" style={{marginBottom: '1.5rem'}}>
+              <h2 className="ms-step-title" style={{display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.25rem', color: 'var(--gray-900)', fontWeight: 700}}>
+                {React.createElement(stepInfo.icon, { size: 22, color: 'var(--active-color)' })}
+                {stepInfo.title}
+              </h2>
+              <p className="ms-step-subtitle" style={{color: 'var(--gray-500)', fontSize: '0.875rem', marginTop: '0.25rem'}}>Step {currentStep} of {STEPS.length} — {stepInfo.sub}</p>
+            </div>
+
+            {/* Role selector has been moved into the Step 1 form container */}
+
+            <div style={{minHeight: 300}}>
+              {renderStepContent()}
+            </div>
+
+            <div className="ms-actions" style={{display: 'flex', justifyContent: 'space-between', marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--gray-200)'}}>
+              {currentStep > 1 ? (
+                <button type="button" className="auth-submit-btn" style={{background: 'white', color: 'var(--gray-700)', border: '1px solid var(--gray-300)', width: 'auto', padding: '0.75rem 1.5rem'}} onClick={prevStep} disabled={loading}>
+                  <ChevronLeft size={18} /> Back
+                </button>
+              ) : <div></div>}
+
+              {currentStep < STEPS.length ? (
+                <button type="button" className="auth-submit-btn" style={{background: 'var(--active-color)', width: 'auto', padding: '0.75rem 1.5rem'}} onClick={nextStep}>
+                  Continue <ChevronRight size={18} />
+                </button>
+              ) : (
+                <button type="button" className="auth-submit-btn" style={{background: 'var(--active-color)', width: 'auto', padding: '0.75rem 1.5rem'}} onClick={handleSubmit} disabled={loading}>
+                  {loading ? <span className="auth-spinner" style={{width:18,height:18,borderWidth:2}}></span> : <CheckCircle size={18} />}
+                  {loading ? 'Creating account...' : 'Create Account'}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
