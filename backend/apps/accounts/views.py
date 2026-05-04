@@ -16,6 +16,7 @@ from .serializers import (
     ChangePasswordSerializer,
     UserDocumentSerializer,
     AdminDocumentReviewSerializer,
+    AdminUserDetailSerializer,
 )
 from .models import RoleChoices, AccountStatusChoices, UserDocument
 from .permissions import IsAdminRole
@@ -122,6 +123,11 @@ class AdminUserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('-created_at')
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated, IsAdminRole]
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return AdminUserDetailSerializer
+        return super().get_serializer_class()
 
     def get_queryset(self):
         user = self.request.user

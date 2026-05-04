@@ -272,9 +272,33 @@ class UserSerializer(serializers.ModelSerializer):
         model  = User
         fields = (
             'id', 'email', 'full_name', 'phone', 'role', 'status',
-            'is_verified', 'trust_level', 'trust_score', 'profile_picture', 'created_at'
+            'is_verified', 'trust_level', 'trust_score', 'profile_picture', 'created_at', 'address', 'bio'
         )
         read_only_fields = ('id', 'status', 'is_verified', 'trust_level', 'trust_score', 'created_at')
+
+
+class FarmerProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FarmerProfile
+        fields = '__all__'
+
+class BuyerProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BuyerProfile
+        fields = '__all__'
+
+class TransporterProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TransporterProfile
+        fields = '__all__'
+
+class AdminUserDetailSerializer(UserSerializer):
+    farmer_profile = FarmerProfileSerializer(source='farmerprofile', read_only=True)
+    buyer_profile = BuyerProfileSerializer(source='buyerprofile', read_only=True)
+    transporter_profile = TransporterProfileSerializer(source='transporterprofile', read_only=True)
+
+    class Meta(UserSerializer.Meta):
+        fields = UserSerializer.Meta.fields + ('farmer_profile', 'buyer_profile', 'transporter_profile')
 
 
 class AdminUserActionSerializer(serializers.Serializer):

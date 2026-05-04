@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import adminApi from '../../api/adminApi';
 import { Users, ChevronRight, Search, Mail, Phone, MapPin, Eye, UserMinus, CheckCircle, MessageSquare, Clock } from 'lucide-react';
+import UserDetailModal from './UserDetailModal';
 
 const roleBadge = { farmer: { bg:'#E6F9EE', c:'#047857' }, buyer: { bg:'#E8F0FE', c:'#0066CC' }, transporter: { bg:'#FFF4E0', c:'#B45309' } };
 
@@ -13,6 +14,7 @@ const AdminAccounts = () => {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
   const [toast, setToast] = useState(null);
+  const [selectedUserId, setSelectedUserId] = useState(null);
   const navigate = useNavigate();
 
   const showToast = (msg, type = 'success') => {
@@ -45,6 +47,9 @@ const AdminAccounts = () => {
       await adminApi.post(`/accounts/${userId}/action/`, { action });
       showToast(`Account ${action} successful`);
       fetchAccounts();
+      if (['approve', 'reject'].includes(action)) {
+        setSelectedUserId(null); // Close modal on definitive actions
+      }
     } catch (err) {
       showToast(err.response?.data?.error || 'Action failed', 'error');
     } finally { setActionLoading(null); }
@@ -55,7 +60,7 @@ const AdminAccounts = () => {
   };
 
   return (
-    <div className="min-h-screen p-6 space-y-6 anim-fade-up admin-mode">
+    <div className="min-h-screen p-6 space-y-6 anim-fade-up admin-mode relative">
       <div className="adm-breadcrumb"><Link to="/admin-dashboard">Dashboard</Link><ChevronRight size={12}/><span>Accounts</span></div>
 
       <div className="flex items-center gap-4">
@@ -118,7 +123,7 @@ const AdminAccounts = () => {
                   {/* Actions */}
                   <div className="flex gap-1 flex-wrap shrink-0">
                     <button className="adm-btn adm-btn-ghost text-xs" onClick={() => handleMessage(a)}><MessageSquare size={12}/> Message</button>
-                    <button className="adm-btn adm-btn-ghost text-xs" onClick={() => navigate(`/admin-dashboard/accounts`)}><Eye size={12}/> View</button>
+                    <button className="adm-btn adm-btn-ghost text-xs" onClick={() => setSelectedUserId(a.id)}><Eye size={12}/> View Details</button>
                     {a.status !== 'suspended' && (
                       <button
                         className="adm-btn adm-btn-warning text-xs"
@@ -132,9 +137,9 @@ const AdminAccounts = () => {
                       <button
                         className="adm-btn adm-btn-success text-xs"
                         disabled={actionLoading === `${a.id}-verify`}
-                        onClick={() => handleAction(a.id, 'verify')}
+                        onClick={() => handleAction(a.id, 'approve')}
                       >
-                        <CheckCircle size={12}/> {actionLoading === `${a.id}-verify` ? 'Verifying...' : 'Verify'}
+                        <CheckCircle size={12}/> {actionLoading === `${a.id}-verify` ? 'Verifying...' : 'Approve'}
                       </button>
                     )}
                   </div>
@@ -144,6 +149,14 @@ const AdminAccounts = () => {
             );
           })}
         </div>
+      )}
+
+      {selectedUserId && (
+        <UserDetailModal
+          userId={selectedUserId}
+          onClose={() => setSelectedUserId(null)}
+          onAction={handleAction}
+        />
       )}
     </div>
   );

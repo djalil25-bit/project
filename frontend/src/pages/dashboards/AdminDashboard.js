@@ -28,6 +28,7 @@ import {
   DollarSign
 } from 'lucide-react';
 import AlertsPanel from '../../components/admin/AlertsPanel';
+import UserDetailModal from '../admin/UserDetailModal';
 
 const StatusBadge = ({ status }) => (
   <span className={`adm-badge adm-badge-${status}`}>
@@ -41,7 +42,7 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('pending');
   const [actionLoading, setActionLoading] = useState(null);
-  const [expandedUser, setExpandedUser] = useState(null);
+  const [selectedUserId, setSelectedUserId] = useState(null);
 
   const fetchStats = async () => {
     try {
@@ -69,6 +70,9 @@ function AdminDashboard() {
       await api.post(`/auth/admin/users/${userId}/change_status/`, { action });
       fetchStats();
       fetchUsers(activeTab);
+      if (['approve', 'reject'].includes(action)) {
+        setSelectedUserId(null); // Close modal on definitive actions
+      }
     } catch { 
       alert('Action failed. System integrity check recommended.'); 
     } finally { setActionLoading(null); }
@@ -274,43 +278,14 @@ function AdminDashboard() {
                         )}
                         <button
                           className="adm-btn adm-btn-ghost adm-btn-icon"
-                          onClick={() => setExpandedUser(expandedUser === u.id ? null : u.id)}
-                          title="View Details"
+                          onClick={() => setSelectedUserId(u.id)}
+                          title="View Full Details"
                         >
                           <Eye size={14} />
                         </button>
                       </div>
                     </td>
                   </tr>
-                  {expandedUser === u.id && (
-                    <tr>
-                      <td colSpan="5" className="p-0 border-0">
-                        <div className="px-6 py-4 bg-blue-50 border-t border-blue-100 anim-fade-up">
-                          <h6 className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-3 flex items-center gap-2">
-                            <Search size={13}/> User Request Details
-                          </h6>
-                          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <div>
-                              <label className="adm-label">Full Name</label>
-                              <span className="text-gray-700 text-sm">{u.full_name}</span>
-                            </div>
-                            <div>
-                              <label className="adm-label">Contact Email</label>
-                              <span className="text-gray-700 text-sm">{u.email}</span>
-                            </div>
-                            <div>
-                              <label className="adm-label">Phone Number</label>
-                              <span className="text-gray-700 text-sm">{u.phone || 'N/A'}</span>
-                            </div>
-                            <div>
-                              <label className="adm-label">Physical Address</label>
-                              <span className="text-gray-700 text-sm">{u.address || 'N/A'}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
                   </React.Fragment>
                 ))}
               </tbody>
@@ -318,6 +293,14 @@ function AdminDashboard() {
           </div>
         )}
       </div>
+
+      {selectedUserId && (
+        <UserDetailModal
+          userId={selectedUserId}
+          onClose={() => setSelectedUserId(null)}
+          onAction={handleAction}
+        />
+      )}
     </div>
   );
 }
