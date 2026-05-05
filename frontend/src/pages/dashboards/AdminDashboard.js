@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import AlertsPanel from '../../components/admin/AlertsPanel';
 import UserDetailModal from '../admin/UserDetailModal';
+import { useNavigate } from 'react-router-dom';
 
 const StatusBadge = ({ status }) => (
   <span className={`adm-badge adm-badge-${status}`}>
@@ -38,7 +39,10 @@ const StatusBadge = ({ status }) => (
 
 function AdminDashboard() {
   const [stats, setStats] = useState(null);
+  const [iotData, setIotData] = useState(null);
+  const [iotLoading, setIotLoading] = useState(true);
   const [users, setUsers] = useState([]);
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('pending');
   const [actionLoading, setActionLoading] = useState(null);
@@ -51,6 +55,15 @@ function AdminDashboard() {
     } catch (err) { console.error(err); }
   };
 
+  const fetchIotData = async () => {
+    setIotLoading(true);
+    try {
+      const res = await api.get('/iot/admin/overview/');
+      setIotData(res.data);
+    } catch (err) { console.error('Failed to fetch IoT overview', err); }
+    finally { setIotLoading(false); }
+  };
+
   const fetchUsers = async (statusFilter) => {
     setLoading(true);
     try {
@@ -61,7 +74,7 @@ function AdminDashboard() {
     finally { setLoading(false); }
   };
 
-  useEffect(() => { fetchStats(); fetchUsers(activeTab); }, []);
+  useEffect(() => { fetchStats(); fetchIotData(); fetchUsers(activeTab); }, []);
   useEffect(() => { fetchUsers(activeTab); }, [activeTab]);
 
   const handleAction = async (userId, action) => {
@@ -140,7 +153,8 @@ function AdminDashboard() {
         </div>
       )}
 
-      {/* ── Registry Management Card ─────────────────────── */}
+      {/* ── Farm Sensor Map removed ── */}
+
       {/* ── Recent Critical Alerts ──────────────────────── */}
       {stats?.recent_alerts && stats.recent_alerts.length > 0 && (
         <div className="glass-card overflow-hidden">
@@ -301,6 +315,91 @@ function AdminDashboard() {
           onAction={handleAction}
         />
       )}
+
+      {/* ── IoT Quick Preview ──────────────────────────── */}
+      <div className="glass-card overflow-hidden mt-6" style={{ border: '1px solid #e5e7eb' }}>
+        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+          <h3 className="font-bold text-gray-800 text-base flex items-center gap-2">
+            🌐 IoT Monitoring
+          </h3>
+          <button className="adm-btn adm-btn-ghost text-xs" onClick={() => navigate('/admin-dashboard/iot')}>
+            <ArrowUpRight size={14} />
+          </button>
+        </div>
+        <div className="p-6">
+          {iotLoading ? (
+            <div className="flex items-center gap-3">
+              <RefreshCw size={20} className="animate-spin text-gray-400" />
+              <span className="text-sm text-gray-500">Loading IoT data...</span>
+            </div>
+          ) : iotData ? (
+            <div className="space-y-6">
+              {/* Row of 3 mini-cards */}
+              <div className="grid grid-cols-3 gap-4">
+                <div className="bg-red-50 p-3 rounded-lg border border-red-100 flex flex-col items-center justify-center text-center">
+                  <span className="text-xl font-extrabold text-red-600 mb-1">
+                    🔴 {iotData.critical_alerts?.length || (iotData.summary?.farms_danger) || 0}
+                  </span>
+                  <span className="text-xs text-red-700 font-semibold uppercase tracking-wider">Critical</span>
+                </div>
+                <div className="bg-orange-50 p-3 rounded-lg border border-orange-100 flex flex-col items-center justify-center text-center">
+                  <span className="text-xl font-extrabold text-orange-500 mb-1">
+                    🟡 {iotData.warning_alerts?.length || (iotData.summary?.farms_warning) || 0}
+                  </span>
+                  <span className="text-xs text-orange-700 font-semibold uppercase tracking-wider">Warning</span>
+                </div>
+                <div className="bg-green-50 p-3 rounded-lg border border-green-100 flex flex-col items-center justify-center text-center">
+                  <span className="text-xl font-extrabold text-green-600 mb-1">
+                    ✅ {iotData.normal_farms?.length || (iotData.summary?.farms_normal) || 0}
+                  </span>
+                  <span className="text-xs text-green-700 font-semibold uppercase tracking-wider">Normal</span>
+                </div>
+              </div>
+
+              {/* Lists */}
+              <div className="space-y-3">
+                {iotData.critical_alerts && iotData.critical_alerts.length > 0 ? (
+                  iotData.critical_alerts.slice(0, 3).map((farm, i) => (
+                    <div key={`crit-${i}`} className="text-sm text-red-600 font-medium">
+                      ⚠️ <span className="font-bold">{farm.farm_name}</span> — {farm.wilaya} : {farm.alerts?.[0]?.message || 'Critical alert active'}
+                    </div>
+                  ))
+                ) : iotData.warning_alerts && iotData.warning_alerts.length > 0 ? (
+                  iotData.warning_alerts.slice(0, 3).map((farm, i) => (
+                    <div key={`warn-${i}`} className="text-sm text-orange-600 font-medium">
+                      ⚠️ <span className="font-bold">{farm.farm_name}</span> — {farm.wilaya} : {farm.alerts?.[0]?.message || 'Warning active'}
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center text-green-600 font-semibold py-2">
+                    ✅ All farm sensors are operating normally
+                  </div>
+                )}
+              </div>
+
+              {/* Action Button */}
+              {(() => {
+                const danger = (iotData.critical_alerts?.length || iotData.summary?.farms_danger || 0) > 0;
+                const warning = (iotData.warning_alerts?.length || iotData.summary?.farms_warning || 0) > 0;
+                const btnBg = danger ? '#ef4444' : warning ? '#f97316' : '#22c55e';
+                const pulseClass = danger ? 'animate-pulse' : '';
+                return (
+                  <button 
+                    onClick={() => navigate('/admin-dashboard/iot')}
+                    className={`w-full py-3 rounded-lg text-white font-bold text-sm shadow-sm transition-opacity hover:opacity-90 flex items-center justify-center gap-2 ${pulseClass}`}
+                    style={{ backgroundColor: btnBg }}
+                  >
+                    View Full IoT Dashboard <ArrowUpRight size={16} />
+                  </button>
+                );
+              })()}
+            </div>
+          ) : (
+             <div className="text-gray-500 text-sm">Failed to load IoT preview.</div>
+          )}
+        </div>
+      </div>
+
     </div>
   );
 }

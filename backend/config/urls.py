@@ -16,6 +16,7 @@ urlpatterns = [
     path('api/v1/notifications/', include('apps.notifications.urls')),
     path('api/v1/complaints/', include('apps.complaints.urls')),
     path('api/admin/', include('apps.admin_ops.urls')),
+    path('api/v1/iot/', include('apps.iot.urls')),
 ]
 
 if settings.DEBUG:
