@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
-
+from django.conf import settings
 from .utils import send_otp_email
 from .serializers import (
     CustomTokenObtainPairSerializer,
@@ -58,13 +58,21 @@ class RegisterView(generics.CreateAPIView):
 
         user = serializer.create(validated)
         
-        # Send OTP email
-        send_otp_email(user)
+        # Send OTP email or auto-verify
+        otp_enabled = getattr(settings, 'OTP_ENABLED', True)
+        if not otp_enabled:
+            user.is_email_verified = True
+            user.save()
+            message = 'Registration successful. Your account is now under review.'
+        else:
+            send_otp_email(user)
+            message = 'Registration successful. Please verify your email with the OTP code sent.'
         
         return Response(
             {
-                'message': 'Registration successful. Please verify your email with the OTP code sent.',
-                'email': user.email
+                'message': message,
+                'email': user.email,
+                'otp_enabled': otp_enabled
             },
             status=status.HTTP_201_CREATED
         )
@@ -116,6 +124,17 @@ class VerifyOTPView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
+        if not getattr(settings, 'OTP_ENABLED', True):
+            email = request.data.get('email')
+            if email:
+                try:
+                    user = User.objects.get(email=email)
+                    user.is_email_verified = True
+                    user.save()
+                except User.DoesNotExist:
+                    pass
+            return Response({'message': 'Email verified successfully (OTP bypassed).'}, status=status.HTTP_200_OK)
+
         serializer = VerifyOTPSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

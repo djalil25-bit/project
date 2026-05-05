@@ -10,6 +10,7 @@ from apps.cart.models import Cart
 from apps.payments.models import Payment, PaymentStatusChoices
 from apps.accounts.permissions import IsBuyerRole, IsFarmerRole
 from apps.logistics.services import TransportPricingService
+from apps.common.constants import get_wilaya_name
 
 class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
@@ -24,7 +25,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['post'], permission_classes=[IsBuyerRole])
     def estimate_delivery(self, request):
         user = request.user
-        wilaya = request.data.get('wilaya', '')
+        wilaya = get_wilaya_name(request.data.get('wilaya', ''))
         commune = request.data.get('commune', '')
         
         if not wilaya:
@@ -103,7 +104,7 @@ class OrderViewSet(viewsets.ModelViewSet):
 
         vdata = serializer.validated_data
         delivery_address = vdata['delivery_address']
-        wilaya = vdata.get('wilaya', '')
+        wilaya = get_wilaya_name(vdata.get('wilaya', ''))
         commune = vdata.get('commune', '')
         buyer_phone = vdata.get('buyer_phone', '')
         payment_method = vdata.get('payment_method', 'cash_on_delivery')

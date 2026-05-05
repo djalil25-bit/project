@@ -111,9 +111,21 @@ class OrderSerializer(serializers.ModelSerializer):
                 from apps.logistics.serializers import DeliveryRequestPoDSerializer
                 ret['delivery_request'] = DeliveryRequestPoDSerializer(instance.delivery_request).data
                 ret['has_delivery_request'] = True
+                
+                # Add unmasked transporter info for Buyer/Admin if mission is accepted
+                dr = instance.delivery_request
+                if dr.transporter and dr.status in ['assigned', 'picked_up', 'in_transit', 'delivered']:
+                    ret['transporter'] = {
+                        'name': dr.transporter.full_name or dr.transporter.email,
+                        'phone': dr.transporter.phone,
+                        'license_plate': dr.assigned_vehicle_info.get('plate') or (dr.transporter.transporterprofile.plate_number if hasattr(dr.transporter, 'transporterprofile') else None)
+                    }
+                else:
+                    ret['transporter'] = None
             else:
                 ret['has_delivery_request'] = False
                 ret['delivery_request'] = None
+                ret['transporter'] = None
                 
         return ret
 

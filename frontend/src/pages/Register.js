@@ -131,7 +131,7 @@ const Register = () => {
 
   const [formData, setFormData] = useState({
     email: '', password: '', confirm_password: '',
-    full_name: '', phone: '', wilaya: '',
+    full_name: '', phone: '', wilaya: '', commune: '',
     // Farmer
     farm_name: '', farm_location: '', production_type: '', farm_size: '',
     // Buyer
@@ -201,6 +201,7 @@ const Register = () => {
         if (!formData.farm_name.trim()) errs.farm_name = 'Farm name is required.';
         if (!formData.farm_location.trim()) errs.farm_location = 'Farm location is required.';
         if (!formData.production_type) errs.production_type = 'Production type is required.';
+        if (!formData.commune.trim()) errs.commune = 'Commune is required.';
       }
       if (activeRole === 'buyer' && formData.buyer_type === 'business') {
         if (!formData.company_name.trim()) errs.company_name = 'Company name is required.';
@@ -258,7 +259,11 @@ const Register = () => {
     }
 
     try {
-      await api.post('/auth/register/', fd);
+      const res = await api.post('/auth/register/', fd);
+      if (res.data && res.data.otp_enabled === false) {
+        setSuccess(true);
+        return;
+      }
       setShowOtpStep(true);
       setTimer(60);
       const interval = setInterval(() => {
@@ -573,6 +578,21 @@ const Register = () => {
                       <label className="auth-label">Farm Size (Hectares)</label>
                       <input type="number" step="0.01" className={`auth-input ${fieldErrors.farm_size?'auth-input-error':''}`} placeholder="e.g. 5.5" value={formData.farm_size} onChange={e=>setField('farm_size',e.target.value)} />
                       {fieldErrors.farm_size && <span className="auth-field-error">{fieldErrors.farm_size}</span>}
+                    </div>
+                  </div>
+                  <div className="auth-form-row">
+                    <div className="auth-field">
+                      <label className="auth-label">Wilaya *</label>
+                      <select className={`auth-input auth-select ${fieldErrors.wilaya ? 'auth-input-error' : ''}`} value={formData.wilaya} onChange={e => setField('wilaya', e.target.value)}>
+                        <option value="">Select wilaya</option>
+                        {WILAYAS.map(w => <option key={w} value={w}>{w}</option>)}
+                      </select>
+                      {fieldErrors.wilaya && <span className="auth-field-error">{fieldErrors.wilaya}</span>}
+                    </div>
+                    <div className="auth-field">
+                      <label className="auth-label">Commune *</label>
+                      <input className={`auth-input ${fieldErrors.commune?'auth-input-error':''}`} placeholder="e.g. Boufarik" value={formData.commune} onChange={e=>setField('commune',e.target.value)} />
+                      {fieldErrors.commune && <span className="auth-field-error">{fieldErrors.commune}</span>}
                     </div>
                   </div>
                 </>

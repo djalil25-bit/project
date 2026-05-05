@@ -24,8 +24,7 @@ import {
   Bell,
   ShieldAlert,
   BarChart3,
-  ArrowUpRight,
-  DollarSign
+  ArrowUpRight
 } from 'lucide-react';
 import AlertsPanel from '../../components/admin/AlertsPanel';
 import UserDetailModal from '../admin/UserDetailModal';

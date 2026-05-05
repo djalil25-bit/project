@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
+from django.conf import settings
 
 from .models import (
     RoleChoices, AccountStatusChoices,
@@ -69,7 +70,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         if not user.is_active:
             raise serializers.ValidationError(_("Account is inactive."))
 
-        if not user.is_email_verified:
+        if getattr(settings, 'OTP_ENABLED', True) and not user.is_email_verified:
             raise serializers.ValidationError(_("Please verify your email address before logging in."))
 
         # Allow PENDING users to login — frontend redirects them to /pending
@@ -112,6 +113,7 @@ class RegisterSerializer(serializers.Serializer):
     phone            = serializers.CharField(max_length=20, required=False, allow_blank=True)
     role             = serializers.ChoiceField(choices=[RoleChoices.FARMER, RoleChoices.BUYER, RoleChoices.TRANSPORTER])
     wilaya           = serializers.CharField(max_length=100, required=False, allow_blank=True)
+    commune          = serializers.CharField(max_length=100, required=False, allow_blank=True)
 
     # ── Farmer fields ──
     farm_name        = serializers.CharField(max_length=255, required=False, allow_blank=True)
@@ -158,6 +160,8 @@ class RegisterSerializer(serializers.Serializer):
                 raise serializers.ValidationError({'farm_location': 'Farm location is required for farmers.'})
             if not data.get('production_type'):
                 raise serializers.ValidationError({'production_type': 'Production type is required for farmers.'})
+            if not data.get('commune'):
+                raise serializers.ValidationError({'commune': 'Commune is required for farmers.'})
             if not data.get('farmer_id'):
                 raise serializers.ValidationError({'farmer_id': 'Farmer ID document is required.'})
             # Validate farmer_id file
@@ -199,6 +203,7 @@ class RegisterSerializer(serializers.Serializer):
         farm_name       = validated_data.pop('farm_name', '')
         farm_location   = validated_data.pop('farm_location', '')
         production_type = validated_data.pop('production_type', '')
+        commune         = validated_data.pop('commune', '')
         farm_size       = validated_data.pop('farm_size', 0.0)
         farmer_id_file  = validated_data.pop('farmer_id', None)
         farm_photos     = validated_data.pop('farm_photos', [])
@@ -243,6 +248,7 @@ class RegisterSerializer(serializers.Serializer):
                     name=farm_name,
                     location=farm_location,
                     wilaya=farm_wilaya,
+                    commune=commune,
                     size_hectares=farm_size
                 )
                 if farm_photos:

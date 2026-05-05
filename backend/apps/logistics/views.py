@@ -14,6 +14,7 @@ from .serializers import (
 )
 from apps.accounts.permissions import IsTransporterRole, IsFarmerRole
 from apps.orders.models import OrderStatusChoices, DeliveryStatusChoices as OrderDeliveryStatus
+from apps.common.constants import get_wilaya_name
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +60,7 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
                 wilaya = first_item.farmer.address
                 
             if wilaya:
-                serializer.validated_data['pickup_wilaya'] = wilaya
+                serializer.validated_data['pickup_wilaya'] = get_wilaya_name(wilaya)
             
         serializer.save()
 
@@ -82,9 +83,9 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
                 qs = qs.filter(pickup_wilaya__in=service_zones)
                 
             if pickup_wilaya:
-                qs = qs.filter(pickup_wilaya=pickup_wilaya)
+                qs = qs.filter(pickup_wilaya=get_wilaya_name(pickup_wilaya))
             if delivery_wilaya:
-                qs = qs.filter(order__wilaya=delivery_wilaya)
+                qs = qs.filter(order__wilaya=get_wilaya_name(delivery_wilaya))
 
             if self.action in ['my_missions', 'update_status']:
                 return qs.filter(transporter=user)
