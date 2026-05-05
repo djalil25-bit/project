@@ -576,11 +576,12 @@ class AccountActionAPIView(APIView):
                 try:
                     profile = user.farmerprofile
                     if not Farm.objects.filter(owner=user).exists():
+                        # The user.address field stores the Wilaya string in this system
                         Farm.objects.create(
                             owner=user,
                             name=profile.farm_name or f"{user.full_name}'s Farm",
                             location=profile.farm_location or user.address,
-                            wilaya=user.address,
+                            wilaya=user.address or '', 
                             size_hectares=profile.farm_size_hectares,
                         )
                 except Exception as e:

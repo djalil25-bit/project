@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 
+import logging
 from django.utils import timezone
 from django.db import transaction
 from .models import DeliveryRequest, DeliveryStatusChoices
@@ -13,6 +14,8 @@ from .serializers import (
 )
 from apps.accounts.permissions import IsTransporterRole, IsFarmerRole
 from apps.orders.models import OrderStatusChoices, DeliveryStatusChoices as OrderDeliveryStatus
+
+logger = logging.getLogger(__name__)
 
 class DeliveryRequestViewSet(viewsets.ModelViewSet):
     serializer_class = DeliveryRequestSerializer
@@ -117,14 +120,19 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
                 return Response({"error": "This delivery is no longer open. It may have just been accepted by someone else."}, status=status.HTTP_409_CONFLICT)
         
         # Transporter active mission limit validation
-        if DeliveryRequest.objects.filter(
+        active_missions = DeliveryRequest.objects.filter(
             transporter=request.user,
             status__in=[
                 DeliveryStatusChoices.ASSIGNED,
                 DeliveryStatusChoices.PICKED_UP,
                 DeliveryStatusChoices.IN_TRANSIT
             ]
-        ).exists():
+        )
+        
+        logger.info(f"[LOGISTICS] User {request.user.id} ({request.user.username}) attempting to accept mission {pk}")
+        if active_missions.exists():
+            mission_details = ", ".join([f"ID:{m.id}({m.status})" for m in active_missions])
+            logger.warning(f"[LOGISTICS] Blocked: User {request.user.id} has active missions: {mission_details}")
             return Response(
                 {"error": "You cannot accept a new mission until your current mission is completed."},
                 status=status.HTTP_400_BAD_REQUEST

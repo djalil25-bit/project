@@ -233,6 +233,22 @@ class RegisterSerializer(serializers.Serializer):
                     production_type = production_type,
                     farm_size_hectares = farm_size,
                 )
+                
+                # Auto-create Farm record
+                from apps.farms.models import Farm
+                # Ensure we use the wilaya from user profile (which was set from registration data)
+                farm_wilaya = user.address if user.address else wilaya
+                farm = Farm.objects.create(
+                    owner=user,
+                    name=farm_name,
+                    location=farm_location,
+                    wilaya=farm_wilaya,
+                    size_hectares=farm_size
+                )
+                if farm_photos:
+                    farm.image = farm_photos[0]
+                    farm.save()
+
                 if farmer_id_file:
                     UserDocument.objects.create(
                         user=user, document_type=DocumentTypeChoices.FARMER_ID, file=farmer_id_file
@@ -261,6 +277,19 @@ class RegisterSerializer(serializers.Serializer):
                     plate_number  = plate_number,
                     capacity_tons = capacity_tons,
                 )
+
+                # Auto-create initial vehicle in JSON fleet
+                user.vehicles = [{
+                    "id": 1,
+                    "plate": plate_number,
+                    "model": f"Initial {vehicle_type}",
+                    "capacity": float(capacity_tons) * 1000,
+                    "type": vehicle_type,
+                    "fuelType": "Diesel",
+                    "is_active": True
+                }]
+                user.save()
+
                 if driving_license:
                     UserDocument.objects.create(
                         user=user, document_type=DocumentTypeChoices.DRIVING_LICENSE, file=driving_license
