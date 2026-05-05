@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'apps.notifications.apps.NotificationsConfig',
     'apps.complaints.apps.ComplaintsConfig',
     'apps.admin_ops.apps.AdminOpsConfig',
+    'apps.iot.apps.IotConfig',
 ]
 
 MIDDLEWARE = [
