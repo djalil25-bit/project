@@ -32,6 +32,7 @@ import ProductList from './pages/farmer/ProductList';
 import RequestDelivery from './pages/farmer/RequestDelivery';
 import FarmDetail from './pages/farmer/FarmDetail';
 import FarmerStats from './pages/farmer/FarmerStats';
+import IoTAlertsPage from './pages/farmer/IoTAlertsPage';
 import OrderHistory from './pages/buyer/OrderHistory';
 import CartPage from './pages/buyer/CartPage';
 import InvoicePage from './pages/buyer/InvoicePage';
@@ -51,6 +52,7 @@ import AdminAccounts from './pages/admin/AdminAccounts';
 import AdminAlerts from './pages/admin/AdminAlerts';
 import AdminMessages from './pages/admin/AdminMessages';
 import AdminMonitoring from './pages/admin/AdminMonitoring';
+import AdminIoTPage from './pages/admin/AdminIoTPage';
 import AccountPending from './pages/AccountPending';
 
 function App() {
@@ -124,6 +126,11 @@ function App() {
               <AdminMonitoring />
             </ProtectedRoute>
           } />
+          <Route path="/admin-dashboard/iot" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminIoTPage />
+            </ProtectedRoute>
+          } />
           <Route path="/farmer-dashboard" element={
             <ProtectedRoute allowedRoles={['farmer']}>
               <FarmerDashboard />
@@ -182,6 +189,11 @@ function App() {
           <Route path="/farmer-dashboard/harvests" element={
             <ProtectedRoute allowedRoles={['farmer']}>
               <HarvestRecords />
+            </ProtectedRoute>
+          } />
+          <Route path="/farmer/iot-alerts" element={
+            <ProtectedRoute allowedRoles={['farmer']}>
+              <IoTAlertsPage />
             </ProtectedRoute>
           } />
           <Route path="/buyer-dashboard" element={

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axiosConfig';
+import SensorWidget from '../../components/iot/SensorWidget';
 import {
   Plus, Sprout, TrendingUp, Clock, DollarSign,
   Package, ChevronRight, CheckCircle, ExternalLink, ListOrdered,
-  BadgeCheck, ShoppingBag, Activity, AlertTriangle, CloudSun, Target
+  BadgeCheck, ShoppingBag, Activity, AlertTriangle, CloudSun, Target,
+  ShieldAlert
 } from 'lucide-react';
 
 function timeAgo(dateStr) {
@@ -22,6 +24,8 @@ export default function FarmerDashboard() {
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [farmId, setFarmId] = useState(null);
+  const [alertStatus, setAlertStatus] = useState(null); // { alerts_count, has_danger }
 
   useEffect(() => {
     setLoading(true);
@@ -29,6 +33,21 @@ export default function FarmerDashboard() {
       .then(res => setStats(res.data))
       .catch(err => console.error(err))
       .finally(() => setLoading(false));
+
+    // Fetch farmer's first farm for IoT widget
+    api.get('/farms/')
+      .then(res => {
+        const farms = res.data.results || res.data;
+        if (farms && farms.length > 0) {
+          const fid = farms[0].id;
+          setFarmId(fid);
+          // Also fetch alert status for the button
+          api.get(`/iot/alerts/${fid}/`)
+            .then(alertRes => setAlertStatus(alertRes.data))
+            .catch(() => {});
+        }
+      })
+      .catch(err => console.error('[IoT] Could not load farms:', err));
   }, []);
 
   if (loading) return (
@@ -153,6 +172,57 @@ export default function FarmerDashboard() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* ── IoT SENSOR WIDGET ──────────────────────────────────────── */}
+      {farmId && (
+        <div>
+          <SensorWidget farmId={farmId} />
+          {/* Alert navigation button */}
+          <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'flex-end' }}>
+            <button
+              onClick={() => navigate('/farmer/iot-alerts')}
+              className={alertStatus?.has_danger ? 'animate-pulse' : ''}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '0.6rem 1.25rem',
+                borderRadius: '0.75rem',
+                border: 'none',
+                cursor: 'pointer',
+                fontWeight: 800,
+                fontSize: '0.82rem',
+                transition: 'all 0.3s',
+                boxShadow: alertStatus?.has_danger
+                  ? '0 0 20px rgba(220,38,38,0.3)'
+                  : alertStatus?.alerts_count > 0
+                    ? '0 0 12px rgba(217,119,6,0.2)'
+                    : '0 4px 12px rgba(34,84,61,0.15)',
+                background: alertStatus?.has_danger
+                  ? 'linear-gradient(135deg, #dc2626, #b91c1c)'
+                  : alertStatus?.alerts_count > 0
+                    ? 'linear-gradient(135deg, #d97706, #b45309)'
+                    : 'linear-gradient(135deg, #22543d, #1a402e)',
+                color: '#fff',
+              }}
+            >
+              <ShieldAlert size={16} />
+              View Alerts →
+              {alertStatus?.alerts_count > 0 && (
+                <span style={{
+                  background: 'rgba(255,255,255,0.25)',
+                  padding: '1px 7px',
+                  borderRadius: 10,
+                  fontSize: '0.7rem',
+                  fontWeight: 900,
+                }}>
+                  {alertStatus.alerts_count}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
       )}
 

@@ -40,7 +40,8 @@ import {
   Leaf,
   BarChart3,
   ListOrdered,
-  Users
+  Users,
+  Activity
 } from 'lucide-react';
 import VerifiedBadge from '../components/common/VerifiedBadge';
 import AgriGovLogo from '../components/common/AgriGovLogo';
@@ -57,10 +58,69 @@ const MainLayout = () => {
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showLangMenu, setShowLangMenu] = useState(false);
+  const [iotAlertCount, setIotAlertCount] = useState(0);
+  const [iotHasDanger, setIotHasDanger] = useState(false);
+  const [adminIotSummary, setAdminIotSummary] = useState(null);
   const location = useLocation();
   const userMenuRef = useRef(null);
   const notifRef = useRef(null);
   const langRef = useRef(null);
+
+  // Fetch IoT alert badge count for farmer sidebar
+  useEffect(() => {
+    if (user?.role !== 'farmer') return;
+    const fetchIotAlerts = () => {
+      api.get('/farms/')
+        .then(res => {
+          const farms = res.data.results || res.data;
+          if (farms && farms.length > 0) {
+            return api.get(`/iot/alerts/${farms[0].id}/`);
+          }
+          return null;
+        })
+        .then(res => {
+          if (res) {
+            setIotAlertCount(res.data.alerts_count || 0);
+            setIotHasDanger(res.data.has_danger || false);
+          }
+        })
+        .catch(err => console.error('[IoT badge] fetch error:', err));
+    };
+    fetchIotAlerts();
+    const interval = setInterval(fetchIotAlerts, 600000);
+    return () => clearInterval(interval);
+  }, [user]);
+
+  // Fetch IoT badge for admin sidebar (Fixed)
+  useEffect(() => {
+    if (user?.role !== 'admin') return;
+    
+    let isMounted = true;
+    const fetchAdminIot = async () => {
+      try {
+        const res = await api.get('/iot/admin/overview/');
+        if (!isMounted || !res.data) return;
+        
+        let summary = res.data.summary;
+        if (!summary) {
+          const crit = res.data.critical_alerts || [];
+          const warn = res.data.warning_alerts || [];
+          summary = { farms_danger: crit.length, farms_warning: warn.length };
+        }
+        setAdminIotSummary(summary);
+      } catch (err) {
+        console.error('[Admin IoT badge] fetch error:', err);
+        if (isMounted) setAdminIotSummary({ farms_danger: 0, farms_warning: 0 });
+      }
+    };
+
+    fetchAdminIot();
+    const interval = setInterval(fetchAdminIot, 600000); // 10 mins
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [user]);
 
   useEffect(() => {
     if (user) {
@@ -132,6 +192,7 @@ const MainLayout = () => {
       { label: t('nav_alerts'), path: '/admin-dashboard/alerts', icon: <ShieldAlert size={18} /> },
       { label: t('nav_messages'), path: '/admin-dashboard/messages', icon: <MessageSquare size={18} /> },
       { label: t('nav_monitoring'), path: '/admin-dashboard/monitoring', icon: <BarChart3 size={18} /> },
+      { label: 'IoT Overview', path: '/admin-dashboard/iot', icon: <Activity size={18} />, adminIotBadge: true },
       { label: t('nav_catalog'), path: '/admin-dashboard/catalog', icon: <ClipboardList size={18} /> },
       { label: t('nav_categories'), path: '/admin-dashboard/categories', icon: <FolderTree size={18} /> },
       { label: t('nav_complaint_center'), path: '/admin-dashboard/complaints', icon: <ShieldAlert size={18} /> },
@@ -140,6 +201,7 @@ const MainLayout = () => {
       { label: t('nav_dashboard'), path: '/farmer-dashboard', icon: <LayoutDashboard size={18} strokeWidth={2.2} /> },
       { label: t('nav_statistics'), path: '/farmer-dashboard/stats', icon: <BarChart3 size={18} strokeWidth={2.2} /> },
       { label: t('nav_my_farms'), path: '/farmer-dashboard/farms', icon: <Tractor size={18} strokeWidth={2.2} /> },
+      { label: 'IoT Alerts', path: '/farmer/iot-alerts', icon: <Activity size={18} strokeWidth={2.2} />, badge: iotAlertCount, badgeDanger: iotHasDanger },
       { label: t('nav_orders'), path: '/farmer/orders', icon: <ListOrdered size={18} strokeWidth={2.2} /> },
       { label: t('nav_my_products'), path: '/farmer/products', icon: <Sprout size={18} strokeWidth={2.2} /> },
       { label: t('nav_harvests'), path: '/farmer-dashboard/harvests', icon: <Wheat size={18} strokeWidth={2.2} /> },
@@ -211,6 +273,45 @@ const MainLayout = () => {
             >
               <span className="nav-icon" style={location.pathname === link.path ? { color: accent } : {}}>{link.icon}</span>
               <span className="nav-label">{link.label}</span>
+              {link.badge > 0 && (
+                <span style={{
+                  marginLeft: 'auto',
+                  background: link.badgeDanger ? '#dc2626' : '#d97706',
+                  color: '#fff',
+                  fontSize: '0.6rem',
+                  fontWeight: 800,
+                  padding: '1px 6px',
+                  borderRadius: 10,
+                  minWidth: 18,
+                  textAlign: 'center',
+                  lineHeight: '16px',
+                  boxShadow: link.badgeDanger ? '0 0 8px rgba(220,38,38,0.4)' : '0 0 6px rgba(217,119,6,0.3)',
+                }}>
+                  {link.badge}
+                </span>
+              )}
+              {link.adminIotBadge && adminIotSummary && user?.role === 'admin' && location.pathname.includes('/admin') && (
+                <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center' }}>
+                  {adminIotSummary.farms_danger > 0 ? (
+                    <span style={{ background: '#ef4444', color: 'white', borderRadius: '999px', fontSize: '11px', padding: '2px 7px', animation: 'pulse 1s infinite' }}>
+                      {adminIotSummary.farms_danger}
+                    </span>
+                  ) : adminIotSummary.farms_warning > 0 ? (
+                    <span style={{ background: '#f97316', color: 'white', borderRadius: '999px', fontSize: '11px', padding: '2px 7px' }}>
+                      {adminIotSummary.farms_warning}
+                    </span>
+                  ) : (
+                    <span style={{ background: '#22c55e', width: '8px', height: '8px', borderRadius: '50%' }} />
+                  )}
+                  <style>{`
+                    @keyframes pulse {
+                      0% { transform: scale(1); }
+                      50% { transform: scale(1.1); }
+                      100% { transform: scale(1); }
+                    }
+                  `}</style>
+                </div>
+              )}
               {location.pathname === link.path && (
                 <span className="nav-active-indicator" style={{ background: accent }} />
               )}
