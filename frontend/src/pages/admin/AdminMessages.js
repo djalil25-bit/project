@@ -146,11 +146,11 @@ const AdminMessages = () => {
         subject,
         body,
         channel: channel.toUpperCase(),
-        is_reply_allowed: isReplyAllowed,
+        is_reply_allowed: false,
         ...(schedule && { scheduled_for: scheduleDate }),
       });
       setToast({ msg: 'Message sent successfully!', type: 'success' });
-      setSubject(''); setBody(''); setRecipient(''); setRecipientId(null); setIsReplyAllowed(false);
+      setSubject(''); setBody(''); setRecipient(''); setRecipientId(null);
       setTimeout(() => setToast(null), 3000);
     } catch (err) {
       setToast({ msg: err.response?.data?.error || 'Failed to send message', type: 'error' });
@@ -229,9 +229,7 @@ const AdminMessages = () => {
 
       <div className="adm-tab-bar w-fit">
         <button className={`adm-tab ${tab==='compose'?'active':''}`} onClick={()=>setTab('compose')}><Send size={13}/> Compose</button>
-        <button className={`adm-tab ${tab==='inbox'?'active':''}`} onClick={()=>setTab('inbox')}><Mail size={13}/> Inbox</button>
         <button className={`adm-tab ${tab==='history'?'active':''}`} onClick={()=>setTab('history')}><Clock size={13}/> History</button>
-        <button className={`adm-tab ${tab==='templates'?'active':''}`} onClick={()=>setTab('templates')}><FileText size={13}/> Templates</button>
       </div>
 
       {/* Toast */}
@@ -285,8 +283,6 @@ const AdminMessages = () => {
           <div className="flex items-center gap-3">
             <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={schedule} onChange={e=>setSchedule(e.target.checked)} className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"/> <span className="text-sm text-gray-600">Schedule for later</span></label>
             {schedule && <input type="datetime-local" className="adm-input w-auto" value={scheduleDate} onChange={e=>setScheduleDate(e.target.value)}/>}
-            
-            <label className="flex items-center gap-2 cursor-pointer ml-4"><input type="checkbox" checked={isReplyAllowed} onChange={e=>setIsReplyAllowed(e.target.checked)} className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"/> <span className="text-sm text-gray-600">Allow Replies</span></label>
           </div>
 
           <div className="flex gap-3 pt-2">

@@ -48,12 +48,12 @@ const VehicleSelectionModal = ({ isOpen, onClose, onAccept, mission }) => {
   const handleConfirm = async () => {
     if (!selectedId) return;
     setIsSubmitting(true);
-    setError(null);
+    console.log('[DEBUG] Confirming Mission Acceptance:', { missionId: mission.id, vehicleId: selectedId });
     try {
       await onAccept(mission.id, selectedId);
       onClose();
     } catch (err) {
-      const msg = err.response?.data?.error || 'Authorization Link Failure';
+      const msg = err.message || 'Authorization Link Failure';
       setError(msg);
     } finally {
       setIsSubmitting(false);
@@ -146,46 +146,59 @@ const VehicleSelectionModal = ({ isOpen, onClose, onAccept, mission }) => {
                  <p className="text-xs font-bold text-slate-500">No assets registered in your fleet.</p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {vehicles.map(v => {
-                  const capacity = parseFloat(v.capacity || 0);
-                  const isSufficient = capacity >= totalPayload;
-                  const isActive = v.is_active !== false;
-                  const isEligible = isSufficient && isActive;
+              <div className="space-y-4">
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+                    <Truck size={20} />
+                  </div>
+                  <select 
+                    id="vehicle-selection-dropdown"
+                    className={`w-full h-16 bg-slate-50 border-2 rounded-2xl pl-12 pr-10 text-sm font-bold appearance-none transition-all focus:outline-none focus:ring-4 focus:ring-indigo-500/10 ${selectedId ? 'border-indigo-600 text-slate-900 bg-white' : 'border-slate-100 text-slate-400'}`}
+                    value={selectedId || ''}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setSelectedId(val || null);
+                      setError(null);
+                    }}
+                  >
+                    <option value="">Select a vehicle from your fleet...</option>
+                    {vehicles.map(v => {
+                      const capacity = parseFloat(v.capacity || 0);
+                      const isSufficient = capacity >= totalPayload;
+                      const isActive = v.is_active !== false;
+                      const isEligible = isSufficient && isActive;
+                      const capText = capacity >= 1000 ? `${(capacity/1000).toFixed(1)}T` : `${v.capacity}KG`;
+                      
+                      return (
+                        <option 
+                          key={v.id} 
+                          value={v.id} 
+                          disabled={!isEligible}
+                          className={!isEligible ? 'text-slate-300' : 'text-slate-900'}
+                        >
+                          {v.model} ({v.plate}) — Cap: {capText} {!isActive ? '[OFFLINE]' : !isSufficient ? '[INSUFFICIENT]' : ''}
+                        </option>
+                      );
+                    })}
+                  </select>
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-slate-400">
+                    <ChevronRight size={18} className="rotate-90" />
+                  </div>
+                </div>
 
-                  return (
-                    <div 
-                      key={v.id}
-                      className={`group relative flex items-center justify-between p-4 rounded-2xl border-2 transition-all duration-300 ${!isEligible ? 'opacity-50 grayscale cursor-not-allowed bg-slate-50 border-slate-100' : selectedId === v.id ? 'bg-white border-indigo-600 shadow-xl shadow-indigo-100 scale-[1.02]' : 'bg-white border-slate-100 hover:border-indigo-300 cursor-pointer'}`}
-                      onClick={() => isEligible && setSelectedId(v.id)}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-sm border transition-all ${selectedId === v.id ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-slate-50 text-slate-400 border-slate-100 group-hover:bg-indigo-50 group-hover:text-indigo-600'}`}>
-                           {getVehicleIcon(v.type)}
-                        </div>
-                        <div className="text-left">
-                           <div className="text-sm font-black text-slate-900 tracking-tight">{v.model} <span className="text-xs font-mono text-slate-400">[{v.plate}]</span></div>
-                           <div className="flex items-center gap-2 mt-0.5">
-                              <span className={`text-[9px] font-black uppercase tracking-widest border px-1.5 py-0.5 rounded ${isSufficient ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
-                                 Cap: {capacity >= 1000 ? `${(capacity/1000).toFixed(1)}T` : `${v.capacity}KG`}
-                              </span>
-                              {!isActive && <span className="text-[8px] font-black text-rose-500 uppercase tracking-widest flex items-center gap-1"><Power size={8} /> Offline</span>}
-                           </div>
-                        </div>
-                      </div>
-
-                      {isEligible ? (
-                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${selectedId === v.id ? 'bg-indigo-600 border-indigo-600' : 'border-slate-200'}`}>
-                           {selectedId === v.id && <CheckCircle size={14} className="text-white" />}
-                        </div>
-                      ) : (
-                        <div className="p-2 text-rose-500" title={!isSufficient ? "Capacity Violation" : "Node Offline"}>
-                           <AlertTriangle size={16} />
-                        </div>
-                      )}
+                {selectedId && (
+                  <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-2xl flex items-start gap-3 animate-fade-in">
+                    <div className="p-2 bg-white rounded-xl shadow-sm text-indigo-600">
+                      <ShieldCheck size={18} />
                     </div>
-                  );
-                })}
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-indigo-400 mb-1">Active Selection</p>
+                      <p className="text-sm font-bold text-slate-900">
+                        {vehicles.find(v => String(v.id) === String(selectedId))?.model} verified for this mission payload.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

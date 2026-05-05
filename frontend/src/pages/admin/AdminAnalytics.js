@@ -20,11 +20,12 @@ const AdminAnalytics = () => {
   const [prodData, setProdData] = useState(null);
   const [prodLoading, setProdLoading] = useState(false);
 
-  // Zone tab state
-  const [zones, setZones] = useState([]);
-  const [selZone, setSelZone] = useState('');
-  const [zoneData, setZoneData] = useState(null);
-  const [zoneLoading, setZoneLoading] = useState(false);
+  // Wilaya tab state
+  const [wilayas, setWilayas] = useState([]);
+  const [selWilaya, setSelWilaya] = useState('');
+  const [wilayaData, setWilayaData] = useState(null);
+  const [wilayaLoading, setWilayaLoading] = useState(false);
+  const [wilayaSearch, setWilayaSearch] = useState('');
 
   // Leaderboard state
   const [leaders, setLeaders] = useState([]);
@@ -61,23 +62,24 @@ const AdminAnalytics = () => {
       .finally(() => setProdLoading(false));
   }, [selProductId]);
 
-  // Fetch zones for dropdown
+  // Fetch wilayas for dropdown
   useEffect(() => {
     adminApi.get('/analytics/zones/').then(res => {
-      setZones(res.data.zones || []);
-      if (res.data.zones?.length > 0) setSelZone(res.data.zones[0]);
+      const list = res.data.wilayas || res.data.zones || [];
+      setWilayas(list);
+      if (list?.length > 0) setSelWilaya(list[0]);
     }).catch(() => {});
   }, []);
 
-  // Fetch zone detail
+  // Fetch wilaya detail
   useEffect(() => {
-    if (!selZone) return;
-    setZoneLoading(true);
-    adminApi.get('/analytics/zones/', { params: { zone: selZone } })
-      .then(res => setZoneData(res.data))
-      .catch(() => setZoneData(null))
-      .finally(() => setZoneLoading(false));
-  }, [selZone]);
+    if (!selWilaya) return;
+    setWilayaLoading(true);
+    adminApi.get('/analytics/zones/', { params: { wilaya: selWilaya } })
+      .then(res => setWilayaData(res.data))
+      .catch(() => setWilayaData(null))
+      .finally(() => setWilayaLoading(false));
+  }, [selWilaya]);
 
   // Fetch leaderboard
   useEffect(() => {
@@ -89,11 +91,21 @@ const AdminAnalytics = () => {
       .finally(() => setLeadersLoading(false));
   }, [activeTab]);
 
+  const filteredWilayas = wilayas.filter(w => w.toLowerCase().includes(wilayaSearch.trim().toLowerCase()));
+
+  useEffect(() => {
+    if (!selWilaya && filteredWilayas.length > 0) {
+      setSelWilaya(filteredWilayas[0]);
+    } else if (selWilaya && filteredWilayas.length > 0 && !filteredWilayas.includes(selWilaya)) {
+      setSelWilaya(filteredWilayas[0]);
+    }
+  }, [filteredWilayas, selWilaya]);
+
   if (loading && !apiData) return <div className="flex items-center justify-center gap-3 py-20"><div className="adm-spinner"></div><span className="text-gray-400 text-sm">Loading analytics...</span></div>;
 
   const tabs = [
     { key:'product', label:'Product Performance', icon:<Package size={14}/> },
-    { key:'zone', label:'Zone Analysis', icon:<MapPin size={14}/> },
+    { key:'wilaya', label:'Wilaya Analysis', icon:<MapPin size={14}/> },
     { key:'leaderboard', label:'Top Sellers', icon:<Trophy size={14}/> },
   ];
 
@@ -194,36 +206,51 @@ const AdminAnalytics = () => {
         </div>
       )}
 
-      {/* Zone Analysis */}
-      {activeTab==='zone' && (
+      {/* Wilaya Analysis */}
+      {activeTab==='wilaya' && (
         <div className="space-y-6">
-          <div className="flex items-center gap-3">
-            <label className="text-sm font-semibold text-gray-600">Zone:</label>
-            <select className="adm-input w-auto" value={selZone} onChange={e=>setSelZone(e.target.value)}>
-              {zones.map(z=><option key={z} value={z}>{z}</option>)}
-            </select>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-end">
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-3">
+                <label className="text-sm font-semibold text-gray-600">Wilaya:</label>
+                <select className="adm-input w-auto" value={selWilaya} onChange={e=>setSelWilaya(e.target.value)}>
+                  {filteredWilayas.length > 0 ? filteredWilayas.map(w=><option key={w} value={w}>{w}</option>) : <option value="">No matches</option>}
+                </select>
+              </div>
+              <input
+                type="text"
+                className="adm-input w-full lg:w-96"
+                placeholder="Search wilaya..."
+                value={wilayaSearch}
+                onChange={e=>setWilayaSearch(e.target.value)}
+              />
+            </div>
+            <div className="text-sm text-gray-500">
+              Search and filter the wilaya list, then select a wilaya to load the latest analytics.
+            </div>
           </div>
 
-          {zoneLoading ? <div className="glass-card p-12 text-center text-gray-400">Loading zone data...</div> :
-           !zoneData ? <div className="glass-card p-12 text-center text-gray-400">Select a zone to view analytics.</div> :
-           zones.length === 0 ? <div className="glass-card p-12 text-center text-gray-400">No zone data available yet. Orders need wilaya information.</div> : (
+          {wilayaLoading ? <div className="glass-card p-12 text-center text-gray-400">Loading wilaya data...</div> :
+           !wilayaData ? <div className="glass-card p-12 text-center text-gray-400">Select a wilaya to view analytics.</div> :
+           wilayas.length === 0 ? <div className="glass-card p-12 text-center text-gray-400">No wilaya data available yet. Orders or farms need wilaya information.</div> : (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
               {[
-                {l:'GMV', v:`${(zoneData.gmv/1e6).toFixed(2)}M`, s:'DZD'},
-                {l:'Orders', v:zoneData.order_count},
-                {l:'Avg Order', v:Number(zoneData.avg_order).toLocaleString(), s:'DZD'},
-                {l:'Farmers', v:zoneData.farmers},
-                {l:'Buyers', v:zoneData.buyers},
+                {l:'Orders', v:wilayaData.order_count},
+                {l:'Farms', v:wilayaData.farms_count},
+                {l:'Farmers', v:wilayaData.farmers_count},
+                {l:'Buyers', v:wilayaData.buyers},
+                {l:'Transporters', v:wilayaData.transporters},
+                {l:'GMV', v:`${(wilayaData.gmv/1e6).toFixed(2)}M`, s:'DZD'},
               ].map((c,i)=>(
                 <div key={i} className="glass-card p-4"><div className="text-xs text-gray-500 mb-1">{c.l}</div><div className="text-xl font-extrabold text-gray-900">{c.v} {c.s&&<span className="text-xs text-gray-400 font-normal">{c.s}</span>}</div></div>
               ))}
             </div>
 
-            {zoneData.top_products?.length > 0 && (
+            {wilayaData.top_products?.length > 0 && (
               <div className="glass-card p-6">
-                <h3 className="font-bold text-gray-800 mb-4">Top Products in {selZone}</h3>
-                <div className="space-y-2">{zoneData.top_products.map((p,i)=>(
+                <h3 className="font-bold text-gray-800 mb-4">Top Products in {selWilaya}</h3>
+                <div className="space-y-2">{wilayaData.top_products.map((p,i)=>(
                   <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-gray-100">
                     <div className="text-lg font-extrabold text-gray-300 w-6">{i+1}</div>
                     <div className="flex-1"><div className="font-semibold text-gray-800 text-sm">{p.product__title}</div><div className="text-xs text-gray-400">{Number(p.units).toLocaleString()} units</div></div>

@@ -3,7 +3,7 @@ import api from '../../api/axiosConfig';
 import { Link } from 'react-router-dom';
 import { 
   FileText, XCircle, AlertCircle, RefreshCw, User, ShieldAlert,
-  ShieldCheck, ChevronRight, ClipboardList, Clock, CheckCircle, Package, Truck, MapPin, ChevronDown, ChevronUp, ShoppingBag
+  ShieldCheck, ChevronRight, ClipboardList, Clock, CheckCircle, Package, Truck, MapPin, ChevronDown, ChevronUp, ShoppingBag, Phone
 } from 'lucide-react';
 
 /* ─── Premium E-commerce Timeline Stepper ─────────────────────────────── */
@@ -417,6 +417,47 @@ function OrderHistory() {
 
                                   {/* Col 2: Intel & Traces */}
                                   <div className="space-y-6">
+                                     {/* Transporter Intel Card */}
+                                     {o.delivery_request?.transporter_name && (
+                                        <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                                          <div className="flex items-center gap-2 mb-4 border-b border-slate-50 pb-3">
+                                            <Truck size={16} className="text-blue-600" />
+                                            <h6 className="font-black text-xs uppercase tracking-widest m-0">Transporter Information</h6>
+                                          </div>
+                                          <div className="space-y-4">
+                                            <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                              <div className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-blue-600 shadow-sm">
+                                                <User size={20} />
+                                              </div>
+                                              <div>
+                                                <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Transporter Name</div>
+                                                <div className="text-sm font-black text-slate-800">{o.delivery_request.transporter_name}</div>
+                                              </div>
+                                            </div>
+                                            
+                                            <div className="grid grid-cols-2 gap-3">
+                                              <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                                <label className="text-[8px] font-black uppercase tracking-widest text-slate-400 block mb-1">Vehicle</label>
+                                                <div className="text-[10px] font-black text-slate-700 uppercase">{o.delivery_request.vehicle_type || 'Truck'}</div>
+                                              </div>
+                                              <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                                <label className="text-[8px] font-black uppercase tracking-widest text-slate-400 block mb-1">Plate</label>
+                                                <div className="text-[10px] font-black text-slate-700 uppercase">{o.delivery_request.plate_number_masked}</div>
+                                              </div>
+                                            </div>
+
+                                            <div className="flex gap-2 pt-2">
+                                              <a href={`tel:${o.delivery_request.transporter_phone}`} className="flex-1 bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-xl text-[9px] font-black uppercase tracking-widest text-center shadow-md transition-all flex items-center justify-center gap-1.5">
+                                                <Phone size={12} /> Call
+                                              </a>
+                                              <a href={`https://wa.me/${o.delivery_request.transporter_phone?.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white p-2 rounded-xl text-[9px] font-black uppercase tracking-widest text-center shadow-md transition-all flex items-center justify-center gap-1.5">
+                                                WhatsApp
+                                              </a>
+                                            </div>
+                                          </div>
+                                        </div>
+                                     )}
+
                                      {/* Logistics Trace */}
                                      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
                                         <div className="flex items-center gap-2 mb-4 border-b border-slate-50 pb-3">

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axiosConfig';
+import { ALGERIAN_WILAYAS } from '../../utils/constants';
+import Select from 'react-select';
 import {
   Truck,
   ClipboardList,
@@ -31,6 +33,31 @@ const StatusBadge = ({ status }) => {
   };
   const { label, cls } = map[status] || { label: status, cls: 'bg-slate-100 text-slate-600 border-slate-200' };
   return <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${cls}`}>{label}</span>;
+};
+
+const reactSelectStyles = {
+  menuPortal: base => ({ ...base, zIndex: 9999 }),
+  control: (base) => ({
+    ...base,
+    borderRadius: '0.375rem',
+    borderColor: '#dee2e6',
+    minHeight: '31px',
+    fontSize: '0.75rem',
+    fontWeight: '500',
+    boxShadow: 'none',
+    '&:hover': {
+      borderColor: '#cbd5e1'
+    }
+  }),
+  option: (base, state) => ({
+    ...base,
+    fontSize: '0.75rem',
+    fontWeight: state.isSelected ? '700' : '500',
+  }),
+  placeholder: (base) => ({
+    ...base,
+    color: '#6c757d',
+  })
 };
 
 function TransporterDashboard() {
@@ -69,7 +96,12 @@ function TransporterDashboard() {
       fetchData();
       setActiveTab('mine'); // Switch to active missions automatically
     } catch (err) { 
-      const msg = err.response?.data?.error || 'Failed to accept mission';
+      console.error('[LOGISTICS] Mission Acceptance Failed:', err);
+      const msg = err.response?.data?.error || err.response?.data?.message || err.message || 'Failed to accept mission';
+      // If backend says we have an active mission, refresh data to sync UI
+      if (msg.includes('current mission is completed')) {
+        fetchData();
+      }
       throw new Error(msg); // Let the modal handle error display
     } finally { setActionLoading(null); }
   };
@@ -108,7 +140,8 @@ function TransporterDashboard() {
 
   const openCount = deliveries.filter(d => d.status === 'open').length;
 
-  const hasActiveMission = deliveries.some(d => 
+  // Refined active mission check: Priority 1: stats from backend. Priority 2: local data scan.
+  const hasActiveMission = stats?.my_active_missions > 0 || deliveries.some(d => 
     d.transporter != null && 
     ['assigned', 'picked_up', 'in_transit'].includes(d.status)
   );
@@ -208,18 +241,35 @@ function TransporterDashboard() {
         <div className="px-3 py-3 bg-slate-50 border-bottom d-flex flex-wrap gap-3 align-items-end">
           <div className="flex-grow-1" style={{ maxWidth: 220 }}>
             <label className="very-small text-muted fw-bold mb-1 uppercase tracking-wider text-[9px]">Pickup Wilaya</label>
-            <select className="form-select form-select-sm shadow-sm" value={pickupWilaya} onChange={e => setPickupWilaya(e.target.value)}>
-              <option value="">All My Service Zones</option>
-              {stats?.service_zones?.map(z => (
-                <option key={z} value={z}>{z}</option>
-              ))}
-            </select>
+            <Select
+              className="react-select-container"
+              classNamePrefix="react-select"
+              options={stats?.service_zones?.map(z => ({ value: z, label: z })) || []}
+              value={pickupWilaya ? { value: pickupWilaya, label: pickupWilaya } : null}
+              onChange={val => setPickupWilaya(val ? val.value : '')}
+              placeholder="All My Service Zones"
+              isClearable
+              menuPlacement="bottom"
+              menuPortalTarget={document.body}
+              styles={reactSelectStyles}
+            />
           </div>
           <div className="flex-grow-1" style={{ maxWidth: 220 }}>
             <label className="very-small text-muted fw-bold mb-1 uppercase tracking-wider text-[9px]">Destination Wilaya (Optional)</label>
-            <input type="text" className="form-control form-control-sm shadow-sm" placeholder="e.g. Alger" value={deliveryWilaya} onChange={e => setDeliveryWilaya(e.target.value)} />
+            <Select
+              className="react-select-container"
+              classNamePrefix="react-select"
+              options={ALGERIAN_WILAYAS.map(w => ({ value: w.name, label: w.name }))}
+              value={deliveryWilaya ? { value: deliveryWilaya, label: deliveryWilaya } : null}
+              onChange={val => setDeliveryWilaya(val ? val.value : '')}
+              placeholder="Select destination"
+              isClearable
+              menuPlacement="bottom"
+              menuPortalTarget={document.body}
+              styles={reactSelectStyles}
+            />
           </div>
-          <button className="btn-agr btn-primary btn-sm rounded shadow-sm px-4 fw-bold" onClick={fetchData}>
+          <button className="btn-agr btn-primary btn-sm rounded shadow-sm px-4 fw-bold h-[38px]" onClick={fetchData}>
              Apply Filters
           </button>
         </div>

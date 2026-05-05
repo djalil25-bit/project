@@ -90,64 +90,110 @@ const AdminAccounts = () => {
           {accounts.length === 0 && (
             <div className="glass-card p-12 text-center"><Users size={32} className="text-gray-300 mx-auto mb-3"/><p className="text-gray-500">No accounts match your filters.</p></div>
           )}
-          {accounts.map(a => {
-            const rb = roleBadge[a.role] || roleBadge.buyer;
-            return (
-              <div key={a.id} className="glass-card p-5 hover:shadow-md transition-shadow">
-                <div className="flex flex-col md:flex-row md:items-center gap-4">
-                  {/* Identity */}
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm" style={{ backgroundColor: rb.bg, color: rb.c }}>{a.full_name?.charAt(0)}</div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-bold text-gray-800">{a.full_name}</span>
-                        <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: rb.bg, color: rb.c }}>{a.role}</span>
-                        {a.is_verified ? <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700 flex items-center gap-1"><CheckCircle size={10}/> VERIFIED</span> : <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 flex items-center gap-1"><Clock size={10}/> PENDING</span>}
-                        {a.status === 'suspended' && <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-700">SUSPENDED</span>}
-                      </div>
-                      <div className="flex items-center gap-4 text-xs text-gray-500 mt-1 flex-wrap">
-                        <span className="flex items-center gap-1"><Mail size={11}/> {a.email}</span>
-                        {a.phone && <span className="flex items-center gap-1"><Phone size={11}/> {a.phone}</span>}
-                        {a.address && <span className="flex items-center gap-1"><MapPin size={11}/> {a.address}</span>}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Real Stats */}
-                  <div className="flex gap-4 text-xs text-gray-500">
-                    <div className="text-center"><div className="font-bold text-gray-800 text-sm">{a.stats?.listings || 0}</div>Listings</div>
-                    <div className="text-center"><div className="font-bold text-gray-800 text-sm">{a.stats?.orders || 0}</div>Orders</div>
-                    <div className="text-center"><div className="font-bold text-blue-600 text-sm">{(a.stats?.revenue || 0).toLocaleString()}</div>Revenue</div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex gap-1 flex-wrap shrink-0">
-                    <button className="adm-btn adm-btn-ghost text-xs" onClick={() => handleMessage(a)}><MessageSquare size={12}/> Message</button>
-                    <button className="adm-btn adm-btn-ghost text-xs" onClick={() => setSelectedUserId(a.id)}><Eye size={12}/> View Details</button>
-                    {a.status !== 'suspended' && (
-                      <button
-                        className="adm-btn adm-btn-warning text-xs"
-                        disabled={actionLoading === `${a.id}-suspend`}
-                        onClick={() => handleAction(a.id, 'suspend')}
-                      >
-                        <UserMinus size={12}/> {actionLoading === `${a.id}-suspend` ? 'Suspending...' : 'Suspend'}
-                      </button>
-                    )}
-                    {!a.is_verified && (
-                      <button
-                        className="adm-btn adm-btn-success text-xs"
-                        disabled={actionLoading === `${a.id}-verify`}
-                        onClick={() => handleAction(a.id, 'approve')}
-                      >
-                        <CheckCircle size={12}/> {actionLoading === `${a.id}-verify` ? 'Verifying...' : 'Approve'}
-                      </button>
-                    )}
-                  </div>
-                </div>
-                <div className="mt-2 text-xs text-gray-400 flex items-center gap-1"><Clock size={10}/> Registered: {a.created_at ? new Date(a.created_at).toLocaleDateString() : 'Unknown'}</div>
-              </div>
-            );
-          })}
+          <div className="glass-card overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-100 text-xs text-gray-500 uppercase tracking-wider">
+                    <th className="p-4 font-semibold">User</th>
+                    <th className="p-4 font-semibold">Contact & Location</th>
+                    <th className="p-4 font-semibold">Stats</th>
+                    <th className="p-4 font-semibold">Registered</th>
+                    <th className="p-4 font-semibold text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {accounts.map(a => {
+                    const rb = roleBadge[a.role] || roleBadge.buyer;
+                    return (
+                      <tr key={a.id} className="hover:bg-gray-50 transition-colors">
+                        <td className="p-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0" style={{ backgroundColor: rb.bg, color: rb.c }}>
+                              {a.full_name?.charAt(0) || 'U'}
+                            </div>
+                            <div>
+                              <div className="font-bold text-gray-900">{a.full_name}</div>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-sm uppercase tracking-wide" style={{ backgroundColor: rb.bg, color: rb.c }}>
+                                  {a.role}
+                                </span>
+                                {a.is_verified ? (
+                                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-sm bg-green-100 text-green-700 flex items-center gap-1"><CheckCircle size={10}/> VERIFIED</span>
+                                ) : (
+                                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-sm bg-yellow-100 text-yellow-700 flex items-center gap-1"><Clock size={10}/> PENDING</span>
+                                )}
+                                {a.status === 'suspended' && (
+                                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-sm bg-red-100 text-red-700">SUSPENDED</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="p-4 text-xs text-gray-500 space-y-1">
+                          <div className="flex items-center gap-1.5"><Mail size={12} className="text-gray-400"/> {a.email}</div>
+                          {a.phone && <div className="flex items-center gap-1.5"><Phone size={12} className="text-gray-400"/> {a.phone}</div>}
+                          {a.address && <div className="flex items-center gap-1.5"><MapPin size={12} className="text-gray-400"/> {a.address}</div>}
+                        </td>
+                        <td className="p-4 text-xs text-gray-500">
+                          {a.role === 'farmer' && (
+                            <div className="grid grid-cols-3 gap-2 min-w-[150px]">
+                              <div className="text-center"><div className="font-bold text-gray-800">{a.stats?.listings || 0}</div><div className="text-[10px] uppercase">Listings</div></div>
+                              <div className="text-center"><div className="font-bold text-gray-800">{a.stats?.orders || 0}</div><div className="text-[10px] uppercase">Orders</div></div>
+                              <div className="text-center"><div className="font-bold text-green-600">{(a.stats?.revenue || 0).toLocaleString()}</div><div className="text-[10px] uppercase">Rev (DZD)</div></div>
+                            </div>
+                          )}
+                          {a.role === 'buyer' && (
+                            <div className="grid grid-cols-3 gap-2 min-w-[150px]">
+                              <div className="text-center"><div className="font-bold text-gray-800">{a.stats?.orders || 0}</div><div className="text-[10px] uppercase">Orders</div></div>
+                              <div className="text-center"><div className="font-bold text-blue-600">{(a.stats?.total_spent || 0).toLocaleString()}</div><div className="text-[10px] uppercase">Spent (DZD)</div></div>
+                              <div className="text-center"><div className="font-bold text-red-500">{a.stats?.canceled_orders || 0}</div><div className="text-[10px] uppercase">Canceled</div></div>
+                            </div>
+                          )}
+                          {a.role === 'transporter' && (
+                            <div className="grid grid-cols-3 gap-2 min-w-[150px]">
+                              <div className="text-center"><div className="font-bold text-gray-800">{a.stats?.missions_done || 0}</div><div className="text-[10px] uppercase">Missions</div></div>
+                              <div className="text-center"><div className="font-bold text-gray-800">{a.stats?.zone_services || 0}</div><div className="text-[10px] uppercase">Zones</div></div>
+                              <div className="text-center"><div className="font-bold text-orange-600">{(a.stats?.revenue || 0).toLocaleString()}</div><div className="text-[10px] uppercase">Rev (DZD)</div></div>
+                            </div>
+                          )}
+                        </td>
+                        <td className="p-4 text-xs text-gray-500">
+                          {a.created_at ? new Date(a.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : 'Unknown'}
+                        </td>
+                        <td className="p-4">
+                          <div className="flex items-center justify-end gap-2 flex-wrap">
+                            <button className="adm-btn adm-btn-ghost text-[11px] px-2 py-1 h-auto" onClick={() => handleMessage(a)} title="Message"><MessageSquare size={14}/></button>
+                            <button className="adm-btn adm-btn-ghost text-[11px] px-2 py-1 h-auto" onClick={() => setSelectedUserId(a.id)} title="View Details"><Eye size={14}/></button>
+                            {!a.is_verified && (
+                              <button
+                                className="adm-btn adm-btn-success text-[11px] px-2 py-1 h-auto"
+                                disabled={actionLoading === `${a.id}-verify`}
+                                onClick={() => handleAction(a.id, 'approve')}
+                                title="Approve"
+                              >
+                                <CheckCircle size={14}/>
+                              </button>
+                            )}
+                            {a.status !== 'suspended' && (
+                              <button
+                                className="adm-btn adm-btn-warning text-[11px] px-2 py-1 h-auto"
+                                disabled={actionLoading === `${a.id}-suspend`}
+                                onClick={() => handleAction(a.id, 'suspend')}
+                                title="Suspend"
+                              >
+                                <UserMinus size={14}/>
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       )}
 

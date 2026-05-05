@@ -13,6 +13,7 @@ from apps.catalog.models import Product
 from apps.orders.models import Order, OrderItem, OrderStatusChoices
 from apps.payments.models import Payment
 from apps.farms.models import Farm
+from apps.logistics.models import DeliveryRequest
 
 from .models import (
     Alert, AlertConfig, AdminMessage, MessageTemplate,
@@ -419,40 +420,80 @@ class AnalyticsZoneAPIView(APIView):
     permission_classes = [IsAuthenticated, IsAdminRole]
 
     def get(self, request):
-        zone = request.query_params.get('zone', '')
+        wilaya = request.query_params.get('wilaya') or request.query_params.get('zone', '')
 
-        # Available zones
-        zones = list(
-            Order.objects.exclude(wilaya='')
-            .values_list('wilaya', flat=True).distinct().order_by('wilaya')
-        )
+        # All 58 wilayas
+        from apps.common.constants import ALGERIAN_WILAYAS
+        wilayas = [w[1] for w in ALGERIAN_WILAYAS]
 
-        if not zone:
-            return Response({'zones': zones})
+        if not wilaya:
+            return Response({'wilayas': wilayas, 'zones': wilayas})
 
-        orders = Order.objects.filter(wilaya__iexact=zone)
+        w_id = next((x[0] for x in ALGERIAN_WILAYAS if x[1].lower() == wilaya.lower()), None)
+        wilaya_q = Q(wilaya__iexact=wilaya)
+        if w_id:
+            wilaya_q |= Q(wilaya=w_id)
+
+
+        orders = Order.objects.filter(wilaya_q)
         gmv = orders.aggregate(t=Sum('total_price'))['t'] or 0
         order_count = orders.count()
         avg_order = float(gmv / order_count) if order_count else 0
-        farmers = orders.values('items__farmer').distinct().count()
-        buyers = orders.values('buyer').distinct().count()
+        from apps.accounts.models import User, RoleChoices
+        
+        base_address_q = Q(address__icontains=wilaya)
+        if w_id:
+            base_address_q |= Q(address__icontains=w_id)
+            
+        # Buyers: registered address is this wilaya OR they placed an order here
+        buyer_q = base_address_q | Q(orders__wilaya__iexact=wilaya)
+        if w_id:
+            buyer_q |= Q(orders__wilaya=w_id)
+            
+        buyers = User.objects.filter(buyer_q, role=RoleChoices.BUYER).distinct().count()
+        
+        farms_qs = Farm.objects.filter(wilaya_q)
+        farms_count = farms_qs.count()
+        
+        # Farmers: address is this wilaya OR have a farm in this wilaya
+        farm_wilaya_q = base_address_q | Q(farms__wilaya__iexact=wilaya)
+        if w_id:
+            farm_wilaya_q |= Q(farms__wilaya=w_id)
+        farmers_count = User.objects.filter(farm_wilaya_q, role=RoleChoices.FARMER).distinct().count()
+        
+        # Transporters: address is this wilaya OR service zones include this wilaya OR they have a delivery request here
+        transporter_q = base_address_q | Q(service_zones__icontains=wilaya) | Q(deliveries__order__wilaya__iexact=wilaya)
+        if w_id:
+            transporter_q |= Q(service_zones__icontains=w_id) | Q(deliveries__order__wilaya=w_id)
+            
+        transporters = User.objects.filter(transporter_q, role=RoleChoices.TRANSPORTER).distinct().count()
+        
+        dr_q = Q(order__wilaya__iexact=wilaya)
+        if w_id:
+            dr_q |= Q(order__wilaya=w_id)
+        
+        delivery_requests = DeliveryRequest.objects.filter(dr_q).count()
 
-        # Top products in zone
+        # Top products in wilaya
         top_products = list(
-            OrderItem.objects.filter(order__wilaya__iexact=zone)
+            OrderItem.objects.filter(dr_q) # we can reuse dr_q since it maps to order__wilaya
             .values('product__title')
             .annotate(units=Sum('quantity'), revenue=Sum(F('quantity') * F('price_snapshot')))
             .order_by('-revenue')[:5]
         )
 
         return Response({
-            'zones': zones,
-            'zone': zone,
+            'wilayas': wilayas,
+            'zones': wilayas,
+            'wilaya': wilaya,
             'gmv': float(gmv),
             'order_count': order_count,
             'avg_order': avg_order,
-            'farmers': farmers,
             'buyers': buyers,
+            'farms_count': farms_count,
+            'farmers_count': farmers_count,
+            'transporters': transporters,
+            'delivery_requests': delivery_requests,
             'top_products': top_products,
         })
 
@@ -500,13 +541,28 @@ class AccountSearchAPIView(APIView):
         results = []
         for u in users:
             # Real stats from DB
-            listing_count = Product.objects.filter(farmer=u, is_active=True).count() if u.role == 'farmer' else 0
-            order_count = Order.objects.filter(buyer=u).count() if u.role == 'buyer' else (
-                OrderItem.objects.filter(farmer=u).values('order').distinct().count() if u.role == 'farmer' else 0
-            )
-            revenue = OrderItem.objects.filter(farmer=u).aggregate(
-                t=Sum(F('quantity') * F('price_snapshot'))
-            )['t'] or 0 if u.role == 'farmer' else 0
+            stats = {'listings': 0, 'orders': 0, 'revenue': 0}
+
+            if u.role == 'farmer':
+                stats['listings'] = Product.objects.filter(farmer=u, is_active=True).count()
+                stats['orders'] = OrderItem.objects.filter(farmer=u).values('order').distinct().count()
+                revenue = OrderItem.objects.filter(farmer=u).aggregate(
+                    t=Sum(F('quantity') * F('price_snapshot'))
+                )['t'] or 0
+                stats['revenue'] = float(revenue)
+                
+            elif u.role == 'buyer':
+                stats['orders'] = Order.objects.filter(buyer=u).count()
+                spent = Order.objects.filter(buyer=u).aggregate(t=Sum('total_price'))['t'] or 0
+                stats['total_spent'] = float(spent)
+                stats['canceled_orders'] = Order.objects.filter(buyer=u, status='cancelled').count()
+                
+            elif u.role == 'transporter':
+                from apps.logistics.models import DeliveryRequest
+                stats['missions_done'] = DeliveryRequest.objects.filter(transporter=u, status='delivered').count()
+                stats['zone_services'] = len(u.service_zones) if isinstance(u.service_zones, list) else 0
+                rev = DeliveryRequest.objects.filter(transporter=u, status='delivered').aggregate(t=Sum('order__transport_fee'))['t'] or 0
+                stats['revenue'] = float(rev)
 
             results.append({
                 'id': u.id,
@@ -519,11 +575,7 @@ class AccountSearchAPIView(APIView):
                 'created_at': u.created_at,
                 'last_login': u.last_login,
                 'address': u.address,
-                'stats': {
-                    'listings': listing_count,
-                    'orders': order_count,
-                    'revenue': float(revenue),
-                },
+                'stats': stats,
             })
 
         return Response(results)
@@ -576,11 +628,12 @@ class AccountActionAPIView(APIView):
                 try:
                     profile = user.farmerprofile
                     if not Farm.objects.filter(owner=user).exists():
+                        # The user.address field stores the Wilaya string in this system
                         Farm.objects.create(
                             owner=user,
                             name=profile.farm_name or f"{user.full_name}'s Farm",
                             location=profile.farm_location or user.address,
-                            wilaya=user.address,
+                            wilaya=user.address or '', 
                             size_hectares=profile.farm_size_hectares,
                         )
                 except Exception as e:

@@ -44,7 +44,6 @@ function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('pending');
   const [actionLoading, setActionLoading] = useState(null);
   const [selectedUserId, setSelectedUserId] = useState(null);
 
@@ -64,25 +63,24 @@ function AdminDashboard() {
     finally { setIotLoading(false); }
   };
 
-  const fetchUsers = async (statusFilter) => {
+  const fetchUsers = async (statusFilter = 'pending') => {
     setLoading(true);
     try {
-      const url = statusFilter === 'all' ? '/auth/admin/users/' : `/auth/admin/users/?status=${statusFilter}`;
+      const url = `/auth/admin/users/?status=${statusFilter}`;
       const res = await api.get(url);
       setUsers(res.data.results || res.data);
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
   };
 
-  useEffect(() => { fetchStats(); fetchIotData(); fetchUsers(activeTab); }, []);
-  useEffect(() => { fetchUsers(activeTab); }, [activeTab]);
+  useEffect(() => { fetchStats(); fetchIotData(); fetchUsers(); }, []);
 
   const handleAction = async (userId, action) => {
     setActionLoading(userId + action);
     try {
       await api.post(`/auth/admin/users/${userId}/change_status/`, { action });
       fetchStats();
-      fetchUsers(activeTab);
+      fetchUsers();
       if (['approve', 'reject'].includes(action)) {
         setSelectedUserId(null); // Close modal on definitive actions
       }
@@ -90,13 +88,6 @@ function AdminDashboard() {
       alert('Action failed. System integrity check recommended.'); 
     } finally { setActionLoading(null); }
   };
-
-  const TABS = [
-    { key: 'pending', label: 'Pending Approvals', count: stats?.pending_users, icon: <Clock size={13} /> },
-    { key: 'approved', label: 'Verified Users', icon: <UserCheck size={13} /> },
-    { key: 'rejected', label: 'Rejected', icon: <UserX size={13} /> },
-    { key: 'all', label: 'Registry History', icon: <Users size={13} /> },
-  ];
 
   const STAT_CARDS = stats ? [
     { icon: <Clock size={20}/>,       color: 'text-orange-500',  iconBg: 'bg-orange-50',  accent: 'stat-accent-orange', value: stats.pending_users,   label: 'Pending Verifications' },
@@ -191,22 +182,6 @@ function AdminDashboard() {
             <h3 className="font-bold text-gray-800 text-base">Registry Management</h3>
           </div>
           <div className="text-xs text-gray-400 font-medium">Real-time Actor Monitoring</div>
-        </div>
-
-        {/* Tab Bar */}
-        <div className="px-6 py-3 border-b border-gray-100">
-          <div className="adm-tab-bar w-fit">
-            {TABS.map(tab => (
-              <button
-                key={tab.key}
-                className={`adm-tab ${activeTab === tab.key ? 'active' : ''}`}
-                onClick={() => setActiveTab(tab.key)}
-              >
-                <span className="opacity-75">{tab.icon}</span>
-                {tab.label}{tab.count != null ? ` (${tab.count})` : ''}
-              </button>
-            ))}
-          </div>
         </div>
 
         {/* Table */}

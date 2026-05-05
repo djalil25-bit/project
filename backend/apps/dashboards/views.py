@@ -12,6 +12,8 @@ from apps.orders.models import Order, OrderItem, OrderStatusChoices
 from apps.logistics.models import DeliveryRequest, DeliveryStatusChoices
 from apps.payments.models import Payment
 from apps.accounts.permissions import IsAdminRole
+from apps.farms.models import Farm
+from apps.common.constants import ALGERIAN_WILAYAS
 
 class AdminDashboardStatsAPIView(APIView):
     permission_classes = [IsAuthenticated, IsAdminRole]
@@ -372,3 +374,71 @@ class ActorMessageAPIView(APIView):
         )
 
         return Response(AdminMessageSerializer(reply).data, status=status.HTTP_201_CREATED)
+
+
+class WilayaAnalysisAPIView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminRole]
+
+    def get(self, request):
+        wilaya_name = request.query_params.get('wilaya')
+        
+        # If no specific wilaya, return the list of wilayas
+        if not wilaya_name:
+            return Response({
+                "wilayas": [w[1] for w in ALGERIAN_WILAYAS]
+            })
+
+        w_id = next((x[0] for x in ALGERIAN_WILAYAS if x[1].lower() == wilaya_name.lower()), None)
+        from django.db.models import Q
+        wilaya_q = Q(wilaya__iexact=wilaya_name)
+        if w_id:
+            wilaya_q |= Q(wilaya=w_id)
+            
+        farm_wilaya_q = Q(farms__wilaya__iexact=wilaya_name)
+        if w_id:
+            farm_wilaya_q |= Q(farms__wilaya=w_id)
+            
+        order_wilaya_q = Q(orders__wilaya__iexact=wilaya_name)
+        if w_id:
+            order_wilaya_q |= Q(orders__wilaya=w_id)
+            
+        service_zones_q = Q(service_zones__icontains=wilaya_name)
+        if w_id:
+            service_zones_q |= Q(service_zones__icontains=w_id)
+
+        # Statistics for the selected wilaya
+        stats = {
+            "wilaya": wilaya_name,
+            "total_orders": Order.objects.filter(wilaya_q).count(),
+            "total_farms": Farm.objects.filter(wilaya_q).count(),
+            "total_farmers": User.objects.filter(
+                farm_wilaya_q,
+                role=RoleChoices.FARMER
+            ).distinct().count(),
+            "total_buyers": User.objects.filter(
+                order_wilaya_q,
+                role=RoleChoices.BUYER
+            ).distinct().count(),
+            "total_transporters": User.objects.filter(
+                service_zones_q,
+                role=RoleChoices.TRANSPORTER
+            ).count()
+        }
+
+        # Top products in wilaya
+        from django.db.models import Sum, F
+        from apps.orders.models import OrderItem
+        
+        # We need an order query for OrderItems
+        dr_q = Q(order__wilaya__iexact=wilaya_name)
+        if w_id:
+            dr_q |= Q(order__wilaya=w_id)
+            
+        stats['top_products'] = list(
+            OrderItem.objects.filter(dr_q)
+            .values('product__title')
+            .annotate(units=Sum('quantity'), revenue=Sum(F('quantity') * F('price_snapshot')))
+            .order_by('-revenue')[:5]
+        )
+
+        return Response(stats)

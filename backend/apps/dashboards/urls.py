@@ -2,7 +2,8 @@ from django.urls import path
 from .views import (
     AdminDashboardStatsAPIView, AdminAnalyticsAPIView,
     FarmerDashboardStatsAPIView, FarmerAnalyticsAPIView,
-    TransporterDashboardStatsAPIView, ActorMessageAPIView
+    TransporterDashboardStatsAPIView, ActorMessageAPIView,
+    WilayaAnalysisAPIView
 )
 
 urlpatterns = [
@@ -12,4 +13,5 @@ urlpatterns = [
     path('farmer-analytics/', FarmerAnalyticsAPIView.as_view(), name='farmer_analytics'),
     path('transporter-stats/', TransporterDashboardStatsAPIView.as_view(), name='transporter_stats'),
     path('actor-messages/', ActorMessageAPIView.as_view(), name='actor_messages'),
+    path('wilaya-analysis/', WilayaAnalysisAPIView.as_view(), name='wilaya_analysis'),
 ]
