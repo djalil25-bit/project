@@ -48,14 +48,28 @@ class TransporterVisibilityMixin:
         return None
 
 class MissionOrderItemSerializer(serializers.ModelSerializer):
-    product_name = serializers.CharField(source='product.title', read_only=True)
-    product_unit = serializers.CharField(source='product.unit', read_only=True)
-    product_quality = serializers.CharField(source='product.quality', default='Standard', read_only=True)
-    farm_name = serializers.CharField(source='product.farm.name', read_only=True)
+    product_name = serializers.SerializerMethodField()
+    product_unit = serializers.SerializerMethodField()
+    product_quality = serializers.SerializerMethodField()
+    farm_name = serializers.SerializerMethodField()
 
     class Meta:
         model = OrderItem
         fields = ['id', 'product_name', 'product_unit', 'product_quality', 'quantity', 'farm_name']
+
+    def get_product_name(self, obj):
+        return obj.product.title if obj.product else "Deleted Product"
+
+    def get_product_unit(self, obj):
+        return obj.product.unit if obj.product else "units"
+
+    def get_product_quality(self, obj):
+        return getattr(obj.product, 'quality', 'Standard') if obj.product else "Standard"
+
+    def get_farm_name(self, obj):
+        if obj.product and obj.product.farm:
+            return obj.product.farm.name
+        return "Unknown Farm"
 
 class MissionOrderSerializer(serializers.ModelSerializer):
     items = MissionOrderItemSerializer(many=True, read_only=True)
@@ -87,7 +101,7 @@ class DeliveryRequestSerializer(TransporterVisibilityMixin, serializers.ModelSer
         model = DeliveryRequest
         fields = [
             'id', 'order', 'order_detail', 'transporter', 'status', 
-            'pickup_location', 'delivery_location', 'preferred_delivery_date', 
+            'pickup_location', 'pickup_wilaya', 'delivery_location', 'preferred_delivery_date', 
             'notes', 'vehicle_size', 'created_at', 'updated_at',
             'total_quantity', 'assigned_vehicle_id', 'assigned_vehicle_info',
             'pod_photo', 'pod_recipient_name', 'pod_notes', 'pod_completed_at',

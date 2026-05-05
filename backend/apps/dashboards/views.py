@@ -204,7 +204,18 @@ class TransporterDashboardStatsAPIView(APIView):
             from rest_framework.exceptions import PermissionDenied
             raise PermissionDenied
             
-        open_count = DeliveryRequest.objects.filter(status=DeliveryStatusChoices.OPEN).count()
+        from django.db.models import Q
+        service_zones = request.user.service_zones or []
+        
+        open_q = Q(status=DeliveryStatusChoices.OPEN)
+        if service_zones:
+            zone_q = Q(pickup_wilaya='') | Q(pickup_wilaya__isnull=True)
+            for zone in service_zones:
+                if zone.strip():
+                    zone_q |= Q(pickup_wilaya__iexact=zone.strip())
+            open_q &= zone_q
+
+        open_count = DeliveryRequest.objects.filter(open_q).count()
         my_active = DeliveryRequest.objects.filter(
             transporter=request.user,
             status__in=[DeliveryStatusChoices.ASSIGNED, DeliveryStatusChoices.PICKED_UP, DeliveryStatusChoices.IN_TRANSIT]
@@ -217,7 +228,7 @@ class TransporterDashboardStatsAPIView(APIView):
             'open_requests': open_count,
             'my_active_missions': my_active,
             'my_completed_missions': my_completed,
-            'service_zones': request.user.service_zones or [],
+            'service_zones': service_zones,
         })
 
 

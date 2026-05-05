@@ -51,15 +51,22 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
         first_item = order.items.first()
         if first_item and first_item.farmer:
             wilaya = ''
-            if first_item.product and first_item.product.farm:
+            # Try to get from farm first
+            if first_item.product and first_item.product.farm and first_item.product.farm.wilaya:
                 wilaya = first_item.product.farm.wilaya
             
-            # Fallback to farmer's registered address (wilaya name)
+            # Fallback to farmer's registered address (which stores wilaya name)
             if not wilaya:
                 wilaya = first_item.farmer.address
                 
             if wilaya:
-                serializer.validated_data['pickup_wilaya'] = wilaya
+                serializer.validated_data['pickup_wilaya'] = wilaya.strip()
+            else:
+                # Last resort: try any farm associated with this farmer
+                from apps.farms.models import Farm
+                any_farm = Farm.objects.filter(owner=first_item.farmer).first()
+                if any_farm and any_farm.wilaya:
+                    serializer.validated_data['pickup_wilaya'] = any_farm.wilaya.strip()
             
         serializer.save()
 
@@ -76,21 +83,39 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
             pickup_wilaya = self.request.query_params.get('pickup_wilaya')
             delivery_wilaya = self.request.query_params.get('delivery_wilaya')
             
-            # Base query restricted to transporter's service area
+            from django.db.models import Q
+            
+            # 1. Define the visibility criteria
+            # Transporters see:
+            # - Missions already assigned to them
+            # - OPEN missions that match their service zones (if set)
+            
             service_zones = getattr(user, 'service_zones', []) or []
+            open_missions_q = Q(status=DeliveryStatusChoices.OPEN)
+            
             if service_zones:
-                qs = qs.filter(pickup_wilaya__in=service_zones)
+                # Include missions where pickup_wilaya is empty as a fallback
+                zone_q = Q(pickup_wilaya='') | Q(pickup_wilaya__isnull=True)
+                for zone in service_zones:
+                    if zone.strip():
+                        zone_q |= Q(pickup_wilaya__iexact=zone.strip())
+                open_missions_q &= zone_q
                 
+            visibility_q = Q(transporter=user) | open_missions_q
+            
+            # 2. Apply additional search filters from query params
+            search_q = Q()
             if pickup_wilaya:
-                qs = qs.filter(pickup_wilaya=pickup_wilaya)
+                search_q &= Q(pickup_wilaya__iexact=pickup_wilaya)
             if delivery_wilaya:
-                qs = qs.filter(order__wilaya=delivery_wilaya)
+                search_q &= Q(order__wilaya__iexact=delivery_wilaya)
+            
+            qs = qs.filter(visibility_q & search_q)
 
             if self.action in ['my_missions', 'update_status']:
                 return qs.filter(transporter=user)
             
-            from django.db.models import Q
-            return qs.filter(Q(transporter=user) | Q(status=DeliveryStatusChoices.OPEN))
+            return qs
             
         elif user.role == 'farmer':
             return qs.filter(order__items__farmer=user).distinct()

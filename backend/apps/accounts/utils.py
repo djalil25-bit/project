@@ -19,6 +19,9 @@ def send_otp_email(user):
     message = f"Hello {user.full_name},\n\nYour verification code is: {code}\n\nPlease enter this code to complete your registration.\n\nThank you!"
     from_email = settings.DEFAULT_FROM_EMAIL
     
+    if settings.DEBUG:
+        print(f"\n[DEBUG] Verification code for {user.email}: {code}\n")
+    
     try:
         send_mail(
             subject,
