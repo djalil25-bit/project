@@ -46,6 +46,7 @@ class CustomUserManager(BaseUserManager):
             else:
                 extra_fields['status'] = AccountStatusChoices.PENDING
                 extra_fields['is_verified'] = False
+                extra_fields['is_email_verified'] = False
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)
@@ -57,6 +58,7 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault('role', RoleChoices.ADMIN)
         extra_fields.setdefault('status', AccountStatusChoices.APPROVED)
         extra_fields.setdefault('is_verified', True)
+        extra_fields.setdefault('is_email_verified', True)
         return self.create_user(email, password, **extra_fields)
 
 
@@ -71,6 +73,7 @@ class User(AbstractUser, TimeStampedModel):
 
     # Trust & Verification
     is_verified       = models.BooleanField(default=False)
+    is_email_verified = models.BooleanField(default=True)  # Default True to keep existing accounts valid
     document_status   = models.CharField(max_length=20, choices=DocumentStatusChoices.choices, default=DocumentStatusChoices.NONE)
     trust_score       = models.IntegerField(default=0)
     trust_level       = models.CharField(max_length=20, choices=TrustLevelChoices.choices, default=TrustLevelChoices.NEW)
@@ -193,3 +196,13 @@ class UserDocument(models.Model):
 
     def __str__(self):
         return f"{self.document_type} — {self.user.email} ({self.status})"
+
+
+class OTPCode(models.Model):
+    user       = models.ForeignKey(User, on_delete=models.CASCADE, related_name='otps')
+    code       = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_used    = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.user.email} - {self.code}"

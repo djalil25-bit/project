@@ -6,7 +6,7 @@ import {
   Leaf, ShoppingBag, Sprout, Truck, ChevronRight, ChevronLeft,
   UploadCloud, X, CheckCircle, ShieldCheck, Eye, EyeOff, Building2,
   FileText, Image as ImageIcon, MapPin, Phone, User, Lock, Mail, CreditCard, LayoutDashboard,
-  BarChart3, ArrowLeft
+  BarChart3, ArrowLeft, Clock, Home
 } from 'lucide-react';
 
 const WILAYAS = [
@@ -133,7 +133,7 @@ const Register = () => {
     email: '', password: '', confirm_password: '',
     full_name: '', phone: '', wilaya: '',
     // Farmer
-    farm_name: '', farm_location: '', production_type: '',
+    farm_name: '', farm_location: '', production_type: '', farm_size: '',
     // Buyer
     buyer_type: 'individual', company_name: '', tax_number: '',
     // Transporter
@@ -153,6 +153,12 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
+  
+  const [showOtpStep, setShowOtpStep] = useState(false);
+  const [otpCode, setOtpCode] = useState(['', '', '', '', '', '']);
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpSuccess, setOtpSuccess] = useState(false);
+  const [timer, setTimer] = useState(0);
 
   const activeRoleConfig = ROLES.find(r => r.value === activeRole);
 
@@ -253,8 +259,17 @@ const Register = () => {
 
     try {
       await api.post('/auth/register/', fd);
-      const loginRes = await login(formData.email, formData.password);
-      if (!loginRes.success) setSuccess(true);
+      setShowOtpStep(true);
+      setTimer(60);
+      const interval = setInterval(() => {
+        setTimer(prev => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
     } catch (err) {
       if (err.response?.data) {
         const data = err.response.data;
@@ -267,23 +282,119 @@ const Register = () => {
     } finally { setLoading(false); }
   };
 
+  const handleVerifyOTP = async () => {
+    const fullCode = otpCode.join('');
+    if (fullCode.length < 6) return;
+    
+    setOtpLoading(true);
+    setApiError('');
+    
+    try {
+      await api.post('/auth/verify-otp/', { 
+        email: formData.email, 
+        code: fullCode 
+      });
+      setOtpSuccess(true);
+      setTimeout(() => {
+        setSuccess(true);
+      }, 1500);
+    } catch (err) {
+      setApiError(err.response?.data?.error || 'Invalid verification code.');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleResendOTP = async () => {
+    if (timer > 0) return;
+    try {
+      await api.post('/auth/resend-otp/', { email: formData.email });
+      setTimer(60);
+      // Restart timer
+      const interval = setInterval(() => {
+        setTimer(prev => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } catch (err) {
+      setApiError('Failed to resend code.');
+    }
+  };
+
+  const handleOtpChange = (index, value) => {
+    if (!/^\d*$/.test(value)) return;
+    const newOtp = [...otpCode];
+    newOtp[index] = value.slice(-1);
+    setOtpCode(newOtp);
+    
+    if (value && index < 5) {
+      const nextInput = document.getElementById(`otp-${index + 1}`);
+      if (nextInput) nextInput.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (index, e) => {
+    if (e.key === 'Backspace' && !otpCode[index] && index > 0) {
+      const prevInput = document.getElementById(`otp-${index - 1}`);
+      if (prevInput) prevInput.focus();
+    }
+  };
+
   if (success) {
     return (
       <div className="auth-page-wrapper auth-page-single">
         <div className="auth-success-screen">
-          <div className="auth-success-icon" style={{color: activeRoleConfig.color}}><CheckCircle size={80} /></div>
-          <div className="auth-logo-link" style={{ marginBottom: '2rem', color: 'var(--gray-900)' }}>
-            <Leaf size={26} color={activeRoleConfig.color} /> <span>AgriGov <strong>Market</strong></span>
-          </div>
-          <h2 style={{color: 'var(--gray-900)'}}>Registration successful!</h2>
-          <div className="auth-success-alert" style={{borderColor: activeRoleConfig.color, backgroundColor: activeRoleConfig.bg}}>
-            <h4 style={{color: activeRoleConfig.color}}>Account pending validation</h4>
-            <p>
-              Your account as a <strong>{activeRoleConfig.label}</strong> has 
-              been created successfully. To ensure platform integrity, each account is 
-              <strong> manually reviewed</strong> by Ministry teams. You will receive 
-              an email confirmation upon activation.
+          <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+            <div style={{ width: 96, height: 96, background: '#1665341a', color: '#166534', borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1.5rem', position: 'relative' }}>
+              <div style={{ position: 'absolute', inset: 0, background: '#16653433', borderRadius: '50%', animation: 'ping 2s cubic-bezier(0, 0, 0.2, 1) infinite' }}></div>
+              <Clock size={48} style={{ animation: 'spin 10s linear infinite' }} />
+              <ShieldCheck size={24} style={{ position: 'absolute', bottom: 0, right: 0, background: 'white', borderRadius: '50%', padding: '2px' }} />
+            </div>
+            
+            <h2 style={{ fontSize: '2.25rem', fontWeight: 800, color: 'var(--gray-900)', marginBottom: '1rem' }}>
+              Application Under Review
+            </h2>
+            <p style={{ fontSize: '1.125rem', color: 'var(--gray-600)', maxWidth: '500px', margin: '0 auto' }}>
+              Welcome, <span style={{ fontWeight: 600, color: 'var(--gray-900)' }}>{formData.fullName}</span>! 
+              Your application as a <span style={{ fontWeight: 600, color: 'var(--gray-900)' }}>{activeRoleConfig.label}</span> has been received.
             </p>
+          </div>
+
+          <div style={{ marginBottom: '3rem', position: 'relative' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 3rem', marginBottom: '1.5rem', position: 'relative' }}>
+              {/* Progress Line */}
+              <div style={{ position: 'absolute', top: '50%', left: '3rem', right: '3rem', height: '4px', background: 'var(--gray-200)', transform: 'translateY(-50%)', zIndex: 0 }}></div>
+              <div style={{ position: 'absolute', top: '50%', left: '3rem', width: '50%', height: '4px', background: '#166534', transform: 'translateY(-50%)', zIndex: 0 }}></div>
+
+              <div style={{ width: '3rem', height: '3rem', borderRadius: '50%', background: '#166534', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 1, boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}>
+                <CheckCircle size={24} />
+              </div>
+              <div style={{ width: '3rem', height: '3rem', borderRadius: '50%', background: 'white', color: '#166534', border: '2px solid #166534', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 1, boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}>
+                <ShieldCheck size={24} />
+              </div>
+              <div style={{ width: '3rem', height: '3rem', borderRadius: '50%', background: 'var(--gray-100)', color: 'var(--gray-400)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', zIndex: 1 }}>
+                <Home size={24} />
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', textAlign: 'center' }}>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: '0.875rem', color: 'var(--gray-900)' }}>Registration</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--gray-500)' }}>Submitted</div>
+              </div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: '0.875rem', color: '#166534' }}>Ministry Review</div>
+                <div style={{ fontSize: '0.75rem', color: '#166534cc' }}>In progress...</div>
+              </div>
+              <div>
+                <div style={{ fontWeight: 600, fontSize: '0.875rem', color: 'var(--gray-400)' }}>Marketplace Access</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--gray-400)' }}>Locked</div>
+              </div>
+            </div>
           </div>
           <div className="auth-success-actions">
             <Link to="/login" className="auth-submit-btn" style={{ textDecoration: 'none', background: activeRoleConfig.color }}>
@@ -303,6 +414,97 @@ const Register = () => {
     '--active-color': activeRoleConfig.color,
     '--active-bg': activeRoleConfig.bg
   };
+
+  if (showOtpStep) {
+    return (
+      <div className="auth-page-wrapper" style={dynamicStyles}>
+        <div className="auth-left-panel auth-left-premium">
+          <div className="auth-left-overlay"></div>
+          <div className="auth-left-content-inner">
+            <Link to="/" className="auth-logo-link">
+              <Leaf size={26} />
+              <span>AgriGov <strong>Market</strong></span>
+            </Link>
+            <div className="auth-left-body">
+              <div className="auth-ministry-tag"><Building2 size={14} /> Ministry of Agriculture</div>
+              <h2 className="auth-left-headline">Verify Your Identity</h2>
+              <p className="auth-left-lead">We've sent a verification code to <strong>{formData.email}</strong>. Please enter it to activate your account.</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="auth-right-panel auth-right-clean">
+          <div className="auth-form-wrapper" style={{maxWidth: '500px', width: '100%', margin: '0 auto', padding: '2rem'}}>
+            <div className="auth-form-card bg-white shadow-lg rounded-2xl p-8 border border-gray-100">
+              <div style={{textAlign: 'center', marginBottom: '2rem'}}>
+                <div style={{width: 64, height: 64, background: 'var(--active-bg)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem'}}>
+                  <Mail size={32} color="var(--active-color)" />
+                </div>
+                <h1 style={{fontSize: '1.5rem', fontWeight: 700, color: 'var(--gray-900)'}}>Verify Email</h1>
+                <p style={{color: 'var(--gray-500)', marginTop: '0.5rem'}}>Enter the 6-digit code sent to your inbox.</p>
+              </div>
+
+              <div style={{display: 'flex', gap: '0.75rem', justifyContent: 'center', marginBottom: '2rem'}}>
+                {otpCode.map((digit, i) => (
+                  <input
+                    key={i}
+                    id={`otp-${i}`}
+                    type="text"
+                    value={digit}
+                    onChange={(e) => handleOtpChange(i, e.target.value)}
+                    onKeyDown={(e) => handleOtpKeyDown(i, e)}
+                    style={{
+                      width: '3.5rem', height: '4rem', textAlign: 'center', fontSize: '1.5rem', fontWeight: 700,
+                      borderRadius: '0.75rem', border: '2px solid var(--gray-200)', background: 'var(--gray-50)',
+                      transition: 'all 0.2s'
+                    }}
+                    autoFocus={i === 0}
+                  />
+                ))}
+              </div>
+
+              {apiError && (
+                <div className="auth-alert-error" style={{marginBottom: '1.5rem'}}>
+                  <X size={18} /> <span>{apiError}</span>
+                </div>
+              )}
+
+              {otpSuccess ? (
+                <div style={{textAlign: 'center', color: 'var(--active-color)', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem'}}>
+                  <CheckCircle size={20} /> Verified Successfully!
+                </div>
+              ) : (
+                <button 
+                  type="button" 
+                  className="auth-submit-btn" 
+                  style={{background: 'var(--active-color)'}}
+                  onClick={handleVerifyOTP}
+                  disabled={otpLoading || otpCode.join('').length < 6}
+                >
+                  {otpLoading ? <span className="auth-spinner"></span> : 'Verify Account'}
+                </button>
+              )}
+
+              <div style={{marginTop: '2rem', textAlign: 'center', borderTop: '1px solid var(--gray-100)', paddingTop: '1.5rem'}}>
+                <p style={{color: 'var(--gray-500)', fontSize: '0.875rem'}}>Didn't receive the code?</p>
+                <button 
+                  type="button"
+                  onClick={handleResendOTP}
+                  disabled={timer > 0}
+                  style={{
+                    background: 'none', border: 'none', color: timer > 0 ? 'var(--gray-400)' : 'var(--active-color)',
+                    fontWeight: 600, cursor: timer > 0 ? 'default' : 'pointer', marginTop: '0.5rem'
+                  }}
+                >
+                  {timer > 0 ? `Resend code in ${timer}s` : 'Resend Verification Code'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const renderStepContent = () => {
     switch (currentStep) {
@@ -358,13 +560,20 @@ const Register = () => {
                       {fieldErrors.farm_location && <span className="auth-field-error">{fieldErrors.farm_location}</span>}
                     </div>
                   </div>
-                  <div className="auth-field">
-                    <label className="auth-label">Production Type *</label>
-                    <select className={`auth-input auth-select ${fieldErrors.production_type?'auth-input-error':''}`} value={formData.production_type} onChange={e=>setField('production_type',e.target.value)}>
-                      <option value="">Select type</option>
-                      {['cereals','vegetables','fruits','livestock','mixed'].map(t=><option key={t} value={t}>{t.charAt(0).toUpperCase()+t.slice(1)}</option>)}
-                    </select>
-                    {fieldErrors.production_type && <span className="auth-field-error">{fieldErrors.production_type}</span>}
+                  <div className="auth-form-row">
+                    <div className="auth-field">
+                      <label className="auth-label">Production Type *</label>
+                      <select className={`auth-input auth-select ${fieldErrors.production_type?'auth-input-error':''}`} value={formData.production_type} onChange={e=>setField('production_type',e.target.value)}>
+                        <option value="">Select type</option>
+                        {['cereals','vegetables','fruits','livestock','mixed'].map(t=><option key={t} value={t}>{t.charAt(0).toUpperCase()+t.slice(1)}</option>)}
+                      </select>
+                      {fieldErrors.production_type && <span className="auth-field-error">{fieldErrors.production_type}</span>}
+                    </div>
+                    <div className="auth-field">
+                      <label className="auth-label">Farm Size (Hectares)</label>
+                      <input type="number" step="0.01" className={`auth-input ${fieldErrors.farm_size?'auth-input-error':''}`} placeholder="e.g. 5.5" value={formData.farm_size} onChange={e=>setField('farm_size',e.target.value)} />
+                      {fieldErrors.farm_size && <span className="auth-field-error">{fieldErrors.farm_size}</span>}
+                    </div>
                   </div>
                 </>
               )}

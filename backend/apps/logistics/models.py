@@ -25,6 +25,7 @@ class DeliveryRequest(TimeStampedModel):
     
     # Farmer fills these when requesting
     pickup_location = models.TextField(blank=True, default='')
+    pickup_wilaya = models.CharField(max_length=100, blank=True, default='')
     delivery_location = models.TextField(blank=True, default='')
     preferred_delivery_date = models.DateField(null=True, blank=True)
     notes = models.TextField(blank=True, default='')

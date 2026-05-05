@@ -11,7 +11,8 @@ import {
   DollarSign,
   Navigation,
   Camera,
-  X
+  X,
+  Phone
 } from 'lucide-react';
 import ProofOfDeliveryModal from '../../components/logistics/ProofOfDeliveryModal';
 import VehicleSelectionModal from '../../components/logistics/VehicleSelectionModal';
@@ -43,13 +44,15 @@ function TransporterDashboard() {
   const [podTarget, setPodTarget] = useState(null);
   const [acceptanceTarget, setAcceptanceTarget] = useState(null);
   const [refusalTarget, setRefusalTarget] = useState(null);
+  const [pickupWilaya, setPickupWilaya] = useState('');
+  const [deliveryWilaya, setDeliveryWilaya] = useState('');
 
   const fetchData = async () => {
     setLoading(true);
     try {
       const [statsRes, delivRes] = await Promise.all([
         api.get('/dashboards/transporter-stats/'),
-        api.get('/deliveries/'),
+        api.get('/deliveries/', { params: { pickup_wilaya: pickupWilaya, delivery_wilaya: deliveryWilaya } }),
       ]);
       setStats(statsRes.data);
       setDeliveries(delivRes.data.results || delivRes.data);
@@ -202,6 +205,25 @@ function TransporterDashboard() {
           </div>
         </div>
 
+        <div className="px-3 py-3 bg-slate-50 border-bottom d-flex flex-wrap gap-3 align-items-end">
+          <div className="flex-grow-1" style={{ maxWidth: 220 }}>
+            <label className="very-small text-muted fw-bold mb-1 uppercase tracking-wider text-[9px]">Pickup Wilaya</label>
+            <select className="form-select form-select-sm shadow-sm" value={pickupWilaya} onChange={e => setPickupWilaya(e.target.value)}>
+              <option value="">All My Service Zones</option>
+              {stats?.service_zones?.map(z => (
+                <option key={z} value={z}>{z}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex-grow-1" style={{ maxWidth: 220 }}>
+            <label className="very-small text-muted fw-bold mb-1 uppercase tracking-wider text-[9px]">Destination Wilaya (Optional)</label>
+            <input type="text" className="form-control form-control-sm shadow-sm" placeholder="e.g. Alger" value={deliveryWilaya} onChange={e => setDeliveryWilaya(e.target.value)} />
+          </div>
+          <button className="btn-agr btn-primary btn-sm rounded shadow-sm px-4 fw-bold" onClick={fetchData}>
+             Apply Filters
+          </button>
+        </div>
+
         <div className="px-3 py-2 bg-light-soft border-bottom">
           <div className="segmented-tabs-wrapper">
             {[
@@ -281,8 +303,20 @@ function TransporterDashboard() {
                       <Package size={10} />
                       {d.order_detail?.items?.length || 0} items
                     </div>
+                    {d.order_detail?.buyer_phone && (
+                      <div className="mt-2 pt-2 border-top border-slate-100">
+                        <div className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-1">Buyer Contact</div>
+                        <a 
+                          href={`https://wa.me/${d.order_detail.buyer_phone}?text=${encodeURIComponent('Hello, I am the transporter assigned to your order #' + d.order + '. I will contact you shortly.')}`}
+                          target="_blank" rel="noopener noreferrer"
+                          className="d-inline-flex align-items-center gap-1.5 px-2 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-[11px] font-black hover:bg-emerald-100 hover:border-emerald-300 transition-all shadow-sm"
+                        >
+                          <Phone size={11} className="fill-emerald-700" /> {d.order_detail.buyer_phone}
+                        </a>
+                      </div>
+                    )}
                     <button
-                      className="btn-agr btn-link btn-sm p-0 mt-1 d-flex align-items-center gap-1"
+                      className="btn-agr btn-link btn-sm p-0 mt-2 d-flex align-items-center gap-1"
                       onClick={() => setViewingCargo(d)}
                       style={{ fontSize: '0.72rem' }}
                     >

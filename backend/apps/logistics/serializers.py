@@ -15,10 +15,21 @@ class MissionOrderItemSerializer(serializers.ModelSerializer):
 class MissionOrderSerializer(serializers.ModelSerializer):
     items = MissionOrderItemSerializer(many=True, read_only=True)
     buyer_name = serializers.CharField(source='buyer.full_name', read_only=True)
+    buyer_phone = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
-        fields = ['id', 'items', 'buyer_name', 'delivery_address', 'wilaya', 'refusal_reason', 'refusal_note']
+        fields = ['id', 'items', 'buyer_name', 'buyer_phone', 'delivery_address', 'wilaya', 'refusal_reason', 'refusal_note']
+
+    def get_buyer_phone(self, obj):
+        request = self.context.get('request')
+        if not request or not request.user:
+            return None
+            
+        delivery_request = getattr(obj, 'delivery_request', None)
+        if delivery_request and delivery_request.transporter == request.user:
+            return obj.buyer_phone
+        return None
 
 class DeliveryRequestSerializer(serializers.ModelSerializer):
     order_detail = MissionOrderSerializer(source='order', read_only=True)

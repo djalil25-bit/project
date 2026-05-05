@@ -56,7 +56,7 @@ const ZoneSettings = () => {
     } catch (err) { alert('Failed to save service registry zones.'); }
   };
 
-  const COMMON_ZONES = ['Algiers', 'Oran', 'Constantine', 'Setif', 'Annaba', 'Blida', 'Batna', 'Chlef', 'Djelfa'];
+  const COMMON_ZONES = ['Alger', 'Oran', 'Constantine', 'Sétif', 'Annaba', 'Blida', 'Batna', 'Chlef', 'Djelfa'];
 
   return (
     <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 space-y-10 animate-fade-in bg-slate-50/30 min-h-screen">

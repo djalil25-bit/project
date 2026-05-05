@@ -44,6 +44,20 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
                  from rest_framework.exceptions import ValidationError
                  raise ValidationError({"error": f"A delivery request already exists for this order (Status: {existing.status})."})
              
+        # Extract pickup_wilaya from the first farm of the order items
+        first_item = order.items.first()
+        if first_item and first_item.farmer:
+            wilaya = ''
+            if first_item.product and first_item.product.farm:
+                wilaya = first_item.product.farm.wilaya
+            
+            # Fallback to farmer's registered address (wilaya name)
+            if not wilaya:
+                wilaya = first_item.farmer.address
+                
+            if wilaya:
+                serializer.validated_data['pickup_wilaya'] = wilaya
+            
         serializer.save()
 
     def get_queryset(self):
@@ -55,6 +69,20 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
         ).order_by('-created_at')
         
         if user.role == 'transporter':
+            # Retrieve filter params
+            pickup_wilaya = self.request.query_params.get('pickup_wilaya')
+            delivery_wilaya = self.request.query_params.get('delivery_wilaya')
+            
+            # Base query restricted to transporter's service area
+            service_zones = getattr(user, 'service_zones', []) or []
+            if service_zones:
+                qs = qs.filter(pickup_wilaya__in=service_zones)
+                
+            if pickup_wilaya:
+                qs = qs.filter(pickup_wilaya=pickup_wilaya)
+            if delivery_wilaya:
+                qs = qs.filter(order__wilaya=delivery_wilaya)
+
             if self.action in ['my_missions', 'update_status']:
                 return qs.filter(transporter=user)
             
@@ -77,9 +105,16 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def accept(self, request, pk=None):
-        delivery = self.get_object()
-        if delivery.status != DeliveryStatusChoices.OPEN:
-            return Response({"error": "This delivery is no longer open."}, status=status.HTTP_400_BAD_REQUEST)
+        with transaction.atomic():
+            try:
+                delivery = DeliveryRequest.objects.select_for_update(nowait=True).get(pk=pk)
+            except DeliveryRequest.DoesNotExist:
+                return Response({"error": "Delivery request not found."}, status=status.HTTP_404_NOT_FOUND)
+            except Exception: # Handles the OperationalError for Database Lock/Nowait
+                return Response({"error": "This mission is currently being processed by another transporter."}, status=status.HTTP_409_CONFLICT)
+                
+            if delivery.status != DeliveryStatusChoices.OPEN:
+                return Response({"error": "This delivery is no longer open. It may have just been accepted by someone else."}, status=status.HTTP_409_CONFLICT)
         
         # Transporter active mission limit validation
         if DeliveryRequest.objects.filter(

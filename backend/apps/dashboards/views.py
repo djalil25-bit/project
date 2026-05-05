@@ -217,6 +217,7 @@ class TransporterDashboardStatsAPIView(APIView):
             'open_requests': open_count,
             'my_active_missions': my_active,
             'my_completed_missions': my_completed,
+            'service_zones': request.user.service_zones or [],
         })
 
 
