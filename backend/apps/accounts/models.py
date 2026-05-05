@@ -46,7 +46,7 @@ class CustomUserManager(BaseUserManager):
             else:
                 extra_fields['status'] = AccountStatusChoices.PENDING
                 extra_fields['is_verified'] = False
-                extra_fields['is_email_verified'] = False
+                extra_fields['is_email_verified'] = True
         user = self.model(email=email, **extra_fields)
         user.set_password(password)
         user.save(using=self._db)

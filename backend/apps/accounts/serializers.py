@@ -33,7 +33,8 @@ def _validate_file(file):
 # ─── Auth / Token ──────────────────────────────────────────────────────────────
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    email    = serializers.EmailField()
+    email    = serializers.EmailField(required=False)
+    username = serializers.CharField(write_only=True, required=False)
     password = serializers.CharField(style={'input_type': 'password'})
 
     @classmethod
@@ -54,11 +55,13 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         return token
 
     def validate(self, attrs):
-        email    = attrs.get('email')
+        email = attrs.get('email') or attrs.get('username')
         password = attrs.get('password')
 
         if not email or not password:
             raise serializers.ValidationError(_("Both email and password are required."))
+
+        email = email.strip().lower()
 
         from django.contrib.auth import authenticate
         user = authenticate(username=email, password=password)
@@ -68,9 +71,6 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         if not user.is_active:
             raise serializers.ValidationError(_("Account is inactive."))
-
-        if not user.is_email_verified:
-            raise serializers.ValidationError(_("Please verify your email address before logging in."))
 
         # Allow PENDING users to login — frontend redirects them to /pending
         if user.status == AccountStatusChoices.REJECTED:
@@ -371,8 +371,3 @@ class AdminDocumentReviewSerializer(serializers.ModelSerializer):
         instance.reviewed_at   = timezone.now()
         instance.save()
         return instance
-
-
-class VerifyOTPSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    code  = serializers.CharField(max_length=6)
