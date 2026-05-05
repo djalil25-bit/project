@@ -12,6 +12,7 @@ from apps.accounts.models import User, AccountStatusChoices, RoleChoices
 from apps.catalog.models import Product
 from apps.orders.models import Order, OrderItem, OrderStatusChoices
 from apps.payments.models import Payment
+from apps.farms.models import Farm
 
 from .models import (
     Alert, AlertConfig, AdminMessage, MessageTemplate,
@@ -568,6 +569,25 @@ class AccountActionAPIView(APIView):
             user.status = AccountStatusChoices.APPROVED
             user.is_verified = True
             user.verification_date = timezone.now()
+            user.save()
+            
+            # Auto-create Farm if Farmer and doesn't exist yet
+            if user.role == RoleChoices.FARMER:
+                try:
+                    profile = user.farmerprofile
+                    if not Farm.objects.filter(owner=user).exists():
+                        # The user.address field stores the Wilaya string in this system
+                        Farm.objects.create(
+                            owner=user,
+                            name=profile.farm_name or f"{user.full_name}'s Farm",
+                            location=profile.farm_location or user.address,
+                            wilaya=user.address or '', 
+                            size_hectares=profile.farm_size_hectares,
+                        )
+                except Exception as e:
+                    # Log error but don't fail the verification
+                    print(f"Failed to auto-create farm for {user.email}: {e}")
+            
             user.save()
         elif action == 'reject':
             user.status = AccountStatusChoices.REJECTED

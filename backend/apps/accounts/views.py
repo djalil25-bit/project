@@ -7,6 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.views import APIView
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
+from .utils import send_otp_email
 from .serializers import (
     CustomTokenObtainPairSerializer,
     RegisterSerializer,
@@ -17,6 +18,7 @@ from .serializers import (
     UserDocumentSerializer,
     AdminDocumentReviewSerializer,
     AdminUserDetailSerializer,
+    VerifyOTPSerializer,
 )
 from .models import RoleChoices, AccountStatusChoices, UserDocument
 from .permissions import IsAdminRole
@@ -55,8 +57,15 @@ class RegisterView(generics.CreateAPIView):
             validated['farm_photos'] = farm_photos
 
         user = serializer.create(validated)
+        
+        # Send OTP email
+        send_otp_email(user)
+        
         return Response(
-            {'message': 'Registration successful. Your account is pending Ministry review.'},
+            {
+                'message': 'Registration successful. Please verify your email with the OTP code sent.',
+                'email': user.email
+            },
             status=status.HTTP_201_CREATED
         )
 
@@ -101,6 +110,57 @@ class ChangePasswordView(APIView):
         user.set_password(serializer.validated_data['new_password'])
         user.save()
         return Response({'message': 'Password updated successfully.'})
+
+
+class VerifyOTPView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = VerifyOTPSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        email = serializer.validated_data['email']
+        code  = serializer.validated_data['code']
+        
+        try:
+            user = User.objects.get(email=email)
+            otp_record = user.otps.filter(code=code, is_used=False).order_by('-created_at').first()
+            
+            if not otp_record:
+                return Response({'error': 'Invalid verification code.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Mark email as verified
+            otp_record.is_used = True
+            otp_record.save()
+            
+            user.is_email_verified = True
+            user.save()
+            
+            return Response({'message': 'Email verified successfully. Your account is now under review.'}, status=status.HTTP_200_OK)
+            
+        except User.DoesNotExist:
+            return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class ResendOTPView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        if not email:
+            return Response({'error': 'Email is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            user = User.objects.get(email=email)
+            if user.is_email_verified:
+                return Response({'message': 'Email is already verified.'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            send_otp_email(user)
+            return Response({'message': 'New verification code sent to your email.'}, status=status.HTTP_200_OK)
+            
+        except User.DoesNotExist:
+            return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 
 # ─── Documents ─────────────────────────────────────────────────────────────────

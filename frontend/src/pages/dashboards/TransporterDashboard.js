@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axiosConfig';
+import { ALGERIAN_WILAYAS } from '../../utils/constants';
+import Select from 'react-select';
 import {
   Truck,
   ClipboardList,
@@ -11,7 +13,8 @@ import {
   DollarSign,
   Navigation,
   Camera,
-  X
+  X,
+  Phone
 } from 'lucide-react';
 import ProofOfDeliveryModal from '../../components/logistics/ProofOfDeliveryModal';
 import VehicleSelectionModal from '../../components/logistics/VehicleSelectionModal';
@@ -32,6 +35,31 @@ const StatusBadge = ({ status }) => {
   return <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${cls}`}>{label}</span>;
 };
 
+const reactSelectStyles = {
+  menuPortal: base => ({ ...base, zIndex: 9999 }),
+  control: (base) => ({
+    ...base,
+    borderRadius: '0.375rem',
+    borderColor: '#dee2e6',
+    minHeight: '31px',
+    fontSize: '0.75rem',
+    fontWeight: '500',
+    boxShadow: 'none',
+    '&:hover': {
+      borderColor: '#cbd5e1'
+    }
+  }),
+  option: (base, state) => ({
+    ...base,
+    fontSize: '0.75rem',
+    fontWeight: state.isSelected ? '700' : '500',
+  }),
+  placeholder: (base) => ({
+    ...base,
+    color: '#6c757d',
+  })
+};
+
 function TransporterDashboard() {
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
@@ -43,13 +71,15 @@ function TransporterDashboard() {
   const [podTarget, setPodTarget] = useState(null);
   const [acceptanceTarget, setAcceptanceTarget] = useState(null);
   const [refusalTarget, setRefusalTarget] = useState(null);
+  const [pickupWilaya, setPickupWilaya] = useState('');
+  const [deliveryWilaya, setDeliveryWilaya] = useState('');
 
   const fetchData = async () => {
     setLoading(true);
     try {
       const [statsRes, delivRes] = await Promise.all([
         api.get('/dashboards/transporter-stats/'),
-        api.get('/deliveries/'),
+        api.get('/deliveries/', { params: { pickup_wilaya: pickupWilaya, delivery_wilaya: deliveryWilaya } }),
       ]);
       setStats(statsRes.data);
       setDeliveries(delivRes.data.results || delivRes.data);
@@ -66,7 +96,12 @@ function TransporterDashboard() {
       fetchData();
       setActiveTab('mine'); // Switch to active missions automatically
     } catch (err) { 
-      const msg = err.response?.data?.error || 'Failed to accept mission';
+      console.error('[LOGISTICS] Mission Acceptance Failed:', err);
+      const msg = err.response?.data?.error || err.response?.data?.message || err.message || 'Failed to accept mission';
+      // If backend says we have an active mission, refresh data to sync UI
+      if (msg.includes('current mission is completed')) {
+        fetchData();
+      }
       throw new Error(msg); // Let the modal handle error display
     } finally { setActionLoading(null); }
   };
@@ -105,7 +140,8 @@ function TransporterDashboard() {
 
   const openCount = deliveries.filter(d => d.status === 'open').length;
 
-  const hasActiveMission = deliveries.some(d => 
+  // Refined active mission check: Priority 1: stats from backend. Priority 2: local data scan.
+  const hasActiveMission = stats?.my_active_missions > 0 || deliveries.some(d => 
     d.transporter != null && 
     ['assigned', 'picked_up', 'in_transit'].includes(d.status)
   );
@@ -202,6 +238,42 @@ function TransporterDashboard() {
           </div>
         </div>
 
+        <div className="px-3 py-3 bg-slate-50 border-bottom d-flex flex-wrap gap-3 align-items-end">
+          <div className="flex-grow-1" style={{ maxWidth: 220 }}>
+            <label className="very-small text-muted fw-bold mb-1 uppercase tracking-wider text-[9px]">Pickup Wilaya</label>
+            <Select
+              className="react-select-container"
+              classNamePrefix="react-select"
+              options={stats?.service_zones?.map(z => ({ value: z, label: z })) || []}
+              value={pickupWilaya ? { value: pickupWilaya, label: pickupWilaya } : null}
+              onChange={val => setPickupWilaya(val ? val.value : '')}
+              placeholder="All My Service Zones"
+              isClearable
+              menuPlacement="bottom"
+              menuPortalTarget={document.body}
+              styles={reactSelectStyles}
+            />
+          </div>
+          <div className="flex-grow-1" style={{ maxWidth: 220 }}>
+            <label className="very-small text-muted fw-bold mb-1 uppercase tracking-wider text-[9px]">Destination Wilaya (Optional)</label>
+            <Select
+              className="react-select-container"
+              classNamePrefix="react-select"
+              options={ALGERIAN_WILAYAS.map(w => ({ value: w.name, label: w.name }))}
+              value={deliveryWilaya ? { value: deliveryWilaya, label: deliveryWilaya } : null}
+              onChange={val => setDeliveryWilaya(val ? val.value : '')}
+              placeholder="Select destination"
+              isClearable
+              menuPlacement="bottom"
+              menuPortalTarget={document.body}
+              styles={reactSelectStyles}
+            />
+          </div>
+          <button className="btn-agr btn-primary btn-sm rounded shadow-sm px-4 fw-bold h-[38px]" onClick={fetchData}>
+             Apply Filters
+          </button>
+        </div>
+
         <div className="px-3 py-2 bg-light-soft border-bottom">
           <div className="segmented-tabs-wrapper">
             {[
@@ -281,8 +353,20 @@ function TransporterDashboard() {
                       <Package size={10} />
                       {d.order_detail?.items?.length || 0} items
                     </div>
+                    {d.order_detail?.buyer_phone && (
+                      <div className="mt-2 pt-2 border-top border-slate-100">
+                        <div className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-1">Buyer Contact</div>
+                        <a 
+                          href={`https://wa.me/${d.order_detail.buyer_phone}?text=${encodeURIComponent('Hello, I am the transporter assigned to your order #' + d.order + '. I will contact you shortly.')}`}
+                          target="_blank" rel="noopener noreferrer"
+                          className="d-inline-flex align-items-center gap-1.5 px-2 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-[11px] font-black hover:bg-emerald-100 hover:border-emerald-300 transition-all shadow-sm"
+                        >
+                          <Phone size={11} className="fill-emerald-700" /> {d.order_detail.buyer_phone}
+                        </a>
+                      </div>
+                    )}
                     <button
-                      className="btn-agr btn-link btn-sm p-0 mt-1 d-flex align-items-center gap-1"
+                      className="btn-agr btn-link btn-sm p-0 mt-2 d-flex align-items-center gap-1"
                       onClick={() => setViewingCargo(d)}
                       style={{ fontSize: '0.72rem' }}
                     >

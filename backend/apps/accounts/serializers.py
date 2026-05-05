@@ -46,6 +46,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             'role': user.role,
             'status': user.status,
             'is_verified': user.is_verified,
+            'is_email_verified': user.is_email_verified,
             'trust_level': user.trust_level,
             'profile_picture': user.profile_picture.url if user.profile_picture else None,
             'dashboard_route': f"/{user.role}-dashboard"
@@ -68,6 +69,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         if not user.is_active:
             raise serializers.ValidationError(_("Account is inactive."))
 
+        if not user.is_email_verified:
+            raise serializers.ValidationError(_("Please verify your email address before logging in."))
+
         # Allow PENDING users to login — frontend redirects them to /pending
         if user.status == AccountStatusChoices.REJECTED:
             raise serializers.ValidationError(_("Your account registration was rejected."))
@@ -85,6 +89,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
                 'role': user.role,
                 'status': user.status,
                 'is_verified': user.is_verified,
+                'is_email_verified': user.is_email_verified,
                 'trust_level': user.trust_level,
                 'profile_picture': user.profile_picture.url if user.profile_picture else None,
                 'dashboard_route': f"/{user.role}-dashboard"
@@ -112,6 +117,7 @@ class RegisterSerializer(serializers.Serializer):
     farm_name        = serializers.CharField(max_length=255, required=False, allow_blank=True)
     farm_location    = serializers.CharField(max_length=255, required=False, allow_blank=True)
     production_type  = serializers.CharField(max_length=20, required=False, allow_blank=True)
+    farm_size        = serializers.DecimalField(max_digits=10, decimal_places=2, required=False, default=0.0)
     farmer_id        = serializers.FileField(required=False)   # REQUIRED for farmers — validated in validate()
     farm_photos      = serializers.ListField(                  # Multiple optional
         child=serializers.FileField(), required=False
@@ -193,6 +199,7 @@ class RegisterSerializer(serializers.Serializer):
         farm_name       = validated_data.pop('farm_name', '')
         farm_location   = validated_data.pop('farm_location', '')
         production_type = validated_data.pop('production_type', '')
+        farm_size       = validated_data.pop('farm_size', 0.0)
         farmer_id_file  = validated_data.pop('farmer_id', None)
         farm_photos     = validated_data.pop('farm_photos', [])
 
@@ -224,7 +231,24 @@ class RegisterSerializer(serializers.Serializer):
                     farm_name       = farm_name,
                     farm_location   = farm_location,
                     production_type = production_type,
+                    farm_size_hectares = farm_size,
                 )
+                
+                # Auto-create Farm record
+                from apps.farms.models import Farm
+                # Ensure we use the wilaya from user profile (which was set from registration data)
+                farm_wilaya = user.address if user.address else wilaya
+                farm = Farm.objects.create(
+                    owner=user,
+                    name=farm_name,
+                    location=farm_location,
+                    wilaya=farm_wilaya,
+                    size_hectares=farm_size
+                )
+                if farm_photos:
+                    farm.image = farm_photos[0]
+                    farm.save()
+
                 if farmer_id_file:
                     UserDocument.objects.create(
                         user=user, document_type=DocumentTypeChoices.FARMER_ID, file=farmer_id_file
@@ -253,6 +277,19 @@ class RegisterSerializer(serializers.Serializer):
                     plate_number  = plate_number,
                     capacity_tons = capacity_tons,
                 )
+
+                # Auto-create initial vehicle in JSON fleet
+                user.vehicles = [{
+                    "id": 1,
+                    "plate": plate_number,
+                    "model": f"Initial {vehicle_type}",
+                    "capacity": float(capacity_tons) * 1000,
+                    "type": vehicle_type,
+                    "fuelType": "Diesel",
+                    "is_active": True
+                }]
+                user.save()
+
                 if driving_license:
                     UserDocument.objects.create(
                         user=user, document_type=DocumentTypeChoices.DRIVING_LICENSE, file=driving_license
@@ -272,7 +309,7 @@ class UserSerializer(serializers.ModelSerializer):
         model  = User
         fields = (
             'id', 'email', 'full_name', 'phone', 'role', 'status',
-            'is_verified', 'trust_level', 'trust_score', 'profile_picture', 'created_at', 'address', 'bio'
+            'is_verified', 'is_email_verified', 'trust_level', 'trust_score', 'profile_picture', 'created_at', 'address', 'bio'
         )
         read_only_fields = ('id', 'status', 'is_verified', 'trust_level', 'trust_score', 'created_at')
 
@@ -363,3 +400,8 @@ class AdminDocumentReviewSerializer(serializers.ModelSerializer):
         instance.reviewed_at   = timezone.now()
         instance.save()
         return instance
+
+
+class VerifyOTPSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    code  = serializers.CharField(max_length=6)
