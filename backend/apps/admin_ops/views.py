@@ -348,29 +348,30 @@ class AnalyticsProductAPIView(APIView):
     permission_classes = [IsAuthenticated, IsAdminRole]
 
     def get(self, request):
-        """Product performance analytics. If ?product_id= given, show detail."""
-        product_id = request.query_params.get('product_id')
+        """Product performance analytics. If ?product_title= given, show detail."""
+        product_title = request.query_params.get('product_title')
 
-        # Product list for dropdown
+        # Product list for dropdown (unique titles)
         products_list = list(
             Product.objects.filter(is_active=True)
-            .values('id', 'title', 'category__name')
+            .values('title', 'category__name')
+            .distinct()
             .order_by('title')[:50]
         )
 
-        if not product_id:
+        if not product_title:
             return Response({'products': products_list})
 
-        # Specific product analytics
-        items = OrderItem.objects.filter(product_id=product_id)
+        # Specific product analytics across all farmers
+        items = OrderItem.objects.filter(product__title=product_title)
         total_units = items.aggregate(t=Sum('quantity'))['t'] or 0
         total_revenue = items.aggregate(t=Sum(F('quantity') * F('price_snapshot')))['t'] or 0
-        unique_sellers = items.values('farmer').distinct().count()
+        unique_sellers = items.values('product__farm__owner').distinct().count()
         unique_buyers = items.values('order__buyer').distinct().count()
 
-        # Top 3 sellers
+        # Top 3 sellers for this product
         top_sellers = list(
-            items.values('farmer__id', 'farmer__full_name')
+            items.values('product__farm__owner__id', 'product__farm__owner__full_name')
             .annotate(
                 units=Sum('quantity'),
                 revenue=Sum(F('quantity') * F('price_snapshot')),
@@ -380,6 +381,8 @@ class AnalyticsProductAPIView(APIView):
         )
         for i, s in enumerate(top_sellers):
             s['rank'] = i + 1
+            s['farmer__id'] = s.pop('product__farm__owner__id', None)
+            s['farmer__full_name'] = s.pop('product__farm__owner__full_name', None)
 
         # Sales trend (last 30 days)
         thirty_days_ago = timezone.now() - timedelta(days=30)
@@ -419,27 +422,69 @@ class AnalyticsZoneAPIView(APIView):
     permission_classes = [IsAuthenticated, IsAdminRole]
 
     def get(self, request):
-        zone = request.query_params.get('zone', '')
+        zone = request.query_params.get('zone', 'All Zones')
 
-        # Available zones
-        zones = list(
-            Order.objects.exclude(wilaya='')
-            .values_list('wilaya', flat=True).distinct().order_by('wilaya')
-        )
+        # 58 Wilayas of Algeria
+        zones = [
+            "All Zones", "Adrar", "Chlef", "Laghouat", "Oum El Bouaghi", "Batna", "Béjaïa", "Biskra", 
+            "Béchar", "Blida", "Bouira", "Tamanrasset", "Tébessa", "Tlemcen", "Tiaret", "Tizi Ouzou", 
+            "Alger", "Djelfa", "Jijel", "Sétif", "Saïda", "Skikda", "Sidi Bel Abbès", "Annaba", 
+            "Guelma", "Constantine", "Médéa", "Mostaganem", "M'Sila", "Mascara", "Ouargla", "Oran", 
+            "El Bayadh", "Illizi", "Bordj Bou Arréridj", "Boumerdès", "El Tarf", "Tindouf", "Tissemsilt", 
+            "El Oued", "Khenchela", "Souk Ahras", "Tipaza", "Mila", "Aïn Defla", "Naâma", "Aïn Témouchent", 
+            "Ghardaïa", "Relizane", "Timimoun", "Bordj Badji Mokhtar", "Ouled Djellal", "Béni Abbès", 
+            "In Salah", "In Guezzam", "Touggourt", "Djanet", "El M'Ghair", "El Meniaa"
+        ]
 
-        if not zone:
-            return Response({'zones': zones})
+        # Filter base querysets
+        from apps.accounts.models import User
+        if zone == "All Zones":
+            orders = Order.objects.all()
+            
+            farmers = User.objects.filter(role='farmer').count()
+            buyers = User.objects.filter(role='buyer').count()
+            transporters = User.objects.filter(role='transporter').count()
+            
+            users = User.objects.all()
+        else:
+            orders = Order.objects.filter(wilaya__iexact=zone)
+            
+            farmers = User.objects.filter(role='farmer', farms__wilaya__iexact=zone).distinct().count()
+            buyers = User.objects.filter(role='buyer', orders__wilaya__iexact=zone).distinct().count()
+            transporters = User.objects.filter(role='transporter', deliveries__order__wilaya__iexact=zone).distinct().count()
+            
+            # Combine all users associated with this zone to calculate registration trends
+            zone_users_ids = set(
+                list(User.objects.filter(role='farmer', farms__wilaya__iexact=zone).values_list('id', flat=True)) +
+                list(User.objects.filter(role='buyer', orders__wilaya__iexact=zone).values_list('id', flat=True)) +
+                list(User.objects.filter(role='transporter', deliveries__order__wilaya__iexact=zone).values_list('id', flat=True))
+            )
+            users = User.objects.filter(id__in=zone_users_ids)
 
-        orders = Order.objects.filter(wilaya__iexact=zone)
         gmv = orders.aggregate(t=Sum('total_price'))['t'] or 0
         order_count = orders.count()
         avg_order = float(gmv / order_count) if order_count else 0
-        farmers = orders.values('items__farmer').distinct().count()
-        buyers = orders.values('buyer').distinct().count()
+
+        # User Registration Trend (Last 30 days)
+        thirty_days_ago = timezone.now() - timedelta(days=30)
+        registration_trend = list(
+            users.filter(created_at__gte=thirty_days_ago)
+            .annotate(day=TruncDay('created_at'))
+            .values('day')
+            .annotate(count=Count('id'))
+            .order_by('day')
+        )
+        for t in registration_trend:
+            t['day'] = t['day'].strftime('%b %d')
 
         # Top products in zone
+        if zone == "All Zones":
+            order_items = OrderItem.objects.exclude(product__title__isnull=True)
+        else:
+            order_items = OrderItem.objects.filter(order__wilaya__iexact=zone).exclude(product__title__isnull=True)
+            
         top_products = list(
-            OrderItem.objects.filter(order__wilaya__iexact=zone)
+            order_items
             .values('product__title')
             .annotate(units=Sum('quantity'), revenue=Sum(F('quantity') * F('price_snapshot')))
             .order_by('-revenue')[:5]
@@ -451,8 +496,12 @@ class AnalyticsZoneAPIView(APIView):
             'gmv': float(gmv),
             'order_count': order_count,
             'avg_order': avg_order,
-            'farmers': farmers,
-            'buyers': buyers,
+            'actors': {
+                'farmers': farmers,
+                'buyers': buyers,
+                'transporters': transporters
+            },
+            'registration_trend': registration_trend,
             'top_products': top_products,
         })
 
@@ -461,15 +510,91 @@ class AnalyticsTopSellersAPIView(APIView):
     permission_classes = [IsAuthenticated, IsAdminRole]
 
     def get(self, request):
+        from apps.accounts.models import User
+        year = request.query_params.get('year')
+        
+        # Base Querysets
+        sellers_qs = OrderItem.objects.all()
+        buyers_qs = Order.objects.all()
+        from apps.logistics.models import DeliveryRequest
+        transporters_qs = DeliveryRequest.objects.filter(status='delivered')
+        
+        if year and year.isdigit():
+            y = int(year)
+            sellers_qs = sellers_qs.filter(created_at__year=y)
+            buyers_qs = buyers_qs.filter(created_at__year=y)
+            transporters_qs = transporters_qs.filter(created_at__year=y)
+
+        # 1. Top Sellers (Farmers)
         sellers = list(
-            OrderItem.objects
-            .values('farmer__id', 'farmer__full_name')
+            sellers_qs
+            .values('farmer__id', 'farmer__full_name', 'farmer__badges')
             .annotate(revenue=Sum(F('quantity') * F('price_snapshot')))
-            .order_by('-revenue')[:10]
+            .order_by('-revenue')[:5]
         )
         for i, s in enumerate(sellers):
             s['rank'] = i + 1
-        return Response({'sellers': sellers})
+            s['id'] = s.pop('farmer__id', None)
+            s['name'] = s.pop('farmer__full_name', None)
+            s['badges'] = s.pop('farmer__badges', [])
+            s['metric_label'] = 'Revenue'
+            s['metric_value'] = s.pop('revenue', 0)
+
+        # 2. Top Buyers
+        buyers = list(
+            buyers_qs
+            .values('buyer__id', 'buyer__full_name', 'buyer__badges')
+            .annotate(spend=Sum('total_price'))
+            .order_by('-spend')[:5]
+        )
+        for i, b in enumerate(buyers):
+            b['rank'] = i + 1
+            b['id'] = b.pop('buyer__id', None)
+            b['name'] = b.pop('buyer__full_name', None)
+            b['badges'] = b.pop('buyer__badges', [])
+            b['metric_label'] = 'Total Spend'
+            b['metric_value'] = b.pop('spend', 0)
+
+        # 3. Top Transporters
+        transporters = list(
+            transporters_qs
+            .values('transporter__id', 'transporter__full_name', 'transporter__badges')
+            .annotate(deliveries_count=Count('id'))
+            .order_by('-deliveries_count')[:5]
+        )
+        for i, t in enumerate(transporters):
+            t['rank'] = i + 1
+            t['id'] = t.pop('transporter__id', None)
+            t['name'] = t.pop('transporter__full_name', None)
+            t['badges'] = t.pop('transporter__badges', [])
+            t['metric_label'] = 'Deliveries Completed'
+            t['metric_value'] = t.pop('deliveries_count', 0)
+
+        return Response({
+            'sellers': sellers,
+            'buyers': buyers,
+            'transporters': transporters
+        })
+
+class AwardBadgeAPIView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminRole]
+
+    def post(self, request):
+        from apps.accounts.models import User
+        user_id = request.data.get('user_id')
+        badge = request.data.get('badge')
+        
+        if not user_id or not badge:
+            return Response({'error': 'user_id and badge are required'}, status=400)
+            
+        try:
+            user = User.objects.get(id=user_id)
+            if badge not in user.badges:
+                user.badges.append(badge)
+                user.save()
+            return Response({'message': 'Badge awarded successfully!', 'badges': user.badges})
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=404)
 
 
 # ═══════════════════════════════════════════════════════════════════

@@ -14,7 +14,12 @@ import {
   Search,
   Layers,
   Archive,
-  LineChart
+  LineChart,
+  Apple,
+  Sprout,
+  Wheat,
+  Box,
+  Package
 } from 'lucide-react';
 
 const CatalogManager = () => {
@@ -151,74 +156,114 @@ const CatalogManager = () => {
             <span className="text-xs font-black text-slate-400 uppercase tracking-widest animate-pulse">Loading Catalog...</span>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50/80 border-b border-slate-100">
-                  <th className="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Product Designation</th>
-                  <th className="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Domain</th>
-                  <th className="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Price Range (DZD)</th>
-                  <th className="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Index Price</th>
-                  <th className="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Operations</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredCatalog.length === 0 ? (
-                  <tr>
-                    <td colSpan="5">
-                      <div className="flex flex-col items-center gap-3 py-16 text-slate-300">
-                        <Search size={40} className="opacity-20" />
-                        <p className="text-xs font-black uppercase tracking-widest">No products match this criteria.</p>
-                      </div>
-                    </td>
-                  </tr>
-                ) : filteredCatalog.map(item => (
-                  <tr key={item.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center shrink-0 shadow-inner">
-                          <Tag size={16} className="text-emerald-600" />
-                        </div>
-                        <div>
-                          <div className="font-black text-slate-800 text-sm tracking-tight">{item.name}</div>
-                          <div className="text-[10px] font-medium text-slate-400 mt-0.5 truncate max-w-[200px]">{item.description}</div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200">
-                        {categories.find(c => c.id === item.category)?.name || 'Unmapped'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <div className="flex items-center justify-center gap-2 text-[11px] font-black tracking-tight">
-                        <span className="text-rose-500">{item.min_price}</span>
-                        <span className="w-2 h-[1px] bg-slate-200"></span>
-                        <span className="text-emerald-600">{item.max_price}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <div className="font-black text-slate-900 text-sm">
-                        {item.official_price} <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest ml-1">DZD/{item.unit}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-end gap-2">
-                        <button className="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-400 hover:text-amber-500 hover:bg-amber-50 transition-all flex items-center justify-center shadow-sm" title="Price History" onClick={() => navigate(`/admin-dashboard/catalog/${item.id}/price-history`)}>
-                          <LineChart size={14} />
-                        </button>
-                        <button className="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-400 hover:text-blue-500 hover:bg-blue-50 transition-all flex items-center justify-center shadow-sm" title="Modify" onClick={() => handleEdit(item)}>
-                          <Edit size={14} />
-                        </button>
-                        <button className="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-all flex items-center justify-center shadow-sm" title="Remove" onClick={() => handleDelete(item.id)}>
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="flex flex-col gap-2 pt-2">
+            {/* Header Row (Desktop Only) - Compacted widths */}
+            <div className="hidden md:flex items-center justify-between px-6 pb-2 border-b border-slate-100 text-[9px] font-black uppercase tracking-widest text-slate-400">
+              <div className="w-[280px]">Product Identity</div>
+              <div className="w-[140px] text-center">Category Domain</div>
+              <div className="w-[140px] text-center">Market Index</div>
+              <div className="w-[140px] text-center">Target Range</div>
+              <div className="w-[140px] text-right">Operations</div>
+            </div>
+
+            {/* List Rows */}
+            {filteredCatalog.length === 0 ? (
+              <div className="bg-white border border-slate-200 rounded-3xl p-20 text-center shadow-sm">
+                <Search size={48} className="text-slate-100 mx-auto mb-4"/>
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-relaxed">No products match the current registry filters.<br/>Try adjusting the parameters.</p>
+              </div>
+            ) : filteredCatalog.map(item => {
+              const categoryName = categories.find(c => c.id === item.category)?.name || 'Unmapped';
+              
+              const getCatDetails = (name) => {
+                const n = name.toLowerCase();
+                if (n.includes('fruit')) return { 
+                  style: "from-orange-400 to-rose-500 shadow-orange-900/20 text-orange-50",
+                  icon: <Apple size={20} className="opacity-90" /> 
+                };
+                if (n.includes('legume') || n.includes('vegetable')) return { 
+                  style: "from-emerald-400 to-teal-600 shadow-emerald-900/20 text-emerald-50",
+                  icon: <Sprout size={20} className="opacity-90" /> 
+                };
+                if (n.includes('grain') || n.includes('cereal')) return { 
+                  style: "from-amber-400 to-yellow-600 shadow-amber-900/20 text-amber-50",
+                  icon: <Wheat size={20} className="opacity-90" /> 
+                };
+                return { 
+                  style: "from-slate-400 to-slate-600 shadow-slate-900/20 text-slate-50",
+                  icon: <Package size={20} className="opacity-90" /> 
+                };
+              };
+
+              const details = getCatDetails(categoryName);
+
+              return (
+                <div key={item.id} className="bg-white border border-slate-100 rounded-2xl p-3 md:p-4 hover:shadow-xl hover:border-emerald-200 hover:-translate-y-0.5 transition-all flex flex-col md:flex-row items-center justify-between gap-4 group">
+                  
+                  {/* 1. Icon & Identity */}
+                  <div className="flex items-center gap-4 flex-1 min-w-0 w-full md:w-[280px] shrink-0">
+                    <div className={`w-11 h-11 shrink-0 rounded-xl bg-gradient-to-br ${details.style} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
+                      {details.icon}
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                      <div className="font-black text-slate-900 text-sm truncate leading-tight">{item.name}</div>
+                      <div className="text-[9px] font-bold text-slate-400 mt-0.5 truncate max-w-[200px]">{item.description || 'Standard technical unit.'}</div>
+                    </div>
+                  </div>
+
+                  {/* 2. Category */}
+                  <div className="flex items-center justify-start md:justify-center w-full md:w-[140px] shrink-0">
+                    <span className="text-[8px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg bg-slate-50 text-slate-500 border border-slate-200 shadow-sm">
+                      {categoryName}
+                    </span>
+                  </div>
+
+                  {/* 3. Index Price */}
+                  <div className="flex flex-col items-start md:items-center w-full md:w-[140px] shrink-0">
+                    <div className="font-black text-slate-900 text-xs">
+                      {item.official_price} <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest ml-0.5">DZD/{item.unit}</span>
+                    </div>
+                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-0.5 opacity-60">Index Price</span>
+                  </div>
+
+                  {/* 4. Price Range */}
+                  <div className="flex flex-col items-start md:items-center w-full md:w-[140px] shrink-0">
+                    <div className="flex items-center gap-1.5 text-[10px] font-black tracking-tight">
+                      <span className="text-rose-500">{item.min_price}</span>
+                      <span className="w-1.5 h-[1.5px] bg-slate-200 rounded-full"></span>
+                      <span className="text-emerald-600">{item.max_price}</span>
+                    </div>
+                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-0.5 opacity-60">Target Band</span>
+                  </div>
+
+                  {/* 5. Actions */}
+                  <div className="flex items-center gap-1.5 w-full md:w-[140px] shrink-0 justify-start md:justify-end">
+                    <button 
+                      className="w-8 h-8 rounded-lg bg-white border border-slate-100 text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all flex items-center justify-center shadow-sm active:scale-90" 
+                      title="History" 
+                      onClick={() => navigate(`/admin-dashboard/catalog/${item.id}/price-history`)}
+                    >
+                      <LineChart size={14} />
+                    </button>
+                    <button 
+                      className="w-8 h-8 rounded-lg bg-white border border-slate-100 text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all flex items-center justify-center shadow-sm active:scale-90" 
+                      title="Edit" 
+                      onClick={() => handleEdit(item)}
+                    >
+                      <Edit size={14} />
+                    </button>
+                    <button 
+                      className="w-8 h-8 rounded-lg bg-white border border-slate-100 text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all flex items-center justify-center shadow-sm active:scale-90" 
+                      title="Delete" 
+                      onClick={() => handleDelete(item.id)}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

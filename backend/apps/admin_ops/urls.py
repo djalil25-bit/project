@@ -4,7 +4,7 @@ from .views import (
     GlobalSearchAPIView,
     AlertListAPIView, AlertActionAPIView, AlertConfigListCreateAPIView, AlertSummaryAPIView,
     TransactionListAPIView, TransactionDetailAPIView, TransactionActionAPIView,
-    AnalyticsProductAPIView, AnalyticsZoneAPIView, AnalyticsTopSellersAPIView,
+    AnalyticsProductAPIView, AnalyticsZoneAPIView, AnalyticsTopSellersAPIView, AwardBadgeAPIView,
     AccountSearchAPIView, AccountDetailAPIView, AccountActionAPIView,
     MessageSendAPIView, MessageHistoryAPIView, MessageTemplateListAPIView, RecipientSearchAPIView, MessageInboxAPIView,
     ActivityLogAPIView, FlaggedAccountListAPIView, FlaggedAccountActionAPIView,
@@ -34,6 +34,7 @@ urlpatterns = [
     path('analytics/products/', AnalyticsProductAPIView.as_view(), name='admin_analytics_products'),
     path('analytics/zones/', AnalyticsZoneAPIView.as_view(), name='admin_analytics_zones'),
     path('analytics/top-sellers/', AnalyticsTopSellersAPIView.as_view(), name='admin_analytics_top_sellers'),
+    path('analytics/award-badge/', AwardBadgeAPIView.as_view(), name='admin_analytics_award_badge'),
 
     # Account Management
     path('accounts/', AccountSearchAPIView.as_view(), name='admin_accounts'),
