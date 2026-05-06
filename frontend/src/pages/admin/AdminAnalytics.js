@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import api from '../../api/axiosConfig';
 import adminApi from '../../api/adminApi';
 import { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, Legend, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { TrendingUp, TrendingDown, DollarSign, Activity, Package, Trophy, Medal, Award, Calendar, ChevronRight, MapPin, Eye, Download, Users, Truck } from 'lucide-react';
+import { TrendingUp, TrendingDown, Activity, Package, Trophy, Medal, Award, Calendar, ChevronRight, MapPin, Eye, Download, Users, Truck } from 'lucide-react';
 
 const tooltipStyle = { borderRadius:10, border:'1px solid #E5E7EB', background:'#fff', boxShadow:'0 4px 12px rgba(0,0,0,0.1)', color:'#1F2937' };
 const getRankIcon = i => i===0?<Trophy className="text-yellow-500" size={18}/>:i===1?<Medal className="text-gray-400" size={18}/>:<Award className="text-orange-400" size={18}/>;
@@ -260,7 +260,7 @@ const AdminAnalytics = () => {
             {/* Price Analysis */}
             <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 shadow-xl shadow-slate-200/30">
               <h3 className="font-black text-sm uppercase tracking-[0.15em] text-slate-900 flex items-center gap-3 mb-6">
-                <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center"><DollarSign size={16} className="text-blue-600"/></div>
+                <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center font-black text-[10px] text-blue-600">DZ</div>
                 Market Price Analysis
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -308,11 +308,13 @@ const AdminAnalytics = () => {
           {zoneLoading ? <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center text-slate-400 font-black uppercase tracking-widest text-xs">Loading zone data...</div> :
            !zoneData ? <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center text-slate-400 font-black uppercase tracking-widest text-xs">Select a zone to view analytics.</div> : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               {[
-                {l:'Gross Merchandise Value', v:`${(zoneData.gmv/1e6).toFixed(2)}M`, s:'DZD', i: <DollarSign size={20}/>, c: 'emerald'},
+                {l:'Gross Merchandise Value', v:`${(zoneData.gmv/1e6).toFixed(2)}M`, s:'DZD', i: <span className="font-black text-sm">DZ</span>, c: 'emerald'},
                 {l:'Total Orders Completed', v:zoneData.order_count, i: <Package size={20}/>, c: 'blue'},
                 {l:'Average Order Value', v:Number(zoneData.avg_order).toLocaleString(), s:'DZD', i: <Activity size={20}/>, c: 'amber'},
+                {l:'Active Production Units', v:zoneData.actors.online_farms, i: <MapPin size={20}/>, c: 'green', live: true},
+                {l:'Fleet Readiness', v:zoneData.actors.online_vehicles, i: <Truck size={20}/>, c: 'indigo', live: true},
               ].map((c,i)=>(
                 <div key={i} className="group bg-white border border-slate-100 rounded-[2rem] p-6 shadow-sm hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-500 hover:-translate-y-1 relative overflow-hidden flex flex-col">
                   <div className={`absolute -top-10 -right-10 w-32 h-32 bg-${c.c}-50 opacity-40 rounded-full blur-2xl transition-transform group-hover:scale-150 duration-700 pointer-events-none`} />
@@ -323,7 +325,13 @@ const AdminAnalytics = () => {
                     <div className="text-3xl font-black text-slate-900 tracking-tight mb-1 flex items-baseline gap-2">
                       {c.v} {c.s&&<span className={`text-[10px] font-black tracking-widest text-${c.c}-600 bg-${c.c}-50 px-2 py-1 rounded-lg uppercase`}>{c.s}</span>}
                     </div>
-                    <div className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 leading-snug">{c.l}</div>
+                    <div className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 leading-snug flex items-center gap-2">
+                      {c.l}
+                      {c.live && <span className="flex h-2 w-2 relative">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                      </span>}
+                    </div>
                   </div>
                 </div>
               ))}

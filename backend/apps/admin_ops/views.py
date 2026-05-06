@@ -13,6 +13,7 @@ from apps.catalog.models import Product
 from apps.orders.models import Order, OrderItem, OrderStatusChoices
 from apps.payments.models import Payment
 from apps.farms.models import Farm
+from apps.logistics.models import Vehicle
 
 from .models import (
     Alert, AlertConfig, AdminMessage, MessageTemplate,
@@ -446,6 +447,8 @@ class AnalyticsZoneAPIView(APIView):
             transporters = User.objects.filter(role='transporter').count()
             
             users = User.objects.all()
+            online_farms = Farm.objects.filter(status='ACTIVE').count()
+            online_vehicles = Vehicle.objects.filter(status='ACTIVE').count()
         else:
             orders = Order.objects.filter(wilaya__iexact=zone)
             
@@ -460,6 +463,8 @@ class AnalyticsZoneAPIView(APIView):
                 list(User.objects.filter(role='transporter', deliveries__order__wilaya__iexact=zone).values_list('id', flat=True))
             )
             users = User.objects.filter(id__in=zone_users_ids)
+            online_farms = Farm.objects.filter(status='ACTIVE', wilaya__iexact=zone).count()
+            online_vehicles = Vehicle.objects.filter(status='ACTIVE', owner__deliveries__order__wilaya__iexact=zone).distinct().count()
 
         gmv = orders.aggregate(t=Sum('total_price'))['t'] or 0
         order_count = orders.count()
@@ -499,7 +504,9 @@ class AnalyticsZoneAPIView(APIView):
             'actors': {
                 'farmers': farmers,
                 'buyers': buyers,
-                'transporters': transporters
+                'transporters': transporters,
+                'online_farms': online_farms,
+                'online_vehicles': online_vehicles
             },
             'registration_trend': registration_trend,
             'top_products': top_products,
