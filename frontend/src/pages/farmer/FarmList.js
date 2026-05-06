@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../api/axiosConfig';
 import { useNavigate, Link } from 'react-router-dom';
-import { Plus, Tractor, Edit3, Trash2, MapPin, Maximize2, ExternalLink, ChevronRight, Sprout, ImageOff } from 'lucide-react';
+import { Plus, Tractor, Edit3, Trash2, MapPin, Maximize2, ExternalLink, ChevronRight, Sprout, ImageOff, Clock, AlertCircle } from 'lucide-react';
 
 export default function FarmList() {
   const [farms, setFarms] = useState([]);
@@ -91,7 +91,9 @@ export default function FarmList() {
             {farms.map((farm, idx) => (
               <div 
                 key={farm.id} 
-                className="group bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:border-[#22543d]/30 transition-all duration-300 transform hover:-translate-y-0.5 flex flex-col"
+                className={`group bg-white border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5 flex flex-col ${
+                  farm.status === 'REJECTED' ? 'border-red-200' : farm.status === 'PENDING' ? 'border-amber-200' : 'border-slate-200 hover:border-[#22543d]/30'
+                }`}
                 style={{ animationDelay: `${idx * 0.04}s` }}
               >
                 {/* Image Banner */}
@@ -114,9 +116,20 @@ export default function FarmList() {
                     <h4 className="text-sm font-black text-slate-900 truncate tracking-tight cursor-pointer hover:text-[#22543d] transition-colors" title={farm.name} onClick={() => navigate(`/farmer-dashboard/farms/${farm.id}`)}>
                       {farm.name}
                     </h4>
-                    <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded text-[9px] font-black shrink-0">
-                      <Sprout size={8} strokeWidth={3} /> ACTIVE
-                    </span>
+                    {/* Dynamic Status Badge */}
+                    {farm.status === 'ACTIVE' ? (
+                      <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded text-[9px] font-black shrink-0">
+                        <Sprout size={8} strokeWidth={3} /> ACTIVE
+                      </span>
+                    ) : farm.status === 'PENDING' ? (
+                      <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.5 rounded text-[9px] font-black shrink-0 animate-pulse">
+                        <Clock size={8} strokeWidth={3} /> PENDING
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 bg-red-50 text-red-700 border border-red-200 px-1.5 py-0.5 rounded text-[9px] font-black shrink-0">
+                        <AlertCircle size={8} strokeWidth={3} /> REJECTED
+                      </span>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-1.5 mb-2">
@@ -130,6 +143,29 @@ export default function FarmList() {
                     </span>
                   )}
 
+                  {/* Rejection Reason Banner */}
+                  {farm.status === 'REJECTED' && farm.rejection_reason && (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-2.5 mb-3 flex items-start gap-2">
+                      <AlertCircle size={12} className="text-red-500 mt-0.5 shrink-0" />
+                      <div>
+                        <span className="text-[9px] font-black text-red-600 uppercase tracking-widest block">Rejection Reason</span>
+                        <p className="text-[11px] text-red-700 font-medium mt-0.5">{farm.rejection_reason}</p>
+                        <p className="text-[9px] text-red-500 font-bold mt-1 italic">Edit this farm to resubmit for approval.</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Pending Banner */}
+                  {farm.status === 'PENDING' && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-2.5 mb-3 flex items-start gap-2">
+                      <Clock size={12} className="text-amber-500 mt-0.5 shrink-0" />
+                      <div>
+                        <span className="text-[9px] font-black text-amber-600 uppercase tracking-widest">Awaiting Admin Approval</span>
+                        <p className="text-[10px] text-amber-700 font-medium mt-0.5">You cannot list products until this farm is approved.</p>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Actions */}
                   <div className="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
                     <button 
@@ -140,7 +176,7 @@ export default function FarmList() {
                     </button>
                     <button 
                       className="w-8 h-8 flex items-center justify-center bg-slate-50 hover:bg-amber-50 border border-slate-200 hover:border-amber-300 text-slate-400 hover:text-amber-600 rounded-lg transition-all duration-200"
-                      title="Edit farm"
+                      title={farm.status === 'REJECTED' ? 'Edit & Resubmit' : 'Edit farm'}
                       onClick={() => navigate(`/farmer-dashboard/farm/edit/${farm.id}`)}
                     >
                       <Edit3 size={13} strokeWidth={2.5} />

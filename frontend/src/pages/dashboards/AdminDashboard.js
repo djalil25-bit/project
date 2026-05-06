@@ -89,7 +89,7 @@ function AdminDashboard() {
     { icon: <Clock size={18} />, color: 'text-amber-600', iconBg: 'bg-amber-50', value: stats.pending_users, label: 'Pending Verifications' },
     { icon: <Users size={18} />, color: 'text-blue-600', iconBg: 'bg-blue-50', value: stats.total_users, label: 'Platform Members' },
     { icon: <Wheat size={18} />, color: 'text-emerald-600', iconBg: 'bg-emerald-50', value: stats.total_farmers, label: 'Registered Producers' },
-    { icon: <DollarSign size={18} />, color: 'text-purple-600', iconBg: 'bg-purple-50', value: `${avgOrderValue.toLocaleString()} DA`, label: 'Avg Order Value' },
+    { icon: <span className="font-black text-[13px] leading-none">DZ</span>, color: 'text-purple-600', iconBg: 'bg-purple-50', value: `${avgOrderValue.toLocaleString()} DA`, label: 'Avg Order Value' },
     { icon: <Package size={18} />, color: 'text-teal-600', iconBg: 'bg-teal-50', value: avgProductsPerFarmer, label: 'Avg Products/Farmer' },
     { icon: <Home size={18} />, color: 'text-slate-600', iconBg: 'bg-slate-50', value: stats.total_farmers, label: 'Active Farms' },
   ] : [];

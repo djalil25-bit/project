@@ -815,3 +815,202 @@ class FlaggedAccountActionAPIView(APIView):
             log_activity(request.user, 'Flagged Account Updated',
                          {'flag_id': pk, 'new_status': new_status})
         return Response(FlaggedAccountSerializer(flag).data)
+
+
+# ═══════════════════════════════════════════════════════════════════
+# 9. FARM APPROVALS
+# ═══════════════════════════════════════════════════════════════════
+class FarmApprovalListView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminRole]
+
+    def get(self, request):
+        from apps.farms.models import Farm
+        qs = Farm.objects.select_related('owner').all().order_by('-created_at')
+
+        status_filter = request.query_params.get('status', 'PENDING')
+        if status_filter and status_filter != 'all':
+            qs = qs.filter(status=status_filter.upper())
+
+        search = request.query_params.get('search', '').strip()
+        if search:
+            qs = qs.filter(
+                Q(name__icontains=search) |
+                Q(owner__full_name__icontains=search) |
+                Q(wilaya__icontains=search)
+            )
+
+        results = []
+        for f in qs[:100]:
+            results.append({
+                'id': f.id,
+                'name': f.name,
+                'location': f.location,
+                'wilaya': f.wilaya,
+                'commune': f.commune,
+                'size_hectares': float(f.size_hectares) if f.size_hectares else None,
+                'image': f.image.url if f.image else None,
+                'status': f.status,
+                'rejection_reason': f.rejection_reason,
+                'created_at': f.created_at,
+                'reviewed_at': f.reviewed_at,
+                'owner_id': f.owner.id,
+                'owner_name': f.owner.full_name,
+                'owner_email': f.owner.email,
+                'owner_phone': f.owner.phone,
+            })
+
+        return Response(results)
+
+
+class FarmApprovalActionView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminRole]
+
+    def post(self, request, pk):
+        from apps.farms.models import Farm, AssetStatusChoices
+        try:
+            farm = Farm.objects.get(pk=pk)
+        except Farm.DoesNotExist:
+            return Response({'error': 'Farm not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        action = request.data.get('action')  # 'approve' or 'reject'
+
+        if action == 'approve':
+            farm.status = AssetStatusChoices.ACTIVE
+            farm.rejection_reason = ''
+            farm.reviewed_at = timezone.now()
+            farm.reviewed_by = request.user
+            farm.save()
+
+            # Notify farmer
+            from apps.notifications.models import create_notification, NotificationType
+            create_notification(
+                user=farm.owner,
+                message=f'Your farm "{farm.name}" has been approved! You can now list products.',
+                notif_type=NotificationType.FARM_APPROVED,
+                link='/farmer-dashboard/farms'
+            )
+            log_activity(request.user, 'Farm Approved', {'farm_id': pk, 'farm_name': farm.name})
+            return Response({'status': farm.status, 'message': 'Farm approved successfully'})
+
+        elif action == 'reject':
+            reason = request.data.get('reason', '')
+            if not reason:
+                return Response({'error': 'Rejection reason is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+            farm.status = AssetStatusChoices.REJECTED
+            farm.rejection_reason = reason
+            farm.reviewed_at = timezone.now()
+            farm.reviewed_by = request.user
+            farm.save()
+
+            from apps.notifications.models import create_notification, NotificationType
+            create_notification(
+                user=farm.owner,
+                message=f'Your farm "{farm.name}" was rejected. Reason: {reason}',
+                notif_type=NotificationType.FARM_REJECTED,
+                link='/farmer-dashboard/farms'
+            )
+            log_activity(request.user, 'Farm Rejected', {'farm_id': pk, 'reason': reason})
+            return Response({'status': farm.status, 'message': 'Farm rejected'})
+
+        return Response({'error': f'Unknown action: {action}'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+# ═══════════════════════════════════════════════════════════════════
+# 10. VEHICLE APPROVALS
+# ═══════════════════════════════════════════════════════════════════
+class VehicleApprovalListView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminRole]
+
+    def get(self, request):
+        from apps.logistics.models import Vehicle
+        qs = Vehicle.objects.select_related('owner').all().order_by('-created_at')
+
+        status_filter = request.query_params.get('status', 'PENDING')
+        if status_filter and status_filter != 'all':
+            qs = qs.filter(status=status_filter.upper())
+
+        search = request.query_params.get('search', '').strip()
+        if search:
+            qs = qs.filter(
+                Q(plate__icontains=search) |
+                Q(model__icontains=search) |
+                Q(owner__full_name__icontains=search)
+            )
+
+        results = []
+        for v in qs[:100]:
+            results.append({
+                'id': v.id,
+                'plate': v.plate,
+                'model': v.model,
+                'capacity': v.capacity,
+                'type': v.type,
+                'fuelType': v.fuelType,
+                'is_active': v.is_active,
+                'carte_grise': v.carte_grise.url if v.carte_grise else None,
+                'status': v.status,
+                'rejection_reason': v.rejection_reason,
+                'created_at': v.created_at,
+                'reviewed_at': v.reviewed_at,
+                'owner_id': v.owner.id,
+                'owner_name': v.owner.full_name,
+                'owner_email': v.owner.email,
+                'owner_phone': v.owner.phone,
+            })
+
+        return Response(results)
+
+
+class VehicleApprovalActionView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminRole]
+
+    def post(self, request, pk):
+        from apps.logistics.models import Vehicle, VehicleStatusChoices
+        try:
+            vehicle = Vehicle.objects.get(pk=pk)
+        except Vehicle.DoesNotExist:
+            return Response({'error': 'Vehicle not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        action = request.data.get('action')
+
+        if action == 'approve':
+            vehicle.status = VehicleStatusChoices.ACTIVE
+            vehicle.rejection_reason = ''
+            vehicle.reviewed_at = timezone.now()
+            vehicle.reviewed_by = request.user
+            vehicle.save()
+
+            from apps.notifications.models import create_notification, NotificationType
+            create_notification(
+                user=vehicle.owner,
+                message=f'Your vehicle "{vehicle.model}" ({vehicle.plate}) has been approved!',
+                notif_type=NotificationType.VEHICLE_APPROVED,
+                link='/transporter-dashboard/vehicles'
+            )
+            log_activity(request.user, 'Vehicle Approved', {'vehicle_id': pk, 'plate': vehicle.plate})
+            return Response({'status': vehicle.status, 'message': 'Vehicle approved successfully'})
+
+        elif action == 'reject':
+            reason = request.data.get('reason', '')
+            if not reason:
+                return Response({'error': 'Rejection reason is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+            vehicle.status = VehicleStatusChoices.REJECTED
+            vehicle.rejection_reason = reason
+            vehicle.reviewed_at = timezone.now()
+            vehicle.reviewed_by = request.user
+            vehicle.save()
+
+            from apps.notifications.models import create_notification, NotificationType
+            create_notification(
+                user=vehicle.owner,
+                message=f'Your vehicle "{vehicle.model}" ({vehicle.plate}) was rejected. Reason: {reason}',
+                notif_type=NotificationType.VEHICLE_REJECTED,
+                link='/transporter-dashboard/vehicles'
+            )
+            log_activity(request.user, 'Vehicle Rejected', {'vehicle_id': pk, 'reason': reason})
+            return Response({'status': vehicle.status, 'message': 'Vehicle rejected'})
+
+        return Response({'error': f'Unknown action: {action}'}, status=status.HTTP_400_BAD_REQUEST)
+

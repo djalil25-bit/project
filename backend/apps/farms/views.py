@@ -20,7 +20,16 @@ class FarmViewSet(viewsets.ModelViewSet):
         return Farm.objects.filter(owner=self.request.user)
 
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+        serializer.save(owner=self.request.user)  # status defaults to PENDING
+
+    def perform_update(self, serializer):
+        farm = self.get_object()
+        # If farmer edits a REJECTED farm, resubmit it for review
+        if farm.status == 'REJECTED':
+            serializer.save(status='PENDING', rejection_reason='')
+        else:
+            serializer.save()
+
 
     @action(detail=True, methods=['get'], url_path='stats')
     def farm_stats(self, request, pk=None):

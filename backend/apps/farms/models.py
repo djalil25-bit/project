@@ -2,6 +2,13 @@ from django.db import models
 from django.conf import settings
 from apps.common.models import TimeStampedModel
 
+
+class AssetStatusChoices(models.TextChoices):
+    PENDING  = 'PENDING',  'Pending Approval'
+    ACTIVE   = 'ACTIVE',   'Active'
+    REJECTED = 'REJECTED', 'Rejected'
+
+
 class Farm(TimeStampedModel):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='farms')
     name = models.CharField(max_length=255)
@@ -14,6 +21,18 @@ class Farm(TimeStampedModel):
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to='farms/', null=True, blank=True,
                               help_text='Optional representative image for this farm.')
+
+    # Admin approval fields
+    status = models.CharField(
+        max_length=10, choices=AssetStatusChoices.choices,
+        default=AssetStatusChoices.PENDING
+    )
+    rejection_reason = models.TextField(blank=True, default='')
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='reviewed_farms'
+    )
 
     def __str__(self):
         return f"{self.name} ({self.owner.full_name})"

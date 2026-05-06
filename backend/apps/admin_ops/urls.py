@@ -8,6 +8,8 @@ from .views import (
     AccountSearchAPIView, AccountDetailAPIView, AccountActionAPIView,
     MessageSendAPIView, MessageHistoryAPIView, MessageTemplateListAPIView, RecipientSearchAPIView, MessageInboxAPIView,
     ActivityLogAPIView, FlaggedAccountListAPIView, FlaggedAccountActionAPIView,
+    FarmApprovalListView, FarmApprovalActionView,
+    VehicleApprovalListView, VehicleApprovalActionView,
 )
 
 urlpatterns = [
@@ -49,4 +51,12 @@ urlpatterns = [
     path('monitoring/activity-log/', ActivityLogAPIView.as_view(), name='admin_activity_log'),
     path('monitoring/flagged-accounts/', FlaggedAccountListAPIView.as_view(), name='admin_flagged_accounts'),
     path('monitoring/flagged-accounts/<int:pk>/', FlaggedAccountActionAPIView.as_view(), name='admin_flagged_action'),
+
+    # Farm Approvals
+    path('farm-approvals/', FarmApprovalListView.as_view(), name='admin_farm_approvals'),
+    path('farm-approvals/<int:pk>/', FarmApprovalActionView.as_view(), name='admin_farm_approval_action'),
+
+    # Vehicle Approvals
+    path('vehicle-approvals/', VehicleApprovalListView.as_view(), name='admin_vehicle_approvals'),
+    path('vehicle-approvals/<int:pk>/', VehicleApprovalActionView.as_view(), name='admin_vehicle_approval_action'),
 ]

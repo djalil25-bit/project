@@ -48,3 +48,43 @@ class DeliveryRequest(TimeStampedModel):
 
     def __str__(self):
         return f"Delivery for Order #{self.order.id} - {self.status}"
+
+
+class VehicleStatusChoices(models.TextChoices):
+    PENDING  = 'PENDING',  'Pending Approval'
+    ACTIVE   = 'ACTIVE',   'Active'
+    REJECTED = 'REJECTED', 'Rejected'
+
+
+class Vehicle(TimeStampedModel):
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='vehicle_records'
+    )
+    plate = models.CharField(max_length=50)
+    model = models.CharField(max_length=255)
+    capacity = models.CharField(max_length=50, blank=True, default='')
+    type = models.CharField(max_length=50, default='Truck')
+    fuelType = models.CharField(max_length=50, default='Diesel')
+    is_active = models.BooleanField(default=True)
+
+    # Carte Grise document
+    carte_grise = models.FileField(
+        upload_to='vehicles/carte_grise/', null=True, blank=True,
+        help_text='Carte Grise (vehicle registration document) — JPG/PNG/PDF'
+    )
+
+    # Admin approval fields
+    status = models.CharField(
+        max_length=10, choices=VehicleStatusChoices.choices,
+        default=VehicleStatusChoices.PENDING
+    )
+    rejection_reason = models.TextField(blank=True, default='')
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='reviewed_vehicles'
+    )
+
+    def __str__(self):
+        return f"{self.type} {self.plate} ({self.owner.email})"
+

@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Separate axios instance for admin endpoints at /api/admin/
 const adminApi = axios.create({
-  baseURL: 'http://localhost:8000/api/admin',
+  baseURL: 'http://localhost:8000/api/v1/admin',
 });
 
 adminApi.interceptors.request.use(

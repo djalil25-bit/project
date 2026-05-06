@@ -84,6 +84,11 @@ class ProductSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     {"farm": "Product must belong to one of your own farms."}
                 )
+            # Enforce farm approval status
+            if hasattr(farm, 'status') and farm.status != 'ACTIVE':
+                raise serializers.ValidationError(
+                    {"farm": "This farm is not yet approved by admin. You cannot create products until your farm is approved."}
+                )
 
         # --- Price range validation ---
         # On partial updates catalog_product may not be in `data`; fall back to instance.
