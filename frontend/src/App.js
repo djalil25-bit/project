@@ -51,7 +51,7 @@ import AdminTransactions from './pages/admin/AdminTransactions';
 import AdminAccounts from './pages/admin/AdminAccounts';
 import AdminAlerts from './pages/admin/AdminAlerts';
 import AdminMessages from './pages/admin/AdminMessages';
-import AdminMonitoring from './pages/admin/AdminMonitoring';
+
 import AdminIoTPage from './pages/admin/AdminIoTPage';
 import AccountPending from './pages/AccountPending';
 
@@ -121,11 +121,7 @@ function App() {
               <AdminMessages />
             </ProtectedRoute>
           } />
-          <Route path="/admin-dashboard/monitoring" element={
-            <ProtectedRoute allowedRoles={['admin']}>
-              <AdminMonitoring />
-            </ProtectedRoute>
-          } />
+
           <Route path="/admin-dashboard/iot" element={
             <ProtectedRoute allowedRoles={['admin']}>
               <AdminIoTPage />

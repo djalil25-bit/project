@@ -12,12 +12,36 @@ import {
   BookOpen,
   Info,
   X,
-  PlusCircle
+  PlusCircle,
+  Wheat, Apple, Leaf, Droplets, Sun, Sprout,
+  Fish, Egg, Package, Tag, ShoppingBag,
+  Truck, Star, Award, Shield
 } from 'lucide-react';
+
+const ICON_OPTIONS = [
+  { name: 'Wheat', component: Wheat },
+  { name: 'Apple', component: Apple },
+  { name: 'Leaf', component: Leaf },
+  { name: 'Droplets', component: Droplets },
+  { name: 'Sun', component: Sun },
+  { name: 'Sprout', component: Sprout },
+  { name: 'Fish', component: Fish },
+  { name: 'Egg', component: Egg },
+  { name: 'Package', component: Package },
+  { name: 'Tag', component: Tag },
+  { name: 'ShoppingBag', component: ShoppingBag },
+  { name: 'Truck', component: Truck },
+  { name: 'Star', component: Star },
+  { name: 'Award', component: Award },
+  { name: 'Shield', component: Shield },
+  { name: 'Layers', component: Layers },
+];
+
+const ICON_MAP = Object.fromEntries(ICON_OPTIONS.map(i => [i.name, i.component]));
 
 function CategoryManager() {
   const [categories, setCategories] = useState([]);
-  const [formData, setFormData] = useState({ name: '', description: '', icon: '🌱' });
+  const [formData, setFormData] = useState({ name: '', description: '', icon: 'Sprout' });
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -48,7 +72,7 @@ function CategoryManager() {
         await api.post('/categories/', formData);
         setSuccess('Category registered successfully.');
       }
-      setFormData({ name: '', description: '', icon: '🌱' });
+      setFormData({ name: '', description: '', icon: 'Sprout' });
       setEditingId(null);
       fetchCategories();
     } catch (err) {
@@ -62,7 +86,7 @@ function CategoryManager() {
     setFormData({
       name: cat.name,
       description: cat.description || '',
-      icon: cat.icon || '🌱'
+      icon: cat.icon || 'Sprout'
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -77,159 +101,189 @@ function CategoryManager() {
   };
 
   return (
-    <div className="min-h-screen p-6 space-y-6 anim-fade-up admin-mode">
-
-      {/* ── Breadcrumb ────────────────────────────────── */}
-      <div className="adm-breadcrumb">
-        <Link to="/admin-dashboard">Admin Hub</Link>
-        <ChevronRight size={12} className="text-slate-600" />
-        <span className="text-gray-500">Product Classifications</span>
-      </div>
-
-      {/* ── Page Header ──────────────────────────────── */}
-      <div className="flex items-center gap-4">
-        <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center">
-          <Layers className="text-blue-600" size={24} />
-        </div>
-        <div>
-          <h1 className="text-xl font-extrabold text-gray-900 tracking-tight">Domain Taxonomy</h1>
-          <p className="text-gray-500 text-sm">Initialize and manage standard categories for the product catalog.</p>
+    <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 space-y-8 animate-fade-in relative z-0 bg-slate-50/30 min-h-screen">
+      
+      {/* ── HIGH-DENSITY HERO HEADER (GREEN POWER PRO) ─────────────────────────────── */}
+      <div className="bg-[#0a3d2e] rounded-2xl overflow-hidden shadow-lg flex flex-col md:flex-row items-center justify-between px-6 py-4 md:px-10 md:py-5 relative border border-[#0f5c44] isolate">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#166534]/30 to-transparent pointer-events-none" />
+        <div className="z-10 flex flex-col">
+          <div className="flex items-center gap-2 text-emerald-400 text-[9px] font-black uppercase tracking-widest mb-1 opacity-80">
+            <Layers size={12} /> Taxonomic Architecture
+          </div>
+          <h1 className="text-xl md:text-2xl font-black text-white tracking-tight leading-none">
+            Domain Taxonomy
+          </h1>
+          <p className="text-emerald-100/60 text-[10px] font-bold uppercase tracking-widest mt-2">
+            Manage global product classifications
+          </p>
         </div>
       </div>
 
       {/* ── Main Content Grid ─────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-        {/* ── Left: Form Panel ─────────────────────────── */}
-        <div className="glass-card p-6">
-          <h3 className="font-bold text-gray-800 flex items-center gap-2 mb-5">
-            <PlusCircle size={16} className="text-blue-600" />
-            {editingId ? 'Edit Classification' : 'New Classification'}
-          </h3>
-
-          {error && (
-            <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200 text-red-600 text-sm mb-4">
-              <AlertCircle size={14} /> {error}
+        {/* ── Form Panel ─────────────────────────── */}
+        <div className="lg:col-span-4 space-y-6">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <Plus size={18} />
+              </div>
+              <h3 className="font-black text-[11px] uppercase tracking-widest text-slate-700">
+                {editingId ? 'Modify Classification' : 'Initialize Domain'}
+              </h3>
             </div>
-          )}
-          {success && (
-            <div className="flex items-center gap-2 p-3 rounded-xl bg-green-50 border border-green-200 text-green-600 text-sm mb-4">
-              <CheckCircle size={14} /> {success}
-            </div>
-          )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-4 gap-3">
-              <div className="col-span-3">
-                <label className="adm-label">Domain Name *</label>
+            {error && (
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-[10px] font-bold uppercase tracking-widest mb-6">
+                <AlertCircle size={14} /> {error}
+              </div>
+            )}
+            {success && (
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-600 text-[10px] font-bold uppercase tracking-widest mb-6">
+                <CheckCircle size={14} /> {success}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Domain Name *</label>
                 <input
                   type="text"
-                  className="adm-input"
+                  className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner transition-all"
                   placeholder="e.g. Legumes"
                   value={formData.name}
                   onChange={e => setFormData({ ...formData, name: e.target.value })}
                   required
                 />
               </div>
+
               <div>
-                <label className="adm-label">Icon</label>
-                <input
-                  type="text"
-                  className="adm-input text-center text-lg"
-                  placeholder="🌱"
-                  value={formData.icon}
-                  onChange={e => setFormData({ ...formData, icon: e.target.value })}
-                  maxLength="10"
+                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Visual Identifier (Icon)</label>
+                <div className="grid grid-cols-6 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                  {ICON_OPTIONS.map(opt => {
+                    const IconComp = opt.component;
+                    const isSelected = formData.icon === opt.name;
+                    return (
+                      <button
+                        key={opt.name}
+                        type="button"
+                        title={opt.name}
+                        className={`w-9 h-9 rounded-lg flex items-center justify-center border transition-all ${
+                          isSelected
+                            ? 'bg-emerald-600 border-emerald-600 text-white shadow-md scale-110 z-10'
+                            : 'bg-white border-slate-200 text-slate-400 hover:border-emerald-300 hover:text-emerald-600'
+                        }`}
+                        onClick={() => setFormData({ ...formData, icon: opt.name })}
+                      >
+                        <IconComp size={16} />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Taxonomic Scope</label>
+                <textarea
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner transition-all"
+                  rows={4}
+                  placeholder="Describe the scope of products included..."
+                  value={formData.description}
+                  onChange={e => setFormData({ ...formData, description: e.target.value })}
                 />
               </div>
-            </div>
 
-            <div>
-              <label className="adm-label">Taxonomic Description</label>
-              <textarea
-                className="adm-input"
-                style={{ minHeight: 90 }}
-                placeholder="Scope of products included..."
-                value={formData.description}
-                onChange={e => setFormData({ ...formData, description: e.target.value })}
-              />
-            </div>
+              <div className="flex gap-2 pt-2">
+                <button
+                  className={`flex-1 h-11 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-2 ${
+                    editingId ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-amber-900/20' : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-900/20'
+                  }`}
+                  type="submit"
+                  disabled={submitting}
+                >
+                  {submitting ? '...' : <><Plus size={16} /> {editingId ? 'Update Domain' : 'Add Domain'}</>}
+                </button>
+                <button
+                  className="w-11 h-11 rounded-xl bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-all flex items-center justify-center"
+                  type="button"
+                  onClick={() => { setFormData({ name: '', description: '', icon: 'Sprout' }); setEditingId(null); }}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+            </form>
+          </div>
 
-            <div className="flex gap-2 pt-1">
-              <button
-                className={`adm-btn flex-1 justify-center py-2.5 ${editingId ? 'adm-btn-success' : 'adm-btn-primary'}`}
-                type="submit"
-                disabled={submitting}
-              >
-                <Plus size={16} /> {submitting ? 'Saving...' : (editingId ? 'Update Domain' : 'Add Domain')}
-              </button>
-              <button
-                className="adm-btn adm-btn-ghost adm-btn-icon"
-                type="button"
-                title="Reset Form"
-                onClick={() => { setFormData({ name: '', description: '', icon: '🌱' }); setEditingId(null); }}
-              >
-                <X size={16} />
-              </button>
-            </div>
-          </form>
+          <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-5 flex gap-4">
+            <Info size={20} className="text-emerald-600 shrink-0" />
+            <p className="text-[10px] font-bold text-emerald-800 uppercase tracking-widest leading-relaxed">
+              Categories defined here govern marketplace navigation and price index guardrails.
+            </p>
+          </div>
         </div>
 
-        {/* ── Right: Table Panel ───────────────────────── */}
-        <div className="lg:col-span-2 space-y-4">
-          <div className="glass-card overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-              <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                <Layers size={16} className="text-blue-600" /> Registered Taxonomy
-                <span className="adm-badge adm-badge-approved ml-1">{categories.length}</span>
-              </h3>
+        {/* ── Table Panel ───────────────────────── */}
+        <div className="lg:col-span-8">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col animate-fade-in">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+              <div className="flex items-center gap-2">
+                <Layers size={16} className="text-emerald-600" />
+                <h3 className="font-black text-[11px] uppercase tracking-widest text-slate-700">Registered Taxonomy Registry</h3>
+              </div>
+              <span className="text-[9px] font-black px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full uppercase tracking-widest">{categories.length} Domains</span>
             </div>
 
             {loading ? (
-              <div className="flex items-center justify-center gap-3 py-12">
-                <div className="adm-spinner"></div>
-                <span className="text-gray-400 text-sm">Calculating domains...</span>
+              <div className="flex flex-col items-center justify-center py-16 gap-3">
+                <div className="w-8 h-8 rounded-full border-4 border-slate-100 border-t-emerald-600 animate-spin" />
+                <span className="text-xs font-black text-slate-400 uppercase tracking-widest animate-pulse">Calculating Registry...</span>
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="admin-table">
+                <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr>
-                      <th className="pl-6">Classification</th>
-                      <th>Scope / Description</th>
-                      <th style={{ textAlign: 'right', paddingRight: '1.5rem' }}>Operations</th>
+                    <tr className="bg-slate-50/80 border-b border-slate-100">
+                      <th className="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Classification</th>
+                      <th className="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Scope / Definition</th>
+                      <th className="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Administrative Operations</th>
                     </tr>
                   </thead>
                   <tbody>
                     {categories.length === 0 ? (
                       <tr>
                         <td colSpan="3">
-                          <div className="flex flex-col items-center gap-3 py-14 text-gray-400">
+                          <div className="flex flex-col items-center gap-3 py-16 text-slate-300">
                             <Search size={40} className="opacity-20" />
-                            <p className="text-sm">No taxonomic domains identified.</p>
+                            <p className="text-xs font-black uppercase tracking-widest">No taxonomic domains identified.</p>
                           </div>
                         </td>
                       </tr>
                     ) : categories.map(c => (
-                      <tr key={c.id}>
-                        <td className="pl-6">
+                      <tr key={c.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                        <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <span className="text-2xl">{c.icon || '🌱'}</span>
-                            <div className="font-semibold text-gray-800">{c.name}</div>
+                            {(() => {
+                              const IconComp = ICON_MAP[c.icon];
+                              return IconComp
+                                ? <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-emerald-600 shadow-inner"><IconComp size={18} /></div>
+                                : <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400"><Sprout size={18} /></div>;
+                            })()}
+                            <div className="font-black text-slate-800 text-sm tracking-tight">{c.name}</div>
                           </div>
                         </td>
-                        <td>
-                          <div className="text-xs text-gray-500 leading-relaxed" style={{ maxWidth: '300px' }}>
-                            {c.description || <span className="italic opacity-50">No scope defined</span>}
+                        <td className="px-6 py-4">
+                          <div className="text-[11px] font-medium text-slate-500 leading-relaxed max-w-md">
+                            {c.description || <span className="italic opacity-30">No scope defined for this domain.</span>}
                           </div>
                         </td>
-                        <td>
-                          <div className="flex items-center justify-end gap-2 pr-6">
-                            <button className="adm-btn adm-btn-ghost adm-btn-icon" title="Edit" onClick={() => handleEdit(c)}>
-                              <Layers size={14} className="text-blue-400" />
+                        <td className="px-6 py-4">
+                          <div className="flex items-center justify-end gap-2">
+                            <button className="w-9 h-9 rounded-lg bg-white border border-slate-200 text-slate-400 hover:border-emerald-300 hover:text-emerald-600 hover:bg-emerald-50 transition-all flex items-center justify-center shadow-sm" title="Modify" onClick={() => handleEdit(c)}>
+                              <Layers size={14} />
                             </button>
-                            <button className="adm-btn adm-btn-ghost adm-btn-icon" title="Remove" onClick={() => handleDelete(c.id)}>
-                              <Trash2 size={14} className="text-red-400" />
+                            <button className="w-9 h-9 rounded-lg bg-white border border-slate-200 text-slate-400 hover:border-rose-300 hover:text-rose-600 hover:bg-rose-50 transition-all flex items-center justify-center shadow-sm" title="Decommission" onClick={() => handleDelete(c.id)}>
+                              <Trash2 size={14} />
                             </button>
                           </div>
                         </td>
@@ -239,11 +293,6 @@ function CategoryManager() {
                 </table>
               </div>
             )}
-          </div>
-
-          <div className="adm-info-block">
-            <Info size={16} className="shrink-0 mt-0.5 opacity-60" />
-            <div>Categories defined here are used to group products in the marketplace and for price index filtering.</div>
           </div>
         </div>
 

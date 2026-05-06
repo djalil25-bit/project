@@ -98,38 +98,49 @@ const AdminAnalytics = () => {
   ];
 
   return (
-    <div className="min-h-screen p-6 space-y-6 anim-fade-up admin-mode">
-      <div className="adm-breadcrumb"><Link to="/admin-dashboard">Dashboard</Link><ChevronRight size={12}/><span>Analytics</span></div>
-
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center"><TrendingUp className="text-blue-600" size={24}/></div>
-          <div><h1 className="text-xl font-extrabold text-gray-900">Platform Analytics</h1><p className="text-gray-500 text-sm">Product performance, zone analysis, and seller rankings.</p></div>
+    <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 space-y-8 animate-fade-in relative z-0 bg-slate-50/30 min-h-screen">
+      
+      {/* ── HIGH-DENSITY HERO HEADER (GREEN POWER PRO) ─────────────────────────────── */}
+      <div className="bg-[#0a3d2e] rounded-2xl overflow-hidden shadow-lg flex flex-col md:flex-row items-center justify-between px-6 py-4 md:px-10 md:py-5 relative border border-[#0f5c44] isolate">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#166534]/30 to-transparent pointer-events-none" />
+        <div className="z-10 flex flex-col">
+          <div className="flex items-center gap-2 text-emerald-400 text-[9px] font-black uppercase tracking-widest mb-1 opacity-80">
+            <TrendingUp size={12} /> Insights & Reports
+          </div>
+          <h1 className="text-xl md:text-2xl font-black text-white tracking-tight leading-none">
+            Platform Analytics
+          </h1>
         </div>
-        <div className="flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-4 py-2.5 shadow-sm">
-          <Calendar className="text-blue-600" size={16}/>
-          <select className="bg-transparent text-blue-600 font-bold text-sm outline-none cursor-pointer" value={timeframe} onChange={e=>setTimeframe(e.target.value)}>
-            <option value="all">All Time</option><option value="year">This Year</option><option value="month">This Month</option>
+        <div className="z-10 mt-3 md:mt-0 flex items-center gap-2 bg-[#0f5c44] border border-[#166534] rounded-xl px-3 py-1.5 shadow-inner">
+          <Calendar className="text-emerald-400" size={14}/>
+          <select className="bg-transparent text-emerald-50 text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer appearance-none pl-1 pr-2" value={timeframe} onChange={e=>setTimeframe(e.target.value)}>
+            <option value="all" className="text-slate-900">ALL TIME</option>
+            <option value="year" className="text-slate-900">THIS YEAR</option>
+            <option value="month" className="text-slate-900">THIS MONTH</option>
           </select>
         </div>
       </div>
 
-      <div className="adm-tab-bar w-fit">
-        {tabs.map(t=><button key={t.key} className={`adm-tab ${activeTab===t.key?'active':''}`} onClick={()=>setActiveTab(t.key)}>{t.icon} {t.label}</button>)}
+      <div className="flex bg-white rounded-xl shadow-sm border border-slate-200 w-fit overflow-hidden p-1">
+        {tabs.map(t=>(
+          <button key={t.key} className={`px-5 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-colors flex items-center gap-2 ${activeTab===t.key?'bg-emerald-600 text-white shadow-md':'text-slate-500 hover:bg-slate-50'}`} onClick={()=>setActiveTab(t.key)}>
+            {t.icon} {t.label}
+          </button>
+        ))}
       </div>
 
       {/* Product Performance */}
       {activeTab==='product' && (
-        <div className="space-y-6">
-          <div className="flex items-center gap-3">
-            <label className="text-sm font-semibold text-gray-600">Product:</label>
-            <select className="adm-input w-auto" value={selProductId || ''} onChange={e=>setSelProductId(e.target.value)}>
+        <div className="space-y-6 animate-fade-in">
+          <div className="flex items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Product:</label>
+            <select className="h-10 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner w-full max-w-md" value={selProductId || ''} onChange={e=>setSelProductId(e.target.value)}>
               {products.map(p=><option key={p.id} value={p.id}>{p.title} ({p.category__name})</option>)}
             </select>
           </div>
 
-          {prodLoading ? <div className="glass-card p-12 text-center text-gray-400">Loading product data...</div> :
-           !prodData ? <div className="glass-card p-12 text-center text-gray-400">Select a product to view analytics.</div> : (
+          {prodLoading ? <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center text-slate-400 font-black uppercase tracking-widest text-xs">Loading product data...</div> :
+           !prodData ? <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center text-slate-400 font-black uppercase tracking-widest text-xs">Select a product to view analytics.</div> : (
           <>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
@@ -138,22 +149,28 @@ const AdminAnalytics = () => {
                 {l:'Unique Sellers', v: prodData.unique_sellers},
                 {l:'Unique Buyers', v: prodData.unique_buyers},
               ].map((c,i)=>(
-                <div key={i} className="glass-card p-4"><div className="text-xs text-gray-500 mb-1">{c.l}</div><div className="text-xl font-extrabold text-gray-900">{c.v} {c.s&&<span className="text-xs text-gray-400 font-normal">{c.s}</span>}</div></div>
+                <div key={i} className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">{c.l}</div>
+                  <div className="text-2xl font-black text-slate-800">{c.v} {c.s&&<span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded uppercase ml-1">{c.s}</span>}</div>
+                </div>
               ))}
             </div>
 
             {/* Top 3 Sellers */}
             {prodData.top_sellers?.length > 0 && (
-              <div className="glass-card p-6">
-                <h3 className="font-bold text-gray-800 flex items-center gap-2 mb-5"><Trophy size={18} className="text-yellow-500"/> Top Sellers</h3>
+              <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                <h3 className="font-black text-[11px] uppercase tracking-widest text-slate-700 flex items-center gap-2 mb-5"><Trophy size={14} className="text-yellow-500"/> Top Sellers</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {prodData.top_sellers.map((s,i)=>(
-                    <div key={i} className="p-4 rounded-xl border border-gray-200 bg-gray-50 hover:shadow-md transition-shadow anim-scale-in" style={{animationDelay:`${i*0.1}s`}}>
-                      <div className="flex items-center justify-between mb-3"><div className="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm">{getRankIcon(i)}</div><span className="text-xs text-gray-400 font-bold">#{s.rank}</span></div>
-                      <div className="font-bold text-gray-800 mb-2">{s.farmer__full_name}</div>
-                      <div className="grid grid-cols-2 gap-2 text-xs">
-                        <div><span className="text-gray-400">Units</span><div className="font-bold text-gray-700">{Number(s.units).toLocaleString()}</div></div>
-                        <div><span className="text-gray-400">Revenue</span><div className="font-bold text-blue-600">{Number(s.revenue).toLocaleString()} DZD</div></div>
+                    <div key={i} className="p-5 rounded-2xl border border-slate-100 bg-slate-50 hover:bg-white hover:shadow-lg hover:border-emerald-200 transition-all">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-sm text-lg font-black">{getRankIcon(i)}</div>
+                        <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest bg-slate-100 px-2 py-0.5 rounded">#{s.rank}</span>
+                      </div>
+                      <div className="font-black text-sm text-slate-900 mb-3 truncate">{s.farmer__full_name}</div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-white p-2 rounded-lg border border-slate-100"><span className="block text-[9px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Units</span><div className="font-black text-slate-800">{Number(s.units).toLocaleString()}</div></div>
+                        <div className="bg-emerald-50 p-2 rounded-lg border border-emerald-100"><span className="block text-[9px] font-black uppercase tracking-widest text-emerald-600/70 mb-0.5">Revenue</span><div className="font-black text-emerald-700">{Number(s.revenue).toLocaleString()}</div></div>
                       </div>
                     </div>
                   ))}
@@ -163,17 +180,17 @@ const AdminAnalytics = () => {
 
             {/* Sales Trend */}
             {prodData.trend?.length > 0 && (
-              <div className="glass-card p-6">
-                <h3 className="font-bold text-gray-800 mb-4">Sales Trend (30 Days)</h3>
+              <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                <h3 className="font-black text-[11px] uppercase tracking-widest text-slate-700 mb-5">Sales Trend (30 Days)</h3>
                 <div style={{width:'100%',height:280}}>
                   <ResponsiveContainer>
                     <AreaChart data={prodData.trend} margin={{top:10,right:10,left:0,bottom:0}}>
-                      <defs><linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#0066CC" stopOpacity={0.2}/><stop offset="95%" stopColor="#0066CC" stopOpacity={0}/></linearGradient></defs>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB"/>
-                      <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fill:'#9CA3AF',fontSize:11}} interval={4}/>
-                      <YAxis axisLine={false} tickLine={false} tick={{fill:'#9CA3AF',fontSize:11}}/>
+                      <defs><linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#059669" stopOpacity={0.3}/><stop offset="95%" stopColor="#059669" stopOpacity={0}/></linearGradient></defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/>
+                      <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fill:'#94a3b8',fontSize:10,fontWeight:'bold'}} interval={4}/>
+                      <YAxis axisLine={false} tickLine={false} tick={{fill:'#94a3b8',fontSize:10,fontWeight:'bold'}}/>
                       <Tooltip contentStyle={tooltipStyle}/>
-                      <Area type="monotone" dataKey="sales" stroke="#0066CC" strokeWidth={2} fillOpacity={1} fill="url(#colorSales)"/>
+                      <Area type="monotone" dataKey="sales" stroke="#059669" strokeWidth={3} fillOpacity={1} fill="url(#colorSales)"/>
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
@@ -181,12 +198,12 @@ const AdminAnalytics = () => {
             )}
 
             {/* Price Analysis */}
-            <div className="glass-card p-6">
-              <h3 className="font-bold text-gray-800 mb-4">Price Analysis</h3>
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+              <h3 className="font-black text-[11px] uppercase tracking-widest text-slate-700 mb-5">Price Analysis</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div><label className="adm-label">Average Price</label><span className="text-lg font-bold text-gray-900">{Number(prodData.avg_price).toFixed(0)} DZD</span></div>
-                <div><label className="adm-label">Min Price</label><span className="text-lg font-bold text-gray-900">{Number(prodData.min_price).toFixed(0)} DZD</span></div>
-                <div><label className="adm-label">Max Price</label><span className="text-lg font-bold text-gray-900">{Number(prodData.max_price).toFixed(0)} DZD</span></div>
+                <div className="bg-slate-50 border border-slate-100 p-4 rounded-xl"><label className="block text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Average Price</label><span className="text-xl font-black text-slate-800">{Number(prodData.avg_price).toFixed(0)} <span className="text-xs text-slate-400">DZD</span></span></div>
+                <div className="bg-rose-50 border border-rose-100 p-4 rounded-xl"><label className="block text-[9px] font-black uppercase tracking-widest text-rose-500/70 mb-1">Min Price</label><span className="text-xl font-black text-rose-700">{Number(prodData.min_price).toFixed(0)} <span className="text-xs text-rose-400">DZD</span></span></div>
+                <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-xl"><label className="block text-[9px] font-black uppercase tracking-widest text-emerald-600/70 mb-1">Max Price</label><span className="text-xl font-black text-emerald-700">{Number(prodData.max_price).toFixed(0)} <span className="text-xs text-emerald-400">DZD</span></span></div>
               </div>
             </div>
           </>
@@ -196,17 +213,17 @@ const AdminAnalytics = () => {
 
       {/* Zone Analysis */}
       {activeTab==='zone' && (
-        <div className="space-y-6">
-          <div className="flex items-center gap-3">
-            <label className="text-sm font-semibold text-gray-600">Zone:</label>
-            <select className="adm-input w-auto" value={selZone} onChange={e=>setSelZone(e.target.value)}>
+        <div className="space-y-6 animate-fade-in">
+          <div className="flex items-center gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+            <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Zone:</label>
+            <select className="h-10 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner w-full max-w-xs" value={selZone} onChange={e=>setSelZone(e.target.value)}>
               {zones.map(z=><option key={z} value={z}>{z}</option>)}
             </select>
           </div>
 
-          {zoneLoading ? <div className="glass-card p-12 text-center text-gray-400">Loading zone data...</div> :
-           !zoneData ? <div className="glass-card p-12 text-center text-gray-400">Select a zone to view analytics.</div> :
-           zones.length === 0 ? <div className="glass-card p-12 text-center text-gray-400">No zone data available yet. Orders need wilaya information.</div> : (
+          {zoneLoading ? <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center text-slate-400 font-black uppercase tracking-widest text-xs">Loading zone data...</div> :
+           !zoneData ? <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center text-slate-400 font-black uppercase tracking-widest text-xs">Select a zone to view analytics.</div> :
+           zones.length === 0 ? <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center text-slate-400 font-black uppercase tracking-widest text-xs">No zone data available yet. Orders need wilaya information.</div> : (
           <>
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               {[
@@ -216,18 +233,21 @@ const AdminAnalytics = () => {
                 {l:'Farmers', v:zoneData.farmers},
                 {l:'Buyers', v:zoneData.buyers},
               ].map((c,i)=>(
-                <div key={i} className="glass-card p-4"><div className="text-xs text-gray-500 mb-1">{c.l}</div><div className="text-xl font-extrabold text-gray-900">{c.v} {c.s&&<span className="text-xs text-gray-400 font-normal">{c.s}</span>}</div></div>
+                <div key={i} className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">{c.l}</div>
+                  <div className="text-lg md:text-xl font-black text-slate-800">{c.v} {c.s&&<span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded uppercase ml-1">{c.s}</span>}</div>
+                </div>
               ))}
             </div>
 
             {zoneData.top_products?.length > 0 && (
-              <div className="glass-card p-6">
-                <h3 className="font-bold text-gray-800 mb-4">Top Products in {selZone}</h3>
-                <div className="space-y-2">{zoneData.top_products.map((p,i)=>(
-                  <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-gray-100">
-                    <div className="text-lg font-extrabold text-gray-300 w-6">{i+1}</div>
-                    <div className="flex-1"><div className="font-semibold text-gray-800 text-sm">{p.product__title}</div><div className="text-xs text-gray-400">{Number(p.units).toLocaleString()} units</div></div>
-                    <div className="text-sm font-bold text-blue-600">{Number(p.revenue).toLocaleString()} DZD</div>
+              <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                <h3 className="font-black text-[11px] uppercase tracking-widest text-slate-700 mb-5">Top Products in {selZone}</h3>
+                <div className="space-y-3">{zoneData.top_products.map((p,i)=>(
+                  <div key={i} className="flex items-center gap-4 p-4 rounded-xl bg-slate-50 border border-slate-100 hover:border-emerald-200 transition-colors">
+                    <div className="text-xl font-black text-slate-300 w-6 text-center">{i+1}</div>
+                    <div className="flex-1"><div className="font-black text-slate-800 text-sm">{p.product__title}</div><div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{Number(p.units).toLocaleString()} units</div></div>
+                    <div className="text-sm font-black text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-100">{Number(p.revenue).toLocaleString()} DZD</div>
                   </div>
                 ))}</div>
               </div>
@@ -239,23 +259,23 @@ const AdminAnalytics = () => {
 
       {/* Leaderboard */}
       {activeTab==='leaderboard' && (
-        <div className="space-y-6">
-          <div className="glass-card p-6">
+        <div className="space-y-6 animate-fade-in">
+          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
             <div className="flex items-center justify-between mb-5">
-              <h3 className="font-bold text-gray-800 flex items-center gap-2"><Trophy size={18} className="text-yellow-500"/> Revenue Leaderboard</h3>
+              <h3 className="font-black text-[11px] uppercase tracking-widest text-slate-700 flex items-center gap-2"><Trophy size={14} className="text-yellow-500"/> Revenue Leaderboard</h3>
             </div>
-            {leadersLoading ? <div className="py-8 text-center text-gray-400">Loading leaderboard...</div> :
-             leaders.length === 0 ? <div className="py-8 text-center text-gray-400">No sales data available yet.</div> : (
-            <div className="space-y-3">
+            {leadersLoading ? <div className="py-8 text-center text-slate-400 font-black uppercase tracking-widest text-xs">Loading leaderboard...</div> :
+             leaders.length === 0 ? <div className="py-8 text-center text-slate-400 font-black uppercase tracking-widest text-xs">No sales data available yet.</div> : (
+            <div className="space-y-4">
               {leaders.map((s,i)=>(
-                <div key={i} className="flex items-center gap-4 p-4 rounded-xl border border-gray-200 bg-gray-50 hover:shadow-sm transition-shadow">
-                  <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm">{getRankIcon(i)}</div>
+                <div key={i} className="flex items-center gap-4 p-5 rounded-2xl border border-slate-200 bg-slate-50 hover:bg-white hover:shadow-md hover:border-emerald-300 transition-all">
+                  <div className="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-sm text-xl font-black">{getRankIcon(i)}</div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-bold text-gray-800">{s.farmer__full_name}</div>
+                    <div className="font-black text-sm text-slate-900">{s.farmer__full_name}</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-lg font-extrabold text-blue-600">{Number(s.revenue).toLocaleString()} <span className="text-xs text-gray-400 font-normal">DZD</span></div>
-                    {leaders[0]?.revenue > 0 && <div className="w-32 h-1.5 bg-gray-200 rounded-full mt-1 overflow-hidden"><div className="h-full bg-blue-500 rounded-full" style={{width:`${(s.revenue/leaders[0].revenue)*100}%`}}/></div>}
+                    <div className="text-lg font-black text-emerald-600">{Number(s.revenue).toLocaleString()} <span className="text-[10px] text-emerald-600/60 uppercase tracking-widest">DZD</span></div>
+                    {leaders[0]?.revenue > 0 && <div className="w-32 md:w-48 h-2 bg-slate-200 rounded-full mt-1.5 overflow-hidden"><div className="h-full bg-emerald-500 rounded-full" style={{width:`${(s.revenue/leaders[0].revenue)*100}%`}}/></div>}
                   </div>
                 </div>
               ))}
@@ -266,27 +286,27 @@ const AdminAnalytics = () => {
           {/* Revenue + User charts from existing API */}
           {apiData && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="glass-card p-6">
-                <h3 className="font-bold text-gray-800 mb-4">Revenue Trend</h3>
+              <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                <h3 className="font-black text-[11px] uppercase tracking-widest text-slate-700 mb-5">Revenue Trend</h3>
                 <div style={{width:'100%',height:260}}>
                   {apiData.revenue_trend?.length > 0 ? (
                     <ResponsiveContainer><AreaChart data={apiData.revenue_trend} margin={{top:10,right:10,left:0,bottom:0}}>
-                      <defs><linearGradient id="cr" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#0066CC" stopOpacity={0.2}/><stop offset="95%" stopColor="#0066CC" stopOpacity={0}/></linearGradient></defs>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB"/><XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill:'#9CA3AF',fontSize:11}}/><YAxis axisLine={false} tickLine={false} tick={{fill:'#9CA3AF',fontSize:11}}/>
-                      <Tooltip contentStyle={tooltipStyle}/><Area type="monotone" dataKey="revenue" stroke="#0066CC" strokeWidth={2} fillOpacity={1} fill="url(#cr)"/>
+                      <defs><linearGradient id="cr" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#059669" stopOpacity={0.3}/><stop offset="95%" stopColor="#059669" stopOpacity={0}/></linearGradient></defs>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/><XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill:'#94a3b8',fontSize:10,fontWeight:'bold'}}/><YAxis axisLine={false} tickLine={false} tick={{fill:'#94a3b8',fontSize:10,fontWeight:'bold'}}/>
+                      <Tooltip contentStyle={tooltipStyle}/><Area type="monotone" dataKey="revenue" stroke="#059669" strokeWidth={3} fillOpacity={1} fill="url(#cr)"/>
                     </AreaChart></ResponsiveContainer>
-                  ) : <div className="flex items-center justify-center h-full text-gray-400 text-sm">No revenue data</div>}
+                  ) : <div className="flex items-center justify-center h-full text-slate-400 text-xs font-black uppercase tracking-widest">No revenue data</div>}
                 </div>
               </div>
-              <div className="glass-card p-6">
-                <h3 className="font-bold text-gray-800 mb-4">User Registrations</h3>
+              <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                <h3 className="font-black text-[11px] uppercase tracking-widest text-slate-700 mb-5">User Registrations</h3>
                 <div style={{width:'100%',height:260}}>
                   {apiData.users_trend?.length > 0 ? (
                     <ResponsiveContainer><BarChart data={apiData.users_trend} margin={{top:10,right:10,left:0,bottom:0}}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB"/><XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill:'#9CA3AF',fontSize:11}}/><YAxis axisLine={false} tickLine={false} tick={{fill:'#9CA3AF',fontSize:11}}/>
-                      <Tooltip contentStyle={tooltipStyle}/><Bar dataKey="users" fill="#0066CC" radius={[4,4,0,0]}/>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9"/><XAxis dataKey="month" axisLine={false} tickLine={false} tick={{fill:'#94a3b8',fontSize:10,fontWeight:'bold'}}/><YAxis axisLine={false} tickLine={false} tick={{fill:'#94a3b8',fontSize:10,fontWeight:'bold'}}/>
+                      <Tooltip contentStyle={tooltipStyle}/><Bar dataKey="users" fill="#0ea5e9" radius={[4,4,0,0]}/>
                     </BarChart></ResponsiveContainer>
-                  ) : <div className="flex items-center justify-center h-full text-gray-400 text-sm">No data</div>}
+                  ) : <div className="flex items-center justify-center h-full text-slate-400 text-xs font-black uppercase tracking-widest">No data</div>}
                 </div>
               </div>
             </div>

@@ -120,30 +120,30 @@ const AdminIoTPage = () => {
       <div className="space-y-6 anim-fade-up">
         {/* KPI Cards */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div className="glass-stat-card p-4 stat-accent-blue">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3 bg-blue-50 text-blue-600"><Home size={20} /></div>
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-3 bg-[#3b82f6] text-white"><Home size={20} /></div>
             <div className="text-2xl font-extrabold text-gray-900">{oData.summary?.farms_danger + oData.summary?.farms_warning + oData.summary?.farms_normal || 0}</div>
-            <div className="text-xs text-gray-500 uppercase font-bold tracking-wider">Active Nodes</div>
+            <div className="text-xs text-gray-500 font-bold tracking-wider uppercase">Active Nodes</div>
           </div>
-          <div className="glass-stat-card p-4 stat-accent-orange bg-red-50/30">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3 bg-red-100 text-red-600"><AlertTriangle size={20} /></div>
-            <div className="text-2xl font-extrabold text-red-600">{oData.summary?.farms_danger || 0}</div>
-            <div className="text-xs text-red-500 uppercase font-bold tracking-wider">Critical</div>
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-3 bg-[#dc2626] text-white"><AlertTriangle size={20} /></div>
+            <div className="text-2xl font-extrabold text-gray-900">{oData.summary?.farms_danger || 0}</div>
+            <div className="text-xs text-red-500 font-bold tracking-wider uppercase">Critical</div>
           </div>
-          <div className="glass-stat-card p-4 stat-accent-orange">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3 bg-orange-100 text-orange-500"><AlertCircle size={20} /></div>
-            <div className="text-2xl font-extrabold text-orange-500">{oData.summary?.farms_warning || 0}</div>
-            <div className="text-xs text-orange-500 uppercase font-bold tracking-wider">Warnings</div>
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-3 bg-[#f59e0b] text-white"><AlertCircle size={20} /></div>
+            <div className="text-2xl font-extrabold text-gray-900">{oData.summary?.farms_warning || 0}</div>
+            <div className="text-xs text-orange-500 font-bold tracking-wider uppercase">Warnings</div>
           </div>
-          <div className="glass-stat-card p-4 stat-accent-green">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3 bg-green-50 text-green-600"><CheckCircle size={20} /></div>
-            <div className="text-2xl font-extrabold text-green-600">{oData.summary?.farms_normal || 0}</div>
-            <div className="text-xs text-green-500 uppercase font-bold tracking-wider">Normal</div>
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-3 bg-[#16a34a] text-white"><CheckCircle size={20} /></div>
+            <div className="text-2xl font-extrabold text-gray-900">{oData.summary?.farms_normal || 0}</div>
+            <div className="text-xs text-green-500 font-bold tracking-wider uppercase">Normal</div>
           </div>
-          <div className="glass-stat-card p-4 stat-accent-blue">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-3 bg-blue-50 text-blue-600"><Wifi size={20} /></div>
-            <div className="text-2xl font-extrabold text-blue-600">{oData.summary?.total_readings?.toLocaleString() || 0}</div>
-            <div className="text-xs text-gray-500 uppercase font-bold tracking-wider">Total Readings</div>
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-3 bg-[#8b5cf6] text-white"><Wifi size={20} /></div>
+            <div className="text-2xl font-extrabold text-gray-900">{oData.summary?.total_readings?.toLocaleString() || 0}</div>
+            <div className="text-xs text-gray-500 font-bold tracking-wider uppercase">Total Readings</div>
           </div>
         </div>
 
@@ -237,13 +237,13 @@ const AdminIoTPage = () => {
   const renderAlertSubTable = (alertsList, level) => {
     const isDanger = level === 'danger';
     const bgClass = isDanger ? 'bg-red-50' : 'bg-orange-50';
-    const borderClass = isDanger ? 'border-red-200' : 'border-orange-200';
+    const borderClass = isDanger ? 'border-l-red-500' : 'border-l-orange-500';
     const textClass = isDanger ? 'text-red-700' : 'text-orange-700';
     const badgeClass = isDanger ? 'bg-red-600' : 'bg-orange-500';
 
     return (
-      <div className={`glass-card overflow-hidden border-2 ${borderClass}`}>
-        <div className={`px-4 py-3 flex items-center justify-between border-b ${borderClass} ${bgClass}`}>
+      <div className={`glass-card overflow-hidden border border-gray-200 border-l-4 ${borderClass}`}>
+        <div className={`px-4 py-3 flex items-center justify-between border-b border-gray-200 ${bgClass}`}>
           <div className="flex items-center gap-2">
             {isDanger ? <AlertTriangle size={18} className="text-red-600" /> : <AlertCircle size={18} className="text-orange-500" />}
             <h4 className={`font-bold ${textClass}`}>{isDanger ? 'CRITICAL ALERTS' : 'WARNING ALERTS'}</h4>
@@ -593,65 +593,60 @@ const AdminIoTPage = () => {
   // ── MAIN RENDER ──────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen p-6 admin-mode space-y-6">
+    <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 space-y-8 animate-fade-in relative z-0 bg-slate-50/30 min-h-screen">
       
-      {/* Header */}
-      <div className="admin-hero-strip p-8 anim-fade-up relative overflow-hidden">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div>
-            <div className="inline-flex items-center gap-2 text-blue-200 text-xs font-bold uppercase tracking-widest mb-3">
-              <Wifi size={14} className="animate-pulse" /> National IoT Operations
-            </div>
-            <h1 className="text-3xl font-black text-white tracking-tight mb-2">🌐 IoT Global Overview</h1>
-            <p className="text-blue-100/70 text-sm max-w-lg">Monitoring environmental metrics across Algeria's connected agricultural network.</p>
+      {/* ── HIGH-DENSITY HERO HEADER (GREEN POWER PRO) ─────────────────────────────── */}
+      <div className="bg-[#0a3d2e] rounded-2xl overflow-hidden shadow-lg flex flex-col md:flex-row items-center justify-between px-6 py-4 md:px-10 md:py-5 relative border border-[#0f5c44] isolate">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#166534]/30 to-transparent pointer-events-none" />
+        <div className="z-10 flex flex-col">
+          <div className="flex items-center gap-2 text-emerald-400 text-[9px] font-black uppercase tracking-widest mb-1 opacity-80">
+            <Wifi size={12} /> Precision Agriculture IoT Infrastructure
           </div>
-          <div className="flex flex-col items-end gap-3">
-            <div className="flex items-center gap-2 bg-black/20 px-3 py-1.5 rounded-lg border border-white/10">
-              <RefreshCw size={12} className="text-blue-300" />
-              <span className="text-blue-200 text-[11px] font-bold">SYC {lastUpdated}</span>
-            </div>
-            <button 
-              onClick={refreshCurrentTab}
-              disabled={loading[activeTab]}
-              className="bg-white text-blue-900 hover:bg-blue-50 px-6 py-2 rounded-xl font-black text-sm flex items-center gap-2 shadow-xl transition-all active:scale-95 disabled:opacity-50"
-            >
-              <RefreshCw size={16} className={loading[activeTab] ? 'animate-spin' : ''} />
-              REFRESH DATA
-            </button>
-          </div>
+          <h1 className="text-xl md:text-2xl font-black text-white tracking-tight leading-none">
+            IoT Sensor Network
+          </h1>
+          <p className="text-emerald-100/60 text-[10px] font-bold uppercase tracking-widest mt-2">
+            Real-time telemetry & Node status: <span className="text-emerald-400">Sync Active</span>
+          </p>
         </div>
-        <div className="absolute -bottom-10 -right-10 text-[160px] opacity-10 select-none rotate-12">📡</div>
+        <div className="z-10 mt-3 md:mt-0 flex gap-2">
+           <div className="flex flex-col items-end mr-4">
+              <span className="text-[8px] font-black text-emerald-400 uppercase tracking-widest">Last Sync</span>
+              <span className="text-white font-black text-xs">{lastUpdated}</span>
+           </div>
+           <button
+             onClick={refreshCurrentTab}
+             className="bg-[#0f5c44] hover:bg-[#166534] text-white text-[10px] font-black uppercase tracking-widest px-5 py-2.5 rounded-xl transition-all border border-emerald-500/30 shadow-lg shadow-emerald-900/40 flex items-center gap-2"
+           >
+             <RefreshCw size={14} className={Object.values(loading).some(v => v) ? 'animate-spin' : ''} /> Force Refresh
+           </button>
+        </div>
       </div>
 
-      {/* Tabs Navigation */}
-      <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-2xl w-fit border border-gray-200 anim-fade-up" style={{ animationDelay: '0.1s' }}>
+      {/* Tabs */}
+      <div className="flex bg-white rounded-xl shadow-sm border border-slate-200 w-fit overflow-hidden p-1">
         {[
-          { id: 'overview', label: 'Overview', icon: <Activity size={16}/> },
-          { id: 'history',  label: 'History',  icon: <History size={16}/> },
-          { id: 'stats',    label: 'Stats',    icon: <BarChart3 size={16}/> },
-          { id: 'soil',     label: 'Soil',     icon: <Sprout size={16}/> },
-          { id: 'compare',  label: 'Compare',  icon: <ArrowUpDown size={16}/> }
-        ].map(tab => (
+          { id: 'overview', label: 'Nodes Overview', icon: <Activity size={14} /> },
+          { id: 'stats', label: 'Sensor Statistics', icon: <BarChart3 size={14} /> },
+          { id: 'soil', label: 'Soil Analysis', icon: <Droplets size={14} /> },
+          { id: 'compare', label: 'Cross-Node Comparison', icon: <ArrowUpDown size={14} /> },
+          { id: 'history', label: 'Alert History', icon: <History size={14} /> },
+        ].map(t => (
           <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-black transition-all ${
-              activeTab === tab.id 
-                ? 'bg-white text-blue-600 shadow-md scale-100' 
-                : 'text-gray-500 hover:text-gray-700 hover:bg-white/50'
-            }`}
+            key={t.id}
+            onClick={() => setActiveTab(t.id)}
+            className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${activeTab === t.id ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-50'}`}
           >
-            {tab.icon} {tab.label}
+            {t.icon} {t.label}
           </button>
         ))}
       </div>
 
-      {/* Tab Content */}
       <div className="min-h-[400px]">
         {loading[activeTab] && !data[activeTab] ? (
-          <div className="flex flex-col items-center justify-center py-32 text-gray-400 gap-4 anim-fade-up">
-            <div className="adm-spinner h-10 w-10 border-4 border-blue-100 border-t-blue-600"></div>
-            <p className="text-sm font-bold uppercase tracking-widest">Polling secure sensor streams...</p>
+          <div className="flex flex-col items-center justify-center py-24 text-slate-400 gap-3">
+             <div className="w-10 h-10 rounded-full border-4 border-slate-100 border-t-emerald-600 animate-spin" />
+             <p className="text-[10px] font-black uppercase tracking-widest animate-pulse">Syncing Sensor Data...</p>
           </div>
         ) : (
           <>
@@ -663,7 +658,6 @@ const AdminIoTPage = () => {
           </>
         )}
       </div>
-
     </div>
   );
 };

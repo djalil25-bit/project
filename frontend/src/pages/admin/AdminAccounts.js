@@ -1,14 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import adminApi from '../../api/adminApi';
-import { Users, ChevronRight, Search, Mail, Phone, MapPin, Eye, UserMinus, CheckCircle, MessageSquare, Clock } from 'lucide-react';
+import { Users, ChevronRight, Search, Mail, Phone, MapPin, Eye, UserMinus, CheckCircle, MessageSquare, Clock, ShieldCheck, RefreshCw } from 'lucide-react';
 import UserDetailModal from './UserDetailModal';
 
-const roleBadge = { farmer: { bg:'#E6F9EE', c:'#047857' }, buyer: { bg:'#E8F0FE', c:'#0066CC' }, transporter: { bg:'#FFF4E0', c:'#B45309' } };
+const RoleBadge = ({ role }) => {
+  const r = role?.toLowerCase() || 'buyer';
+  if (r === 'farmer') return <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">{role}</span>;
+  if (r === 'transporter') return <span className="text-[10px] font-black uppercase tracking-widest text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-100">{role}</span>;
+  return <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100">{role}</span>;
+};
 
 const AdminAccounts = () => {
   const [accounts, setAccounts] = useState([]);
-  const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [loading, setLoading] = useState(true);
@@ -26,18 +30,17 @@ const AdminAccounts = () => {
     setLoading(true);
     try {
       const res = await adminApi.get('/accounts/', {
-        params: { search, role: roleFilter, status: statusFilter }
+        params: { role: roleFilter, status: statusFilter }
       });
       setAccounts(Array.isArray(res.data) ? res.data : res.data.results || []);
     } catch (err) {
       console.error('Failed to fetch accounts:', err);
       setAccounts([]);
     } finally { setLoading(false); }
-  }, [search, roleFilter, statusFilter]);
+  }, [roleFilter, statusFilter]);
 
   useEffect(() => {
-    const timer = setTimeout(fetchAccounts, 300);
-    return () => clearTimeout(timer);
+    fetchAccounts();
   }, [fetchAccounts]);
 
   const handleAction = async (userId, action) => {
@@ -48,7 +51,7 @@ const AdminAccounts = () => {
       showToast(`Account ${action} successful`);
       fetchAccounts();
       if (['approve', 'reject'].includes(action)) {
-        setSelectedUserId(null); // Close modal on definitive actions
+        setSelectedUserId(null);
       }
     } catch (err) {
       showToast(err.response?.data?.error || 'Action failed', 'error');
@@ -60,94 +63,144 @@ const AdminAccounts = () => {
   };
 
   return (
-    <div className="min-h-screen p-6 space-y-6 anim-fade-up admin-mode relative">
-      <div className="adm-breadcrumb"><Link to="/admin-dashboard">Dashboard</Link><ChevronRight size={12}/><span>Accounts</span></div>
-
-      <div className="flex items-center gap-4">
-        <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center"><Users className="text-blue-600" size={24}/></div>
-        <div><h1 className="text-xl font-extrabold text-gray-900">Account Management</h1><p className="text-gray-500 text-sm">Search, verify, and manage all platform accounts.</p></div>
+    <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 space-y-8 animate-fade-in relative z-0 bg-slate-50/30 min-h-screen">
+      
+      {/* ── HIGH-DENSITY HERO HEADER (GREEN POWER PRO) ─────────────────────────────── */}
+      <div className="bg-[#0a3d2e] rounded-2xl overflow-hidden shadow-lg flex flex-col md:flex-row items-center justify-between px-6 py-4 md:px-10 md:py-5 relative border border-[#0f5c44] isolate">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#166534]/30 to-transparent pointer-events-none" />
+        <div className="z-10 flex flex-col">
+          <div className="flex items-center gap-2 text-emerald-400 text-[9px] font-black uppercase tracking-widest mb-1 opacity-80">
+            <Users size={12} /> Registry Management
+          </div>
+          <h1 className="text-xl md:text-2xl font-black text-white tracking-tight leading-none">
+            Platform Accounts
+          </h1>
+          <p className="text-emerald-100/60 text-[10px] font-bold uppercase tracking-widest mt-2">{accounts.length} TOTAL REGISTERED ENTITIES</p>
+        </div>
+        <div className="z-10 mt-3 md:mt-0 flex gap-2">
+           <div className="bg-[#0f5c44] rounded-xl px-4 py-2 border border-emerald-500/30">
+              <div className="text-[8px] font-black text-emerald-400 uppercase tracking-widest">Active nodes</div>
+              <div className="text-white font-black text-lg leading-none">{accounts.filter(a => a.is_verified).length}</div>
+           </div>
+        </div>
       </div>
 
       {/* Toast */}
       {toast && (
-        <div className={`flex items-center gap-2 p-3 rounded-xl text-sm ${toast.type === 'error' ? 'bg-red-50 border border-red-200 text-red-700' : 'bg-green-50 border border-green-200 text-green-700'}`}>
-          <CheckCircle size={16}/> {toast.msg}
+        <div className={`fixed top-24 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-[10px] font-black tracking-widest uppercase animate-slide-in ${toast.type === 'error' ? 'bg-rose-50 text-rose-600 border border-rose-200' : 'bg-slate-900 text-emerald-400 border border-emerald-900/50'}`}>
+           <ShieldCheck size={16}/> {toast.msg}
         </div>
       )}
 
-      {/* Filters */}
-      <div className="glass-card p-4">
-        <div className="flex flex-col md:flex-row gap-3">
-          <div className="relative flex-1"><Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"/><input className="adm-input pl-10" placeholder="Search name, email, phone..." value={search} onChange={e=>setSearch(e.target.value)}/></div>
-          <select className="adm-input w-auto" value={roleFilter} onChange={e=>setRoleFilter(e.target.value)}><option value="all">All Roles</option><option value="farmer">Farmer</option><option value="buyer">Buyer</option><option value="transporter">Transporter</option></select>
-          <select className="adm-input w-auto" value={statusFilter} onChange={e=>setStatusFilter(e.target.value)}><option value="all">All Statuses</option><option value="approved">Verified</option><option value="pending">Pending</option><option value="suspended">Suspended</option></select>
-        </div>
+      {/* Filters - Search Band Removed as requested */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
+          <div className="flex items-center gap-2">
+             <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100">
+                <Users size={14} />
+             </div>
+             <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Registry Filters</span>
+          </div>
+          <div className="flex gap-2 w-full md:w-auto">
+            <select className="flex-1 md:flex-none h-10 bg-slate-50 border border-slate-200 rounded-xl px-4 text-[10px] font-black uppercase tracking-widest text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner" value={roleFilter} onChange={e=>setRoleFilter(e.target.value)}>
+              <option value="all">Global Roles</option>
+              <option value="farmer">Agricultural</option>
+              <option value="buyer">Commercial</option>
+              <option value="transporter">Logistics</option>
+            </select>
+            <select className="flex-1 md:flex-none h-10 bg-slate-50 border border-slate-200 rounded-xl px-4 text-[10px] font-black uppercase tracking-widest text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner" value={statusFilter} onChange={e=>setStatusFilter(e.target.value)}>
+              <option value="all">All Statuses</option>
+              <option value="approved">Verified</option>
+              <option value="suspended">Suspended</option>
+              <option value="rejected">Rejected</option>
+              <option value="pending">Pending</option>
+            </select>
+          </div>
       </div>
 
-      {loading ? <div className="flex items-center justify-center py-16"><div className="adm-spinner"></div></div> : (
-        <div className="space-y-3">
-          <div className="text-sm text-gray-500">{accounts.length} accounts found</div>
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-24 gap-3">
+          <div className="w-10 h-10 rounded-full border-4 border-slate-100 border-t-emerald-600 animate-spin" />
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Syncing Registry Database...</span>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          
           {accounts.length === 0 && (
-            <div className="glass-card p-12 text-center"><Users size={32} className="text-gray-300 mx-auto mb-3"/><p className="text-gray-500">No accounts match your filters.</p></div>
+            <div className="bg-white border border-slate-200 rounded-3xl p-20 text-center shadow-sm">
+              <Users size={48} className="text-slate-100 mx-auto mb-4"/>
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-relaxed">No entities match the current security filters.<br/>Try adjusting the parameters.</p>
+            </div>
           )}
-          {accounts.map(a => {
-            const rb = roleBadge[a.role] || roleBadge.buyer;
-            return (
-              <div key={a.id} className="glass-card p-5 hover:shadow-md transition-shadow">
-                <div className="flex flex-col md:flex-row md:items-center gap-4">
-                  {/* Identity */}
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className="w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm" style={{ backgroundColor: rb.bg, color: rb.c }}>{a.full_name?.charAt(0)}</div>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-bold text-gray-800">{a.full_name}</span>
-                        <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ backgroundColor: rb.bg, color: rb.c }}>{a.role}</span>
-                        {a.is_verified ? <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700 flex items-center gap-1"><CheckCircle size={10}/> VERIFIED</span> : <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 flex items-center gap-1"><Clock size={10}/> PENDING</span>}
-                        {a.status === 'suspended' && <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-700">SUSPENDED</span>}
-                      </div>
-                      <div className="flex items-center gap-4 text-xs text-gray-500 mt-1 flex-wrap">
-                        <span className="flex items-center gap-1"><Mail size={11}/> {a.email}</span>
-                        {a.phone && <span className="flex items-center gap-1"><Phone size={11}/> {a.phone}</span>}
-                        {a.address && <span className="flex items-center gap-1"><MapPin size={11}/> {a.address}</span>}
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+            {accounts.map(a => (
+              <div key={a.id} className="bg-white border border-slate-200 rounded-3xl p-6 hover:shadow-xl hover:-translate-y-1 hover:border-emerald-200 transition-all flex flex-col justify-between relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-4">
+                   <RoleBadge role={a.role} />
+                </div>
+                <div>
+                  <div className="flex gap-4">
+                    <div className="w-14 h-14 rounded-2xl bg-slate-50 text-emerald-700 border border-slate-100 flex items-center justify-center font-black text-xl shrink-0 shadow-inner group-hover:bg-emerald-50 transition-colors">
+                      {a.full_name?.charAt(0)}
+                    </div>
+                    <div className="min-w-0 pr-12">
+                      <div className="font-black text-slate-900 truncate text-base tracking-tight mb-1">{a.full_name}</div>
+                      <div className="flex flex-col gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest opacity-70">
+                        <span className="flex items-center gap-1.5 truncate"><Mail size={12} className="text-emerald-500"/> {a.email}</span>
+                        {a.phone && <span className="flex items-center gap-1.5"><Phone size={12} className="text-emerald-500"/> {a.phone}</span>}
                       </div>
                     </div>
                   </div>
 
-                  {/* Real Stats */}
-                  <div className="flex gap-4 text-xs text-gray-500">
-                    <div className="text-center"><div className="font-bold text-gray-800 text-sm">{a.stats?.listings || 0}</div>Listings</div>
-                    <div className="text-center"><div className="font-bold text-gray-800 text-sm">{a.stats?.orders || 0}</div>Orders</div>
-                    <div className="text-center"><div className="font-bold text-blue-600 text-sm">{(a.stats?.revenue || 0).toLocaleString()}</div>Revenue</div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex gap-1 flex-wrap shrink-0">
-                    <button className="adm-btn adm-btn-ghost text-xs" onClick={() => handleMessage(a)}><MessageSquare size={12}/> Message</button>
-                    <button className="adm-btn adm-btn-ghost text-xs" onClick={() => setSelectedUserId(a.id)}><Eye size={12}/> View Details</button>
-                    {a.status !== 'suspended' && (
-                      <button
-                        className="adm-btn adm-btn-warning text-xs"
-                        disabled={actionLoading === `${a.id}-suspend`}
-                        onClick={() => handleAction(a.id, 'suspend')}
-                      >
-                        <UserMinus size={12}/> {actionLoading === `${a.id}-suspend` ? 'Suspending...' : 'Suspend'}
-                      </button>
-                    )}
-                    {!a.is_verified && (
-                      <button
-                        className="adm-btn adm-btn-success text-xs"
-                        disabled={actionLoading === `${a.id}-verify`}
-                        onClick={() => handleAction(a.id, 'approve')}
-                      >
-                        <CheckCircle size={12}/> {actionLoading === `${a.id}-verify` ? 'Verifying...' : 'Approve'}
-                      </button>
-                    )}
+                  <div className="mt-6 flex items-center justify-between border-t border-slate-50 pt-4">
+                    <div className="flex gap-5 text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                      <div className="flex flex-col">
+                        <span className="text-slate-800 text-xs">{a.stats?.listings || 0}</span> Units
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-slate-800 text-xs">{a.stats?.orders || 0}</span> Txns
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end">
+                       {a.is_verified ? 
+                         <span className="text-[8px] font-black px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center gap-1 uppercase tracking-widest shadow-sm"><CheckCircle size={8}/> Verified</span> : 
+                         <span className="text-[8px] font-black px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-100 flex items-center gap-1 uppercase tracking-widest shadow-sm"><Clock size={8}/> Pending</span>
+                       }
+                       {a.status === 'suspended' && <span className="text-[8px] font-black px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 border border-rose-100 uppercase tracking-widest mt-1 shadow-sm">Suspended</span>}
+                    </div>
                   </div>
                 </div>
-                <div className="mt-2 text-xs text-gray-400 flex items-center gap-1"><Clock size={10}/> Registered: {a.created_at ? new Date(a.created_at).toLocaleDateString() : 'Unknown'}</div>
+
+                <div className="mt-6 flex gap-2">
+                    <button className="h-8 flex-1 bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-[9px] font-black rounded-xl flex items-center justify-center gap-1.5 transition-all uppercase tracking-widest shadow-sm active:scale-95" onClick={() => handleMessage(a)}>
+                      <MessageSquare size={12} className="text-emerald-500"/> Msg
+                    </button>
+                    <button className="h-8 flex-1 bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-[9px] font-black rounded-xl flex items-center justify-center gap-1.5 transition-all uppercase tracking-widest shadow-sm active:scale-95" onClick={() => setSelectedUserId(a.id)}>
+                      <Eye size={12} className="text-emerald-500"/> View
+                    </button>
+                    {a.status !== 'suspended' ? (
+                      <button
+                        className="h-8 w-8 bg-white hover:bg-rose-50 text-rose-400 hover:text-rose-600 border border-slate-200 hover:border-rose-200 rounded-xl flex items-center justify-center transition-all shadow-sm active:scale-95"
+                        disabled={actionLoading === `${a.id}-suspend`}
+                        onClick={() => handleAction(a.id, 'suspend')}
+                        title="Suspend Account"
+                      >
+                        {actionLoading === `${a.id}-suspend` ? <RefreshCw size={12} className="animate-spin"/> : <UserMinus size={14}/>}
+                      </button>
+                    ) : (
+                      <button
+                        className="h-8 w-8 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl flex items-center justify-center transition-all shadow-lg shadow-emerald-900/20 active:scale-95"
+                        disabled={actionLoading === `${a.id}-approve`}
+                        onClick={() => handleAction(a.id, 'approve')}
+                        title="Reinstate Account"
+                      >
+                        {actionLoading === `${a.id}-approve` ? <RefreshCw size={12} className="animate-spin"/> : <CheckCircle size={14}/>}
+                      </button>
+                    )}
+                </div>
               </div>
-            );
-          })}
+            ))}
+          </div>
         </div>
       )}
 

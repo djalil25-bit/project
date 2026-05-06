@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../api/axiosConfig';
-import { 
-  Users, 
-  Activity, 
-  Package, 
-  ShoppingCart, 
-  Wheat, 
-  ShoppingBag, 
-  ClipboardList, 
-  FolderTree, 
-  TrendingUp, 
-  CheckCircle, 
-  XCircle, 
+import {
+  Users,
+  Activity,
+  Package,
+  ShoppingCart,
+  Wheat,
+  ShoppingBag,
+  ClipboardList,
+  FolderTree,
+  TrendingUp,
+  CheckCircle,
+  XCircle,
   AlertCircle,
   Clock,
   UserCheck,
@@ -25,9 +25,9 @@ import {
   ShieldAlert,
   BarChart3,
   ArrowUpRight,
-  DollarSign
+  DollarSign,
+  Home
 } from 'lucide-react';
-import AlertsPanel from '../../components/admin/AlertsPanel';
 import UserDetailModal from '../admin/UserDetailModal';
 import { useNavigate } from 'react-router-dom';
 
@@ -39,12 +39,9 @@ const StatusBadge = ({ status }) => (
 
 function AdminDashboard() {
   const [stats, setStats] = useState(null);
-  const [iotData, setIotData] = useState(null);
-  const [iotLoading, setIotLoading] = useState(true);
   const [users, setUsers] = useState([]);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('pending');
   const [actionLoading, setActionLoading] = useState(null);
   const [selectedUserId, setSelectedUserId] = useState(null);
 
@@ -55,243 +52,168 @@ function AdminDashboard() {
     } catch (err) { console.error(err); }
   };
 
-  const fetchIotData = async () => {
-    setIotLoading(true);
-    try {
-      const res = await api.get('/iot/admin/overview/');
-      setIotData(res.data);
-    } catch (err) { console.error('Failed to fetch IoT overview', err); }
-    finally { setIotLoading(false); }
-  };
-
-  const fetchUsers = async (statusFilter) => {
+  const fetchUsers = async () => {
     setLoading(true);
     try {
-      const url = statusFilter === 'all' ? '/auth/admin/users/' : `/auth/admin/users/?status=${statusFilter}`;
+      const url = `/auth/admin/users/?status=pending`;
       const res = await api.get(url);
       setUsers(res.data.results || res.data);
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
   };
 
-  useEffect(() => { fetchStats(); fetchIotData(); fetchUsers(activeTab); }, []);
-  useEffect(() => { fetchUsers(activeTab); }, [activeTab]);
+  useEffect(() => { fetchStats(); fetchUsers(); }, []);
 
   const handleAction = async (userId, action) => {
     setActionLoading(userId + action);
     try {
       await api.post(`/auth/admin/users/${userId}/change_status/`, { action });
       fetchStats();
-      fetchUsers(activeTab);
+      fetchUsers();
       if (['approve', 'reject'].includes(action)) {
-        setSelectedUserId(null); // Close modal on definitive actions
+        setSelectedUserId(null);
       }
-    } catch { 
-      alert('Action failed. System integrity check recommended.'); 
+    } catch {
+      alert('Action failed.');
     } finally { setActionLoading(null); }
   };
 
-  const TABS = [
-    { key: 'pending', label: 'Pending Approvals', count: stats?.pending_users, icon: <Clock size={13} /> },
-    { key: 'approved', label: 'Verified Users', icon: <UserCheck size={13} /> },
-    { key: 'rejected', label: 'Rejected', icon: <UserX size={13} /> },
-    { key: 'all', label: 'Registry History', icon: <Users size={13} /> },
-  ];
+  const avgOrderValue = stats && stats.total_orders > 0
+    ? Math.round((stats.total_revenue || 0) / stats.total_orders)
+    : 0;
+  const avgProductsPerFarmer = stats && stats.total_farmers > 0
+    ? (stats.total_products / stats.total_farmers).toFixed(1)
+    : '0.0';
 
   const STAT_CARDS = stats ? [
-    { icon: <Clock size={20}/>,       color: 'text-orange-500',  iconBg: 'bg-orange-50',  accent: 'stat-accent-orange', value: stats.pending_users,   label: 'Pending Verifications' },
-    { icon: <Users size={20}/>,       color: 'text-blue-600',    iconBg: 'bg-blue-50',    accent: 'stat-accent-blue',   value: stats.total_users,     label: 'Platform Members' },
-    { icon: <Wheat size={20}/>,       color: 'text-green-600',   iconBg: 'bg-green-50',   accent: 'stat-accent-green',  value: stats.total_farmers,   label: 'Registered Producers' },
-    { icon: <ShoppingCart size={20}/>,color: 'text-blue-600',    iconBg: 'bg-blue-50',    accent: 'stat-accent-blue',   value: stats.total_buyers,    label: 'Consumer Base' },
-    { icon: <Package size={20}/>,     color: 'text-green-600',   iconBg: 'bg-green-50',   accent: 'stat-accent-green',  value: stats.total_products,  label: 'Active Listings' },
-    { icon: <ShoppingBag size={20}/>, color: 'text-purple-600',  iconBg: 'bg-purple-50',  accent: 'stat-accent-purple', value: stats.total_orders,    label: 'Transaction Volume' },
+    { icon: <Clock size={18} />, color: 'text-amber-600', iconBg: 'bg-amber-50', value: stats.pending_users, label: 'Pending Verifications' },
+    { icon: <Users size={18} />, color: 'text-blue-600', iconBg: 'bg-blue-50', value: stats.total_users, label: 'Platform Members' },
+    { icon: <Wheat size={18} />, color: 'text-emerald-600', iconBg: 'bg-emerald-50', value: stats.total_farmers, label: 'Registered Producers' },
+    { icon: <DollarSign size={18} />, color: 'text-purple-600', iconBg: 'bg-purple-50', value: `${avgOrderValue.toLocaleString()} DA`, label: 'Avg Order Value' },
+    { icon: <Package size={18} />, color: 'text-teal-600', iconBg: 'bg-teal-50', value: avgProductsPerFarmer, label: 'Avg Products/Farmer' },
+    { icon: <Home size={18} />, color: 'text-slate-600', iconBg: 'bg-slate-50', value: stats.total_farmers, label: 'Active Farms' },
   ] : [];
 
   return (
-    <div className="min-h-screen p-6 space-y-6">
-
-      {/* ── Hero Banner ─────────────────────────────────── */}
-      <div className="admin-hero-strip p-8 anim-fade-up">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <div>
-            <div className="inline-flex items-center gap-2 text-blue-200 text-xs font-bold uppercase tracking-widest mb-3">
-              <Activity size={13} /> Administrative Control Center
-            </div>
-            <h1 className="text-3xl font-extrabold text-white tracking-tight mb-2">Central Dashboard</h1>
-            <p className="text-blue-100/80 text-sm max-w-lg">
-              Monitor system health, verify actors, and manage global marketplace parameters.
-            </p>
+    <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 space-y-8 animate-fade-in relative z-0 bg-slate-50/30 min-h-screen">
+      
+      {/* ── HIGH-DENSITY HERO HEADER (GREEN POWER PRO) ─────────────────────────────── */}
+      <div className="bg-[#0a3d2e] rounded-2xl overflow-hidden shadow-lg flex flex-col md:flex-row items-center justify-between px-6 py-4 md:px-10 md:py-5 relative border border-[#0f5c44] isolate">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#166534]/30 to-transparent pointer-events-none" />
+        <div className="z-10 flex flex-col">
+          <div className="flex items-center gap-2 text-emerald-400 text-[9px] font-black uppercase tracking-widest mb-1 opacity-80">
+            <Activity size={12} /> Administrative Control Center
           </div>
-          <div className="flex gap-3 shrink-0">
-            <button
-              className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white text-sm px-5 py-2.5 rounded-lg font-semibold flex items-center gap-2 transition-all"
-              onClick={() => window.location.href='/admin-dashboard/analytics'}
-            >
-              <TrendingUp size={15} /> View Full Analytics
-            </button>
-          </div>
+          <h1 className="text-xl md:text-2xl font-black text-white tracking-tight leading-none">
+            Central Dashboard
+          </h1>
+          <p className="text-emerald-100/60 text-[10px] font-bold uppercase tracking-widest mt-2">
+            System status: <span className="text-emerald-400">Operational</span>
+          </p>
         </div>
-        <div className="absolute top-4 right-6 text-5xl opacity-10 select-none">🛡️</div>
+        <div className="z-10 mt-3 md:mt-0">
+          <button
+            className="bg-[#0f5c44] hover:bg-[#166534] text-white text-[10px] font-black uppercase tracking-widest px-5 py-2.5 rounded-xl transition-all border border-emerald-500/30 shadow-lg shadow-emerald-900/40 flex items-center gap-2"
+            onClick={() => navigate('/admin-dashboard/analytics')}
+          >
+            <TrendingUp size={14} /> Full Analytics
+          </button>
+        </div>
       </div>
-
-      {/* ── Quick Alerts Panel ──────────────────────────── */}
-      <AlertsPanel />
 
       {/* ── Stats Grid ──────────────────────────────────── */}
       {stats && (
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
           {STAT_CARDS.map((card, i) => (
-            <div key={i} className={`glass-stat-card p-4 ${card.accent} anim-fade-up`}
-                 style={{ animationDelay: `${i * 0.06}s` }}>
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${card.iconBg} ${card.color}`}>
+            <div key={i} className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-4 ${card.iconBg} ${card.color}`}>
                 {card.icon}
               </div>
-              <div className="text-2xl font-extrabold text-gray-900 mb-0.5">{card.value}</div>
-              <div className="text-xs text-gray-500 leading-snug">{card.label}</div>
+              <div className="text-xl font-black text-slate-800 mb-0.5">{card.value}</div>
+              <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-snug">{card.label}</div>
             </div>
           ))}
         </div>
       )}
 
-      {/* ── Farm Sensor Map removed ── */}
-
-      {/* ── Recent Critical Alerts ──────────────────────── */}
-      {stats?.recent_alerts && stats.recent_alerts.length > 0 && (
-        <div className="glass-card overflow-hidden">
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-            <div className="flex items-center gap-2">
-              <ShieldAlert size={18} className="text-red-600" />
-              <h3 className="font-bold text-gray-800 text-base">Recent Critical Alerts</h3>
-            </div>
-            <button className="adm-btn adm-btn-ghost text-xs" onClick={() => window.location.href='/admin-dashboard/alerts'}>View All</button>
-          </div>
-          <div className="divide-y divide-gray-100">
-            {stats.recent_alerts.map(a => (
-              <div key={a.id} className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className={`w-2 h-2 rounded-full ${a.severity === 'CRITICAL' ? 'bg-red-600' : a.severity === 'HIGH' ? 'bg-orange-500' : 'bg-yellow-400'}`}></div>
-                  <div>
-                    <div className="text-sm font-bold text-gray-800">{a.alert_type?.replace(/_/g, ' ')}</div>
-                    <div className="text-xs text-gray-500">{new Date(a.created_at).toLocaleString()}</div>
-                  </div>
-                </div>
-                <button className="adm-btn adm-btn-ghost text-xs" onClick={() => window.location.href='/admin-dashboard/alerts'}><Eye size={13}/> View</button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ── Registry Management Card ─────────────────────── */}
-      <div className="glass-card overflow-hidden">
-        {/* Card Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+      {/* ── Pending Accounts Registry ─────────────────────── */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col animate-fade-in">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
           <div className="flex items-center gap-2">
-            <UserCheck size={18} className="text-blue-600" />
-            <h3 className="font-bold text-gray-800 text-base">Registry Management</h3>
+            <UserCheck size={16} className="text-emerald-600" />
+            <h3 className="font-black text-[11px] uppercase tracking-widest text-slate-700">Pending Account Verifications</h3>
           </div>
-          <div className="text-xs text-gray-400 font-medium">Real-time Actor Monitoring</div>
+          <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">{users.length} Awaiting Review</div>
         </div>
 
-        {/* Tab Bar */}
-        <div className="px-6 py-3 border-b border-gray-100">
-          <div className="adm-tab-bar w-fit">
-            {TABS.map(tab => (
-              <button
-                key={tab.key}
-                className={`adm-tab ${activeTab === tab.key ? 'active' : ''}`}
-                onClick={() => setActiveTab(tab.key)}
-              >
-                <span className="opacity-75">{tab.icon}</span>
-                {tab.label}{tab.count != null ? ` (${tab.count})` : ''}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Table */}
         {loading ? (
-          <div className="flex items-center justify-center gap-3 py-16">
-            <div className="adm-spinner"></div>
-            <span className="text-gray-400 text-sm">Synchronizing user registry...</span>
+          <div className="flex flex-col items-center justify-center py-16 gap-3">
+            <div className="w-8 h-8 rounded-full border-4 border-slate-100 border-t-emerald-600 animate-spin" />
+            <span className="text-xs font-black text-slate-400 uppercase tracking-widest animate-pulse">Synchronizing Registry...</span>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="admin-table">
+            <table className="w-full text-left border-collapse">
               <thead>
-                <tr>
-                  <th>Identity &amp; Credentials</th>
-                  <th>Actor Designation</th>
-                  <th>Verification Status</th>
-                  <th>Registry Date</th>
-                  <th style={{ textAlign: 'right' }}>Administrative Actions</th>
+                <tr className="bg-slate-50/80 border-b border-slate-100">
+                  <th className="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Identity & Credentials</th>
+                  <th className="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Actor Designation</th>
+                  <th className="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 text-center">Status</th>
+                  <th className="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400">Registry Date</th>
+                  <th className="px-6 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Administrative Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {users.length === 0 ? (
                   <tr>
                     <td colSpan="5">
-                      <div className="flex flex-col items-center justify-center gap-3 py-16 text-gray-400">
-                        <AlertCircle size={48} className="opacity-20" />
-                        <div className="text-sm">No entries found in this registry sector.</div>
+                      <div className="flex flex-col items-center justify-center gap-3 py-16 text-slate-400">
+                        <CheckCircle size={40} className="opacity-20 text-emerald-600" />
+                        <div className="text-xs font-black uppercase tracking-widest">No pending accounts found.</div>
                       </div>
                     </td>
                   </tr>
                 ) : users.map(u => (
-                  <React.Fragment key={u.id}>
-                  <tr>
-                    <td>
-                      <div className="font-semibold text-gray-800">{u.full_name}</div>
-                      <div className="text-xs text-gray-400 mt-0.5">{u.email}</div>
+                  <tr key={u.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="font-black text-slate-800 text-sm">{u.full_name}</div>
+                      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{u.email}</div>
                     </td>
-                    <td>
-                      <span className={`adm-badge adm-badge-${u.role}`}>{u.role}</span>
+                    <td className="px-6 py-4">
+                      <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border ${
+                        u.role === 'farmer' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                        u.role === 'transporter' ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                        'bg-blue-50 text-blue-600 border-blue-100'
+                      }`}>{u.role}</span>
                     </td>
-                    <td><StatusBadge status={u.status} /></td>
-                    <td>
-                      <div className="flex items-center gap-1.5 text-xs text-gray-500">
-                        <Clock size={11} className="opacity-50" />
+                    <td className="px-6 py-4 text-center">
+                       <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center gap-1 mx-auto w-fit">
+                        <Clock size={10} /> {u.status}
+                       </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-xs font-bold text-slate-500 whitespace-nowrap">
                         {new Date(u.created_at).toLocaleDateString()}
                       </div>
                     </td>
-                    <td>
+                    <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-2">
-                        {u.status === 'pending' && (
-                          <>
-                            <button
-                              className="adm-btn adm-btn-success"
-                              onClick={() => handleAction(u.id, 'approve')}
-                              disabled={actionLoading === u.id + 'approve'}
-                            >
-                              {actionLoading === u.id + 'approve' ? '...' : <><CheckCircle size={13} /> Verify</>}
-                            </button>
-                            <button
-                              className="adm-btn adm-btn-danger"
-                              onClick={() => handleAction(u.id, 'reject')}
-                              disabled={actionLoading === u.id + 'reject'}
-                            >
-                              {actionLoading === u.id + 'reject' ? '...' : <><XCircle size={13} /> Decline</>}
-                            </button>
-                          </>
-                        )}
-                        {u.status === 'approved' && (
-                          <button
-                            className="adm-btn adm-btn-warning"
-                            onClick={() => handleAction(u.id, 'suspend')}
-                          >
-                            <UserMinus size={13} /> Restrict
-                          </button>
-                        )}
-                        {(u.status === 'rejected' || u.status === 'suspended') && (
-                          <button
-                            className="adm-btn adm-btn-ghost"
-                            onClick={() => handleAction(u.id, 'reactivate')}
-                          >
-                            <RefreshCw size={13} /> Restore
-                          </button>
-                        )}
                         <button
-                          className="adm-btn adm-btn-ghost adm-btn-icon"
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-md text-[10px] font-black px-3 py-1.5 rounded-lg transition-all uppercase tracking-widest flex items-center gap-1.5"
+                          onClick={() => handleAction(u.id, 'approve')}
+                          disabled={actionLoading === u.id + 'approve'}
+                        >
+                          {actionLoading === u.id + 'approve' ? '...' : <><CheckCircle size={12} /> Verify</>}
+                        </button>
+                        <button
+                          className="bg-white hover:bg-rose-50 text-rose-600 border border-slate-200 hover:border-rose-200 text-[10px] font-black px-3 py-1.5 rounded-lg transition-all uppercase tracking-widest flex items-center gap-1.5"
+                          onClick={() => handleAction(u.id, 'reject')}
+                          disabled={actionLoading === u.id + 'reject'}
+                        >
+                          {actionLoading === u.id + 'reject' ? '...' : <><XCircle size={12} /> Decline</>}
+                        </button>
+                        <button
+                          className="bg-white hover:bg-slate-100 text-slate-400 border border-slate-200 w-8 h-8 rounded-lg flex items-center justify-center transition-colors shadow-sm"
                           onClick={() => setSelectedUserId(u.id)}
                           title="View Full Details"
                         >
@@ -300,7 +222,6 @@ function AdminDashboard() {
                       </div>
                     </td>
                   </tr>
-                  </React.Fragment>
                 ))}
               </tbody>
             </table>
@@ -315,91 +236,6 @@ function AdminDashboard() {
           onAction={handleAction}
         />
       )}
-
-      {/* ── IoT Quick Preview ──────────────────────────── */}
-      <div className="glass-card overflow-hidden mt-6" style={{ border: '1px solid #e5e7eb' }}>
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-          <h3 className="font-bold text-gray-800 text-base flex items-center gap-2">
-            🌐 IoT Monitoring
-          </h3>
-          <button className="adm-btn adm-btn-ghost text-xs" onClick={() => navigate('/admin-dashboard/iot')}>
-            <ArrowUpRight size={14} />
-          </button>
-        </div>
-        <div className="p-6">
-          {iotLoading ? (
-            <div className="flex items-center gap-3">
-              <RefreshCw size={20} className="animate-spin text-gray-400" />
-              <span className="text-sm text-gray-500">Loading IoT data...</span>
-            </div>
-          ) : iotData ? (
-            <div className="space-y-6">
-              {/* Row of 3 mini-cards */}
-              <div className="grid grid-cols-3 gap-4">
-                <div className="bg-red-50 p-3 rounded-lg border border-red-100 flex flex-col items-center justify-center text-center">
-                  <span className="text-xl font-extrabold text-red-600 mb-1">
-                    🔴 {iotData.critical_alerts?.length || (iotData.summary?.farms_danger) || 0}
-                  </span>
-                  <span className="text-xs text-red-700 font-semibold uppercase tracking-wider">Critical</span>
-                </div>
-                <div className="bg-orange-50 p-3 rounded-lg border border-orange-100 flex flex-col items-center justify-center text-center">
-                  <span className="text-xl font-extrabold text-orange-500 mb-1">
-                    🟡 {iotData.warning_alerts?.length || (iotData.summary?.farms_warning) || 0}
-                  </span>
-                  <span className="text-xs text-orange-700 font-semibold uppercase tracking-wider">Warning</span>
-                </div>
-                <div className="bg-green-50 p-3 rounded-lg border border-green-100 flex flex-col items-center justify-center text-center">
-                  <span className="text-xl font-extrabold text-green-600 mb-1">
-                    ✅ {iotData.normal_farms?.length || (iotData.summary?.farms_normal) || 0}
-                  </span>
-                  <span className="text-xs text-green-700 font-semibold uppercase tracking-wider">Normal</span>
-                </div>
-              </div>
-
-              {/* Lists */}
-              <div className="space-y-3">
-                {iotData.critical_alerts && iotData.critical_alerts.length > 0 ? (
-                  iotData.critical_alerts.slice(0, 3).map((farm, i) => (
-                    <div key={`crit-${i}`} className="text-sm text-red-600 font-medium">
-                      ⚠️ <span className="font-bold">{farm.farm_name}</span> — {farm.wilaya} : {farm.alerts?.[0]?.message || 'Critical alert active'}
-                    </div>
-                  ))
-                ) : iotData.warning_alerts && iotData.warning_alerts.length > 0 ? (
-                  iotData.warning_alerts.slice(0, 3).map((farm, i) => (
-                    <div key={`warn-${i}`} className="text-sm text-orange-600 font-medium">
-                      ⚠️ <span className="font-bold">{farm.farm_name}</span> — {farm.wilaya} : {farm.alerts?.[0]?.message || 'Warning active'}
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center text-green-600 font-semibold py-2">
-                    ✅ All farm sensors are operating normally
-                  </div>
-                )}
-              </div>
-
-              {/* Action Button */}
-              {(() => {
-                const danger = (iotData.critical_alerts?.length || iotData.summary?.farms_danger || 0) > 0;
-                const warning = (iotData.warning_alerts?.length || iotData.summary?.farms_warning || 0) > 0;
-                const btnBg = danger ? '#ef4444' : warning ? '#f97316' : '#22c55e';
-                const pulseClass = danger ? 'animate-pulse' : '';
-                return (
-                  <button 
-                    onClick={() => navigate('/admin-dashboard/iot')}
-                    className={`w-full py-3 rounded-lg text-white font-bold text-sm shadow-sm transition-opacity hover:opacity-90 flex items-center justify-center gap-2 ${pulseClass}`}
-                    style={{ backgroundColor: btnBg }}
-                  >
-                    View Full IoT Dashboard <ArrowUpRight size={16} />
-                  </button>
-                );
-              })()}
-            </div>
-          ) : (
-             <div className="text-gray-500 text-sm">Failed to load IoT preview.</div>
-          )}
-        </div>
-      </div>
-
     </div>
   );
 }

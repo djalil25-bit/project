@@ -2300,7 +2300,7 @@ textarea.form-input { min-height: 100px; resize: vertical; }
 .avatar-role-farmer { background: linear-gradient(135deg, #10b981, #059669); }
 .avatar-role-buyer { background: linear-gradient(135deg, #3b82f6, #2563eb); }
 .avatar-role-transporter { background: linear-gradient(135deg, #f59e0b, #d97706); }
-.avatar-role-admin { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+.avatar-role-admin { background: linear-gradient(135deg, #22c55e, #16a34a); }
 
 /* Large Profile Avatar */
 .profile-avatar-large {
@@ -2993,7 +2993,7 @@ textarea.form-input { min-height: 100px; resize: vertical; }
   font-weight: 800; font-size: 0.85rem; color: white;
   border: 2px solid transparent;
 }
-.avatar-role-admin    { background: linear-gradient(135deg, #475569, #6d28d9); }
+.avatar-role-admin    { background: linear-gradient(135deg, #22c55e, #16a34a); }
 .avatar-role-farmer   { background: linear-gradient(135deg, #16a34a, #0f5233); }
 .avatar-role-buyer    { background: linear-gradient(135deg, #2563eb, #1e40af); }
 .avatar-role-transporter { background: linear-gradient(135deg, #d97706, #b45309); }

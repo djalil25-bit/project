@@ -23,6 +23,7 @@ import {
   CalendarDays,
   Home,
   Check,
+  CheckCircle,
   Moon,
   Sun,
   Globe,
@@ -41,11 +42,11 @@ import {
   BarChart3,
   ListOrdered,
   Users,
-  Activity
+  Activity,
+  Wifi
 } from 'lucide-react';
 import VerifiedBadge from '../components/common/VerifiedBadge';
 import AgriGovLogo from '../components/common/AgriGovLogo';
-import GlobalSearchBar from '../components/admin/GlobalSearchBar';
 
 const MainLayout = () => {
   const { user, logout } = useAuth();
@@ -187,13 +188,12 @@ const MainLayout = () => {
     admin: [
       { label: t('nav_dashboard'), path: '/admin-dashboard', icon: <LayoutDashboard size={18} /> },
       { label: t('nav_analytics'), path: '/admin-dashboard/analytics', icon: <TrendingUp size={18} /> },
+
       { label: t('nav_transactions'), path: '/admin-dashboard/transactions', icon: <ShoppingBag size={18} /> },
       { label: t('nav_accounts'), path: '/admin-dashboard/accounts', icon: <Users size={18} /> },
-      { label: t('nav_alerts'), path: '/admin-dashboard/alerts', icon: <ShieldAlert size={18} /> },
       { label: t('nav_messages'), path: '/admin-dashboard/messages', icon: <MessageSquare size={18} /> },
-      { label: t('nav_monitoring'), path: '/admin-dashboard/monitoring', icon: <BarChart3 size={18} /> },
-      { label: 'IoT Overview', path: '/admin-dashboard/iot', icon: <Activity size={18} />, adminIotBadge: true },
-      { label: t('nav_catalog'), path: '/admin-dashboard/catalog', icon: <ClipboardList size={18} /> },
+      { label: 'IoT Overview', path: '/admin-dashboard/iot', icon: <Wifi size={18} />, adminIotBadge: true },
+      { label: 'Products', path: '/admin-dashboard/catalog', icon: <ClipboardList size={18} /> },
       { label: t('nav_categories'), path: '/admin-dashboard/categories', icon: <FolderTree size={18} /> },
       { label: t('nav_complaint_center'), path: '/admin-dashboard/complaints', icon: <ShieldAlert size={18} /> },
     ],
@@ -216,7 +216,7 @@ const MainLayout = () => {
       { label: t('nav_complaints'), path: '/complaints', icon: <ShieldAlert size={18} /> },
     ],
     transporter: [
-      { label: t('nav_marketboard'), path: '/transporter-dashboard', icon: <Truck size={18} /> },
+      { label: 'Missions', path: '/transporter-dashboard', icon: <Truck size={18} /> },
       { label: t('nav_my_fleet'), path: '/transporter-dashboard/vehicles', icon: <Truck size={18} /> },
       { label: t('nav_zones'), path: '/transporter-dashboard/zones', icon: <MapPin size={18} /> },
       { label: t('nav_complaints'), path: '/complaints', icon: <ShieldAlert size={18} /> },
@@ -334,9 +334,6 @@ const MainLayout = () => {
           <div className="topbar-left">
             <h2 className="current-page-title">{currentPageLabel}</h2>
           </div>
-
-          {/* Global Search (admin only) */}
-          {user?.role === 'admin' && <GlobalSearchBar />}
 
           <div className="topbar-right">
 
@@ -490,7 +487,7 @@ const MainLayout = () => {
                       style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
                     />
                   ) : (
-                    <div className={`avatar-placeholder avatar-role-${user?.role}`} style={{ borderColor: accent }}>
+                    <div className={`avatar-placeholder avatar-role-${user?.role}`} style={{ borderColor: accent, background: user?.role === 'admin' ? '#10b981' : accent, color: 'white' }}>
                       {user?.full_name?.charAt(0).toUpperCase() || 'U'}
                     </div>
                   )}

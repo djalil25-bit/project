@@ -9,9 +9,9 @@
 :root {
   --adm-bg:          #F8FAFC;
   --adm-card:        #FFFFFF;
-  --adm-accent:      #0066CC;
-  --adm-accent-light:#E8F0FE;
-  --adm-accent-dark: #004C99;
+  --adm-accent:      #16a34a;
+  --adm-accent-light:#dcfce7;
+  --adm-accent-dark: #15803d;
   --adm-success:     #00AA44;
   --adm-success-light:#E6F9EE;
   --adm-warning:     #FF9900;
@@ -40,6 +40,7 @@
 .admin-mode .app-sidebar .nav-link {
   color: var(--adm-text-secondary);
   font-weight: 500;
+  border-left: 4px solid transparent;
 }
 .admin-mode .app-sidebar .nav-link:hover {
   background: var(--adm-accent-light);
@@ -48,7 +49,7 @@
 .admin-mode .app-sidebar .nav-link.active {
   background: var(--adm-accent-light);
   color: var(--adm-accent);
-  border-color: var(--adm-accent);
+  border-left: 4px solid var(--adm-accent);
   font-weight: 600;
 }
 .admin-mode .app-sidebar .nav-link.active .nav-icon {
@@ -76,6 +77,7 @@
 }
 .admin-mode .app-sidebar .sidebar-role-bar {
   background: var(--adm-accent) !important;
+  color: white;
 }
 
 /* ── Topbar ───────────────────────────────────────────── */

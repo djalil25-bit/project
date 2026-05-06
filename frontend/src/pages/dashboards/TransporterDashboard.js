@@ -298,7 +298,7 @@ function TransporterDashboard() {
               <tr>
                 <th>Mission Ref.</th>
                 <th>Route</th>
-                <th>Order Details</th>
+                <th>Mission Details</th>
                 <th>Status</th>
                 <th style={{ textAlign: 'right' }}>Actions</th>
               </tr>
@@ -348,7 +348,7 @@ function TransporterDashboard() {
                     </div>
                   </td>
                   <td>
-                    <div className="small fw-bold">Order #{d.order}</div>
+                    <div className="small fw-bold">Mission #{d.order}</div>
                     <div className="text-muted very-small d-flex align-items-center mt-1 gap-1">
                       <Package size={10} />
                       {d.order_detail?.items?.length || 0} items
@@ -357,7 +357,7 @@ function TransporterDashboard() {
                       <div className="mt-2 pt-2 border-top border-slate-100">
                         <div className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-1">Buyer Contact</div>
                         <a 
-                          href={`https://wa.me/${d.order_detail.buyer_phone}?text=${encodeURIComponent('Hello, I am the transporter assigned to your order #' + d.order + '. I will contact you shortly.')}`}
+                          href={`https://wa.me/${d.order_detail.buyer_phone}?text=${encodeURIComponent('Hello, I am the transporter assigned to your mission #' + d.order + '. I will contact you shortly.')}`}
                           target="_blank" rel="noopener noreferrer"
                           className="d-inline-flex align-items-center gap-1.5 px-2 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-[11px] font-black hover:bg-emerald-100 hover:border-emerald-300 transition-all shadow-sm"
                         >
@@ -496,7 +496,7 @@ function TransporterDashboard() {
 
               <div className="bg-white px-2 py-1 border-bottom d-flex align-items-center justify-between">
                  <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-3 py-2">Inventory Ledger</div>
-                 <div className="text-[9px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-pill mx-3">Order #{viewingCargo.order} — {viewingCargo.order_detail?.buyer_name}</div>
+                 <div className="text-[9px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-pill mx-3">Mission #{viewingCargo.order} — {viewingCargo.order_detail?.buyer_name}</div>
               </div>
 
               <div className="table-responsive" style={{ maxHeight: 400 }}>
