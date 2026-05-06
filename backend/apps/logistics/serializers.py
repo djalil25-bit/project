@@ -135,3 +135,26 @@ class DeliveryRequestPoDSerializer(TransporterVisibilityMixin, serializers.Model
             'transporter_name', 'transporter_phone', 'vehicle_type', 'plate_number_masked'
         ]
         read_only_fields = fields
+
+
+# ── Vehicle Serializer ──────────────────────────────────────────────────
+from .models import Vehicle
+
+class VehicleSerializer(serializers.ModelSerializer):
+    owner_name = serializers.CharField(source='owner.full_name', read_only=True)
+    owner_email = serializers.CharField(source='owner.email', read_only=True)
+
+    class Meta:
+        model = Vehicle
+        fields = [
+            'id', 'owner', 'owner_name', 'owner_email',
+            'plate', 'model', 'capacity', 'type', 'fuelType',
+            'is_active', 'carte_grise',
+            'status', 'rejection_reason', 'reviewed_at', 'reviewed_by',
+            'created_at', 'updated_at',
+        ]
+        read_only_fields = (
+            'owner', 'status', 'rejection_reason',
+            'reviewed_at', 'reviewed_by', 'created_at', 'updated_at',
+        )
+

@@ -2,15 +2,17 @@ from rest_framework import viewsets, status, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
 import logging
 from django.utils import timezone
 from django.db import transaction
-from .models import DeliveryRequest, DeliveryStatusChoices
+from .models import DeliveryRequest, DeliveryStatusChoices, Vehicle
 from .serializers import (
     DeliveryRequestSerializer, 
     DeliveryStatusUpdateSerializer,
-    ProofOfDeliverySerializer
+    ProofOfDeliverySerializer,
+    VehicleSerializer
 )
 from apps.accounts.permissions import IsTransporterRole, IsFarmerRole
 from apps.orders.models import OrderStatusChoices, DeliveryStatusChoices as OrderDeliveryStatus
@@ -160,16 +162,35 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
         if not vehicle_id:
             return Response({"error": "You must select a vehicle to accept this mission."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 1. Verify vehicle exists in transporter fleet
-        user_vehicles = request.user.vehicles or []
-        # Support both int and string IDs comparison
-        selected_vehicle = next((v for v in user_vehicles if str(v.get('id')) == str(vehicle_id)), None)
-        
+        # ── DUAL-READ: Try Vehicle model first, then JSON fallback ──
+        selected_vehicle = None
+        vehicle_obj = None
+        try:
+            vehicle_obj = Vehicle.objects.get(id=vehicle_id, owner=request.user)
+            selected_vehicle = {
+                'id': vehicle_obj.id,
+                'plate': vehicle_obj.plate,
+                'model': vehicle_obj.model,
+                'capacity': vehicle_obj.capacity,
+                'type': vehicle_obj.type,
+                'is_active': vehicle_obj.is_active,
+                'status': vehicle_obj.status,
+            }
+        except (Vehicle.DoesNotExist, ValueError):
+            # Fallback to legacy JSON vehicles
+            user_vehicles = request.user.vehicles or []
+            selected_vehicle = next((v for v in user_vehicles if str(v.get('id')) == str(vehicle_id)), None)
+
         if not selected_vehicle:
             return Response({"error": "The selected vehicle was not found in your fleet registry."}, status=status.HTTP_400_BAD_REQUEST)
         
         if selected_vehicle.get('is_active') is False:
             return Response({"error": "The selected vehicle is currently marked as inactive/offline."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Check admin approval status (Vehicle model only)
+        vehicle_status = selected_vehicle.get('status', 'ACTIVE')  # Legacy JSON vehicles default to ACTIVE
+        if vehicle_status != 'ACTIVE':
+            return Response({"error": "Your vehicle is not yet approved by admin. Please wait for approval before accepting missions."}, status=status.HTTP_400_BAD_REQUEST)
 
         # 2. Capacity Validation logic
         try:
@@ -382,3 +403,24 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
                     )
             
         return Response(DeliveryRequestSerializer(delivery).data)
+
+
+# ── Vehicle CRUD ViewSet ──────────────────────────────────────────────────
+class VehicleViewSet(viewsets.ModelViewSet):
+    serializer_class = VehicleSerializer
+    permission_classes = [IsAuthenticated, IsTransporterRole]
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    def get_queryset(self):
+        return Vehicle.objects.filter(owner=self.request.user).order_by('-created_at')
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)  # status defaults to PENDING
+
+    def perform_update(self, serializer):
+        vehicle = self.get_object()
+        # If transporter edits a REJECTED vehicle, resubmit it for review
+        if vehicle.status == 'REJECTED':
+            serializer.save(status='PENDING', rejection_reason='')
+        else:
+            serializer.save()

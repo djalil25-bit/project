@@ -4,10 +4,12 @@ from .views import (
     GlobalSearchAPIView,
     AlertListAPIView, AlertActionAPIView, AlertConfigListCreateAPIView, AlertSummaryAPIView,
     TransactionListAPIView, TransactionDetailAPIView, TransactionActionAPIView,
-    AnalyticsProductAPIView, AnalyticsZoneAPIView, AnalyticsTopSellersAPIView,
+    AnalyticsProductAPIView, AnalyticsZoneAPIView, AnalyticsTopSellersAPIView, AwardBadgeAPIView,
     AccountSearchAPIView, AccountDetailAPIView, AccountActionAPIView,
     MessageSendAPIView, MessageHistoryAPIView, MessageTemplateListAPIView, RecipientSearchAPIView, MessageInboxAPIView,
     ActivityLogAPIView, FlaggedAccountListAPIView, FlaggedAccountActionAPIView,
+    FarmApprovalListView, FarmApprovalActionView,
+    VehicleApprovalListView, VehicleApprovalActionView,
 )
 
 urlpatterns = [
@@ -32,6 +34,7 @@ urlpatterns = [
     path('analytics/products/', AnalyticsProductAPIView.as_view(), name='admin_analytics_products'),
     path('analytics/zones/', AnalyticsZoneAPIView.as_view(), name='admin_analytics_zones'),
     path('analytics/top-sellers/', AnalyticsTopSellersAPIView.as_view(), name='admin_analytics_top_sellers'),
+    path('analytics/award-badge/', AwardBadgeAPIView.as_view(), name='admin_analytics_award_badge'),
 
     # Account Management
     path('accounts/', AccountSearchAPIView.as_view(), name='admin_accounts'),
@@ -49,4 +52,12 @@ urlpatterns = [
     path('monitoring/activity-log/', ActivityLogAPIView.as_view(), name='admin_activity_log'),
     path('monitoring/flagged-accounts/', FlaggedAccountListAPIView.as_view(), name='admin_flagged_accounts'),
     path('monitoring/flagged-accounts/<int:pk>/', FlaggedAccountActionAPIView.as_view(), name='admin_flagged_action'),
+
+    # Farm Approvals
+    path('farm-approvals/', FarmApprovalListView.as_view(), name='admin_farm_approvals'),
+    path('farm-approvals/<int:pk>/', FarmApprovalActionView.as_view(), name='admin_farm_approval_action'),
+
+    # Vehicle Approvals
+    path('vehicle-approvals/', VehicleApprovalListView.as_view(), name='admin_vehicle_approvals'),
+    path('vehicle-approvals/<int:pk>/', VehicleApprovalActionView.as_view(), name='admin_vehicle_approval_action'),
 ]

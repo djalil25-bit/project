@@ -51,6 +51,8 @@ import AdminTransactions from './pages/admin/AdminTransactions';
 import AdminAccounts from './pages/admin/AdminAccounts';
 import AdminAlerts from './pages/admin/AdminAlerts';
 import AdminMessages from './pages/admin/AdminMessages';
+import FarmApprovals from './pages/admin/FarmApprovals';
+import VehicleApprovals from './pages/admin/VehicleApprovals';
 
 import AdminIoTPage from './pages/admin/AdminIoTPage';
 import AccountPending from './pages/AccountPending';
@@ -125,6 +127,16 @@ function App() {
           <Route path="/admin-dashboard/iot" element={
             <ProtectedRoute allowedRoles={['admin']}>
               <AdminIoTPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin-dashboard/farm-approvals" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <FarmApprovals />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin-dashboard/vehicle-approvals" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <VehicleApprovals />
             </ProtectedRoute>
           } />
           <Route path="/farmer-dashboard" element={

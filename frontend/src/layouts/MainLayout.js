@@ -196,6 +196,8 @@ const MainLayout = () => {
       { label: 'Products', path: '/admin-dashboard/catalog', icon: <ClipboardList size={18} /> },
       { label: t('nav_categories'), path: '/admin-dashboard/categories', icon: <FolderTree size={18} /> },
       { label: t('nav_complaint_center'), path: '/admin-dashboard/complaints', icon: <ShieldAlert size={18} /> },
+      { label: 'Farm Approvals', path: '/admin-dashboard/farm-approvals', icon: <Tractor size={18} /> },
+      { label: 'Vehicle Approvals', path: '/admin-dashboard/vehicle-approvals', icon: <Truck size={18} /> },
     ],
     farmer: [
       { label: t('nav_dashboard'), path: '/farmer-dashboard', icon: <LayoutDashboard size={18} strokeWidth={2.2} /> },

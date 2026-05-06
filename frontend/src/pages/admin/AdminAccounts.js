@@ -6,9 +6,16 @@ import UserDetailModal from './UserDetailModal';
 
 const RoleBadge = ({ role }) => {
   const r = role?.toLowerCase() || 'buyer';
-  if (r === 'farmer') return <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">{role}</span>;
-  if (r === 'transporter') return <span className="text-[10px] font-black uppercase tracking-widest text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-100">{role}</span>;
-  return <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100">{role}</span>;
+  if (r === 'farmer') return <span className="text-[9px] font-black uppercase tracking-widest text-emerald-700 bg-emerald-100/80 px-3 py-1 rounded-full border border-emerald-200/50 shadow-sm">{role}</span>;
+  if (r === 'transporter') return <span className="text-[9px] font-black uppercase tracking-widest text-amber-700 bg-amber-100/80 px-3 py-1 rounded-full border border-amber-200/50 shadow-sm">{role}</span>;
+  return <span className="text-[9px] font-black uppercase tracking-widest text-blue-700 bg-blue-100/80 px-3 py-1 rounded-full border border-blue-200/50 shadow-sm">{role}</span>;
+};
+
+const getAvatarStyle = (role) => {
+  const r = role?.toLowerCase() || 'buyer';
+  if (r === 'farmer') return "from-emerald-400 to-emerald-600 shadow-emerald-900/20";
+  if (r === 'transporter') return "from-amber-400 to-amber-600 shadow-amber-900/20";
+  return "from-blue-400 to-blue-600 shadow-blue-900/20";
 };
 
 const AdminAccounts = () => {
@@ -92,22 +99,25 @@ const AdminAccounts = () => {
         </div>
       )}
 
-      {/* Filters - Search Band Removed as requested */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
-          <div className="flex items-center gap-2">
-             <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100">
-                <Users size={14} />
+      {/* Filters */}
+      <div className="bg-white rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/30 p-6 flex flex-col md:flex-row gap-6 items-center justify-between mt-8 relative z-10">
+          <div className="flex items-center gap-3">
+             <div className="w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-500 border border-slate-200 shadow-inner">
+                <Users size={16} />
              </div>
-             <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Registry Filters</span>
+             <div>
+               <div className="text-[11px] font-black uppercase tracking-[0.15em] text-slate-800">Registry Filters</div>
+               <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Filter entities by role or status</div>
+             </div>
           </div>
-          <div className="flex gap-2 w-full md:w-auto">
-            <select className="flex-1 md:flex-none h-10 bg-slate-50 border border-slate-200 rounded-xl px-4 text-[10px] font-black uppercase tracking-widest text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner" value={roleFilter} onChange={e=>setRoleFilter(e.target.value)}>
+          <div className="flex gap-3 w-full md:w-auto">
+            <select className="flex-1 md:w-48 h-12 bg-slate-50 border border-slate-200 rounded-2xl px-5 text-[10px] font-black uppercase tracking-widest text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner cursor-pointer hover:bg-slate-100 transition-colors" value={roleFilter} onChange={e=>setRoleFilter(e.target.value)}>
               <option value="all">Global Roles</option>
-              <option value="farmer">Agricultural</option>
-              <option value="buyer">Commercial</option>
+              <option value="farmer">Producers</option>
+              <option value="buyer">Buyers</option>
               <option value="transporter">Logistics</option>
             </select>
-            <select className="flex-1 md:flex-none h-10 bg-slate-50 border border-slate-200 rounded-xl px-4 text-[10px] font-black uppercase tracking-widest text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner" value={statusFilter} onChange={e=>setStatusFilter(e.target.value)}>
+            <select className="flex-1 md:w-48 h-12 bg-slate-50 border border-slate-200 rounded-2xl px-5 text-[10px] font-black uppercase tracking-widest text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner cursor-pointer hover:bg-slate-100 transition-colors" value={statusFilter} onChange={e=>setStatusFilter(e.target.value)}>
               <option value="all">All Statuses</option>
               <option value="approved">Verified</option>
               <option value="suspended">Suspended</option>
@@ -132,72 +142,85 @@ const AdminAccounts = () => {
             </div>
           )}
           
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+          <div className="flex flex-col gap-3 pt-4">
+            {/* Header Row (Desktop Only) */}
+            <div className="hidden md:flex items-center justify-between px-5 pb-2 border-b border-slate-100 text-[9px] font-black uppercase tracking-widest text-slate-400">
+              <div className="w-[300px]">Entity Profile</div>
+              <div className="w-[200px] text-center">Role & Status</div>
+              <div className="w-[120px] text-center">Metrics</div>
+              <div className="w-[200px] text-right">Administrative Actions</div>
+            </div>
+
+            {/* List Rows */}
             {accounts.map(a => (
-              <div key={a.id} className="bg-white border border-slate-200 rounded-3xl p-6 hover:shadow-xl hover:-translate-y-1 hover:border-emerald-200 transition-all flex flex-col justify-between relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-4">
-                   <RoleBadge role={a.role} />
-                </div>
-                <div>
-                  <div className="flex gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-slate-50 text-emerald-700 border border-slate-100 flex items-center justify-center font-black text-xl shrink-0 shadow-inner group-hover:bg-emerald-50 transition-colors">
-                      {a.full_name?.charAt(0)}
-                    </div>
-                    <div className="min-w-0 pr-12">
-                      <div className="font-black text-slate-900 truncate text-base tracking-tight mb-1">{a.full_name}</div>
-                      <div className="flex flex-col gap-1 text-[10px] font-bold text-slate-400 uppercase tracking-widest opacity-70">
-                        <span className="flex items-center gap-1.5 truncate"><Mail size={12} className="text-emerald-500"/> {a.email}</span>
-                        {a.phone && <span className="flex items-center gap-1.5"><Phone size={12} className="text-emerald-500"/> {a.phone}</span>}
-                      </div>
-                    </div>
+              <div key={a.id} className="bg-white border border-slate-100 rounded-2xl p-4 md:p-5 hover:shadow-lg hover:border-emerald-200 hover:-translate-y-0.5 transition-all flex flex-col md:flex-row items-center justify-between gap-5 group">
+                
+                {/* 1. Avatar & Info */}
+                <div className="flex items-center gap-4 flex-1 min-w-0 w-full md:w-[300px] shrink-0">
+                  <div className={`w-12 h-12 shrink-0 rounded-xl bg-gradient-to-br ${getAvatarStyle(a.role)} text-white flex items-center justify-center font-black text-xl shadow-sm`}>
+                    {a.full_name?.charAt(0).toUpperCase()}
                   </div>
-
-                  <div className="mt-6 flex items-center justify-between border-t border-slate-50 pt-4">
-                    <div className="flex gap-5 text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                      <div className="flex flex-col">
-                        <span className="text-slate-800 text-xs">{a.stats?.listings || 0}</span> Units
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-slate-800 text-xs">{a.stats?.orders || 0}</span> Txns
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-end">
-                       {a.is_verified ? 
-                         <span className="text-[8px] font-black px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center gap-1 uppercase tracking-widest shadow-sm"><CheckCircle size={8}/> Verified</span> : 
-                         <span className="text-[8px] font-black px-2 py-0.5 rounded-full bg-amber-50 text-amber-600 border border-amber-100 flex items-center gap-1 uppercase tracking-widest shadow-sm"><Clock size={8}/> Pending</span>
-                       }
-                       {a.status === 'suspended' && <span className="text-[8px] font-black px-2 py-0.5 rounded-full bg-rose-50 text-rose-600 border border-rose-100 uppercase tracking-widest mt-1 shadow-sm">Suspended</span>}
+                  <div className="flex flex-col min-w-0">
+                    <div className="font-black text-slate-900 text-base truncate leading-tight">{a.full_name}</div>
+                    <div className="flex flex-wrap items-center gap-2 md:gap-3 mt-1 text-[9px] font-bold text-slate-400 uppercase tracking-widest truncate">
+                      <span className="flex items-center gap-1 text-slate-500"><Mail size={10} className="text-slate-300"/> {a.email}</span>
+                      {a.phone && <span className="flex items-center gap-1 text-slate-500"><Phone size={10} className="text-slate-300"/> {a.phone}</span>}
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-6 flex gap-2">
-                    <button className="h-8 flex-1 bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-[9px] font-black rounded-xl flex items-center justify-center gap-1.5 transition-all uppercase tracking-widest shadow-sm active:scale-95" onClick={() => handleMessage(a)}>
-                      <MessageSquare size={12} className="text-emerald-500"/> Msg
-                    </button>
-                    <button className="h-8 flex-1 bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-[9px] font-black rounded-xl flex items-center justify-center gap-1.5 transition-all uppercase tracking-widest shadow-sm active:scale-95" onClick={() => setSelectedUserId(a.id)}>
-                      <Eye size={12} className="text-emerald-500"/> View
-                    </button>
-                    {a.status !== 'suspended' ? (
-                      <button
-                        className="h-8 w-8 bg-white hover:bg-rose-50 text-rose-400 hover:text-rose-600 border border-slate-200 hover:border-rose-200 rounded-xl flex items-center justify-center transition-all shadow-sm active:scale-95"
-                        disabled={actionLoading === `${a.id}-suspend`}
-                        onClick={() => handleAction(a.id, 'suspend')}
-                        title="Suspend Account"
-                      >
-                        {actionLoading === `${a.id}-suspend` ? <RefreshCw size={12} className="animate-spin"/> : <UserMinus size={14}/>}
-                      </button>
-                    ) : (
-                      <button
-                        className="h-8 w-8 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl flex items-center justify-center transition-all shadow-lg shadow-emerald-900/20 active:scale-95"
-                        disabled={actionLoading === `${a.id}-approve`}
-                        onClick={() => handleAction(a.id, 'approve')}
-                        title="Reinstate Account"
-                      >
-                        {actionLoading === `${a.id}-approve` ? <RefreshCw size={12} className="animate-spin"/> : <CheckCircle size={14}/>}
-                      </button>
-                    )}
+                {/* 2. Role & Status */}
+                <div className="flex items-center gap-3 w-full md:w-[200px] shrink-0 justify-start md:justify-center">
+                  <RoleBadge role={a.role} />
+                  <div className="w-px h-6 bg-slate-100 hidden md:block"></div>
+                  {a.is_verified ? 
+                     <span className="text-[9px] font-black px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center gap-1 uppercase tracking-widest"><CheckCircle size={10}/> Verified</span> : 
+                     <span className="text-[9px] font-black px-2.5 py-1 rounded-md bg-amber-50 text-amber-600 border border-amber-100 flex items-center gap-1 uppercase tracking-widest"><Clock size={10}/> Pending</span>
+                  }
+                  {a.status === 'suspended' && <span className="text-[9px] font-black px-2.5 py-1 rounded-md bg-rose-50 text-rose-600 border border-rose-100 uppercase tracking-widest">Suspended</span>}
                 </div>
+
+                {/* 3. Stats */}
+                <div className="flex items-center gap-6 w-full md:w-[120px] shrink-0 justify-start md:justify-center">
+                  <div className="flex flex-col items-center">
+                    <span className="text-slate-800 font-black text-sm">{a.stats?.listings || 0}</span> 
+                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Listings</span>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <span className="text-slate-800 font-black text-sm">{a.stats?.orders || 0}</span> 
+                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Orders</span>
+                  </div>
+                </div>
+
+                {/* 4. Actions */}
+                <div className="flex items-center gap-2 w-full md:w-[200px] shrink-0 justify-start md:justify-end">
+                  <button className="h-9 px-3 bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-[10px] font-black rounded-xl flex items-center gap-1.5 transition-all uppercase tracking-widest shadow-sm active:scale-95" onClick={() => handleMessage(a)}>
+                    <MessageSquare size={12} /> Msg
+                  </button>
+                  <button className="h-9 px-3 bg-slate-900 hover:bg-slate-800 text-white border border-slate-800 text-[10px] font-black rounded-xl flex items-center gap-1.5 transition-all uppercase tracking-widest shadow-md active:scale-95" onClick={() => setSelectedUserId(a.id)}>
+                    <Eye size={12} /> View
+                  </button>
+                  {a.status !== 'suspended' ? (
+                    <button
+                      className="h-9 w-9 bg-white hover:bg-rose-50 text-rose-400 hover:text-rose-600 border border-slate-200 hover:border-rose-200 rounded-xl flex items-center justify-center transition-all shadow-sm active:scale-95 ml-1"
+                      disabled={actionLoading === `${a.id}-suspend`}
+                      onClick={() => handleAction(a.id, 'suspend')}
+                      title="Suspend Account"
+                    >
+                      {actionLoading === `${a.id}-suspend` ? <RefreshCw size={12} className="animate-spin"/> : <UserMinus size={14}/>}
+                    </button>
+                  ) : (
+                    <button
+                      className="h-9 w-9 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl flex items-center justify-center transition-all shadow-md active:scale-95 ml-1"
+                      disabled={actionLoading === `${a.id}-approve`}
+                      onClick={() => handleAction(a.id, 'approve')}
+                      title="Reinstate Account"
+                    >
+                      {actionLoading === `${a.id}-approve` ? <RefreshCw size={12} className="animate-spin"/> : <CheckCircle size={14}/>}
+                    </button>
+                  )}
+                </div>
+
               </div>
             ))}
           </div>

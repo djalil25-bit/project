@@ -12,36 +12,14 @@ import {
   BookOpen,
   Info,
   X,
-  PlusCircle,
-  Wheat, Apple, Leaf, Droplets, Sun, Sprout,
-  Fish, Egg, Package, Tag, ShoppingBag,
-  Truck, Star, Award, Shield
+  PlusCircle
 } from 'lucide-react';
 
-const ICON_OPTIONS = [
-  { name: 'Wheat', component: Wheat },
-  { name: 'Apple', component: Apple },
-  { name: 'Leaf', component: Leaf },
-  { name: 'Droplets', component: Droplets },
-  { name: 'Sun', component: Sun },
-  { name: 'Sprout', component: Sprout },
-  { name: 'Fish', component: Fish },
-  { name: 'Egg', component: Egg },
-  { name: 'Package', component: Package },
-  { name: 'Tag', component: Tag },
-  { name: 'ShoppingBag', component: ShoppingBag },
-  { name: 'Truck', component: Truck },
-  { name: 'Star', component: Star },
-  { name: 'Award', component: Award },
-  { name: 'Shield', component: Shield },
-  { name: 'Layers', component: Layers },
-];
 
-const ICON_MAP = Object.fromEntries(ICON_OPTIONS.map(i => [i.name, i.component]));
 
 function CategoryManager() {
   const [categories, setCategories] = useState([]);
-  const [formData, setFormData] = useState({ name: '', description: '', icon: 'Sprout' });
+  const [formData, setFormData] = useState({ name: '', description: '', icon: 'Layers' });
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -72,7 +50,7 @@ function CategoryManager() {
         await api.post('/categories/', formData);
         setSuccess('Category registered successfully.');
       }
-      setFormData({ name: '', description: '', icon: 'Sprout' });
+      setFormData({ name: '', description: '', icon: 'Layers' });
       setEditingId(null);
       fetchCategories();
     } catch (err) {
@@ -86,7 +64,7 @@ function CategoryManager() {
     setFormData({
       name: cat.name,
       description: cat.description || '',
-      icon: cat.icon || 'Sprout'
+      icon: cat.icon || 'Layers'
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -158,30 +136,7 @@ function CategoryManager() {
                 />
               </div>
 
-              <div>
-                <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Visual Identifier (Icon)</label>
-                <div className="grid grid-cols-6 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
-                  {ICON_OPTIONS.map(opt => {
-                    const IconComp = opt.component;
-                    const isSelected = formData.icon === opt.name;
-                    return (
-                      <button
-                        key={opt.name}
-                        type="button"
-                        title={opt.name}
-                        className={`w-9 h-9 rounded-lg flex items-center justify-center border transition-all ${
-                          isSelected
-                            ? 'bg-emerald-600 border-emerald-600 text-white shadow-md scale-110 z-10'
-                            : 'bg-white border-slate-200 text-slate-400 hover:border-emerald-300 hover:text-emerald-600'
-                        }`}
-                        onClick={() => setFormData({ ...formData, icon: opt.name })}
-                      >
-                        <IconComp size={16} />
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
+
 
               <div>
                 <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Taxonomic Scope</label>
@@ -207,7 +162,7 @@ function CategoryManager() {
                 <button
                   className="w-11 h-11 rounded-xl bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-all flex items-center justify-center"
                   type="button"
-                  onClick={() => { setFormData({ name: '', description: '', icon: 'Sprout' }); setEditingId(null); }}
+                  onClick={() => { setFormData({ name: '', description: '', icon: 'Layers' }); setEditingId(null); }}
                 >
                   <X size={18} />
                 </button>
@@ -263,12 +218,9 @@ function CategoryManager() {
                       <tr key={c.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            {(() => {
-                              const IconComp = ICON_MAP[c.icon];
-                              return IconComp
-                                ? <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-emerald-600 shadow-inner"><IconComp size={18} /></div>
-                                : <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-400"><Sprout size={18} /></div>;
-                            })()}
+                            <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center text-emerald-600 shadow-inner">
+                              <Layers size={18} />
+                            </div>
                             <div className="font-black text-slate-800 text-sm tracking-tight">{c.name}</div>
                           </div>
                         </td>

@@ -87,6 +87,9 @@ class User(AbstractUser, TimeStampedModel):
     # Transporter-specific (legacy JSON — kept for backward compatibility)
     vehicles     = models.JSONField(default=list, blank=True)
     service_zones = models.JSONField(default=list, blank=True)
+    
+    # Platform Awards / Badges
+    badges = models.JSONField(default=list, blank=True)
 
     USERNAME_FIELD  = 'email'
     REQUIRED_FIELDS = ['full_name']
