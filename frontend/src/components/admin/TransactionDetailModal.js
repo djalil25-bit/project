@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, User, ShoppingBag, Package, Truck, MapPin, Phone, Mail, CheckCircle, AlertTriangle, MessageSquare, Flag, DollarSign } from 'lucide-react';
+import { X, User, ShoppingBag, Package, Truck, MapPin, Phone, Mail, CheckCircle, AlertTriangle, MessageSquare, Flag } from 'lucide-react';
 
 const TransactionDetailModal = ({ txn, onClose, onAction }) => {
   if (!txn) return null;

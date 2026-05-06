@@ -407,22 +407,21 @@ function OrderHistory() {
                                                       className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all backdrop-blur-sm border border-white/10"
                                                     >
                                                       View Invoice
-                                                    </Link>
-                                                  )}
-                                               </div>
-                                            </div>
-                                         </div>
-                                     </div>
-                                  </div>
+                                                     </Link>
+                                                   )}
+                                                </div>
+                                             </div>
+                                          </div>
+                                       </div>
+                                    </div>
 
-                                  {/* Col 2: Intel & Traces */}
-                                  <div className="space-y-6">
-                                     {/* Transporter Intel Card */}
-                                     {o.delivery_request?.transporter_name && (
+                                    <div className="space-y-6">
+                                      {/* Your Delivery Agent Card */}
+                                     {o.transporter ? (
                                         <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
                                           <div className="flex items-center gap-2 mb-4 border-b border-slate-50 pb-3">
                                             <Truck size={16} className="text-blue-600" />
-                                            <h6 className="font-black text-xs uppercase tracking-widest m-0">Transporter Information</h6>
+                                            <h6 className="font-black text-xs uppercase tracking-widest m-0">🚚 Your Delivery Agent</h6>
                                           </div>
                                           <div className="space-y-4">
                                             <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
@@ -430,31 +429,34 @@ function OrderHistory() {
                                                 <User size={20} />
                                               </div>
                                               <div>
-                                                <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Transporter Name</div>
-                                                <div className="text-sm font-black text-slate-800">{o.delivery_request.transporter_name}</div>
+                                                <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Full Name</div>
+                                                <div className="text-sm font-black text-slate-800">{o.transporter.name}</div>
                                               </div>
                                             </div>
                                             
                                             <div className="grid grid-cols-2 gap-3">
                                               <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                                                <label className="text-[8px] font-black uppercase tracking-widest text-slate-400 block mb-1">Vehicle</label>
-                                                <div className="text-[10px] font-black text-slate-700 uppercase">{o.delivery_request.vehicle_type || 'Truck'}</div>
+                                                <label className="text-[8px] font-black uppercase tracking-widest text-slate-400 block mb-1">Contact</label>
+                                                <a 
+                                                  href={`https://wa.me/${o.transporter.phone?.replace(/\D/g, '').startsWith('0') ? '213' + o.transporter.phone.replace(/\D/g, '').substring(1) : o.transporter.phone?.replace(/\D/g, '')}`} 
+                                                  target="_blank" rel="noopener noreferrer" 
+                                                  className="flex items-center gap-1.5 text-[10px] font-black text-emerald-600 hover:text-emerald-700 transition-colors"
+                                                >
+                                                  <Phone size={11} className="fill-emerald-600" /> {o.transporter.phone}
+                                                </a>
                                               </div>
                                               <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-                                                <label className="text-[8px] font-black uppercase tracking-widest text-slate-400 block mb-1">Plate</label>
-                                                <div className="text-[10px] font-black text-slate-700 uppercase">{o.delivery_request.plate_number_masked}</div>
+                                                <label className="text-[8px] font-black uppercase tracking-widest text-slate-400 block mb-1">License Plate</label>
+                                                <div className="text-[10px] font-black text-slate-700 uppercase flex items-center gap-1">
+                                                  <Truck size={10} /> {o.transporter.license_plate || '—'}
+                                                </div>
                                               </div>
                                             </div>
-
-                                            <div className="flex gap-2 pt-2">
-                                              <a href={`tel:${o.delivery_request.transporter_phone}`} className="flex-1 bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-xl text-[9px] font-black uppercase tracking-widest text-center shadow-md transition-all flex items-center justify-center gap-1.5">
-                                                <Phone size={12} /> Call
-                                              </a>
-                                              <a href={`https://wa.me/${o.delivery_request.transporter_phone?.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white p-2 rounded-xl text-[9px] font-black uppercase tracking-widest text-center shadow-md transition-all flex items-center justify-center gap-1.5">
-                                                WhatsApp
-                                              </a>
-                                            </div>
                                           </div>
+                                        </div>
+                                     ) : (
+                                        <div className="bg-slate-50 border border-slate-200 border-dashed rounded-2xl p-6 text-center">
+                                          <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Awaiting transporter assignment</div>
                                         </div>
                                      )}
 

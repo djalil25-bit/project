@@ -4,7 +4,7 @@ import api from '../../api/axiosConfig';
 import {
   Package, User, ListOrdered, CheckCircle, XCircle,
   Clock, Truck, Search, Eye, ChevronLeft, ChevronRight,
-  ShieldAlert
+  ShieldAlert, Phone
 } from 'lucide-react';
 
 /* ── Pure Tailwind Status badges ───────────────────────────────────────── */
@@ -300,7 +300,17 @@ export default function OrderList() {
                               <div className="space-y-2 mb-6">
                                 <div className="flex justify-between items-center bg-slate-50 px-3 py-2 rounded-lg border border-slate-100">
                                   <span className="text-xs font-bold text-slate-500">Phone:</span>
-                                  <span className="text-xs font-black text-slate-800 truncate pl-2">{o.buyer_phone || 'UNAVAILABLE'}</span>
+                                  {o.buyer_phone ? (
+                                    <a 
+                                      href={`https://wa.me/${o.buyer_phone.replace(/\D/g, '').startsWith('0') ? '213' + o.buyer_phone.replace(/\D/g, '').substring(1) : o.buyer_phone.replace(/\D/g, '')}`}
+                                      target="_blank" rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-1.5 px-2 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-[11px] font-black hover:bg-emerald-100 hover:border-emerald-300 transition-all shadow-sm"
+                                    >
+                                      <Phone size={11} className="fill-emerald-700" /> {o.buyer_phone}
+                                    </a>
+                                  ) : (
+                                    <span className="text-xs font-black text-slate-400 italic">UNAVAILABLE</span>
+                                  )}
                                 </div>
                                 <div className="flex justify-between items-center bg-slate-50 px-3 py-2 rounded-lg border border-slate-100">
                                   <span className="text-xs font-bold text-slate-500">Delivery Address:</span>

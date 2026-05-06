@@ -3,7 +3,7 @@ import api from '../../api/axiosConfig';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   Home, MapPin, Maximize2, Package, ShoppingCart,
-  DollarSign, Plus, Edit3, ChevronRight, Trophy,
+  Plus, Edit3, ChevronRight, Trophy,
   Eye, EyeOff, Edit, Leaf, Calendar
 } from 'lucide-react';
 
@@ -83,7 +83,7 @@ export default function FarmDetail() {
   const statCards = [
     { icon: <Package size={20} />, color: 'green', val: stats?.product_count ?? products.length, label: 'Listed Products' },
     { icon: <ShoppingCart size={20} />, color: 'blue', val: stats?.order_count ?? '—', label: 'Orders Received' },
-    { icon: <DollarSign size={20} />, color: 'gold', val: stats ? <>{parseFloat(stats.revenue).toLocaleString()}<small>DZD</small></> : '—', label: 'Revenue' },
+    { icon: <span className="font-black text-sm">DZ</span>, color: 'gold', val: stats ? <>{parseFloat(stats.revenue).toLocaleString()}<small>DZD</small></> : '—', label: 'Revenue' },
   ];
 
   return (

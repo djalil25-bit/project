@@ -8,7 +8,6 @@ import {
   CheckCircle, 
   AlertCircle, 
   Calendar, 
-  DollarSign, 
   Info, 
   X,
   Send,
@@ -145,7 +144,7 @@ function PriceManager() {
             <div>
               <label className="adm-label">Market Average (DZD)</label>
               <div className="relative">
-                <DollarSign size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-600" />
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-600 font-black text-[10px]">DZ</span>
                 <input type="number" step="0.01" className="adm-input pl-9 font-bold text-blue-600" placeholder="0.00" value={formData.reference_price} onChange={e => setFormData({ ...formData, reference_price: e.target.value })} required />
               </div>
             </div>

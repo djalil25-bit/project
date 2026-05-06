@@ -17,6 +17,29 @@ ALGERIAN_WILAYAS = [
     ("57", "In Salah"), ("58", "In Guezzam")
 ]
 
+def get_wilaya_name(value):
+    """
+    Normalizes a wilaya value (ID or Name) to the standard Name.
+    Example: '17' -> 'Djelfa', 'djelfa' -> 'Djelfa', 'Djelfa' -> 'Djelfa'
+    """
+    if not value:
+        return ""
+    
+    val_str = str(value).strip()
+    
+    # 1. Check if it's an ID
+    for w_id, w_name in ALGERIAN_WILAYAS:
+        if val_str == w_id:
+            return w_name
+            
+    # 2. Check if it's a name (case-insensitive)
+    val_lower = val_str.lower()
+    for w_id, w_name in ALGERIAN_WILAYAS:
+        if val_lower == w_name.lower():
+            return w_name
+            
+    return val_str # Fallback to original string if no match found
+
 # Simple Map for Distance Estimation (Mock proximity)
 # This will be used in the service to determine distance brackets if no exact coordinates are available.
 # Format: { (WilayaID_Origin, WilayaID_Dest): DistanceClass }

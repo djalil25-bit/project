@@ -10,7 +10,6 @@ import {
   Clock,
   CheckCircle,
   Package,
-  DollarSign,
   Navigation,
   Camera,
   X,
@@ -216,7 +215,7 @@ function TransporterDashboard() {
           </div>
           <div className="buyer-kpi-card stagger-4 animate-fade-up">
             <div className="buyer-kpi-icon" style={{ background: '#ecfdf5', color: '#059669' }}>
-              <DollarSign size={20} />
+              <span className="font-black text-sm">DZ</span>
             </div>
             <div>
               <div className="buyer-kpi-value">

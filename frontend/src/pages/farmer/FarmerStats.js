@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '../../api/axiosConfig';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  TrendingUp, DollarSign, ListOrdered, Sprout,
+  TrendingUp, ListOrdered, Sprout,
   Award, BarChart2, ChevronRight, AlertCircle, Leaf, Tractor, ArrowLeft
 } from 'lucide-react';
 import {
@@ -99,7 +99,7 @@ export default function FarmerStats() {
       {/* ── KPI GRID ───────────────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
         {[
-          { icon: <DollarSign size={24} />, color: 'emerald', val: `${(data?.total_revenue || 0).toLocaleString()} DZD`, label: 'Total Gross Revenue' },
+          { icon: <span className="font-black text-sm">DZ</span>, color: 'emerald', val: `${(data?.total_revenue || 0).toLocaleString()} DZD`, label: 'Total Gross Revenue' },
           { icon: <ListOrdered size={24} />, color: 'blue', val: data?.total_orders || 0, label: 'Confirmed Transactions' },
           { icon: <Tractor size={24} />, color: 'amber', val: data?.best_farms?.length || 0, label: 'Top-Yielding Farms' },
           { icon: <Sprout size={24} />, color: 'indigo', val: data?.best_products?.length || 0, label: 'High-Demand Varieties' },

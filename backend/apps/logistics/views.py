@@ -14,6 +14,7 @@ from .serializers import (
 )
 from apps.accounts.permissions import IsTransporterRole, IsFarmerRole
 from apps.orders.models import OrderStatusChoices, DeliveryStatusChoices as OrderDeliveryStatus
+from apps.common.constants import get_wilaya_name
 
 logger = logging.getLogger(__name__)
 
@@ -60,13 +61,7 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
                 wilaya = first_item.farmer.address
                 
             if wilaya:
-                serializer.validated_data['pickup_wilaya'] = wilaya.strip()
-            else:
-                # Last resort: try any farm associated with this farmer
-                from apps.farms.models import Farm
-                any_farm = Farm.objects.filter(owner=first_item.farmer).first()
-                if any_farm and any_farm.wilaya:
-                    serializer.validated_data['pickup_wilaya'] = any_farm.wilaya.strip()
+                serializer.validated_data['pickup_wilaya'] = wilaya
             
         serializer.save()
 
@@ -106,11 +101,9 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
             # 2. Apply additional search filters from query params
             search_q = Q()
             if pickup_wilaya:
-                search_q &= Q(pickup_wilaya__iexact=pickup_wilaya)
+                qs = qs.filter(pickup_wilaya=pickup_wilaya)
             if delivery_wilaya:
-                search_q &= Q(order__wilaya__iexact=delivery_wilaya)
-            
-            qs = qs.filter(visibility_q & search_q)
+                qs = qs.filter(order__wilaya=delivery_wilaya)
 
             if self.action in ['my_missions', 'update_status']:
                 return qs.filter(transporter=user)

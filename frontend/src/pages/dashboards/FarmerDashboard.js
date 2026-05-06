@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../api/axiosConfig';
 import SensorWidget from '../../components/iot/SensorWidget';
 import {
-  Plus, Sprout, TrendingUp, Clock, DollarSign,
+  Plus, Sprout, TrendingUp, Clock,
   Package, ChevronRight, CheckCircle, ExternalLink, ListOrdered,
   BadgeCheck, ShoppingBag, Activity, AlertTriangle, CloudSun, Target,
   ShieldAlert
@@ -82,7 +82,7 @@ export default function FarmerDashboard() {
       micro: 'Total across all products',
     },
     {
-      icon: <DollarSign size={28} strokeWidth={2.5} className="text-white drop-shadow-sm" />,
+      icon: <span className="text-white font-black text-xl drop-shadow-sm">DZ</span>,
       bgIconCls: 'bg-emerald-700 shadow-emerald-700/30',
       value: null,
       rawRevenue: stats.total_revenue,

@@ -10,6 +10,9 @@ def generate_otp():
 
 def send_otp_email(user):
     """Generate and send OTP email to user."""
+    if not getattr(settings, 'OTP_ENABLED', True):
+        return True
+
     code = generate_otp()
     
     # Save code in database
