@@ -13,11 +13,13 @@ import {
   Navigation,
   Camera,
   X,
-  Phone
+  Phone,
+  CloudSun
 } from 'lucide-react';
 import ProofOfDeliveryModal from '../../components/logistics/ProofOfDeliveryModal';
 import VehicleSelectionModal from '../../components/logistics/VehicleSelectionModal';
 import RefusalModal from '../../components/logistics/RefusalModal';
+import MiniWeatherWidget from '../../components/weather/MiniWeatherWidget';
 
 const StatusBadge = ({ status }) => {
   const map = {
@@ -162,30 +164,35 @@ function TransporterDashboard() {
     <div className="transporter-dashboard animate-fade-in">
 
       {/* ── HERO BANNER (amber/green logistics theme) ── */}
-      <div className="transporter-hero-banner">
-        <div className="transporter-hero-deco">🚛🛣️</div>
-        <div className="transporter-hero-content">
-          <div className="transporter-hero-tag">
-            <Clock size={13} /> Real-time Updates
+      <div className="transporter-hero-banner" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div style={{ zIndex: 1, position: 'relative', flex: 1 }}>
+          <div className="transporter-hero-deco">🚛🛣️</div>
+          <div className="transporter-hero-content">
+            <div className="transporter-hero-tag">
+              <Clock size={13} /> Real-time Updates
+            </div>
+            <h1 className="transporter-hero-title">Logistics Control Center</h1>
+            <p className="transporter-hero-sub" style={{ maxWidth: '80%' }}>
+              Manage your delivery missions, monitor your routes, and track performance across the national network.
+            </p>
+            <div className="transporter-hero-actions">
+              <button className="transporter-hero-btn" onClick={() => navigate('/transporter-dashboard/vehicles')}>
+                <Truck size={14} /> My Fleet
+              </button>
+              <button className="transporter-hero-btn-outline" onClick={() => navigate('/transporter-dashboard/zones')}>
+                <MapPin size={14} /> Service Zones
+              </button>
+            </div>
           </div>
-          <h1 className="transporter-hero-title">Logistics Control Center</h1>
-          <p className="transporter-hero-sub">
-            Manage your delivery missions, monitor your routes, and track performance across the national network.
-          </p>
-          <div className="transporter-hero-actions">
-            <button className="transporter-hero-btn" onClick={() => navigate('/transporter-dashboard/vehicles')}>
-              <Truck size={14} /> My Fleet
-            </button>
-            <button className="transporter-hero-btn-outline" onClick={() => navigate('/transporter-dashboard/zones')}>
-              <MapPin size={14} /> Service Zones
-            </button>
-          </div>
+        </div>
+        <div style={{ zIndex: 10, position: 'relative', marginTop: '1rem', marginRight: '1rem' }} className="hidden md:block">
+          <MiniWeatherWidget farmId={null} />
         </div>
       </div>
 
       {/* ── KPI CARDS ──────────────────────────────── */}
       {stats && (
-        <div className="buyer-kpi-grid mb-4">
+        <div className="buyer-kpi-grid mb-4 mt-2">
           <div className="buyer-kpi-card stagger-1 animate-fade-up">
             <div className="buyer-kpi-icon" style={{ background: '#fef3c7', color: '#d97706' }}>
               <ClipboardList size={20} />

@@ -19,8 +19,10 @@ import ContactPage from './pages/public/ContactPage';
 import AdminDashboard from './pages/dashboards/AdminDashboard';
 import AdminAnalytics from './pages/admin/AdminAnalytics';
 import FarmerDashboard from './pages/dashboards/FarmerDashboard';
+import FarmerWeatherPage from './pages/dashboards/FarmerWeatherPage';
 import BuyerDashboard from './pages/dashboards/BuyerDashboard';
 import TransporterDashboard from './pages/dashboards/TransporterDashboard';
+import TransporterWeatherPage from './pages/dashboards/TransporterWeatherPage';
 
 // Sub-pages
 import FarmForm from './pages/farmer/FarmForm';
@@ -144,6 +146,11 @@ function App() {
               <FarmerDashboard />
             </ProtectedRoute>
           } />
+          <Route path="/farmer-dashboard/weather" element={
+            <ProtectedRoute allowedRoles={['farmer']}>
+              <FarmerWeatherPage />
+            </ProtectedRoute>
+          } />
           <Route path="/farmer/orders" element={
             <ProtectedRoute allowedRoles={['farmer']}>
               <OrderList />
@@ -247,6 +254,11 @@ function App() {
           <Route path="/transporter-dashboard/zones" element={
             <ProtectedRoute allowedRoles={['transporter']}>
               <ZoneSettings />
+            </ProtectedRoute>
+          } />
+          <Route path="/transporter-dashboard/weather" element={
+            <ProtectedRoute allowedRoles={['transporter']}>
+              <TransporterWeatherPage />
             </ProtectedRoute>
           } />
 
