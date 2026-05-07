@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axiosConfig';
 import SensorWidget from '../../components/iot/SensorWidget';
+import WeatherWidget from '../../components/weather/WeatherWidget';
+import MiniWeatherWidget from '../../components/weather/MiniWeatherWidget';
 import {
   Plus, Sprout, TrendingUp, Clock,
   Package, ChevronRight, CheckCircle, ExternalLink, ListOrdered,
@@ -24,7 +26,7 @@ export default function FarmerDashboard() {
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [farmId, setFarmId] = useState(null);
+  const [farmId, setFarmId] = useState(undefined);
   const [alertStatus, setAlertStatus] = useState(null); // { alerts_count, has_danger }
 
   useEffect(() => {
@@ -45,9 +47,14 @@ export default function FarmerDashboard() {
           api.get(`/iot/alerts/${fid}/`)
             .then(alertRes => setAlertStatus(alertRes.data))
             .catch(() => {});
+        } else {
+          setFarmId(null); // No farms — weather widget uses default city
         }
       })
-      .catch(err => console.error('[IoT] Could not load farms:', err));
+      .catch(err => {
+        console.error('[IoT] Could not load farms:', err);
+        setFarmId(null); // On error — still show weather with default city
+      });
   }, []);
 
   if (loading) return (
@@ -122,21 +129,9 @@ export default function FarmerDashboard() {
             </div>
           </div>
 
-          {/* Intelligence Column */}
-          <div className="w-full lg:w-64 bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl p-4 shadow-xl shrink-0 group hover:bg-white/10 transition-colors duration-500">
-            <h3 className="text-xs font-black text-emerald-400 uppercase tracking-widest mb-3 flex items-center gap-2 border-b border-white/10 pb-2">
-              <CloudSun size={14} strokeWidth={2.5} /> Market Intel
-            </h3>
-            <div className="space-y-2">
-               <div className="flex items-center justify-between bg-black/20 p-2.5 rounded-xl border border-white/5">
-                <span className="text-xs text-slate-300 font-bold">Farm Status</span>
-                <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] font-black rounded-md flex items-center gap-1 border border-emerald-500/30"><Activity size={10}/> Operational</span>
-              </div>
-              <div className="flex items-center justify-between bg-black/20 p-2.5 rounded-xl border border-white/5">
-                <span className="text-xs text-slate-300 font-bold">Market Signal</span>
-                <span className="px-2 py-0.5 bg-amber-500/20 text-amber-300 text-[10px] font-black rounded-md flex items-center gap-1 border border-amber-500/30"><Target size={10}/> High Demand</span>
-              </div>
-            </div>
+          {/* Weather Mini Widget Column */}
+          <div className="hidden lg:block shrink-0 relative z-10">
+            <MiniWeatherWidget farmId={farmId} targetPath="/farmer-dashboard/weather" />
           </div>
         </div>
       </div>
@@ -225,6 +220,8 @@ export default function FarmerDashboard() {
           </div>
         </div>
       )}
+
+
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         

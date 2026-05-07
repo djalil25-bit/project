@@ -5,6 +5,8 @@ from django.db.models import Sum, Count, F
 from django.db.models.functions import TruncMonth
 from django.utils import timezone
 from datetime import timedelta
+import requests
+import os
 
 from apps.accounts.models import User, AccountStatusChoices, RoleChoices
 from apps.catalog.models import Product
@@ -383,3 +385,158 @@ class ActorMessageAPIView(APIView):
         )
 
         return Response(AdminMessageSerializer(reply).data, status=status.HTTP_201_CREATED)
+
+
+class WeatherAPIView(APIView):
+    """
+    Secure proxy for OpenWeatherMap.
+    GET /dashboards/weather/?farm_id=<id>
+    Returns current weather + 5-day / 3-hour forecast aggregated per day.
+    Falls back to city "Algiers" if the farm has no GPS coordinates or a valid city name.
+    """
+    permission_classes = [IsAuthenticated]
+
+    # Algerian wilaya code → main city name (for farms that store wilaya as "16", "9", etc.)
+    WILAYA_CODE_TO_CITY = {
+        '1': 'Adrar', '2': 'Chlef', '3': 'Laghouat', '4': 'Oum El Bouaghi',
+        '5': 'Batna', '6': 'Béjaïa', '7': 'Biskra', '8': 'Béchar',
+        '9': 'Blida', '10': 'Bouira', '11': 'Tamanrasset', '12': 'Tébessa',
+        '13': 'Tlemcen', '14': 'Tiaret', '15': 'Tizi Ouzou', '16': 'Algiers',
+        '17': 'Djelfa', '18': 'Jijel', '19': 'Sétif', '20': 'Saïda',
+        '21': 'Skikda', '22': 'Sidi Bel Abbès', '23': 'Annaba', '24': 'Guelma',
+        '25': 'Constantine', '26': 'Médéa', '27': 'Mostaganem', '28': "M'Sila",
+        '29': 'Mascara', '30': 'Ouargla', '31': 'Oran', '32': 'El Bayadh',
+        '33': 'Illizi', '34': 'Bordj Bou Arréridj', '35': 'Boumerdès',
+        '36': 'El Tarf', '37': 'Tindouf', '38': 'Tissemsilt', '39': 'El Oued',
+        '40': 'Khenchela', '41': 'Souk Ahras', '42': 'Tipaza', '43': 'Mila',
+        '44': 'Aïn Defla', '45': 'Naâma', '46': 'Aïn Témouchent',
+        '47': 'Ghardaïa', '48': 'Relizane', '49': 'El MGhair', '50': 'El Menia',
+        '51': 'Ouled Djellal', '52': 'Bordj Badji Mokhtar', '53': 'Béni Abbès',
+        '54': 'Timimoun', '55': 'Touggourt', '56': 'Djanet', '57': 'In Salah',
+        '58': 'In Guezzam',
+    }
+
+    def _resolve_city(self, wilaya_value):
+        """
+        Convert a wilaya field value to a searchable city name.
+        Handles: numeric codes ("9", "16"), city names ("Blida"), None.
+        Always returns a valid string for OpenWeatherMap's ?q= parameter.
+        """
+        if not wilaya_value:
+            return 'Algiers'
+        stripped = str(wilaya_value).strip()
+        # If it's a numeric code, map it
+        if stripped.isdigit():
+            return self.WILAYA_CODE_TO_CITY.get(stripped, 'Algiers')
+        # Otherwise use it directly (it's already a city/wilaya name)
+        return stripped if stripped else 'Algiers'
+
+    def get(self, request):
+        from apps.farms.models import Farm
+
+        api_key = os.environ.get('OPENWEATHER_API_KEY', '')
+        if not api_key:
+            return Response({'error': 'Weather service not configured.'}, status=503)
+
+        farm_id = request.query_params.get('farm_id')
+        wilaya_param = request.query_params.get('wilaya')
+
+        lat, lon = None, None
+        farm_name = 'Algeria'
+        city = 'Algiers'  # safe default
+
+        if wilaya_param:
+            city = self._resolve_city(wilaya_param)
+            farm_name = wilaya_param
+        elif farm_id:
+            try:
+                farm = Farm.objects.get(id=farm_id, owner=request.user)
+                farm_name = farm.name
+                lat = farm.latitude
+                lon = farm.longitude
+                city = self._resolve_city(farm.wilaya)
+            except Farm.DoesNotExist:
+                pass
+
+        # Build geo params — prefer lat/lon (most accurate), fall back to city name
+        if lat and lon:
+            geo_params = {'lat': lat, 'lon': lon}
+        else:
+            geo_params = {'q': f'{city},DZ'}
+
+        base_params = {**geo_params, 'appid': api_key, 'units': 'metric', 'lang': 'en'}
+
+        # --- Current weather ---
+        try:
+            current_resp = requests.get(
+                'https://api.openweathermap.org/data/2.5/weather',
+                params=base_params, timeout=8
+            )
+            current_resp.raise_for_status()
+            current_data = current_resp.json()
+        except Exception as e:
+            return Response({'error': f'Weather API error: {str(e)}'}, status=502)
+
+        current = {
+            'temp': round(current_data['main']['temp']),
+            'feels_like': round(current_data['main']['feels_like']),
+            'humidity': current_data['main']['humidity'],
+            'wind_speed': round(current_data['wind']['speed'] * 3.6, 1),  # m/s → km/h
+            'description': current_data['weather'][0]['description'].capitalize(),
+            'icon_code': current_data['weather'][0]['icon'],
+            'city': current_data.get('name', city),
+            'country': current_data.get('sys', {}).get('country', 'DZ'),
+        }
+
+        # --- 5-day / 3-hour forecast → aggregate to daily ---
+        try:
+            forecast_resp = requests.get(
+                'https://api.openweathermap.org/data/2.5/forecast',
+                params=base_params, timeout=8
+            )
+            forecast_resp.raise_for_status()
+            forecast_data = forecast_resp.json()
+        except Exception:
+            return Response({'current': current, 'forecast': [], 'farm_name': farm_name})
+
+        from collections import defaultdict
+        days = defaultdict(list)
+        for item in forecast_data.get('list', []):
+            date_str = item['dt_txt'][:10]  # "YYYY-MM-DD"
+            days[date_str].append(item)
+
+        forecast = []
+        for date_str in sorted(days.keys())[:6]:  # today + 5 days
+            entries = days[date_str]
+            temps = [e['main']['temp'] for e in entries]
+            # Pick the noon entry if available, else the middle entry
+            noon_entries = [e for e in entries if '12:00' in e['dt_txt']]
+            representative = noon_entries[0] if noon_entries else entries[len(entries)//2]
+
+            forecast.append({
+                'date': date_str,
+                'temp_min': round(min(temps)),
+                'temp_max': round(max(temps)),
+                'icon_code': representative['weather'][0]['icon'],
+                'description': representative['weather'][0]['description'].capitalize(),
+                'humidity': round(sum(e['main']['humidity'] for e in entries) / len(entries)),
+                'wind_speed': round(sum(e['wind']['speed'] for e in entries) / len(entries) * 3.6, 1),
+            })
+
+        # Extract all 3-hour intervals for the hourly forecast widget, including the date
+        hourly = []
+        for item in forecast_data.get('list', []):
+            hourly.append({
+                'date': item['dt_txt'][:10],   # "YYYY-MM-DD"
+                'time': item['dt_txt'][11:16], # "HH:MM"
+                'temp': round(item['main']['temp']),
+                'icon_code': item['weather'][0]['icon']
+            })
+
+        return Response({
+            'farm_name': farm_name,
+            'current': current,
+            'forecast': forecast,
+            'hourly': hourly,
+        })
+
