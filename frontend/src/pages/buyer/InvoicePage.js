@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
+import html2pdf from 'html2pdf.js';
 import api from '../../api/axiosConfig';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import {
   FileText, Printer, ChevronRight, Package,
   MapPin, Calendar, CreditCard, CheckCircle,
-  ArrowLeft, ShoppingBag
+  ArrowLeft, ShoppingBag, Download
 } from 'lucide-react';
 import QRDisplay from '../../components/common/QRDisplay';
 
@@ -136,6 +137,19 @@ function InvoiceDetail() {
     document.title = originalTitle;
   };
 
+  const handleDownload = () => {
+    const element = document.getElementById('invoice-print');
+    const invoiceNum = `INV-${order.id.toString().padStart(5, '0')}`;
+    const opt = {
+      margin:       [0.4, 0.4],
+      filename:     `${invoiceNum}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+      jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+    html2pdf().set(opt).from(element).save();
+  };
+
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[40vh] gap-3">
       <div className="w-9 h-9 rounded-full border-4 border-slate-200 border-t-indigo-600 animate-spin" />
@@ -165,12 +179,20 @@ function InvoiceDetail() {
         >
           <ArrowLeft size={14} /> Back
         </button>
-        <button
-          className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-95"
-          onClick={handlePrint}
-        >
-          <Printer size={14} /> Print Invoice
-        </button>
+        <div className="flex gap-3">
+          <button
+            className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-xl font-black text-xs uppercase tracking-widest border border-slate-200 shadow-sm transition-all active:scale-95"
+            onClick={handleDownload}
+          >
+            <Download size={14} className="text-indigo-600" /> Download PDF
+          </button>
+          <button
+            className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-95"
+            onClick={handlePrint}
+          >
+            <Printer size={14} /> Print Invoice
+          </button>
+        </div>
       </div>
 
       {/* Invoice Body */}

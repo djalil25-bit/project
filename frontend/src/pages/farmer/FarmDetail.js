@@ -171,34 +171,8 @@ export default function FarmDetail() {
         ))}
       </div>
 
-      {/* Top products ranking */}
-      {stats?.best_products?.length > 0 && (
-        <div className="f-chart-card" style={{ marginBottom: '1.5rem' }}>
-          <div className="f-chart-header">
-            <div className="f-chart-title"><Trophy size={15} style={{ color: 'var(--f-gold)' }} /> Top Selling Products</div>
-          </div>
-          {stats.best_products.map((bp, i) => (
-            <div key={bp.id} className="f-ranking-item">
-              <div className={`f-rank-badge ${i === 0 ? 'r1' : i === 1 ? 'r2' : i === 2 ? 'r3' : 'rn'}`}>
-                {String(i + 1).padStart(2, '0')}
-              </div>
-              <div style={{ flex: 1 }}>
-                <div className="f-rank-name">{bp.name}</div>
-                <div className="f-rank-sub">{bp.qty} units sold</div>
-              </div>
-              <div className="f-rank-value">
-                <div className="f-rank-rev">{bp.revenue.toLocaleString()} DZD</div>
-                <div className="f-rank-bar-wrap">
-                  <div className="f-rank-bar" style={{ width: `${Math.min((bp.revenue / (stats.best_products[0]?.revenue || 1)) * 100, 100)}%` }} />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
       {/* Products table */}
-      <div className="f-card">
+      <div className="f-card" style={{ marginBottom: '1.5rem' }}>
         <div className="f-card-header">
           <div className="f-section-title">
             <div className="f-section-title-icon"><Leaf size={14} /></div>
@@ -266,6 +240,32 @@ export default function FarmDetail() {
           </div>
         )}
       </div>
+
+      {/* Top products ranking */}
+      {stats?.best_products?.length > 0 && (
+        <div className="f-chart-card">
+          <div className="f-chart-header">
+            <div className="f-chart-title"><Trophy size={15} style={{ color: 'var(--f-gold)' }} /> Top Selling Products</div>
+          </div>
+          {stats.best_products.map((bp, i) => (
+            <div key={bp.id} className="f-ranking-item">
+              <div className={`f-rank-badge ${i === 0 ? 'r1' : i === 1 ? 'r2' : i === 2 ? 'r3' : 'rn'}`}>
+                {String(i + 1).padStart(2, '0')}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div className="f-rank-name">{bp.name}</div>
+                <div className="f-rank-sub">{bp.qty} units sold</div>
+              </div>
+              <div className="f-rank-value">
+                <div className="f-rank-rev">{bp.revenue.toLocaleString()} DZD</div>
+                <div className="f-rank-bar-wrap">
+                  <div className="f-rank-bar" style={{ width: `${Math.min((bp.revenue / (stats.best_products[0]?.revenue || 1)) * 100, 100)}%` }} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
     </div>
   );

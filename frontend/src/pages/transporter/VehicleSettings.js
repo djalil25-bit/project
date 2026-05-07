@@ -1,31 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../api/axiosConfig';
 import { Link } from 'react-router-dom';
+import api from '../../api/axiosConfig';
 import { 
   Truck, 
   Plus, 
+  Edit2, 
   Trash2, 
+  Power, 
+  Upload, 
   Save, 
+  X, 
   ChevronRight, 
-  X,
-  AlertCircle,
-  ShieldCheck,
-  Fuel,
-  Gauge,
-  Activity,
-  Edit2,
-  Power,
-  Package,
+  Clock, 
+  AlertCircle, 
   Zap,
-  Clock,
-  FileText,
-  Upload
+  Gauge,
+  FileText
 } from 'lucide-react';
+import { VEHICLE_TYPES } from '../../utils/constants';
 
 const VehicleSettings = () => {
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [formData, setFormData] = useState({ plate: '', model: '', capacity: '', type: 'Truck', fuelType: 'Diesel' });
+  const [formData, setFormData] = useState({ plate: '', model: '', capacity: '', type: 'truck', fuelType: 'Diesel' });
   const [carteGriseFile, setCarteGriseFile] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -97,13 +94,13 @@ const VehicleSettings = () => {
   const closeForm = () => {
     setShowForm(false);
     setEditingId(null);
-    setFormData({ plate: '', model: '', capacity: '', type: 'Truck', fuelType: 'Diesel' });
+    setFormData({ plate: '', model: '', capacity: '', type: 'truck', fuelType: 'Diesel' });
     setCarteGriseFile(null);
   };
 
   const getVehicleIcon = (type) => {
-    switch (type?.toLowerCase()) {
-      case 'motorcycle': return <Zap size={22} />;
+    switch (type) {
+      case 'refrigerated_truck': return <Zap size={22} />;
       default: return <Truck size={22} />;
     }
   };
@@ -212,7 +209,9 @@ const VehicleSettings = () => {
                        </div>
                        <div className="text-left">
                           <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Vehicle Node</div>
-                          <span className="text-sm font-black text-slate-900 tracking-tight">{v.type} • {v.model}</span>
+                          <span className="text-sm font-black text-slate-900 tracking-tight">
+                            {VEHICLE_TYPES.find(vt => vt.id === v.type)?.name || v.type} • {v.model}
+                          </span>
                        </div>
                     </div>
                     {getStatusBadge(v)}
@@ -332,11 +331,9 @@ const VehicleSettings = () => {
                   <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Asset Category</label>
                   <select className="w-full h-14 bg-slate-50 border-2 border-slate-100 rounded-2xl px-6 text-sm font-bold text-slate-900 focus:outline-none focus:border-indigo-600 focus:bg-white transition-all appearance-none cursor-pointer"
                     value={formData.type} onChange={e => setFormData({...formData, type: e.target.value})}>
-                    <option>Truck</option>
-                    <option>Van</option>
-                    <option>Pickup</option>
-                    <option>Motorcycle</option>
-                    <option>Cooled Container</option>
+                    {VEHICLE_TYPES.map(vt => (
+                      <option key={vt.id} value={vt.id}>{vt.name}</option>
+                    ))}
                   </select>
                 </div>
                 <div className="space-y-2 lg:col-span-1">

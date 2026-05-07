@@ -14,16 +14,21 @@ const OWM_MAP = {
   '50d': '🌫️', '50n': '🌫️',
 };
 
-export default function MiniWeatherWidget({ farmId, targetPath }) {
+export default function MiniWeatherWidget({ farmId, wilaya, targetPath }) {
   const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (farmId === undefined) return;
+    // If both are undefined, we might be waiting for parent to fetch
+    if (farmId === undefined && wilaya === undefined) return;
+    
     const fetchWeather = async () => {
       try {
-        const params = farmId ? `?farm_id=${farmId}` : '';
+        let params = '';
+        if (farmId) params = `?farm_id=${farmId}`;
+        else if (wilaya) params = `?wilaya=${encodeURIComponent(wilaya)}`;
+        
         const res = await api.get(`/dashboards/weather/${params}`);
         setData(res.data);
       } catch (err) {
@@ -33,7 +38,7 @@ export default function MiniWeatherWidget({ farmId, targetPath }) {
       }
     };
     fetchWeather();
-  }, [farmId]);
+  }, [farmId, wilaya]);
 
   if (loading || !data) return (
     <div className="w-[130px] h-[130px] bg-white/10 backdrop-blur-md rounded-2xl flex flex-col items-center justify-center animate-pulse border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.1)] cursor-pointer"

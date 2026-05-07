@@ -347,7 +347,7 @@ export default function OrderList() {
                                     {!o.has_delivery_request ? (
                                       <button
                                         className="w-full flex items-center justify-center gap-2 bg-[#22543d] hover:bg-[#1a402e] text-white py-2.5 rounded-lg text-xs font-extrabold shadow-md transition-transform hover:-translate-y-0.5"
-                                        onClick={() => navigate(`/farmer/orders/${o.id}/request-delivery`)}
+                                        onClick={() => navigate(`/farmer-dashboard/orders/${o.id}/request-delivery`)}
                                       >
                                         <Truck size={14} strokeWidth={2.5} /> Request Delivery
                                       </button>

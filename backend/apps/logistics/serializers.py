@@ -96,18 +96,43 @@ class DeliveryRequestSerializer(TransporterVisibilityMixin, serializers.ModelSer
     transporter_phone = serializers.SerializerMethodField()
     vehicle_type = serializers.SerializerMethodField()
     plate_number_masked = serializers.SerializerMethodField()
+    
+    # Farmer Info (Conditional)
+    farmer_name = serializers.SerializerMethodField()
+    farmer_phone = serializers.SerializerMethodField()
 
     class Meta:
         model = DeliveryRequest
         fields = [
             'id', 'order', 'order_detail', 'transporter', 'status', 
             'pickup_location', 'pickup_wilaya', 'delivery_location', 'preferred_delivery_date', 
-            'notes', 'vehicle_size', 'created_at', 'updated_at',
+            'notes', 'required_vehicle_type', 'created_at', 'updated_at',
             'total_quantity', 'assigned_vehicle_id', 'assigned_vehicle_info',
             'pod_photo', 'pod_recipient_name', 'pod_notes', 'pod_completed_at',
-            'transporter_name', 'transporter_phone', 'vehicle_type', 'plate_number_masked'
+            'transporter_name', 'transporter_phone', 'vehicle_type', 'plate_number_masked',
+            'estimated_distance_km', 'estimated_fee', 'estimated_duration',
+            'is_refrigerated', 'is_fragile', 'farmer_name', 'farmer_phone'
         ]
         read_only_fields = ('created_at', 'updated_at', 'transporter', 'pod_completed_at', 'total_quantity')
+
+    def get_farmer_name(self, obj):
+        # The farmer is the owner of the products in the order
+        first_item = obj.order.items.first()
+        if first_item and first_item.farmer:
+            return first_item.farmer.full_name or first_item.farmer.email
+        return "Unknown Farmer"
+
+    def get_farmer_phone(self, obj):
+        request = self.context.get('request')
+        if not request or not request.user:
+            return None
+        
+        # Only show phone after acceptance (assigned, picked_up, etc.)
+        if obj.transporter == request.user and obj.status in ['assigned', 'picked_up', 'in_transit', 'delivered']:
+            first_item = obj.order.items.first()
+            if first_item and first_item.farmer:
+                return first_item.farmer.phone
+        return None
 
 class DeliveryStatusUpdateSerializer(serializers.Serializer):
     status = serializers.ChoiceField(choices=['picked_up', 'in_transit', 'delivered', 'cancelled'])

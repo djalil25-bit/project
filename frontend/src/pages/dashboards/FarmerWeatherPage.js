@@ -7,26 +7,31 @@ import api from '../../api/axiosConfig';
 export default function FarmerWeatherPage() {
   const navigate = useNavigate();
   const [farmId, setFarmId] = useState(undefined);
+  const [wilaya, setWilaya] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Fetch farmer's first farm for the weather widget context
-    api.get('/farms/')
-      .then(res => {
-        const farms = res.data.results || res.data;
+    const fetchData = async () => {
+      try {
+        const statsRes = await api.get('/dashboards/farmer-stats/');
+        setWilaya(statsRes.data.wilaya);
+
+        const farmsRes = await api.get('/farms/');
+        const farms = farmsRes.data.results || farmsRes.data;
         if (farms && farms.length > 0) {
           setFarmId(farms[0].id);
         } else {
           setFarmId(null);
         }
-      })
-      .catch(err => {
-        console.error('[Weather] Could not load farms:', err);
+      } catch (err) {
+        console.error('[Weather] Could not load context:', err);
         setFarmId(null);
-      })
-      .finally(() => {
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+    fetchData();
   }, []);
 
   return (
@@ -55,7 +60,7 @@ export default function FarmerWeatherPage() {
             <span className="text-sm font-bold text-slate-500 uppercase tracking-widest animate-pulse">Loading location data...</span>
           </div>
         ) : (
-          <WeatherWidget farmId={farmId} />
+          <WeatherWidget farmId={farmId} wilaya={wilaya} />
         )}
       </div>
     </div>

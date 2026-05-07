@@ -22,17 +22,33 @@ export default function FarmForm() {
   const isEditMode   = !!id;
 
   useEffect(() => {
+    // Fixed: Wilaya of farms is locked to the farmer's registered wilaya
+    api.get('/accounts/profile/')
+      .then(res => {
+        const userWilayaRaw = res.data.address;
+        // Resolve ID if the profile contains a name (e.g. "Constantine" -> "25")
+        const matched = ALGERIAN_WILAYAS.find(w => 
+          w.id === userWilayaRaw || 
+          w.name.toLowerCase() === userWilayaRaw?.toLowerCase()
+        );
+        const resolvedId = matched ? matched.id : userWilayaRaw;
+        setFormData(prev => ({ ...prev, wilaya: resolvedId }));
+      })
+      .catch(err => console.error('Error fetching profile for wilaya sync:', err));
+
     if (!isEditMode) return;
     api.get(`/farms/${id}/`)
       .then(res => {
-        setFormData({
+        setFormData(prev => ({
+          ...prev,
           name: res.data.name || '',
           location: res.data.location || '',
+          // Wilaya will be overwritten by the profile sync but we keep the logic clean
           wilaya: res.data.wilaya || '',
           commune: res.data.commune || '',
           size_hectares: res.data.size_hectares || '',
           description: res.data.description || '',
-        });
+        }));
         if (res.data.image) setExisting(res.data.image);
       })
       .catch(() => setError('Failed to load farm data.'));
@@ -59,6 +75,7 @@ export default function FarmForm() {
     setLoading(true);
     try {
       const body = new FormData();
+      // Ensure the fixed wilaya is included in submission
       Object.entries(formData).forEach(([k, v]) => { if (v !== '') body.append(k, v); });
       if (imageFile) body.append('image', imageFile);
 
@@ -200,17 +217,22 @@ export default function FarmForm() {
                        </label>
                        <select 
                          name="wilaya"
-                         className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-black text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#22543d] focus:border-transparent transition-all shadow-sm"
+                         className="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-black text-slate-500 cursor-not-allowed shadow-sm"
                          value={formData.wilaya}
                          onChange={handleChange}
-                         required
+                         disabled
+                         title="Farms must be located in your registered wilaya."
                        >
                          <option value="">Select Wilaya</option>
                          {ALGERIAN_WILAYAS.map(w => (
                            <option key={w.id} value={w.id}>{w.id} - {w.name}</option>
                          ))}
                        </select>
+                       <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1 mt-1">
+                         <Info size={10} /> Locked to your registered region
+                       </div>
                     </div>
+
                     <div className="space-y-2">
                        <label className="text-[11px] font-black uppercase tracking-widest text-[#22543d] flex items-center gap-2">
                           Commune <span className="text-red-500">*</span>

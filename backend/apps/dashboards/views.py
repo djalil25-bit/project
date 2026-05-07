@@ -196,6 +196,7 @@ class FarmerDashboardStatsAPIView(APIView):
             'total_revenue': float(total_revenue),
             'pending_orders': pending_orders,
             'recent_pending_orders': recent_pending,
+            'wilaya': farmer.address,  # Farmer's primary wilaya from registration
         })
 
 class TransporterDashboardStatsAPIView(APIView):
@@ -416,14 +417,19 @@ class WeatherAPIView(APIView):
         '58': 'In Guezzam',
     }
 
-    def _resolve_city(self, wilaya_value):
+    def _resolve_city(self, wilaya_value, user=None):
         """
         Convert a wilaya field value to a searchable city name.
         Handles: numeric codes ("9", "16"), city names ("Blida"), None.
         Always returns a valid string for OpenWeatherMap's ?q= parameter.
         """
         if not wilaya_value:
-            return 'Algiers'
+            # Fallback to user's registered wilaya (stored in address)
+            if user and user.address:
+                wilaya_value = user.address
+            else:
+                return 'Algiers'
+        
         stripped = str(wilaya_value).strip()
         # If it's a numeric code, map it
         if stripped.isdigit():
@@ -446,7 +452,7 @@ class WeatherAPIView(APIView):
         city = 'Algiers'  # safe default
 
         if wilaya_param:
-            city = self._resolve_city(wilaya_param)
+            city = self._resolve_city(wilaya_param, user=request.user)
             farm_name = wilaya_param
         elif farm_id:
             try:
@@ -454,9 +460,13 @@ class WeatherAPIView(APIView):
                 farm_name = farm.name
                 lat = farm.latitude
                 lon = farm.longitude
-                city = self._resolve_city(farm.wilaya)
+                city = self._resolve_city(farm.wilaya, user=request.user)
             except Farm.DoesNotExist:
-                pass
+                city = self._resolve_city(None, user=request.user)
+        else:
+            # Global fallback for user without specific farm selection
+            city = self._resolve_city(None, user=request.user)
+            farm_name = request.user.address or 'Algeria'
 
         # Build geo params — prefer lat/lon (most accurate), fall back to city name
         if lat and lon:

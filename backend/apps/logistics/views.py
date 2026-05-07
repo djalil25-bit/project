@@ -101,16 +101,18 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
             visibility_q = Q(transporter=user) | open_missions_q
             
             # 2. Apply additional search filters from query params
-            search_q = Q()
             if pickup_wilaya:
                 qs = qs.filter(pickup_wilaya=pickup_wilaya)
             if delivery_wilaya:
                 qs = qs.filter(order__wilaya=delivery_wilaya)
 
+            # 3. Handle specific actions vs general list
             if self.action in ['my_missions', 'update_status']:
                 return qs.filter(transporter=user)
             
-            return qs
+            # Apply visibility rules to ensure transporters only see 
+            # their own missions or available open ones in their zones.
+            return qs.filter(visibility_q)
             
         elif user.role == 'farmer':
             return qs.filter(order__items__farmer=user).distinct()
@@ -139,7 +141,24 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
             if delivery.status != DeliveryStatusChoices.OPEN:
                 return Response({"error": "This delivery is no longer open. It may have just been accepted by someone else."}, status=status.HTTP_409_CONFLICT)
         
-        # Transporter active mission limit validation
+        # 1. NEW: Vehicle Compatibility Validation
+        # Check if the transporter has ANY active and approved vehicle that matches the required type
+        from .models import VehicleStatusChoices
+        has_compatible_vehicle = Vehicle.objects.filter(
+            owner=request.user,
+            type=delivery.required_vehicle_type,
+            status=VehicleStatusChoices.ACTIVE,
+            is_active=True
+        ).exists()
+
+        if not has_compatible_vehicle:
+            required_display = delivery.get_required_vehicle_type_display()
+            return Response(
+                {"error": f"Compatibility Error: This mission requires a {required_display}. Your fleet does not contain a compatible approved vehicle."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # 2. Existing: Transporter active mission limit validation
         active_missions = DeliveryRequest.objects.filter(
             transporter=request.user,
             status__in=[
@@ -186,6 +205,15 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
         
         if selected_vehicle.get('is_active') is False:
             return Response({"error": "The selected vehicle is currently marked as inactive/offline."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # NEW: Ensure the SPECIFICALLY SELECTED vehicle matches the required type
+        if selected_vehicle.get('type') != delivery.required_vehicle_type:
+            required_display = delivery.get_required_vehicle_type_display()
+            selected_display = selected_vehicle.get('type', 'Unknown').replace('_', ' ').capitalize()
+            return Response(
+                {"error": f"Type Mismatch: This mission requires a {required_display}, but you selected a {selected_display}."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         # Check admin approval status (Vehicle model only)
         vehicle_status = selected_vehicle.get('status', 'ACTIVE')  # Legacy JSON vehicles default to ACTIVE

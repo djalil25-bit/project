@@ -1,29 +1,39 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import api from '../../api/axiosConfig';
 import {
   Search, User, CheckCircle, XCircle, Info,
   ShieldCheck, ShoppingCart, Package, ChevronRight,
   AlertCircle, Clock, Plus, X, Wheat, Tag, BarChart2, Eye,
   BadgeCheck, Heart, FileText, Truck, Sparkles, Building2,
-  TrendingDown, TrendingUp, Minus, ListFilter, MapPin
+  TrendingDown, TrendingUp, Minus, ListFilter, MapPin,
+  ArrowRight, Layers, LayoutGrid, Zap, Star
 } from 'lucide-react';
 
-/* ─── Premium E-Commerce Badges ─────────────────────── */
+/* ─── Premium UI Elements ─────────────────────── */
 const VerifiedBadge = ({ isVerified }) => {
   if (!isVerified) return null;
   return (
-    <span className="inline-flex items-center gap-1 bg-indigo-50 text-indigo-700 px-2 py-1 rounded text-xs font-black uppercase tracking-widest border border-indigo-200 shadow-sm">
-      <ShieldCheck size={12} /> Verified
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', background: '#eff6ff', color: '#1d4ed8', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+      <ShieldCheck size={10} /> Verified
     </span>
   );
 };
 
 const QualityBadge = ({ quality }) => {
-  const q = quality?.toUpperCase() || 'MEDIUM';
-  if (q === 'HIGH') return <span className="absolute top-3 left-3 bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest shadow-md flex items-center gap-1 border border-white/20 z-10"><Sparkles size={12} /> Premium</span>;
-  if (q === 'LOW') return <span className="absolute top-3 left-3 bg-slate-100 text-slate-600 px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest shadow-sm flex items-center gap-1 border border-slate-200 z-10"><Info size={12} /> Value</span>;
-  return <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-md text-slate-800 px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest shadow-sm flex items-center gap-1 border border-slate-200 z-10"><CheckCircle size={12} className="text-indigo-600"/> Std</span>;
+  const q = quality?.toUpperCase() || 'STANDARD';
+  const styles = {
+    PREMIUM: { bg: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)', color: '#fff', label: 'Premium Selection' },
+    ORGANIC: { bg: 'linear-gradient(135deg, #059669 0%, #10b981 100%)', color: '#fff', label: 'Certified Organic' },
+    STANDARD: { bg: 'rgba(255,255,255,0.9)', color: '#1e293b', label: 'Standard Grade' },
+    ECONOMY: { bg: '#f1f5f9', color: '#64748b', label: 'Economy Value' }
+  };
+  const s = styles[q] || styles.STANDARD;
+  return (
+    <span style={{ position: 'absolute', top: '12px', left: '12px', background: s.bg, color: s.color, padding: '0.35rem 0.75rem', borderRadius: '8px', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 10, border: q === 'STANDARD' ? '1px solid #e2e8f0' : 'none', backdropFilter: 'blur(4px)' }}>
+      {s.label}
+    </span>
+  );
 };
 
 const BenchmarkDisplay = ({ comparison, type = 'card' }) => {
@@ -32,120 +42,108 @@ const BenchmarkDisplay = ({ comparison, type = 'card' }) => {
   
   if (type === 'modal') {
     return (
-      <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex items-center justify-between shadow-inner">
+      <div style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: '16px', padding: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <div className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-1 mb-1"><Building2 size={14}/> Official Benchmark</div>
-          <div className="text-lg font-black text-slate-800">{official_price.toLocaleString()} <span className="text-xs">DZD/KG</span></div>
+          <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.25rem' }}>Official Benchmark</div>
+          <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#1e293b' }}>{official_price.toLocaleString()} <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>DZD/UNIT</span></div>
         </div>
-        {status === 'below' && (
-           <div className="flex items-center gap-1 bg-emerald-100 text-emerald-700 px-3 py-1.5 rounded-lg text-xs font-black"><TrendingDown size={14}/> {difference_percentage}% Value</div>
-        )}
-        {status === 'above' && (
-           <div className="flex items-center gap-1 bg-rose-100 text-rose-700 px-3 py-1.5 rounded-lg text-xs font-black"><TrendingUp size={14}/> {difference_percentage}% Premium</div>
-        )}
-        {status === 'equal' && (
-           <div className="flex items-center gap-1 bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-lg text-xs font-black"><Minus size={14}/> Targeted</div>
-        )}
+        <div style={{ background: status === 'below' ? '#ecfdf5' : status === 'above' ? '#fff1f2' : '#f0fdf4', color: status === 'below' ? '#059669' : status === 'above' ? '#e11d48' : '#16a34a', padding: '0.4rem 0.8rem', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+          {status === 'below' ? <TrendingDown size={14}/> : status === 'above' ? <TrendingUp size={14}/> : <Minus size={14}/>}
+          {status === 'below' ? `${difference_percentage}% Savings` : status === 'above' ? `${difference_percentage}% Premium` : 'Optimal'}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex items-center gap-1 mt-1">
-      <span className="text-[10px] font-bold text-slate-400">Target: {official_price.toLocaleString()} DZD</span>
-      {status === 'below' && <span className="text-[10px] bg-emerald-100 text-emerald-700 font-extrabold px-1.5 py-0.5 rounded ml-1 tracking-widest uppercase">-{difference_percentage}%</span>}
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
+      <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#94a3b8' }}>Ref: {official_price.toLocaleString()} DZD</span>
+      {status === 'below' && <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#059669', background: '#ecfdf5', padding: '0.15rem 0.4rem', borderRadius: '4px' }}>-{difference_percentage}%</span>}
     </div>
   );
 };
 
-/* ─── Split-Layout Product Detail Modal ─────────────────────── */
+/* ─── Product Detail Modal ─────────────────────── */
 function ProductSplitModal({ product, onClose, onAddToCart, cartLoading }) {
   const [qty, setQty] = useState(1);
   if (!product) return null;
   const p = product;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-md animate-fade-in" onClick={onClose}>
-      <div
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col sm:flex-row transform transition-all animate-scale-in max-h-[90vh] overflow-y-auto"
-        onClick={e => e.stopPropagation()}
-      >
-        {/* Image Pane */}
-        <div className="w-full sm:w-5/12 bg-slate-50 relative flex flex-col items-center justify-center p-6 min-h-[200px] sm:min-h-[360px] border-b sm:border-b-0 sm:border-r border-slate-100 shrink-0">
-          <QualityBadge quality={p.quality} />
-          {p.image ? (
-            <img src={p.image} alt={p.title} className="w-full h-full object-contain drop-shadow-lg max-h-[260px]" />
-          ) : (
-            <Package size={72} className="text-slate-200" />
-          )}
-          <div className="w-full mt-4">
-            <BenchmarkDisplay comparison={p.official_price_comparison} type="modal" />
-          </div>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(8px)', padding: '1.5rem', animation: 'fadeIn 0.3s ease' }} onClick={onClose}>
+      <div style={{ background: '#fff', borderRadius: '32px', width: '100%', maxWidth: '900px', display: 'grid', gridTemplateColumns: '400px 1fr', overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.4)', animation: 'scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)' }} onClick={e => e.stopPropagation()}>
+        
+        {/* Visual Pane */}
+        <div style={{ background: '#f8fafc', padding: '3rem', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', borderRight: '1.5px solid #f1f5f9' }}>
+           <QualityBadge quality={p.quality} />
+           <div style={{ width: '100%', height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {p.image ? (
+                <img src={p.image} alt={p.title} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.1))' }} />
+              ) : (
+                <Package size={120} style={{ color: '#e2e8f0' }} />
+              )}
+           </div>
+           <div style={{ width: '100%', marginTop: '2rem' }}>
+              <BenchmarkDisplay comparison={p.official_price_comparison} type="modal" />
+           </div>
         </div>
 
-        {/* Info Pane */}
-        <div className="w-full sm:w-7/12 p-5 sm:p-6 flex flex-col">
-          <div className="flex justify-between items-start mb-3">
-            <div>
-              <div className="text-[10px] font-black uppercase tracking-widest text-indigo-600 mb-1.5 bg-indigo-50 px-2 py-0.5 rounded inline-block">{p.category_name}</div>
-              <h2 className="text-xl font-black text-slate-900 tracking-tight leading-tight">{p.title}</h2>
-            </div>
-            <button className="w-9 h-9 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-full flex items-center justify-center transition-colors shrink-0 ml-2" onClick={onClose}>
-              <X size={18} />
-            </button>
-          </div>
+        {/* Content Pane */}
+        <div style={{ padding: '3rem', display: 'flex', flexDirection: 'column' }}>
+           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
+              <div>
+                 <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#4f46e5', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.5rem' }}>{p.category_name}</div>
+                 <h2 style={{ fontSize: '2rem', fontWeight: 900, color: '#1e293b', letterSpacing: '-1px', margin: 0, lineHeight: 1.1 }}>{p.title}</h2>
+              </div>
+              <button onClick={onClose} style={{ border: 'none', background: '#f1f5f9', color: '#94a3b8', width: '40px', height: '40px', borderRadius: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={20} /></button>
+           </div>
 
-          <div className="flex items-baseline gap-2 mb-3 border-b border-slate-100 pb-3">
-            <span className="text-2xl font-black text-slate-900 tracking-tighter">{parseFloat(p.price).toLocaleString()}</span>
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">DZD / {p.unit}</span>
-          </div>
+           <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', marginBottom: '2rem' }}>
+              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#1e293b' }}>{parseFloat(p.price).toLocaleString()}</span>
+              <span style={{ fontSize: '1rem', fontWeight: 800, color: '#94a3b8' }}>DZD / {p.unit}</span>
+           </div>
 
-          <div className="grid grid-cols-2 gap-3 mb-4">
-            <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-              <div className="text-[9px] uppercase font-black tracking-widest text-slate-400 mb-1">Stock</div>
-              <div className="font-black text-slate-800 text-sm flex items-center gap-1.5"><BarChart2 size={14} className="text-indigo-500"/> {parseFloat(p.stock || 0).toLocaleString()} {p.unit}</div>
-            </div>
-            <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
-              <div className="text-[9px] uppercase font-black tracking-widest text-slate-400 mb-1">Farm</div>
-              <div className="font-black text-slate-800 text-sm flex items-center gap-1.5 truncate" title={p.farm_name}><Wheat size={14} className="text-amber-500 shrink-0"/> <span className="truncate">{p.farm_name}</span></div>
-            </div>
-          </div>
+           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
+              <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '16px', border: '1px solid #f1f5f9' }}>
+                 <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Available Volume</div>
+                 <div style={{ fontWeight: 900, fontSize: '1.1rem', color: '#1e293b' }}>{p.stock.toLocaleString()} {p.unit}</div>
+              </div>
+              <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '16px', border: '1px solid #f1f5f9' }}>
+                 <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Producer</div>
+                 <div style={{ fontWeight: 900, fontSize: '1.1rem', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#eef2ff', color: '#4f46e5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem' }}>{p.farmer_name?.charAt(0)}</div>
+                    <span style={{ fontSize: '0.9rem' }}>{p.farmer_name}</span>
+                 </div>
+              </div>
+           </div>
 
-          <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100">
-            <div className="w-9 h-9 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center font-black text-base shadow-inner shrink-0">
-              {p.farmer_name?.charAt(0) || 'F'}
-            </div>
-            <div>
-              <div className="font-bold text-sm text-slate-900 leading-tight">{p.farmer_name}</div>
-              <VerifiedBadge isVerified={p.farmer_is_verified} />
-            </div>
-          </div>
+           {p.description && (
+             <div style={{ marginBottom: '2.5rem' }}>
+                <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Harvest Details</div>
+                <p style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: 1.6, margin: 0, fontStyle: 'italic' }}>"{p.description}"</p>
+             </div>
+           )}
 
-          {p.description && (
-            <p className="text-sm text-slate-500 font-medium leading-relaxed mb-4 overflow-y-auto max-h-20 pr-1 border-l-2 border-indigo-100 pl-3">{p.description}</p>
-          )}
-
-          <div className="mt-auto pt-3 border-t border-slate-100 flex items-center gap-2">
-            <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl h-10 overflow-hidden shadow-inner">
-              <button className="w-9 h-full flex items-center justify-center text-slate-500 hover:text-indigo-600 transition-colors" onClick={() => setQty(Math.max(1, qty - 1))} disabled={p.stock === 0}><Minus size={13}/></button>
-              <div className="w-10 h-full flex items-center justify-center font-black text-sm text-slate-900 bg-white border-x border-slate-100">{qty}</div>
-              <button className="w-9 h-full flex items-center justify-center text-slate-500 hover:text-indigo-600 transition-colors" onClick={() => setQty(Math.min(p.stock, qty + 1))} disabled={p.stock === 0}><Plus size={13}/></button>
-            </div>
-            <button
-              className="flex-1 h-10 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black text-xs uppercase tracking-wide transition-all active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50 shadow-md"
-              onClick={() => { onAddToCart(p.id, qty); onClose(); }}
-              disabled={cartLoading || p.stock === 0}
-            >
-              {p.stock === 0 ? <><XCircle size={14} /> Sold Out</> : <><ShoppingCart size={14} /> Add to Cart · {(parseFloat(p.price) * qty).toLocaleString()} DZD</>}
-            </button>
-          </div>
+           <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', gap: '1.5rem', paddingTop: '2rem', borderTop: '1.5px solid #f1f5f9' }}>
+              <div style={{ display: 'flex', alignItems: 'center', background: '#f1f5f9', borderRadius: '16px', padding: '0.5rem' }}>
+                 <button onClick={() => setQty(Math.max(1, qty - 1))} style={{ width: '36px', height: '36px', borderRadius: '12px', border: 'none', background: '#fff', color: '#1e293b', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}><Minus size={16} /></button>
+                 <span style={{ width: '50px', textAlign: 'center', fontWeight: 900, fontSize: '1.1rem' }}>{qty}</span>
+                 <button onClick={() => setQty(Math.min(p.stock, qty + 1))} style={{ width: '36px', height: '36px', borderRadius: '12px', border: 'none', background: '#fff', color: '#1e293b', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }} disabled={qty >= p.stock}><Plus size={16} /></button>
+              </div>
+              <button 
+                onClick={() => { onAddToCart(p.id, qty); onClose(); }}
+                disabled={cartLoading || p.stock === 0}
+                style={{ flex: 1, background: p.stock === 0 ? '#94a3b8' : '#4f46e5', color: '#fff', padding: '1.25rem', borderRadius: '20px', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', boxShadow: p.stock === 0 ? 'none' : '0 10px 30px rgba(79,70,229,0.3)' }}
+              >
+                {p.stock === 0 ? 'Sold Out' : <><ShoppingCart size={20} /> Add to Requisition • {(parseFloat(p.price) * qty).toLocaleString()} DZD</>}
+              </button>
+           </div>
         </div>
       </div>
     </div>
   );
 }
 
-/* ─── Main Buyer Marketplace Dashboard ─────────────────────── */
 function BuyerDashboard() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
@@ -158,9 +156,6 @@ function BuyerDashboard() {
   const [categories, setCategories] = useState([]);
   const [message, setMessage] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  
-  const [showCategories, setShowCategories] = useState(false);
-  const categoryRef = useRef(null);
 
   const fetchData = async () => {
     try {
@@ -184,22 +179,11 @@ function BuyerDashboard() {
         if(o.delivery_status === 'IN_TRANSIT' || o.delivery_status === 'PICKED_UP') transit++;
       });
       setBuyerStats({ totalSpent: spent, inTransit: transit });
-
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
   };
 
   useEffect(() => { fetchData(); }, []);
-
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (categoryRef.current && !categoryRef.current.contains(event.target)) {
-        setShowCategories(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   const showMsg = (type, text) => {
     setMessage({ type, text });
@@ -211,9 +195,9 @@ function BuyerDashboard() {
     try {
       const res = await api.post('/cart/items/', { product: productId, quantity: qty });
       setCart(res.data);
-      showMsg('success', 'Cart successfully appended.');
+      showMsg('success', 'Asset successfully synchronized to basket.');
     } catch (err) {
-      showMsg('danger', err.response?.data?.error || 'Failed to update constraints.');
+      showMsg('danger', 'Synchronization protocol failed.');
     } finally { setCartLoading(false); }
   };
 
@@ -226,11 +210,10 @@ function BuyerDashboard() {
         await api.post('/favorites/', { product: p.id });
       }
       setProducts(products.map(item => item.id === p.id ? { ...item, is_favorite: !isFav } : item));
-    } catch { showMsg('danger', 'Error syncing state.'); }
+    } catch { showMsg('danger', 'Cloud state sync error.'); }
   };
 
   const cartItemCount = cart?.items?.length || 0;
-
   const filteredProducts = products.filter(p => {
     const titleMatch = p.title?.toLowerCase().includes(search.toLowerCase()) || false;
     const catMatch   = p.category_name?.toLowerCase().includes(search.toLowerCase()) || false;
@@ -238,182 +221,171 @@ function BuyerDashboard() {
   });
 
   if (loading) return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-3 bg-white">
-      <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-t-indigo-600 animate-spin" />
-      <span className="text-xs font-black text-slate-500 uppercase tracking-widest animate-pulse">Loading Index...</span>
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+       <div className="w-12 h-12 rounded-full border-4 border-indigo-100 border-t-indigo-600 animate-spin" />
+       <span className="text-[10px] font-black text-indigo-900/40 uppercase tracking-[0.2em] animate-pulse">Initializing Marketplace Ledger...</span>
     </div>
   );
 
   return (
-    <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 space-y-8 animate-fade-in relative z-0 bg-slate-50/30 min-h-screen">
-
-      {/* ── ALERTS ──────────────────────── */}
-      {message && (
-        <div className={`fixed top-24 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-sm font-black tracking-widest uppercase animate-slide-in ${message.type === 'success' ? 'bg-slate-900 text-emerald-400 shadow-emerald-900/20' : 'bg-rose-50 text-rose-600 border border-rose-200'}`}>
-           <span className="flex items-center gap-2">
-             {message.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
-             {message.text}
-           </span>
-        </div>
-      )}
-
-      {/* ── HIGH-DENSITY HERO HEADER ─────────────────────────────── */}
-      <div className="bg-slate-900 rounded-2xl overflow-hidden shadow-lg flex flex-col md:flex-row items-center justify-between px-6 py-4 md:px-10 md:py-5 relative border border-slate-800 isolate">
-        <div className="absolute inset-0 bg-gradient-to-r from-indigo-900/30 to-transparent pointer-events-none" />
-        <div className="z-10 flex flex-col">
-          <div className="flex items-center gap-2 text-indigo-400 text-[9px] font-black uppercase tracking-widest mb-1 opacity-80">
-            <ShieldCheck size={12} /> Buyer Marketplace
-          </div>
-          <h1 className="text-xl md:text-2xl font-black text-white tracking-tight leading-none">
-            Product Catalog
-          </h1>
-        </div>
-        <div className="z-10 mt-3 md:mt-0 flex items-center gap-2 w-full md:w-auto">
-          <button className="flex-1 md:flex-none bg-slate-800 hover:bg-slate-700 text-white rounded-xl px-4 py-2.5 font-black text-[10px] uppercase tracking-widest border border-slate-700 transition flex items-center justify-center gap-2" onClick={() => navigate('/buyer-dashboard/orders')}>
-             <Truck size={14} className="text-indigo-400" /> Dispatches
-          </button>
-          <button className="flex-1 md:flex-none bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-4 py-2.5 font-black text-[10px] uppercase tracking-widest transition shadow-lg shadow-indigo-900/40 flex items-center justify-center gap-2 border border-indigo-500/50" onClick={() => navigate('/buyer/cart')}>
-             <ShoppingCart size={14} /> Checkout {cartItemCount > 0 && <span className="bg-white text-indigo-600 px-1.5 py-0.5 rounded text-[9px] font-black tracking-normal leading-none">{cartItemCount}</span>}
-          </button>
-        </div>
-      </div>
-
-      {/* ── UNIFORM KPI METRICS (RESOLVING OVERFLOWS & PURE TAILWIND) ──────────────────────────────── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: 'Total Spent', value: <span className="truncate block">{buyerStats.totalSpent.toLocaleString()} <span className="text-[0.6em] text-white/60 font-medium">DZD</span></span>, icon: <FileText size={18}/> },
-          { label: 'In Transit', value: <span className="truncate block">{buyerStats.inTransit} <span className="text-[0.6em] text-white/60 font-medium">orders</span></span>, icon: <Truck size={18}/> },
-          { label: 'Products Available', value: <span className="truncate block">{products.length}</span>, icon: <Package size={18}/> },
-          { label: 'Saved Items', value: <span className="truncate block">{products.filter(p => p.is_favorite).length}</span>, icon: <Heart size={18}/> },
-        ].map((k, i) => (
-          <div key={i} className="bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-2xl p-4 shadow-md flex items-center gap-3 relative overflow-hidden transition-all hover:-translate-y-0.5 hover:shadow-lg border border-white/10 group">
-             <div className="absolute -right-3 -bottom-3 opacity-5 group-hover:scale-125 transition-transform duration-700">{k.icon && React.cloneElement(k.icon, { size: 72 })}</div>
-             <div className="w-10 h-10 rounded-xl bg-white/10 text-white flex items-center justify-center shrink-0 border border-white/10">{k.icon}</div>
-             <div className="min-w-0 flex-1 relative z-10">
-                <div className="text-[9px] font-bold uppercase tracking-widest leading-none mb-1 text-indigo-100/70">{k.label}</div>
-                <div className="text-[clamp(0.9rem,2vw,1.35rem)] font-black tracking-tight leading-tight truncate text-white">{k.value}</div>
-             </div>
-          </div>
-        ))}
-      </div>
-
-      {/* ── FILTER BAR ────────────────────────────────────────── */}
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 px-3 py-2 sticky top-4 z-30 flex flex-col md:flex-row items-stretch md:items-center gap-2">
-        <div className="flex-1 relative">
-           <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-           <input
-              type="text"
-              placeholder="Search products, farms, or categories..."
-              className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition-all"
-              value={search} onChange={e => setSearch(e.target.value)}
-           />
-        </div>
+    <div className="buyer-page-wrapper" style={{ background: '#f8f9fc', minHeight: '100vh', padding: '2rem 0' }}>
+      
+      <div className="container" style={{ maxWidth: '1400px' }}>
         
-        {/* Horizontal Scrollable Categories */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-          <div className="flex items-center gap-1.5 mr-2 border-r border-slate-200 pr-4 shrink-0 text-[10px] font-black uppercase tracking-widest text-slate-400">
-             <ListFilter size={14} /> Categories
+        {/* ── HERO BANNER (Institutional Blue Theme) ── */}
+        <div className="relative overflow-hidden bg-gradient-to-br from-[#1e293b] via-[#0f172a] to-slate-900 rounded-[2rem] shadow-[0_20px_50px_rgba(15,23,42,0.3)] text-white p-4 lg:p-6 border border-white/10 mb-8">
+          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-12 w-48 h-48 bg-blue-600/20 rounded-full blur-3xl opacity-40 pointer-events-none" />
+          
+          <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-6">
+            <div className="flex-1">
+               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(79,70,229,0.2)', padding: '0.35rem 0.8rem', borderRadius: '30px', backdropFilter: 'blur(8px)', border: '1px solid rgba(129,140,248,0.3)', fontSize: '0.65rem', fontWeight: 900, color: '#818cf8', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    <ShieldCheck size={12} /> Institutional Marketplace
+                  </div>
+                  <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Nodes: {products.length}</div>
+               </div>
+               <h1 style={{ fontSize: '2.2rem', fontWeight: 900, color: '#fff', letterSpacing: '-1.5px', margin: 0, lineHeight: 1 }}>National <span style={{ color: '#818cf8' }}>Commodity</span> Index</h1>
+            </div>
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem' }}>
+               {/* Expenditure Card */}
+               <div style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(12px)', borderRadius: '24px', padding: '1rem 1.5rem', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', gap: '1rem', minWidth: '180px' }}>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(79,70,229,0.2)', color: '#818cf8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><TrendingUp size={20} /></div>
+                  <div>
+                     <div style={{ fontSize: '0.6rem', fontWeight: 900, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1.5px' }}>Expenditure</div>
+                     <div style={{ fontWeight: 900, fontSize: '1.1rem', color: '#fff' }}>{buyerStats.totalSpent.toLocaleString()} <span style={{ fontSize: '0.65rem', opacity: 0.6 }}>DZD</span></div>
+                  </div>
+               </div>
+
+               {/* In Transit Card */}
+               <div style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(12px)', borderRadius: '24px', padding: '1rem 1.5rem', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', gap: '1rem', minWidth: '160px' }}>
+                  <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(16,185,129,0.15)', color: '#34d399', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Truck size={20} /></div>
+                  <div>
+                     <div style={{ fontSize: '0.6rem', fontWeight: 900, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1.5px' }}>In Transit</div>
+                     <div style={{ fontWeight: 900, fontSize: '1.1rem', color: '#fff' }}>{buyerStats.inTransit} <span style={{ fontSize: '0.65rem', opacity: 0.6 }}>LOGS</span></div>
+                  </div>
+               </div>
+
+               {/* Basket Card */}
+               <Link to="/buyer/cart" style={{ background: '#4f46e5', borderRadius: '24px', padding: '1rem 1.5rem', display: 'flex', alignItems: 'center', gap: '1.25rem', textDecoration: 'none', color: '#fff', boxShadow: '0 15px 35px rgba(79,70,229,0.4)', transition: 'all 0.3s' }}>
+                  <div style={{ position: 'relative' }}>
+                    <ShoppingCart size={24} />
+                    {cartItemCount > 0 && <span style={{ position: 'absolute', top: '-6px', right: '-6px', background: '#f43f5e', color: '#fff', fontSize: '0.65rem', fontWeight: 900, width: '18px', height: '18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #4f46e5' }}>{cartItemCount}</span>}
+                  </div>
+                  <div>
+                     <div style={{ fontSize: '0.6rem', fontWeight: 900, opacity: 0.7, textTransform: 'uppercase', letterSpacing: '1.5px' }}>Basket</div>
+                     <div style={{ fontWeight: 900, fontSize: '1.1rem' }}>{cartItemCount} Items</div>
+                  </div>
+                  <ChevronRight size={18} style={{ opacity: 0.6 }} />
+               </Link>
+            </div>
           </div>
-          
-          <button
-            className={`shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all border ${activeCategory === 'All' ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-200' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300'}`}
-            onClick={() => setActiveCategory('All')}
-          >
-            All Products
-          </button>
-          
-          {categories.filter(c => c.name !== 'All').map(c => (
-            <button
-              key={c.id}
-              className={`shrink-0 px-4 py-2 rounded-full text-xs font-bold transition-all border ${activeCategory === c.name ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-200' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:border-slate-300'}`}
-              onClick={() => setActiveCategory(c.name)}
+        </div>
+
+        {/* Filters and Navigation (Sticky Controller) */}
+        <div style={{ 
+          position: 'sticky', 
+          top: '72px', 
+          zIndex: 100, 
+          background: '#f8f9fc', 
+          padding: '1rem 0',
+          marginBottom: '1rem',
+          borderBottom: '1px solid #e2e8f0'
+        }}>
+          <div style={{ display: 'flex', gap: '1.5rem' }}>
+            <div style={{ flex: 1, position: 'relative' }}>
+              <Search size={20} style={{ position: 'absolute', left: '1.25rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+              <input 
+                style={{ width: '100%', padding: '1.25rem 1.25rem 1.25rem 3.5rem', borderRadius: '24px', border: '1.5px solid #e2e8f0', fontSize: '1rem', fontWeight: 600, color: '#1e293b', outline: 'none', background: '#fff', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}
+                placeholder="Search by variety, producer, or region..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
+            </div>
+            <div style={{ display: 'flex', gap: '0.75rem', padding: '0.4rem', background: '#fff', borderRadius: '24px', border: '1.5px solid #e2e8f0', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', overflowX: 'auto', maxWidth: '700px' }} className="scrollbar-none">
+              {categories.map(c => (
+                <button 
+                  key={c.id}
+                  onClick={() => setActiveCategory(c.name)}
+                  style={{ padding: '0.75rem 1.5rem', borderRadius: '18px', border: 'none', background: activeCategory === c.name ? '#4f46e5' : 'transparent', color: activeCategory === c.name ? '#fff' : '#64748b', fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s' }}
+                >
+                  {c.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Marketplace Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>
+          {filteredProducts.map((p, idx) => (
+            <div 
+              key={p.id} 
+              style={{ background: '#fff', borderRadius: '28px', border: '1.5px solid #e2e8f0', overflow: 'hidden', position: 'relative', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.02)', transition: 'all 0.3s ease' }}
+              className="hover-card"
             >
-              {c.name}
-            </button>
+              {/* Product Visual */}
+              <div style={{ height: '200px', background: '#f8fafc', position: 'relative', overflow: 'hidden', cursor: 'pointer' }} onClick={() => setSelectedProduct(p)}>
+                {p.image ? (
+                  <img src={p.image} alt={p.title} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }} className="card-img" />
+                ) : (
+                  <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1' }}><Package size={60} /></div>
+                )}
+                <QualityBadge quality={p.quality} />
+                <button 
+                  onClick={(e) => { e.stopPropagation(); toggleFavorite(p); }}
+                  style={{ position: 'absolute', top: '12px', right: '12px', width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(4px)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', color: p.is_favorite ? '#e11d48' : '#94a3b8', cursor: 'pointer', zIndex: 10 }}
+                >
+                  <Heart size={20} fill={p.is_favorite ? 'currentColor' : 'none'} />
+                </button>
+              </div>
+
+              {/* Product Info */}
+              <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                   <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#4f46e5', textTransform: 'uppercase', letterSpacing: '1px' }}>{p.category_name}</span>
+                   <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#cbd5e1' }}></div>
+                   <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#94a3b8' }}>{p.farm_name}</span>
+                </div>
+                <h4 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#1e293b', margin: '0 0 0.5rem', lineHeight: 1.2, cursor: 'pointer' }} onClick={() => setSelectedProduct(p)}>{p.title}</h4>
+                
+                <div style={{ marginTop: 'auto' }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.4rem' }}>
+                    <span style={{ fontSize: '1.5rem', fontWeight: 900, color: '#1e293b' }}>{parseFloat(p.price).toLocaleString()}</span>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8' }}>DZD / {p.unit}</span>
+                  </div>
+                  <BenchmarkDisplay comparison={p.official_price_comparison} />
+
+                  <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
+                    <button 
+                      onClick={() => setSelectedProduct(p)}
+                      style={{ flex: 1, background: '#f8fafc', color: '#1e293b', border: '1.5px solid #e2e8f0', borderRadius: '14px', padding: '0.75rem', fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer' }}
+                    >
+                      Analyze
+                    </button>
+                    <button 
+                      onClick={() => addToCart(p.id)}
+                      disabled={cartLoading || p.stock === 0}
+                      style={{ flex: 1, background: p.stock === 0 ? '#f1f5f9' : '#4f46e5', color: p.stock === 0 ? '#94a3b8' : '#fff', border: 'none', borderRadius: '14px', padding: '0.75rem', fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+                    >
+                      {p.stock === 0 ? <><XCircle size={16} /> Sold</> : <><Plus size={16} /> Acquire</>}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
-      </div>
 
-      {/* ── PREMIUM MARKETPLACE GRID ──────────────── */}
-      <div className="pt-4">
-         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-           {filteredProducts.map((p, idx) => (
-             <div 
-               key={p.id} 
-               className="group bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-all duration-300 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)] hover:-translate-y-1 hover:border-indigo-300 flex flex-col animate-fade-in"
-               style={{ animationDelay: `${idx * 40}ms` }}
-             >
-               {/* Image Container */}
-               <div className="relative w-full h-36 overflow-hidden cursor-pointer bg-slate-50" onClick={() => setSelectedProduct(p)}>
-                  {p.image
-                    ? <img src={p.image} alt={p.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                    : <div className="w-full h-full flex items-center justify-center text-slate-300"><Package size={40} /></div>
-                  }
-                  <QualityBadge quality={p.quality} />
-                  
-                  {/* Action Overlay: Favorite */}
-                  <div className="absolute top-3 right-3 z-10 transition-transform active:scale-90">
-                     <button
-                       className={`w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-md shadow-sm border ${p.is_favorite ? 'bg-rose-500 border-rose-600 text-white' : 'bg-white/90 border-white text-slate-400 hover:text-rose-500'}`}
-                       onClick={e => { e.stopPropagation(); toggleFavorite(p); }}
-                     >
-                       <Heart size={14} fill={p.is_favorite ? 'currentColor' : 'none'} strokeWidth={2.5} />
-                     </button>
-                  </div>
-               </div>
-               
-               {/* Typography & Actions */}
-               <div className="flex flex-col flex-1 p-4">
-                  <div className="flex justify-between items-start mb-1.5 gap-2">
-                     <h4 className="text-base font-black text-slate-900 leading-tight line-clamp-2 cursor-pointer hover:text-indigo-600 transition-colors" onClick={() => setSelectedProduct(p)}>
-                        {p.title}
-                     </h4>
-                     {p.stock === 0 && <span className="shrink-0 bg-slate-100 text-slate-500 font-bold text-[9px] uppercase tracking-widest px-1.5 py-0.5 rounded">Out</span>}
-                  </div>
-                  
-                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 font-semibold mb-3">
-                    <span className="flex items-center gap-1 truncate"><Building2 size={12} className="text-indigo-400" /> {p.farm_name || 'Algeria'}</span>
-                  </div>
-
-                  <div className="mt-auto">
-                    <div className="flex items-end gap-1 mb-0.5">
-                      <span className="text-2xl font-black text-indigo-700 leading-none tracking-tight">{parseFloat(p.price).toLocaleString()}</span>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">DZD/{p.unit}</span>
-                    </div>
-
-                    <BenchmarkDisplay comparison={p.official_price_comparison} type="card" />
-
-                    {/* Compact Button Row */}
-                    <div className="grid grid-cols-2 gap-2 mt-4">
-                       <button
-                         className="bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold py-2 rounded-xl transition-all text-xs flex items-center justify-center gap-1.5 focus:ring-2 focus:ring-slate-200 outline-none"
-                         onClick={() => setSelectedProduct(p)}
-                       >
-                         <Eye size={14} /> View
-                       </button>
-                       <button
-                         className={`font-bold py-2 rounded-xl transition-all text-xs flex items-center justify-center gap-1.5 active:scale-95 outline-none ${p.stock === 0 ? 'bg-slate-100 text-slate-400 border border-transparent' : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-[0_4px_10px_rgba(79,70,229,0.2)] focus:ring-2 focus:ring-offset-2 focus:ring-indigo-600'}`}
-                         onClick={() => addToCart(p.id)}
-                         disabled={cartLoading || p.stock === 0}
-                       >
-                         {p.stock === 0 ? <XCircle size={14} /> : <ShoppingCart size={14} />}
-                         {p.stock === 0 ? 'Empty' : 'Add to Cart'}
-                       </button>
-                    </div>
-                  </div>
-               </div>
-             </div>
-           ))}
-
-           {filteredProducts.length === 0 && (
-             <div className="col-span-full bg-white border border-dashed border-slate-300 rounded-2xl p-12 text-center shadow-sm">
-               <Search size={36} className="text-slate-300 mx-auto mb-3" />
-               <h4 className="text-lg font-black text-slate-800 mb-2">No products found</h4>
-               <p className="text-sm font-medium text-slate-500 mb-5 max-w-sm mx-auto">No results match your current filters.</p>
-               <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest shadow-md transition-all active:scale-95" onClick={() => { setSearch(''); setActiveCategory('All'); }}>Clear Filters</button>
-             </div>
-           )}
-         </div>
+        {/* Empty State */}
+        {filteredProducts.length === 0 && (
+          <div style={{ textAlign: 'center', padding: '8rem 2rem', background: '#fff', borderRadius: '32px', border: '1.5px dashed #e2e8f0' }}>
+            <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: '#f8fafc', color: '#cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem' }}><LayoutGrid size={40} /></div>
+            <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#1e293b', marginBottom: '1rem' }}>No Matches Identified</h3>
+            <p style={{ color: '#64748b', marginBottom: '2.5rem', maxWidth: '400px', margin: '0 auto' }}>Try adjusting your parameters or browse another category node.</p>
+          </div>
+        )}
       </div>
 
       {selectedProduct && (
@@ -424,6 +396,33 @@ function BuyerDashboard() {
           cartLoading={cartLoading}
         />
       )}
+
+      {/* Global Message */}
+      {message && (
+        <div style={{ position: 'fixed', bottom: '2rem', right: '2rem', zIndex: 1000, background: message.type === 'success' ? '#065f46' : '#991b1b', color: '#fff', padding: '1rem 2rem', borderRadius: '16px', fontWeight: 800, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.75rem', boxShadow: '0 20px 40px rgba(0,0,0,0.2)', animation: 'slideRight 0.3s ease' }}>
+          {message.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
+          {message.text}
+        </div>
+      )}
+
+      <style>{`
+        .hover-card:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 30px 60px rgba(0,0,0,0.08);
+          border-color: #4f46e5 !important;
+        }
+        .hover-card:hover .card-img {
+          transform: scale(1.05);
+        }
+        .scrollbar-none::-webkit-scrollbar {
+          display: none;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scaleUp { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        @keyframes slideRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .animate-spin { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      `}</style>
     </div>
   );
 }

@@ -151,12 +151,12 @@ function App() {
               <FarmerWeatherPage />
             </ProtectedRoute>
           } />
-          <Route path="/farmer/orders" element={
+          <Route path="/farmer-dashboard/orders" element={
             <ProtectedRoute allowedRoles={['farmer']}>
               <OrderList />
             </ProtectedRoute>
           } />
-          <Route path="/farmer/orders/:id/request-delivery" element={
+          <Route path="/farmer-dashboard/orders/:id/request-delivery" element={
             <ProtectedRoute allowedRoles={['farmer']}>
               <RequestDelivery />
             </ProtectedRoute>
@@ -196,7 +196,7 @@ function App() {
               <ProductForm />
             </ProtectedRoute>
           } />
-          <Route path="/farmer/products" element={
+          <Route path="/farmer-dashboard/products" element={
             <ProtectedRoute allowedRoles={['farmer']}>
               <ProductList />
             </ProtectedRoute>
@@ -206,7 +206,7 @@ function App() {
               <HarvestRecords />
             </ProtectedRoute>
           } />
-          <Route path="/farmer/iot-alerts" element={
+          <Route path="/farmer-dashboard/iot-alerts" element={
             <ProtectedRoute allowedRoles={['farmer']}>
               <IoTAlertsPage />
             </ProtectedRoute>

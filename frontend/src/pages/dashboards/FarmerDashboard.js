@@ -7,7 +7,7 @@ import MiniWeatherWidget from '../../components/weather/MiniWeatherWidget';
 import {
   Plus, Sprout, TrendingUp, Clock,
   Package, ChevronRight, CheckCircle, ExternalLink, ListOrdered,
-  BadgeCheck, ShoppingBag, Activity, AlertTriangle, CloudSun, Target,
+  BadgeCheck, ShoppingBag, CloudSun, Target,
   ShieldAlert
 } from 'lucide-react';
 
@@ -27,12 +27,16 @@ export default function FarmerDashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [farmId, setFarmId] = useState(undefined);
+  const [wilaya, setWilaya] = useState(null);
   const [alertStatus, setAlertStatus] = useState(null); // { alerts_count, has_danger }
 
   useEffect(() => {
     setLoading(true);
     api.get('/dashboards/farmer-stats/')
-      .then(res => setStats(res.data))
+      .then(res => {
+        setStats(res.data);
+        setWilaya(res.data.wilaya);
+      })
       .catch(err => console.error(err))
       .finally(() => setLoading(false));
 
@@ -131,7 +135,7 @@ export default function FarmerDashboard() {
 
           {/* Weather Mini Widget Column */}
           <div className="hidden lg:block shrink-0 relative z-10">
-            <MiniWeatherWidget farmId={farmId} targetPath="/farmer-dashboard/weather" />
+            <MiniWeatherWidget farmId={farmId} wilaya={wilaya} targetPath="/farmer-dashboard/weather" />
           </div>
         </div>
       </div>
@@ -145,7 +149,7 @@ export default function FarmerDashboard() {
               className="group flex flex-col justify-between bg-white border border-slate-200 rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(34,84,61,0.08)] hover:border-[#22543d]/30 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] transform hover:-translate-y-2 cursor-pointer relative overflow-hidden"
               onClick={() => {
                 if (k.label === 'Active Products') navigate('/farmer-dashboard/products');
-                if (k.label === 'Pending Orders') navigate('/farmer/orders?status=PENDING');
+                if (k.label === 'Pending Orders') navigate('/farmer-dashboard/orders?status=PENDING');
               }}
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-slate-50 to-transparent rounded-full -mr-10 -mt-10 opacity-50 group-hover:scale-150 transition-transform duration-700 ease-out pointer-events-none" />
@@ -177,7 +181,7 @@ export default function FarmerDashboard() {
           {/* Alert navigation button */}
           <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'flex-end' }}>
             <button
-              onClick={() => navigate('/farmer/iot-alerts')}
+              onClick={() => navigate('/farmer-dashboard/iot-alerts')}
               className={alertStatus?.has_danger ? 'animate-pulse' : ''}
               style={{
                 display: 'inline-flex',
@@ -225,54 +229,8 @@ export default function FarmerDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* ── SMART INSIGHT MODULES ─────────────────────────── */}
-        <div className="lg:col-span-1 space-y-6">
-          <h2 className="text-xl font-black text-slate-900 flex items-center gap-2 tracking-tight">
-            <Activity size={22} strokeWidth={2.5} className="text-[#22543d]" /> System Status
-          </h2>
-          
-          <div className="bg-white/80 backdrop-blur-md border border-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-xl transition-all duration-500 relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:scale-110 group-hover:rotate-12 transition-transform duration-700 ease-out"><Activity size={80} /></div>
-            <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-5">Operational Metrics</h4>
-            <div className="space-y-4 relative z-10">
-              <div className="flex justify-between items-center pb-4 border-b border-slate-100">
-                <span className="text-sm font-bold text-slate-600">Action Required</span>
-                <span className="text-sm font-black text-white bg-amber-500 px-3 py-1 rounded-lg border border-amber-600 shadow-sm">{stats?.pending_orders || 0}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-bold text-slate-600">Active Products</span>
-                <span className="text-sm font-black text-white bg-[#22543d] px-3 py-1 rounded-lg border border-[#1a402e] shadow-sm">{stats?.my_products_count || 0}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200/50 rounded-3xl p-6 shadow-sm relative overflow-hidden">
-             <div className="absolute top-0 right-0 p-4 opacity-5"><AlertTriangle size={64} /></div>
-            <h4 className="text-sm font-extrabold text-amber-800 uppercase tracking-widest mb-3 flex items-center gap-2 relative z-10">
-              <AlertTriangle size={18} strokeWidth={2.5} /> Urgent Actions
-            </h4>
-            <div className="relative z-10">
-              {stats?.pending_orders > 0 ? (
-                <p className="text-sm text-amber-900 font-medium leading-relaxed">
-                  You have <strong className="font-black bg-amber-200 px-1 rounded">{stats.pending_orders} pending orders</strong> awaiting your approval. Promptly confirming orders ensures logistics flow smoothly.
-                </p>
-              ) : (
-                <p className="text-sm text-emerald-800 font-bold leading-relaxed flex items-center gap-2">
-                  <CheckCircle size={18} className="text-emerald-600"/> All operational checks are green. You are fully caught up today.
-                </p>
-              )}
-              <button 
-                onClick={() => navigate('/farmer/orders?status=PENDING')}
-                className="mt-5 w-full bg-amber-500 hover:bg-amber-600 text-white font-extrabold py-3 rounded-xl transition-all shadow-md transform hover:-translate-y-0.5 active:scale-95 duration-200 flex justify-center items-center gap-2"
-              >
-                Review Pending Intel <ChevronRight size={16} strokeWidth={3} />
-              </button>
-            </div>
-          </div>
-        </div>
-
         {/* ── RECENT PENDING ORDERS ───────────────────────────── */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-3 space-y-6">
           <div className="flex justify-between items-center">
             <h2 className="text-xl font-black text-slate-900 flex items-center gap-2 tracking-tight">
               <Clock size={22} strokeWidth={2.5} className="text-[#22543d]" /> Recent Activity
@@ -280,7 +238,7 @@ export default function FarmerDashboard() {
             </h2>
             <button
               className="text-xs font-black uppercase tracking-widest text-[#22543d] hover:text-[#1a402e] flex items-center transition-all hover:bg-emerald-50 px-3 py-1.5 rounded-lg"
-              onClick={() => navigate('/farmer/orders?status=PENDING')}
+              onClick={() => navigate('/farmer-dashboard/orders?status=PENDING')}
             >
               Full Log <ChevronRight size={14} className="ml-1" strokeWidth={3} />
             </button>
@@ -294,7 +252,7 @@ export default function FarmerDashboard() {
                 </div>
                 <h3 className="text-2xl font-black text-slate-800 mb-2 tracking-tight">All clear!</h3>
                 <p className="text-slate-500 font-medium max-w-sm mb-8">No new pending orders detected in the matrix. Enjoy your well-earned break.</p>
-                <button className="px-8 py-3.5 bg-slate-100 border border-slate-200 hover:bg-slate-200 hover:border-slate-300 text-slate-700 font-extrabold rounded-xl transition-all shadow-sm transform hover:-translate-y-0.5 active:scale-95 flex gap-2 items-center" onClick={() => navigate('/farmer/orders')}>
+                <button className="px-8 py-3.5 bg-slate-100 border border-slate-200 hover:bg-slate-200 hover:border-slate-300 text-slate-700 font-extrabold rounded-xl transition-all shadow-sm transform hover:-translate-y-0.5 active:scale-95 flex gap-2 items-center" onClick={() => navigate('/farmer-dashboard/orders')}>
                   <ListOrdered size={16} /> Open Complete Registry
                 </button>
               </div>
@@ -316,7 +274,7 @@ export default function FarmerDashboard() {
                         ? `F-${String(o.farmer_order_number).padStart(3, '0')}`
                         : String(o.id);
                       return (
-                        <tr key={o.id} className="hover:bg-emerald-50/50 transition-colors duration-300 group cursor-pointer" onClick={() => navigate('/farmer/orders?status=PENDING')}>
+                        <tr key={o.id} className="hover:bg-emerald-50/50 transition-colors duration-300 group cursor-pointer" onClick={() => navigate('/farmer-dashboard/orders?status=PENDING')}>
                           <td className="px-4 py-3 border-l-4 border-transparent group-hover:border-[#22543d]">
                             <span className="font-black text-[#22543d] text-sm">#{localNum}</span>
                           </td>
