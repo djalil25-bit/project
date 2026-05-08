@@ -230,6 +230,82 @@ const CatalogPriceHistory = () => {
             </div>
           </div>
 
+          {/* ── Table Section ────────────────────────────── */}
+          <div className="glass-card overflow-hidden">
+            <div className="flex items-center justify-between p-5 border-b border-gray-100">
+              <h3 className="font-bold text-gray-800 flex items-center gap-2">
+                <Database size={16} className="text-blue-600" /> Historical Price Archive
+              </h3>
+              <span className="adm-badge adm-badge-approved">{chartData.length} Records</span>
+            </div>
+            
+            <div className="overflow-x-auto">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th className="pl-6">Effective Date</th>
+                    <th>Safety Range</th>
+                    <th>Index Price</th>
+                    <th>Trend</th>
+                    <th>Changed By</th>
+                    <th className="w-1/3">Reason / Notification</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {chartData.length === 0 ? (
+                    <tr>
+                      <td colSpan="6">
+                        <div className="py-12 text-center text-gray-500 text-sm">
+                          No history records exist.
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    // Display latest first in the table
+                    [...chartData].reverse().map((row, idx) => (
+                      <tr key={row.id || idx}>
+                        <td className="pl-6">
+                          <span className="font-semibold text-gray-800">{row.chartDate}</span>
+                        </td>
+                        <td>
+                          <div className="flex items-center text-xs">
+                            <span className="text-red-500">{row.floor || '--'}</span>
+                            <span className="mx-2 text-gray-400">→</span>
+                            <span className="text-blue-500">{row.ceiling || '--'}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <span className="font-bold text-blue-600">{row.indexPrice} DZD</span>
+                        </td>
+                        <td>
+                          {row.trendNum === 1 ? (
+                            <span className="flex items-center gap-1 text-red-600 text-xs font-bold bg-red-50 px-2 py-1 rounded w-fit">
+                              <ArrowUpRight size={14} /> UP
+                            </span>
+                          ) : row.trendNum === -1 ? (
+                            <span className="flex items-center gap-1 text-blue-600 text-xs font-bold bg-blue-50 px-2 py-1 rounded w-fit">
+                              <ArrowDownRight size={14} /> DOWN
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-1 text-gray-500 text-xs font-bold bg-gray-100 px-2 py-1 rounded w-fit">
+                              <Minus size={14} /> FLAT
+                            </span>
+                          )}
+                        </td>
+                        <td>
+                          <span className="adm-badge" style={{ background: '#F3F4F6', color: '#6B7280', border: '1px solid #E5E7EB' }}>Admin System</span>
+                        </td>
+                        <td>
+                          <span className="text-sm text-gray-600">{row.notes || '—'}</span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
           {/* ── Filters & Chart Section ──────────────────── */}
           <div className="glass-card flex flex-col overflow-hidden">
             <div className="flex flex-col md:flex-row items-center justify-between p-5 border-b border-gray-100 gap-4">
@@ -342,82 +418,6 @@ const CatalogPriceHistory = () => {
                   </RechartsLineChart>
                 </ResponsiveContainer>
               )}
-            </div>
-          </div>
-
-          {/* ── Table Section ────────────────────────────── */}
-          <div className="glass-card overflow-hidden">
-            <div className="flex items-center justify-between p-5 border-b border-gray-100">
-              <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                <Database size={16} className="text-blue-600" /> Historical Price Archive
-              </h3>
-              <span className="adm-badge adm-badge-approved">{chartData.length} Records</span>
-            </div>
-            
-            <div className="overflow-x-auto">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th className="pl-6">Effective Date</th>
-                    <th>Safety Range</th>
-                    <th>Index Price</th>
-                    <th>Trend</th>
-                    <th>Changed By</th>
-                    <th className="w-1/3">Reason / Notification</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {chartData.length === 0 ? (
-                    <tr>
-                      <td colSpan="6">
-                        <div className="py-12 text-center text-gray-500 text-sm">
-                          No history records exist.
-                        </div>
-                      </td>
-                    </tr>
-                  ) : (
-                    // Display latest first in the table
-                    [...chartData].reverse().map((row, idx) => (
-                      <tr key={row.id || idx}>
-                        <td className="pl-6">
-                          <span className="font-semibold text-gray-800">{row.chartDate}</span>
-                        </td>
-                        <td>
-                          <div className="flex items-center text-xs">
-                            <span className="text-red-500">{row.floor || '--'}</span>
-                            <span className="mx-2 text-gray-400">→</span>
-                            <span className="text-blue-500">{row.ceiling || '--'}</span>
-                          </div>
-                        </td>
-                        <td>
-                          <span className="font-bold text-blue-600">{row.indexPrice} DZD</span>
-                        </td>
-                        <td>
-                          {row.trendNum === 1 ? (
-                            <span className="flex items-center gap-1 text-red-600 text-xs font-bold bg-red-50 px-2 py-1 rounded w-fit">
-                              <ArrowUpRight size={14} /> UP
-                            </span>
-                          ) : row.trendNum === -1 ? (
-                            <span className="flex items-center gap-1 text-blue-600 text-xs font-bold bg-blue-50 px-2 py-1 rounded w-fit">
-                              <ArrowDownRight size={14} /> DOWN
-                            </span>
-                          ) : (
-                            <span className="flex items-center gap-1 text-gray-500 text-xs font-bold bg-gray-100 px-2 py-1 rounded w-fit">
-                              <Minus size={14} /> FLAT
-                            </span>
-                          )}
-                        </td>
-                        <td>
-                          <span className="adm-badge" style={{ background: '#F3F4F6', color: '#6B7280', border: '1px solid #E5E7EB' }}>Admin System</span>
-                        </td>
-                        <td>
-                          <span className="text-sm text-gray-600">{row.notes || '—'}</span>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
             </div>
           </div>
         </>

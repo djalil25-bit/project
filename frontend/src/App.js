@@ -53,10 +53,8 @@ import AdminTransactions from './pages/admin/AdminTransactions';
 import AdminAccounts from './pages/admin/AdminAccounts';
 import AdminAlerts from './pages/admin/AdminAlerts';
 import AdminMessages from './pages/admin/AdminMessages';
-import FarmApprovals from './pages/admin/FarmApprovals';
-import VehicleApprovals from './pages/admin/VehicleApprovals';
-
 import AdminIoTPage from './pages/admin/AdminIoTPage';
+import ResourceApprovals from './pages/admin/ResourceApprovals';
 import AccountPending from './pages/AccountPending';
 
 function App() {
@@ -131,16 +129,14 @@ function App() {
               <AdminIoTPage />
             </ProtectedRoute>
           } />
-          <Route path="/admin-dashboard/farm-approvals" element={
+          <Route path="/admin-dashboard/resource-approvals" element={
             <ProtectedRoute allowedRoles={['admin']}>
-              <FarmApprovals />
+              <ResourceApprovals />
             </ProtectedRoute>
           } />
-          <Route path="/admin-dashboard/vehicle-approvals" element={
-            <ProtectedRoute allowedRoles={['admin']}>
-              <VehicleApprovals />
-            </ProtectedRoute>
-          } />
+          {/* Redirect legacy approval paths to unified registry */}
+          <Route path="/admin-dashboard/farm-approvals" element={<Navigate to="/admin-dashboard/resource-approvals" replace />} />
+          <Route path="/admin-dashboard/vehicle-approvals" element={<Navigate to="/admin-dashboard/resource-approvals" replace />} />
           <Route path="/farmer-dashboard" element={
             <ProtectedRoute allowedRoles={['farmer']}>
               <FarmerDashboard />

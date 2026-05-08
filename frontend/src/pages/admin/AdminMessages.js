@@ -28,7 +28,6 @@ const AdminMessages = () => {
   const [historyLoading, setHistoryLoading] = useState(false);
   const [templates, setTemplates] = useState([]);
   const [sending, setSending] = useState(false);
-  const [isReplyAllowed, setIsReplyAllowed] = useState(false);
   const [toast, setToast] = useState(null);
 
   const messagesEndRef = useRef(null);
@@ -141,11 +140,10 @@ const AdminMessages = () => {
         subject,
         body,
         channel: channel.toUpperCase(),
-        is_reply_allowed: isReplyAllowed,
         ...(schedule && { scheduled_for: scheduleDate }),
       });
       setToast({ msg: 'Message sent successfully!', type: 'success' });
-      setSubject(''); setBody(''); setRecipient(''); setRecipientId(null); setIsReplyAllowed(false);
+      setSubject(''); setBody(''); setRecipient(''); setRecipientId(null);
       setTimeout(() => setToast(null), 3000);
     } catch (err) {
       setToast({ msg: err.response?.data?.error || 'Failed to send message', type: 'error' });
@@ -169,7 +167,6 @@ const AdminMessages = () => {
         subject: `Re: ${selectedThread.messages[0]?.subject || 'Message'}`,
         body: replyBody,
         channel: 'IN_APP',
-        is_reply_allowed: isReplyAllowed
       });
       
       const newMsg = { 
@@ -319,11 +316,6 @@ const AdminMessages = () => {
                 <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest group-hover:text-emerald-600 transition-colors">Deferred Execution</span>
               </label>
               {schedule && <input type="datetime-local" className="h-10 bg-white border border-slate-200 rounded-xl px-4 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm animate-fade-in" value={scheduleDate} onChange={e=>setScheduleDate(e.target.value)}/>}
-              
-              <label className="flex items-center gap-3 cursor-pointer sm:ml-auto group">
-                <input type="checkbox" checked={isReplyAllowed} onChange={e=>setIsReplyAllowed(e.target.checked)} className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 w-4 h-4"/> 
-                <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest group-hover:text-emerald-600 transition-colors">Feedback Loop Active</span>
-              </label>
             </div>
 
             <div className="flex gap-4 pt-4">
@@ -524,12 +516,6 @@ const AdminMessages = () => {
                 </div>
 
                 <div className="p-6 bg-white border-t border-slate-100 shrink-0 flex flex-col gap-4 shadow-2xl">
-                  <div className="flex items-center justify-between px-2">
-                    <label className="flex items-center gap-3 cursor-pointer group">
-                      <input type="checkbox" checked={isReplyAllowed} onChange={e=>setIsReplyAllowed(e.target.checked)} className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 w-4 h-4"/> 
-                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest group-hover:text-emerald-600 transition-colors">Grant Participant Reply Rights</span>
-                    </label>
-                  </div>
                   <div className="flex gap-3 items-end">
                     <div className="flex-1 relative">
                       <textarea
