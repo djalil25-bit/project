@@ -37,9 +37,10 @@ class Farm(TimeStampedModel):
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
         null=True, blank=True, related_name='reviewed_farms'
     )
+    objects = models.Manager()
 
     def __str__(self):
-        return f"{self.name} ({self.owner.full_name})"
+        return f"{self.name} ({self.owner.full_name})" # type: ignore
 
 class HarvestRecord(TimeStampedModel):
     farm = models.ForeignKey(Farm, on_delete=models.CASCADE, related_name='harvests')
@@ -47,6 +48,7 @@ class HarvestRecord(TimeStampedModel):
     harvest_date = models.DateField()
     yield_quantity = models.DecimalField(max_digits=12, decimal_places=2, help_text="Quantity in kg or standard units")
     notes = models.TextField(blank=True)
+    objects = models.Manager()
 
     def __str__(self):
         return f"{self.crop_name} - {self.harvest_date} ({self.farm.name})"

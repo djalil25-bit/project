@@ -24,12 +24,13 @@ class Notification(TimeStampedModel):
     type = models.CharField(max_length=50, choices=NotificationType.choices, default=NotificationType.GENERAL)
     is_read = models.BooleanField(default=False)
     link = models.CharField(max_length=255, blank=True)
+    objects = models.Manager()
 
     class Meta:
         ordering = ['-created_at']
 
     def __str__(self):
-        return f"[{self.type}] {self.user.email}: {self.message[:50]}"
+        return f"[{self.type}] {self.user.email}: {self.message[:50]}" # type: ignore
 
 def create_notification(user, message, notif_type=NotificationType.GENERAL, link=''):
     """Helper to create a notification."""

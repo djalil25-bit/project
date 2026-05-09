@@ -16,6 +16,7 @@ class Payment(TimeStampedModel):
         default=PaymentStatusChoices.PENDING
     )
     method = models.CharField(max_length=50, default='cash_on_delivery')
+    objects = models.Manager()
 
     def __str__(self):
         return f"Payment for Order #{self.order.id} - {self.status}"

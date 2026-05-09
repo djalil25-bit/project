@@ -19,9 +19,9 @@ class HarvestRecordSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('created_at', 'updated_at')
 
-    def validate(self, data):
-        farm = data.get('farm')
+    def validate(self, attrs):
+        farm = attrs.get('farm')
         user = self.context['request'].user
         if farm and farm.owner != user:
             raise serializers.ValidationError("You can only add harvest records to your own farms.")
-        return data
+        return attrs

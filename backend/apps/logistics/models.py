@@ -64,10 +64,10 @@ class DeliveryRequest(TimeStampedModel):
     @property
     def total_quantity(self):
         from django.db.models import Sum
-        return self.order.items.aggregate(total=Sum('quantity'))['total'] or 0
+        return self.order.items.aggregate(total=Sum('quantity'))['total'] or 0 # type: ignore
 
     def __str__(self):
-        return f"Delivery for Order #{self.order.id} - {self.status}"
+        return f"Delivery for Order #{self.order.id} - {self.status}" # type: ignore
 
 
 class VehicleStatusChoices(models.TextChoices):
@@ -110,5 +110,5 @@ class Vehicle(TimeStampedModel):
     )
 
     def __str__(self):
-        return f"{self.get_type_display()} {self.plate} ({self.owner.email})"
+        return f"{self.get_type_display()} {self.plate} ({self.owner.email})" # type: ignore
 

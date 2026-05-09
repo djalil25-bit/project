@@ -68,12 +68,12 @@ class Order(TimeStampedModel):
     # Life cycle finalization
     buyer_confirmed_at = models.DateTimeField(null=True, blank=True)
     farmer_order_number = models.PositiveIntegerField(null=True, blank=True, db_index=True)
+    objects = models.Manager()
 
     def __str__(self):
-        return f"Order #{self.id} by {self.buyer.email} ({self.status})"
+        return f"Order #{self.id} by {self.buyer.email} ({self.status})" # type: ignore
 
     def add_timeline_entry(self, status, actor=None, note=''):
-        from .models import OrderTimeline
         return OrderTimeline.objects.create(
             order=self,
             status=status,
@@ -91,7 +91,7 @@ class OrderTimeline(TimeStampedModel):
         ordering = ['created_at']
 
     def __str__(self):
-        return f"Timeline for Order #{self.order.id} - {self.status}"
+        return f"Timeline for Order #{self.order.id} - {self.status}" # type: ignore
 
 class OrderItem(TimeStampedModel):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
@@ -99,10 +99,11 @@ class OrderItem(TimeStampedModel):
     quantity = models.DecimalField(max_digits=10, decimal_places=2)
     price_snapshot = models.DecimalField(max_digits=12, decimal_places=2, help_text="Price at the time of order")
     farmer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='received_order_items')
+    objects = models.Manager()
 
     def __str__(self):
-        return f"Item {self.product.title if self.product else 'Removed'} in Order #{self.order.id}"
+        return f"Item {self.product.title if self.product else 'Removed'} in Order #{self.order.id}" # type: ignore
 
     @property
     def item_total(self):
-        return self.quantity * self.price_snapshot
+        return self.quantity * self.price_snapshot # type: ignore

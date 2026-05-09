@@ -5,9 +5,10 @@ from apps.catalog.models import Product
 
 class Cart(TimeStampedModel):
     buyer = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='cart')
+    objects = models.Manager()
 
     def __str__(self):
-        return f"Cart for {self.buyer.full_name}"
+        return f"Cart for {self.buyer.full_name}" # type: ignore
 
 class CartItem(TimeStampedModel):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
@@ -16,6 +17,8 @@ class CartItem(TimeStampedModel):
 
     class Meta:
         unique_together = ('cart', 'product')
+
+    objects = models.Manager()
 
     def __str__(self):
         return f"{self.quantity} of {self.product.title} in Cart"

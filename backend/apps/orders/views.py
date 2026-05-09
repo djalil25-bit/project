@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from django.db import transaction
+from decimal import Decimal
 
 from .models import Order, OrderItem, OrderStatusChoices
 from .serializers import OrderSerializer, CheckoutSerializer, FarmerOrderItemStatusSerializer
@@ -33,7 +34,7 @@ class OrderViewSet(viewsets.ModelViewSet):
 
         try:
             cart = Cart.objects.get(buyer=user)
-        except Cart.DoesNotExist:
+        except Cart.DoesNotExist: # type: ignore
             return Response({"error": "Cart is empty."}, status=status.HTTP_400_BAD_REQUEST)
 
         cart_items = list(cart.items.select_related('product', 'product__farmer', 'product__farm').all())
@@ -95,7 +96,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         user = request.user
         try:
             cart = Cart.objects.get(buyer=user)
-        except Cart.DoesNotExist:
+        except Cart.DoesNotExist: # type: ignore
             return Response({"error": "Cart is empty."}, status=status.HTTP_400_BAD_REQUEST)
 
         cart_items = list(cart.items.select_related('product', 'product__farmer', 'product__farm').all())
@@ -314,7 +315,7 @@ class FarmerOrderViewSet(viewsets.ViewSet):
             from .serializers import OrderSerializer
             serializer = OrderSerializer(order, context={'request': request})
             return Response(serializer.data)
-        except Order.DoesNotExist:
+        except Order.DoesNotExist: # type: ignore
             return Response({"error": "Order not found or access denied."}, status=status.HTTP_404_NOT_FOUND)
 
     @action(detail=True, methods=['post'], url_path='status')
@@ -322,7 +323,7 @@ class FarmerOrderViewSet(viewsets.ViewSet):
         try:
             # Ensure the farmer has items in this order
             order = Order.objects.filter(pk=pk, items__farmer=request.user).distinct().get()
-        except Order.DoesNotExist:
+        except Order.DoesNotExist: # type: ignore
             return Response({"error": "Order not found or access denied for your account."}, status=status.HTTP_404_NOT_FOUND)
             
         serializer = FarmerOrderItemStatusSerializer(data=request.data)
@@ -374,7 +375,7 @@ class FarmerOrderViewSet(viewsets.ViewSet):
     def update_delivery(self, request, pk=None):
         try:
             order = Order.objects.filter(pk=pk, items__farmer=request.user).distinct().get()
-        except Order.DoesNotExist:
+        except Order.DoesNotExist: # type: ignore
             return Response(status=status.HTTP_404_NOT_FOUND)
             
         new_status = request.data.get('status')
