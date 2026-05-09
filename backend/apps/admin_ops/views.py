@@ -1000,6 +1000,7 @@ class FarmApprovalListView(APIView):
                 'commune': f.commune,
                 'size_hectares': float(f.size_hectares) if f.size_hectares else None,
                 'image': f.image.url if f.image else None,
+                'registry_document': f.registry_document.url if f.registry_document else None,
                 'status': f.status,
                 'rejection_reason': f.rejection_reason,
                 'created_at': f.created_at,

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import {
   Tractor, ChevronRight, Search, Check, X, Clock,
   MapPin, Maximize2, User, Phone, Mail, AlertTriangle,
-  ImageOff, RefreshCw
+  ImageOff, RefreshCw, FileText
 } from 'lucide-react';
 
 const STATUS_TABS = [
@@ -21,6 +21,7 @@ export default function FarmApprovals() {
   const [rejectModal, setRejectModal] = useState(null);
   const [rejectReason, setRejectReason] = useState('');
   const [actionLoading, setActionLoading] = useState(null);
+  const [registryDocumentPreview, setRegistryDocumentPreview] = useState(null);
 
   const fetchFarms = async () => {
     setLoading(true);
@@ -183,6 +184,22 @@ export default function FarmApprovals() {
                   </div>
                 </div>
 
+                {/* Registry Document */}
+                <div className="pt-1">
+                  {farm.registry_document ? (
+                    <button
+                      onClick={() => setRegistryDocumentPreview(farm.registry_document.startsWith('http') ? farm.registry_document : `http://localhost:8000${farm.registry_document}`)}
+                      className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-600/20 active:scale-95"
+                    >
+                      <FileText size={14} /> View Registry Document
+                    </button>
+                  ) : (
+                    <div className="w-full flex items-center justify-center gap-2 bg-slate-100 border border-slate-200 text-slate-400 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest">
+                      <FileText size={14} className="opacity-50" /> Document Missing
+                    </div>
+                  )}
+                </div>
+
                 {/* Rejection Reason (if rejected) */}
                 {farm.status === 'REJECTED' && farm.rejection_reason && (
                   <div className="bg-red-50 border border-red-200 rounded-xl p-3 flex items-start gap-2">
@@ -214,7 +231,7 @@ export default function FarmApprovals() {
                     <button
                       onClick={() => setRejectModal(farm.id)}
                       disabled={actionLoading === farm.id}
-                      className="flex-1 bg-white hover:bg-red-50 text-red-600 border-2 border-red-200 h-11 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                      className="flex-1 bg-red-600 hover:bg-red-700 text-white h-11 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-red-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
                     >
                       <X size={14} /> Reject
                     </button>
@@ -256,6 +273,22 @@ export default function FarmApprovals() {
               <button onClick={() => { setRejectModal(null); setRejectReason(''); }} className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 h-12 rounded-xl font-black text-xs uppercase tracking-widest transition-all">Cancel</button>
               <button onClick={handleReject} disabled={!rejectReason.trim() || actionLoading} className="flex-1 bg-red-600 hover:bg-red-700 text-white h-12 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-red-600/20 disabled:opacity-50">Confirm Rejection</button>
             </div>
+          </div>
+        </div>
+      )}
+      {/* REGISTRY DOCUMENT PREVIEW MODAL */}
+      {registryDocumentPreview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in" onClick={() => setRegistryDocumentPreview(null)}>
+          <div className="bg-white rounded-3xl p-6 shadow-2xl max-w-2xl w-full max-h-[85vh] animate-scale-in relative overflow-auto" onClick={e => e.stopPropagation()}>
+            <button className="absolute top-4 right-4 w-10 h-10 bg-slate-50 text-slate-400 hover:text-slate-900 rounded-full flex items-center justify-center transition-all z-10" onClick={() => setRegistryDocumentPreview(null)}>
+              <X size={20} />
+            </button>
+            <h3 className="text-lg font-black text-slate-900 mb-4 flex items-center gap-2"><FileText size={18} className="text-blue-600" /> Registry Document</h3>
+            {registryDocumentPreview.toLowerCase().endsWith('.pdf') ? (
+              <iframe src={registryDocumentPreview} className="w-full h-[60vh] rounded-xl border" title="Registry Document" />
+            ) : (
+              <img src={registryDocumentPreview} alt="Registry Document" className="w-full rounded-xl border shadow-sm" />
+            )}
           </div>
         </div>
       )}

@@ -1,8 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { X, User, ShoppingBag, Package, Truck, MapPin, Phone, Mail, CheckCircle, AlertTriangle, MessageSquare, Flag, Download } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
 
 const TransactionDetailModal = ({ txn, onClose, onAction }) => {
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, []);
+
   if (!txn) return null;
 
   const downloadPDF = () => {
@@ -115,9 +121,9 @@ const TransactionDetailModal = ({ txn, onClose, onAction }) => {
   const items = txn.items || [];
   const firstItem = items[0] || {};
 
-  return (
-    <div className="adm-modal-overlay" onClick={onClose}>
-      <div className="adm-modal" style={{ maxWidth: 720 }} onClick={e => e.stopPropagation()}>
+  const modalContent = (
+    <div className="adm-modal-overlay z-[9999] fixed inset-0 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={onClose}>
+      <div className="adm-modal bg-white rounded-2xl shadow-2xl flex flex-col relative border border-gray-100 max-h-[90vh] w-full" style={{ maxWidth: 720 }} onClick={e => e.stopPropagation()}>
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <div>
@@ -225,15 +231,17 @@ const TransactionDetailModal = ({ txn, onClose, onAction }) => {
           <div className="border-t border-gray-100 pt-4">
             <span className="text-xs font-bold text-gray-500 uppercase tracking-wide">Admin Actions</span>
             <div className="flex flex-wrap gap-2 mt-3">
-              <button className="adm-btn adm-btn-warning text-xs" onClick={() => onAction?.(txn.id, 'flag')}><Flag size={13}/> Flag</button>
-              <button className="adm-btn adm-btn-ghost text-xs" onClick={() => onAction?.(txn.id, 'cancel')}><X size={13}/> Force Cancel</button>
-              <button className="adm-btn adm-btn-ghost text-xs" onClick={() => { onClose(); window.location.href='/admin-dashboard/messages'; }}><MessageSquare size={13}/> Send Message</button>
+              <button className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-bold shadow-md shadow-amber-500/20 transition-all flex items-center gap-1.5 text-xs" onClick={() => onAction?.(txn.id, 'flag')}><Flag size={13}/> Flag</button>
+              <button className="px-3 py-1.5 bg-rose-500 hover:bg-rose-600 text-white rounded-lg font-bold shadow-md shadow-rose-500/20 transition-all flex items-center gap-1.5 text-xs" onClick={() => onAction?.(txn.id, 'cancel')}><X size={13}/> Force Cancel</button>
+              <button className="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-bold shadow-md shadow-blue-500/20 transition-all flex items-center gap-1.5 text-xs" onClick={() => { onClose(); window.location.href='/admin-dashboard/messages'; }}><MessageSquare size={13}/> Send Message</button>
             </div>
           </div>
         </div>
       </div>
     </div>
   );
+
+  return ReactDOM.createPortal(modalContent, document.body);
 };
 
 export default TransactionDetailModal;

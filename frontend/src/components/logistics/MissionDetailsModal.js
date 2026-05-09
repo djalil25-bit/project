@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { 
   X, 
   MapPin, 
@@ -21,6 +22,17 @@ import {
 import { VEHICLE_TYPES } from '../../utils/constants';
 
 const MissionDetailsModal = ({ mission, onClose, onAccept, hasActiveMission, actionLoading }) => {
+  useEffect(() => {
+    // Disable background scrolling when modal is open
+    // We check if mission exists to only lock scroll when modal is actually displaying
+    if (mission) {
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = 'auto';
+      };
+    }
+  }, [mission]);
+
   if (!mission) return null;
 
   const orderDetail = mission.order_detail || {};
@@ -34,9 +46,9 @@ const MissionDetailsModal = ({ mission, onClose, onAccept, hasActiveMission, act
   const isAccepted = mission.status !== 'open';
   const canAccept = mission.status === 'open' && !hasActiveMission;
 
-  return (
-    <div className="fixed inset-0 z-[100] flex items-start justify-center bg-slate-900/50 backdrop-blur-md animate-fade-in p-4 pt-10 md:pt-16 overflow-y-auto">
-      <div className="bg-white w-full max-w-4xl rounded-[2rem] shadow-2xl flex flex-col overflow-hidden animate-scale-in border border-slate-200/60 my-auto">
+  return ReactDOM.createPortal(
+    <div className="fixed inset-0 z-[5000] flex items-center justify-center bg-slate-900/50 backdrop-blur-md animate-fade-in p-4">
+      <div className="bg-white w-full max-w-4xl max-h-[90vh] rounded-[2rem] shadow-2xl flex flex-col overflow-hidden animate-scale-in border border-slate-200/60">
         
         {/* Ministry-Grade Header */}
         <div className="bg-slate-900 text-white px-8 py-3.5 flex items-center justify-between shrink-0 relative overflow-hidden">
@@ -56,7 +68,7 @@ const MissionDetailsModal = ({ mission, onClose, onAccept, hasActiveMission, act
         </div>
 
         {/* Optimized Manifest Content */}
-        <div className="p-4 md:p-5 space-y-4 overflow-hidden">
+        <div className="p-4 md:p-5 space-y-4 overflow-y-auto custom-scrollbar">
           
           {/* Logistics & Yield Row */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -167,7 +179,8 @@ const MissionDetailsModal = ({ mission, onClose, onAccept, hasActiveMission, act
         </div>
 
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

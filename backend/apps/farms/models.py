@@ -21,6 +21,10 @@ class Farm(TimeStampedModel):
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to='farms/', null=True, blank=True,
                               help_text='Optional representative image for this farm.')
+    registry_document = models.FileField(
+        upload_to='farms/documents/', null=True, blank=True,
+        help_text='Registry document or certificate for this farm — JPG/PNG/PDF'
+    )
 
     # Admin approval fields
     status = models.CharField(

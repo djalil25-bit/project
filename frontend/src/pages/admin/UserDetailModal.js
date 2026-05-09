@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import api from '../../api/axiosConfig';
 import { X, User as UserIcon, Mail, Phone, MapPin, Briefcase, FileText, CheckCircle, Clock, FileDown, Eye, XCircle, Shield, AlertTriangle } from 'lucide-react';
 
@@ -34,6 +35,11 @@ const UserDetailModal = ({ userId, onClose, onAction }) => {
     if (userId) fetchData();
   }, [userId]);
 
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, []);
+
   if (!userId) return null;
 
   const handleDocumentClick = (doc) => {
@@ -44,8 +50,8 @@ const UserDetailModal = ({ userId, onClose, onAction }) => {
 
   const colors = user ? (roleColors[user.role] || roleColors.buyer) : roleColors.buyer;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm anim-fade-in">
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm anim-fade-in">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden relative border border-gray-100">
         
         {loading ? (
@@ -297,22 +303,22 @@ const UserDetailModal = ({ userId, onClose, onAction }) => {
             <div className="p-4 border-t border-gray-100 bg-white flex flex-wrap justify-end gap-3 items-center">
               {user.status === 'pending' && (
                 <>
-                  <button onClick={() => onAction(user.id, 'reject')} className="adm-btn adm-btn-warning bg-red-50 text-red-600 hover:bg-red-100 hover:border-red-200 shadow-none">
-                    Reject Application
+                  <button onClick={() => onAction(user.id, 'reject')} className="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-bold shadow-md shadow-rose-500/20 transition-all flex items-center gap-2 text-sm">
+                    <XCircle size={16}/> Reject Application
                   </button>
-                  <button onClick={() => onAction(user.id, 'approve')} className="adm-btn adm-btn-success shadow-md shadow-green-600/20">
+                  <button onClick={() => onAction(user.id, 'approve')} className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold shadow-md shadow-emerald-500/20 transition-all flex items-center gap-2 text-sm">
                     <CheckCircle size={16}/> Approve Account
                   </button>
                 </>
               )}
               {user.status === 'approved' && (
-                <button onClick={() => onAction(user.id, 'suspend')} className="adm-btn adm-btn-warning shadow-none">
-                  Suspend Account
+                <button onClick={() => onAction(user.id, 'suspend')} className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold shadow-md shadow-amber-500/20 transition-all flex items-center gap-2 text-sm">
+                  <Shield size={16}/> Suspend Account
                 </button>
               )}
               {(user.status === 'suspended' || user.status === 'rejected') && (
-                <button onClick={() => onAction(user.id, 'reactivate')} className="adm-btn adm-btn-primary shadow-none">
-                  Reactivate Account
+                <button onClick={() => onAction(user.id, 'reactivate')} className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-bold shadow-md shadow-blue-500/20 transition-all flex items-center gap-2 text-sm">
+                  <CheckCircle size={16}/> Reactivate Account
                 </button>
               )}
             </div>
@@ -346,6 +352,8 @@ const UserDetailModal = ({ userId, onClose, onAction }) => {
       )}
     </div>
   );
+
+  return ReactDOM.createPortal(modalContent, document.body);
 };
 
 export default UserDetailModal;

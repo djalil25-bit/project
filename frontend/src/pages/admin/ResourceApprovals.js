@@ -27,7 +27,7 @@ export default function ResourceApprovals() {
   const [rejectModal, setRejectModal] = useState(null);
   const [rejectReason, setRejectReason] = useState('');
   const [actionLoading, setActionLoading] = useState(null);
-  const [carteGrisePreview, setCarteGrisePreview] = useState(null);
+  const [documentPreview, setDocumentPreview] = useState(null);
 
   const fetchResources = async () => {
     setLoading(true);
@@ -171,6 +171,7 @@ export default function ResourceApprovals() {
                 farm={item} 
                 onApprove={handleApprove} 
                 onReject={setRejectModal} 
+                onPreview={setDocumentPreview}
                 actionLoading={actionLoading} 
               />
             ) : (
@@ -179,7 +180,7 @@ export default function ResourceApprovals() {
                 vehicle={item} 
                 onApprove={handleApprove} 
                 onReject={setRejectModal} 
-                onPreview={setCarteGrisePreview}
+                onPreview={setDocumentPreview}
                 actionLoading={actionLoading}
                 getIcon={getVehicleIcon}
               />
@@ -201,10 +202,10 @@ export default function ResourceApprovals() {
         />
       )}
 
-      {carteGrisePreview && (
+      {documentPreview && (
         <DocumentPreviewModal 
-          url={carteGrisePreview} 
-          onClose={() => setCarteGrisePreview(null)} 
+          url={documentPreview} 
+          onClose={() => setDocumentPreview(null)} 
         />
       )}
     </div>
@@ -212,7 +213,7 @@ export default function ResourceApprovals() {
 }
 
 // Sub-components for cleaner structure
-const FarmCard = ({ farm, onApprove, onReject, actionLoading }) => (
+const FarmCard = ({ farm, onApprove, onReject, onPreview, actionLoading }) => (
   <div className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 overflow-hidden flex flex-col h-full group">
     <div className="relative h-48 bg-slate-100 overflow-hidden">
       {farm.image ? (
@@ -251,12 +252,24 @@ const FarmCard = ({ farm, onApprove, onReject, actionLoading }) => (
         </div>
       </div>
 
+      <div className="pb-4 mt-auto">
+        {farm.registry_document ? (
+          <button onClick={() => onPreview(farm.registry_document.startsWith('http') ? farm.registry_document : `http://localhost:8000${farm.registry_document}`)} className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-600/20 active:scale-95">
+            <FileText size={14}/> View Registry Document
+          </button>
+        ) : (
+          <div className="w-full flex items-center justify-center gap-2 bg-slate-100 border border-slate-200 text-slate-400 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest">
+            <FileText size={14} className="opacity-50" /> Document Missing
+          </div>
+        )}
+      </div>
+
       {farm.status === 'PENDING' && (
-        <div className="grid grid-cols-2 gap-3 mt-auto">
-          <button onClick={() => onApprove(farm.id)} disabled={actionLoading === farm.id} className="bg-emerald-600 hover:bg-emerald-700 text-white h-12 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 disabled:opacity-50">
+        <div className="grid grid-cols-2 gap-3">
+          <button onClick={() => onApprove(farm.id)} disabled={actionLoading === farm.id} className="bg-emerald-600 hover:bg-emerald-700 text-white h-11 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 disabled:opacity-50">
             <Check size={16}/> Approve
           </button>
-          <button onClick={() => onReject(farm.id)} disabled={actionLoading === farm.id} className="bg-white hover:bg-red-50 text-red-600 border-2 border-red-100 h-12 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-2">
+          <button onClick={() => onReject(farm.id)} disabled={actionLoading === farm.id} className="bg-red-600 hover:bg-red-700 text-white h-11 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-red-600/20 flex items-center justify-center gap-2 disabled:opacity-50">
             <X size={16}/> Reject
           </button>
         </div>
@@ -310,18 +323,24 @@ const VehicleCard = ({ vehicle, onApprove, onReject, onPreview, actionLoading, g
         </div>
       </div>
 
-      {vehicle.carte_grise && (
-        <button onClick={() => onPreview(vehicle.carte_grise.startsWith('http') ? vehicle.carte_grise : `http://localhost:8000${vehicle.carte_grise}`)} className="w-full flex items-center justify-center gap-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 h-11 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
-          <FileText size={16}/> View Registry Document
-        </button>
-      )}
+      <div className="pb-4 mt-auto pt-4">
+        {vehicle.carte_grise ? (
+          <button onClick={() => onPreview(vehicle.carte_grise.startsWith('http') ? vehicle.carte_grise : `http://localhost:8000${vehicle.carte_grise}`)} className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-600/20 active:scale-95">
+            <FileText size={14}/> View Carte Grise
+          </button>
+        ) : (
+          <div className="w-full flex items-center justify-center gap-2 bg-slate-100 border border-slate-200 text-slate-400 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest">
+            <FileText size={14} className="opacity-50" /> Document Missing
+          </div>
+        )}
+      </div>
 
       {vehicle.status === 'PENDING' && (
-        <div className="grid grid-cols-2 gap-3 mt-auto pt-4">
+        <div className="grid grid-cols-2 gap-3">
           <button onClick={() => onApprove(vehicle.id)} disabled={actionLoading === vehicle.id} className="bg-emerald-600 hover:bg-emerald-700 text-white h-11 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 disabled:opacity-50">
             <Check size={16}/> Approve
           </button>
-          <button onClick={() => onReject(vehicle.id)} disabled={actionLoading === vehicle.id} className="bg-white hover:bg-red-50 text-red-600 border-2 border-red-100 h-11 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-2">
+          <button onClick={() => onReject(vehicle.id)} disabled={actionLoading === vehicle.id} className="bg-red-600 hover:bg-red-700 text-white h-11 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-red-600/20 flex items-center justify-center gap-2 disabled:opacity-50">
             <X size={16}/> Reject
           </button>
         </div>
