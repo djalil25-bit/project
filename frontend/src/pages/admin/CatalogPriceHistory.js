@@ -83,9 +83,18 @@ const CatalogPriceHistory = () => {
     const formatted = filtered.map((item, index, arr) => {
       const prev = index > 0 ? arr[index - 1] : null;
       let trendNum = 0; // 0=flat, 1=up, -1=down
+      const getVal = (item) => {
+        if (item.min_price != null && item.max_price != null) {
+          return (parseFloat(item.min_price) + parseFloat(item.max_price)) / 2;
+        }
+        return parseFloat(item.official_price);
+      };
+
       if (prev) {
-        if (parseFloat(item.official_price) > parseFloat(prev.official_price)) trendNum = 1;
-        if (parseFloat(item.official_price) < parseFloat(prev.official_price)) trendNum = -1;
+        const currVal = getVal(item);
+        const prevVal = getVal(prev);
+        if (currVal > prevVal) trendNum = 1;
+        if (currVal < prevVal) trendNum = -1;
       }
       const d = new Date(item.valid_from);
       const chartDateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });

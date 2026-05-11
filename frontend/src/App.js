@@ -55,6 +55,7 @@ import AdminAlerts from './pages/admin/AdminAlerts';
 import AdminMessages from './pages/admin/AdminMessages';
 import AdminIoTPage from './pages/admin/AdminIoTPage';
 import ResourceApprovals from './pages/admin/ResourceApprovals';
+import AdminMarketIntelligence from './pages/admin/AdminMarketIntelligence';
 import AccountPending from './pages/AccountPending';
 
 function App() {
@@ -132,6 +133,11 @@ function App() {
           <Route path="/admin-dashboard/resource-approvals" element={
             <ProtectedRoute allowedRoles={['admin']}>
               <ResourceApprovals />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin-dashboard/market-intelligence" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminMarketIntelligence />
             </ProtectedRoute>
           } />
           {/* Redirect legacy approval paths to unified registry */}

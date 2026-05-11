@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import MarketInsightsBar from '../../components/market/MarketInsightsBar';
+import MarketPanel from '../../components/market/MarketPanel';
 import api from '../../api/axiosConfig';
 import {
   Search, User, CheckCircle, XCircle, Info,
@@ -39,7 +41,7 @@ const QualityBadge = ({ quality }) => {
 const BenchmarkDisplay = ({ comparison, type = 'card' }) => {
   if (!comparison || !comparison.official_price) return null;
   const { status, difference_percentage, official_price, min_price, max_price } = comparison;
-  
+
   if (type === 'modal') {
     return (
       <div style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: '16px', padding: '1rem' }}>
@@ -49,11 +51,11 @@ const BenchmarkDisplay = ({ comparison, type = 'card' }) => {
             <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#1e293b' }}>{official_price.toLocaleString()} <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>DZD/UNIT</span></div>
           </div>
           <div style={{ background: status === 'below' ? '#ecfdf5' : status === 'above' ? '#fff1f2' : '#f0fdf4', color: status === 'below' ? '#059669' : status === 'above' ? '#e11d48' : '#16a34a', padding: '0.4rem 0.8rem', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            {status === 'below' ? <TrendingDown size={14}/> : status === 'above' ? <TrendingUp size={14}/> : <Minus size={14}/>}
+            {status === 'below' ? <TrendingDown size={14} /> : status === 'above' ? <TrendingUp size={14} /> : <Minus size={14} />}
             {status === 'below' ? `${difference_percentage}% Savings` : status === 'above' ? `${difference_percentage}% Premium` : 'Optimal'}
           </div>
         </div>
-        
+
         {(min_price || max_price) && (
           <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '0.75rem', marginTop: '0.25rem' }}>
             <div style={{ fontSize: '0.6rem', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.4rem' }}>Admin Regulatory Range</div>
@@ -97,96 +99,96 @@ function ProductSplitModal({ product, onClose, onAddToCart, cartLoading }) {
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(8px)', padding: '1.5rem', animation: 'fadeIn 0.3s ease' }} onClick={onClose}>
       <div style={{ background: '#fff', borderRadius: '32px', width: '100%', maxWidth: '900px', display: 'grid', gridTemplateColumns: '400px 1fr', overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.4)', animation: 'scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)' }} onClick={e => e.stopPropagation()}>
-        
+
         {/* Visual Pane */}
         <div style={{ background: '#f8fafc', padding: '3rem', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', borderRight: '1.5px solid #f1f5f9' }}>
-           <QualityBadge quality={p.quality} />
-           <div style={{ width: '100%', height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {p.image ? (
-                <img src={p.image} alt={p.title} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.1))' }} />
-              ) : (
-                <Package size={120} style={{ color: '#e2e8f0' }} />
-              )}
-           </div>
-           <div style={{ width: '100%', marginTop: '2rem' }}>
-              <BenchmarkDisplay comparison={p.official_price_comparison} type="modal" />
-           </div>
+          <QualityBadge quality={p.quality} />
+          <div style={{ width: '100%', height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {p.image ? (
+              <img src={p.image} alt={p.title} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.1))' }} />
+            ) : (
+              <Package size={120} style={{ color: '#e2e8f0' }} />
+            )}
+          </div>
+          <div style={{ width: '100%', marginTop: '2rem' }}>
+            <BenchmarkDisplay comparison={p.official_price_comparison} type="modal" />
+          </div>
         </div>
 
         {/* Content Pane */}
         <div style={{ padding: '3rem', display: 'flex', flexDirection: 'column' }}>
-           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
-              <div>
-                 <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#4f46e5', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.5rem' }}>{p.category_name}</div>
-                 <h2 style={{ fontSize: '2rem', fontWeight: 900, color: '#1e293b', letterSpacing: '-1px', margin: 0, lineHeight: 1.1 }}>{p.title}</h2>
-              </div>
-              <button onClick={onClose} style={{ border: 'none', background: '#f1f5f9', color: '#94a3b8', width: '40px', height: '40px', borderRadius: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={20} /></button>
-           </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
+            <div>
+              <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#4f46e5', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.5rem' }}>{p.category_name}</div>
+              <h2 style={{ fontSize: '2rem', fontWeight: 900, color: '#1e293b', letterSpacing: '-1px', margin: 0, lineHeight: 1.1 }}>{p.title}</h2>
+            </div>
+            <button onClick={onClose} style={{ border: 'none', background: '#f1f5f9', color: '#94a3b8', width: '40px', height: '40px', borderRadius: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={20} /></button>
+          </div>
 
-           <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '2rem' }}>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-                 <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#1e293b' }}>{parseFloat(p.price).toLocaleString()}</span>
-                 <span style={{ fontSize: '1rem', fontWeight: 800, color: '#94a3b8' }}>DZD / {p.unit}</span>
+          <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '2rem' }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#1e293b' }}>{parseFloat(p.price).toLocaleString()}</span>
+              <span style={{ fontSize: '1rem', fontWeight: 800, color: '#94a3b8' }}>DZD / {p.unit}</span>
+            </div>
+            {p.official_price_comparison && p.official_price_comparison.min_price && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.25rem' }}>
+                <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#6366f1', background: '#eef2ff', padding: '0.2rem 0.6rem', borderRadius: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Market Range</div>
+                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#64748b' }}>
+                  {p.official_price_comparison.min_price} <span style={{ opacity: 0.3 }}>—</span> {p.official_price_comparison.max_price} <span style={{ fontSize: '0.6rem', opacity: 0.6 }}>DZD</span>
+                </span>
               </div>
-              {p.official_price_comparison && p.official_price_comparison.min_price && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.25rem' }}>
-                   <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#6366f1', background: '#eef2ff', padding: '0.2rem 0.6rem', borderRadius: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Market Range</div>
-                   <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#64748b' }}>
-                     {p.official_price_comparison.min_price} <span style={{ opacity: 0.3 }}>—</span> {p.official_price_comparison.max_price} <span style={{ fontSize: '0.6rem', opacity: 0.6 }}>DZD</span>
-                   </span>
+            )}
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
+            <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '16px', border: '1px solid #f1f5f9' }}>
+              <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Available Volume</div>
+              <div style={{ fontWeight: 900, fontSize: '1.1rem', color: '#1e293b' }}>{p.stock.toLocaleString()} {p.unit}</div>
+            </div>
+            <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '16px', border: '1px solid #f1f5f9' }}>
+              <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Producer & Origin</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                <div style={{ fontWeight: 900, fontSize: '1rem', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#eef2ff', color: '#4f46e5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem' }}>{p.farmer_name?.charAt(0)}</div>
+                  <span>{p.farmer_name}</span>
                 </div>
-              )}
-           </div>
-
-           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
-              <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '16px', border: '1px solid #f1f5f9' }}>
-                 <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Available Volume</div>
-                 <div style={{ fontWeight: 900, fontSize: '1.1rem', color: '#1e293b' }}>{p.stock.toLocaleString()} {p.unit}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#64748b', fontSize: '0.75rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', background: '#f0f9ff', color: '#0369a1', padding: '0.2rem 0.5rem', borderRadius: '6px', fontWeight: 800 }}>
+                    <MapPin size={10} /> {p.farm_wilaya || 'N/A'}
+                  </div>
+                  <a
+                    href={`https://wa.me/${p.farmer_phone?.replace(/\D/g, '').startsWith('0') ? '213' + p.farmer_phone.replace(/\D/g, '').substring(1) : p.farmer_phone?.replace(/\D/g, '')}`}
+                    target="_blank" rel="noopener noreferrer"
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', background: '#f0fdf4', color: '#15803d', padding: '0.2rem 0.5rem', borderRadius: '6px', fontWeight: 800, textDecoration: 'none' }}
+                  >
+                    <Phone size={10} /> {p.farmer_phone || 'N/A'}
+                  </a>
+                </div>
               </div>
-              <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '16px', border: '1px solid #f1f5f9' }}>
-                 <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Producer & Origin</div>
-                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                    <div style={{ fontWeight: 900, fontSize: '1rem', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                       <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#eef2ff', color: '#4f46e5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem' }}>{p.farmer_name?.charAt(0)}</div>
-                       <span>{p.farmer_name}</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#64748b', fontSize: '0.75rem' }}>
-                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', background: '#f0f9ff', color: '#0369a1', padding: '0.2rem 0.5rem', borderRadius: '6px', fontWeight: 800 }}>
-                          <MapPin size={10} /> {p.farm_wilaya || 'N/A'}
-                       </div>
-                       <a 
-                          href={`https://wa.me/${p.farmer_phone?.replace(/\D/g, '').startsWith('0') ? '213' + p.farmer_phone.replace(/\D/g, '').substring(1) : p.farmer_phone?.replace(/\D/g, '')}`} 
-                          target="_blank" rel="noopener noreferrer"
-                          style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', background: '#f0fdf4', color: '#15803d', padding: '0.2rem 0.5rem', borderRadius: '6px', fontWeight: 800, textDecoration: 'none' }}
-                       >
-                          <Phone size={10} /> {p.farmer_phone || 'N/A'}
-                       </a>
-                    </div>
-                 </div>
-              </div>
-           </div>
+            </div>
+          </div>
 
-           {p.description && (
-             <div style={{ marginBottom: '2.5rem' }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Harvest Details</div>
-                <p style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: 1.6, margin: 0, fontStyle: 'italic' }}>"{p.description}"</p>
-             </div>
-           )}
+          {p.description && (
+            <div style={{ marginBottom: '2.5rem' }}>
+              <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.75rem' }}>Harvest Details</div>
+              <p style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: 1.6, margin: 0, fontStyle: 'italic' }}>"{p.description}"</p>
+            </div>
+          )}
 
-           <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', gap: '1.5rem', paddingTop: '2rem', borderTop: '1.5px solid #f1f5f9' }}>
-              <div style={{ display: 'flex', alignItems: 'center', background: '#f1f5f9', borderRadius: '16px', padding: '0.5rem' }}>
-                 <button onClick={() => setQty(Math.max(1, qty - 1))} style={{ width: '36px', height: '36px', borderRadius: '12px', border: 'none', background: '#fff', color: '#1e293b', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}><Minus size={16} /></button>
-                 <span style={{ width: '50px', textAlign: 'center', fontWeight: 900, fontSize: '1.1rem' }}>{qty}</span>
-                 <button onClick={() => setQty(Math.min(p.stock, qty + 1))} style={{ width: '36px', height: '36px', borderRadius: '12px', border: 'none', background: '#fff', color: '#1e293b', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }} disabled={qty >= p.stock}><Plus size={16} /></button>
-              </div>
-              <button 
-                onClick={() => { onAddToCart(p.id, qty); onClose(); }}
-                disabled={cartLoading || p.stock === 0}
-                style={{ flex: 1, background: p.stock === 0 ? '#94a3b8' : '#4f46e5', color: '#fff', padding: '1.25rem', borderRadius: '20px', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', boxShadow: p.stock === 0 ? 'none' : '0 10px 30px rgba(79,70,229,0.3)' }}
-              >
-                {p.stock === 0 ? 'Sold Out' : <><ShoppingCart size={20} /> Add to Requisition • {(parseFloat(p.price) * qty).toLocaleString()} DZD</>}
-              </button>
-           </div>
+          <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', gap: '1.5rem', paddingTop: '2rem', borderTop: '1.5px solid #f1f5f9' }}>
+            <div style={{ display: 'flex', alignItems: 'center', background: '#f1f5f9', borderRadius: '16px', padding: '0.5rem' }}>
+              <button onClick={() => setQty(Math.max(1, qty - 1))} style={{ width: '36px', height: '36px', borderRadius: '12px', border: 'none', background: '#fff', color: '#1e293b', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}><Minus size={16} /></button>
+              <span style={{ width: '50px', textAlign: 'center', fontWeight: 900, fontSize: '1.1rem' }}>{qty}</span>
+              <button onClick={() => setQty(Math.min(p.stock, qty + 1))} style={{ width: '36px', height: '36px', borderRadius: '12px', border: 'none', background: '#fff', color: '#1e293b', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }} disabled={qty >= p.stock}><Plus size={16} /></button>
+            </div>
+            <button
+              onClick={() => { onAddToCart(p.id, qty); onClose(); }}
+              disabled={cartLoading || p.stock === 0}
+              style={{ flex: 1, background: p.stock === 0 ? '#94a3b8' : '#4f46e5', color: '#fff', padding: '1.25rem', borderRadius: '20px', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', boxShadow: p.stock === 0 ? 'none' : '0 10px 30px rgba(79,70,229,0.3)' }}
+            >
+              {p.stock === 0 ? 'Sold Out' : <><ShoppingCart size={20} /> Add to Requisition • {(parseFloat(p.price) * qty).toLocaleString()} DZD</>}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -205,6 +207,7 @@ function BuyerDashboard() {
   const [categories, setCategories] = useState([]);
   const [message, setMessage] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [showMarketPanel, setShowMarketPanel] = useState(false);
 
   const fetchData = async () => {
     try {
@@ -217,15 +220,15 @@ function BuyerDashboard() {
       setProducts(prodRes.data.results || prodRes.data);
       setCart(cartRes.data);
       setCategories([{ id: 'All', name: 'All' }, ...(catRes.data.results || catRes.data)]);
-      
+
       const ords = orderRes.data.results || orderRes.data;
       let spent = 0;
       let transit = 0;
       ords.forEach(o => {
-        if(o.status === 'CONFIRMED' || o.delivery_status === 'DELIVERED' || o.status === 'confirmed') {
-           spent += parseFloat(o.total_price || 0);
+        if (o.status === 'CONFIRMED' || o.delivery_status === 'DELIVERED' || o.status === 'confirmed') {
+          spent += parseFloat(o.total_price || 0);
         }
-        if(o.delivery_status === 'IN_TRANSIT' || o.delivery_status === 'PICKED_UP') transit++;
+        if (o.delivery_status === 'IN_TRANSIT' || o.delivery_status === 'PICKED_UP') transit++;
       });
       setBuyerStats({ totalSpent: spent, inTransit: transit });
     } catch (err) { console.error(err); }
@@ -265,79 +268,82 @@ function BuyerDashboard() {
   const cartItemCount = cart?.items?.length || 0;
   const filteredProducts = products.filter(p => {
     const titleMatch = p.title?.toLowerCase().includes(search.toLowerCase()) || false;
-    const catMatch   = p.category_name?.toLowerCase().includes(search.toLowerCase()) || false;
+    const catMatch = p.category_name?.toLowerCase().includes(search.toLowerCase()) || false;
     return (titleMatch || catMatch) && (activeCategory === 'All' || p.category_name === activeCategory);
   });
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-       <div className="w-12 h-12 rounded-full border-4 border-indigo-100 border-t-indigo-600 animate-spin" />
-       <span className="text-[10px] font-black text-indigo-900/40 uppercase tracking-[0.2em] animate-pulse">Initializing Marketplace Ledger...</span>
+      <div className="w-12 h-12 rounded-full border-4 border-indigo-100 border-t-indigo-600 animate-spin" />
+      <span className="text-[10px] font-black text-indigo-900/40 uppercase tracking-[0.2em] animate-pulse">Initializing Marketplace Ledger...</span>
     </div>
   );
 
   return (
-    <div className="buyer-page-wrapper" style={{ background: '#f8f9fc', minHeight: '100vh', padding: '2rem 0' }}>
-      
-      <div className="container" style={{ maxWidth: '1400px' }}>
-        
+    <div className="buyer-page-wrapper" style={{ background: '#f8f9fc', minHeight: '100vh', padding: '0 0 2rem 0' }}>
+
+      {/* ── MARKET INTELLIGENCE BAR ── */}
+      <MarketInsightsBar onOpenPanel={() => setShowMarketPanel(true)} accentColor="#4f46e5" />
+
+      <div className="container" style={{ maxWidth: '1400px', paddingTop: '2rem' }}>
+
         {/* ── HERO BANNER (Institutional Blue Theme) ── */}
         <div className="relative overflow-hidden bg-gradient-to-br from-[#1e293b] via-[#0f172a] to-slate-900 rounded-[2rem] shadow-[0_20px_50px_rgba(15,23,42,0.3)] text-white p-4 lg:p-6 border border-white/10 mb-8">
           <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute bottom-0 left-12 w-48 h-48 bg-blue-600/20 rounded-full blur-3xl opacity-40 pointer-events-none" />
-          
+
           <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-6">
             <div className="flex-1">
-               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(79,70,229,0.2)', padding: '0.35rem 0.8rem', borderRadius: '30px', backdropFilter: 'blur(8px)', border: '1px solid rgba(129,140,248,0.3)', fontSize: '0.65rem', fontWeight: 900, color: '#818cf8', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                    <ShieldCheck size={12} /> Institutional Marketplace
-                  </div>
-                  <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Nodes: {products.length}</div>
-               </div>
-               <h1 style={{ fontSize: '2.2rem', fontWeight: 900, color: '#fff', letterSpacing: '-1.5px', margin: 0, lineHeight: 1 }}>National <span style={{ color: '#818cf8' }}>Commodity</span> Index</h1>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(79,70,229,0.2)', padding: '0.35rem 0.8rem', borderRadius: '30px', backdropFilter: 'blur(8px)', border: '1px solid rgba(129,140,248,0.3)', fontSize: '0.65rem', fontWeight: 900, color: '#818cf8', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                  <ShieldCheck size={12} /> Institutional Marketplace
+                </div>
+                <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Nodes: {products.length}</div>
+              </div>
+              <h1 style={{ fontSize: '2.2rem', fontWeight: 900, color: '#fff', letterSpacing: '-1.5px', margin: 0, lineHeight: 1 }}>National <span style={{ color: '#818cf8' }}>Commodity</span> Index</h1>
             </div>
 
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem' }}>
-               {/* Expenditure Card */}
-               <div style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(12px)', borderRadius: '24px', padding: '1rem 1.5rem', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', gap: '1rem', minWidth: '180px' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(79,70,229,0.2)', color: '#818cf8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><TrendingUp size={20} /></div>
-                  <div>
-                     <div style={{ fontSize: '0.6rem', fontWeight: 900, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1.5px' }}>Expenditure</div>
-                     <div style={{ fontWeight: 900, fontSize: '1.1rem', color: '#fff' }}>{buyerStats.totalSpent.toLocaleString()} <span style={{ fontSize: '0.65rem', opacity: 0.6 }}>DZD</span></div>
-                  </div>
-               </div>
+              {/* Expenditure Card */}
+              <div style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(12px)', borderRadius: '24px', padding: '1rem 1.5rem', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', gap: '1rem', minWidth: '180px' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(79,70,229,0.2)', color: '#818cf8', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><TrendingUp size={20} /></div>
+                <div>
+                  <div style={{ fontSize: '0.6rem', fontWeight: 900, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1.5px' }}>Expenditure</div>
+                  <div style={{ fontWeight: 900, fontSize: '1.1rem', color: '#fff' }}>{buyerStats.totalSpent.toLocaleString()} <span style={{ fontSize: '0.65rem', opacity: 0.6 }}>DZD</span></div>
+                </div>
+              </div>
 
-               {/* In Transit Card */}
-               <div style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(12px)', borderRadius: '24px', padding: '1rem 1.5rem', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', gap: '1rem', minWidth: '160px' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(16,185,129,0.15)', color: '#34d399', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Truck size={20} /></div>
-                  <div>
-                     <div style={{ fontSize: '0.6rem', fontWeight: 900, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1.5px' }}>In Transit</div>
-                     <div style={{ fontWeight: 900, fontSize: '1.1rem', color: '#fff' }}>{buyerStats.inTransit} <span style={{ fontSize: '0.65rem', opacity: 0.6 }}>LOGS</span></div>
-                  </div>
-               </div>
+              {/* In Transit Card */}
+              <div style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(12px)', borderRadius: '24px', padding: '1rem 1.5rem', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', gap: '1rem', minWidth: '160px' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(16,185,129,0.15)', color: '#34d399', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Truck size={20} /></div>
+                <div>
+                  <div style={{ fontSize: '0.6rem', fontWeight: 900, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1.5px' }}>In Transit</div>
+                  <div style={{ fontWeight: 900, fontSize: '1.1rem', color: '#fff' }}>{buyerStats.inTransit} <span style={{ fontSize: '0.65rem', opacity: 0.6 }}>LOGS</span></div>
+                </div>
+              </div>
 
-               {/* Basket Card */}
-               <Link to="/buyer/cart" style={{ background: '#4f46e5', borderRadius: '24px', padding: '1rem 1.5rem', display: 'flex', alignItems: 'center', gap: '1.25rem', textDecoration: 'none', color: '#fff', boxShadow: '0 15px 35px rgba(79,70,229,0.4)', transition: 'all 0.3s' }}>
-                  <div style={{ position: 'relative' }}>
-                    <ShoppingCart size={24} />
-                    {cartItemCount > 0 && <span style={{ position: 'absolute', top: '-6px', right: '-6px', background: '#f43f5e', color: '#fff', fontSize: '0.65rem', fontWeight: 900, width: '18px', height: '18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #4f46e5' }}>{cartItemCount}</span>}
-                  </div>
-                  <div>
-                     <div style={{ fontSize: '0.6rem', fontWeight: 900, opacity: 0.7, textTransform: 'uppercase', letterSpacing: '1.5px' }}>Basket</div>
-                     <div style={{ fontWeight: 900, fontSize: '1.1rem' }}>{cartItemCount} Items</div>
-                  </div>
-                  <ChevronRight size={18} style={{ opacity: 0.6 }} />
-               </Link>
+              {/* Basket Card */}
+              <Link to="/buyer/cart" style={{ background: '#4f46e5', borderRadius: '24px', padding: '1rem 1.5rem', display: 'flex', alignItems: 'center', gap: '1.25rem', textDecoration: 'none', color: '#fff', boxShadow: '0 15px 35px rgba(79,70,229,0.4)', transition: 'all 0.3s' }}>
+                <div style={{ position: 'relative' }}>
+                  <ShoppingCart size={24} />
+                  {cartItemCount > 0 && <span style={{ position: 'absolute', top: '-6px', right: '-6px', background: '#f43f5e', color: '#fff', fontSize: '0.65rem', fontWeight: 900, width: '18px', height: '18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #4f46e5' }}>{cartItemCount}</span>}
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.6rem', fontWeight: 900, opacity: 0.7, textTransform: 'uppercase', letterSpacing: '1.5px' }}>Basket</div>
+                  <div style={{ fontWeight: 900, fontSize: '1.1rem' }}>{cartItemCount} Items</div>
+                </div>
+                <ChevronRight size={18} style={{ opacity: 0.6 }} />
+              </Link>
             </div>
           </div>
         </div>
 
         {/* Filters and Navigation (Sticky Controller) */}
-        <div style={{ 
-          position: 'sticky', 
-          top: '72px', 
-          zIndex: 100, 
-          background: '#f8f9fc', 
+        <div style={{
+          position: 'sticky',
+          top: '72px',
+          zIndex: 100,
+          background: '#f8f9fc',
           padding: '1rem 0',
           marginBottom: '1rem',
           borderBottom: '1px solid #e2e8f0'
@@ -345,7 +351,7 @@ function BuyerDashboard() {
           <div style={{ display: 'flex', gap: '1.5rem' }}>
             <div style={{ flex: 1, position: 'relative' }}>
               <Search size={20} style={{ position: 'absolute', left: '1.25rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
-              <input 
+              <input
                 style={{ width: '100%', padding: '1.25rem 1.25rem 1.25rem 3.5rem', borderRadius: '24px', border: '1.5px solid #e2e8f0', fontSize: '1rem', fontWeight: 600, color: '#1e293b', outline: 'none', background: '#fff', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}
                 placeholder="Search by variety, producer, or region..."
                 value={search}
@@ -354,7 +360,7 @@ function BuyerDashboard() {
             </div>
             <div style={{ display: 'flex', gap: '0.75rem', padding: '0.4rem', background: '#fff', borderRadius: '24px', border: '1.5px solid #e2e8f0', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', overflowX: 'auto', maxWidth: '700px' }} className="scrollbar-none">
               {categories.map(c => (
-                <button 
+                <button
                   key={c.id}
                   onClick={() => setActiveCategory(c.name)}
                   style={{ padding: '0.75rem 1.5rem', borderRadius: '18px', border: 'none', background: activeCategory === c.name ? '#4f46e5' : 'transparent', color: activeCategory === c.name ? '#fff' : '#64748b', fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s' }}
@@ -369,8 +375,8 @@ function BuyerDashboard() {
         {/* Marketplace Grid */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>
           {filteredProducts.map((p, idx) => (
-            <div 
-              key={p.id} 
+            <div
+              key={p.id}
               style={{ background: '#fff', borderRadius: '28px', border: '1.5px solid #e2e8f0', overflow: 'hidden', position: 'relative', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.02)', transition: 'all 0.3s ease' }}
               className="hover-card"
             >
@@ -382,7 +388,7 @@ function BuyerDashboard() {
                   <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1' }}><Package size={60} /></div>
                 )}
                 <QualityBadge quality={p.quality} />
-                <button 
+                <button
                   onClick={(e) => { e.stopPropagation(); toggleFavorite(p); }}
                   style={{ position: 'absolute', top: '12px', right: '12px', width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(4px)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', color: p.is_favorite ? '#e11d48' : '#94a3b8', cursor: 'pointer', zIndex: 10 }}
                 >
@@ -393,12 +399,12 @@ function BuyerDashboard() {
               {/* Product Info */}
               <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                   <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#4f46e5', textTransform: 'uppercase', letterSpacing: '1px' }}>{p.category_name}</span>
-                   <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#cbd5e1' }}></div>
-                   <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#94a3b8' }}>{p.farm_name}</span>
+                  <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#4f46e5', textTransform: 'uppercase', letterSpacing: '1px' }}>{p.category_name}</span>
+                  <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#cbd5e1' }}></div>
+                  <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#94a3b8' }}>{p.farm_name}</span>
                 </div>
                 <h4 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#1e293b', margin: '0 0 0.5rem', lineHeight: 1.2, cursor: 'pointer' }} onClick={() => setSelectedProduct(p)}>{p.title}</h4>
-                
+
                 <div style={{ marginTop: 'auto' }}>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.4rem' }}>
                     <span style={{ fontSize: '1.5rem', fontWeight: 900, color: '#1e293b' }}>{parseFloat(p.price).toLocaleString()}</span>
@@ -407,13 +413,13 @@ function BuyerDashboard() {
                   <BenchmarkDisplay comparison={p.official_price_comparison} />
 
                   <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
-                    <button 
+                    <button
                       onClick={() => setSelectedProduct(p)}
                       style={{ flex: 1, background: '#f8fafc', color: '#1e293b', border: '1.5px solid #e2e8f0', borderRadius: '14px', padding: '0.75rem', fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer' }}
                     >
                       Analyze
                     </button>
-                    <button 
+                    <button
                       onClick={() => addToCart(p.id)}
                       disabled={cartLoading || p.stock === 0}
                       style={{ flex: 1, background: p.stock === 0 ? '#f1f5f9' : '#4f46e5', color: p.stock === 0 ? '#94a3b8' : '#fff', border: 'none', borderRadius: '14px', padding: '0.75rem', fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
@@ -453,6 +459,9 @@ function BuyerDashboard() {
           {message.text}
         </div>
       )}
+
+      {/* ── MARKET INTELLIGENCE PANEL ── */}
+      <MarketPanel isOpen={showMarketPanel} onClose={() => setShowMarketPanel(false)} accentColor="#4f46e5" />
 
       <style>{`
         .hover-card:hover {

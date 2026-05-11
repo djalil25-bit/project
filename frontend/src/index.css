@@ -5693,3 +5693,18 @@ textarea.form-input {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+.full-width-ticker-wrapper {
+  margin-left: -2.75rem;
+  margin-right: -2.75rem;
+  margin-top: -2rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+  .full-width-ticker-wrapper {
+    margin-left: -1.75rem;
+    margin-right: -1.75rem;
+    margin-top: -1rem;
+  }
+}
+

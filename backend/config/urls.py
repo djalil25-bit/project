@@ -17,6 +17,7 @@ urlpatterns = [
     path('api/v1/complaints/', include('apps.complaints.urls')),
     path('api/v1/admin/', include('apps.admin_ops.urls')),
     path('api/v1/iot/', include('apps.iot.urls')),
+    path('api/v1/market/', include('apps.market_intelligence.urls')),
 ]
 
 if settings.DEBUG:

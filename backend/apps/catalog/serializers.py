@@ -9,10 +9,47 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class CatalogProductSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
+    trend = serializers.SerializerMethodField()
+    price_change_percentage = serializers.SerializerMethodField()
 
     class Meta:
         model = CatalogProduct
         fields = '__all__'
+
+    def get_trend(self, obj):
+        history = list(obj.price_history.order_by('-created_at')[:2])
+        if len(history) < 2:
+            return 'STABLE'
+        
+        def get_val(pub):
+            if pub.min_price and pub.max_price:
+                return (pub.min_price + pub.max_price) / 2
+            return pub.official_price
+
+        current = get_val(history[0])
+        previous = get_val(history[1])
+        if current > previous:
+            return 'INCREASING'
+        elif current < previous:
+            return 'DECREASING'
+        return 'STABLE'
+
+    def get_price_change_percentage(self, obj):
+        history = list(obj.price_history.order_by('-created_at')[:2])
+        if len(history) < 2:
+            return 0
+            
+        def get_val(pub):
+            if pub.min_price and pub.max_price:
+                return (pub.min_price + pub.max_price) / 2
+            return pub.official_price
+
+        current = get_val(history[0])
+        previous = get_val(history[1])
+        if previous == 0:
+            return 0
+        diff = current - previous
+        return round(float((diff / previous) * 100), 2)
 
 class ProductSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
