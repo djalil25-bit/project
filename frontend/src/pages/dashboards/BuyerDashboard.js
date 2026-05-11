@@ -7,7 +7,7 @@ import {
   AlertCircle, Clock, Plus, X, Wheat, Tag, BarChart2, Eye,
   BadgeCheck, Heart, FileText, Truck, Sparkles, Building2,
   TrendingDown, TrendingUp, Minus, ListFilter, MapPin,
-  ArrowRight, Layers, LayoutGrid, Zap, Star
+  ArrowRight, Layers, LayoutGrid, Zap, Star, Phone
 } from 'lucide-react';
 
 /* ─── Premium UI Elements ─────────────────────── */
@@ -38,27 +38,52 @@ const QualityBadge = ({ quality }) => {
 
 const BenchmarkDisplay = ({ comparison, type = 'card' }) => {
   if (!comparison || !comparison.official_price) return null;
-  const { status, difference_percentage, official_price } = comparison;
+  const { status, difference_percentage, official_price, min_price, max_price } = comparison;
   
   if (type === 'modal') {
     return (
-      <div style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: '16px', padding: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div>
-          <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.25rem' }}>Official Benchmark</div>
-          <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#1e293b' }}>{official_price.toLocaleString()} <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>DZD/UNIT</span></div>
+      <div style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: '16px', padding: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+          <div>
+            <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.25rem' }}>Official Benchmark</div>
+            <div style={{ fontSize: '1.1rem', fontWeight: 900, color: '#1e293b' }}>{official_price.toLocaleString()} <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>DZD/UNIT</span></div>
+          </div>
+          <div style={{ background: status === 'below' ? '#ecfdf5' : status === 'above' ? '#fff1f2' : '#f0fdf4', color: status === 'below' ? '#059669' : status === 'above' ? '#e11d48' : '#16a34a', padding: '0.4rem 0.8rem', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            {status === 'below' ? <TrendingDown size={14}/> : status === 'above' ? <TrendingUp size={14}/> : <Minus size={14}/>}
+            {status === 'below' ? `${difference_percentage}% Savings` : status === 'above' ? `${difference_percentage}% Premium` : 'Optimal'}
+          </div>
         </div>
-        <div style={{ background: status === 'below' ? '#ecfdf5' : status === 'above' ? '#fff1f2' : '#f0fdf4', color: status === 'below' ? '#059669' : status === 'above' ? '#e11d48' : '#16a34a', padding: '0.4rem 0.8rem', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-          {status === 'below' ? <TrendingDown size={14}/> : status === 'above' ? <TrendingUp size={14}/> : <Minus size={14}/>}
-          {status === 'below' ? `${difference_percentage}% Savings` : status === 'above' ? `${difference_percentage}% Premium` : 'Optimal'}
-        </div>
+        
+        {(min_price || max_price) && (
+          <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '0.75rem', marginTop: '0.25rem' }}>
+            <div style={{ fontSize: '0.6rem', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.4rem' }}>Admin Regulatory Range</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div style={{ flex: 1, height: '4px', background: '#e2e8f0', borderRadius: '2px', position: 'relative' }}>
+                <div style={{ position: 'absolute', left: '0', top: '50%', transform: 'translateY(-50%)', width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444' }} />
+                <div style={{ position: 'absolute', right: '0', top: '50%', transform: 'translateY(-50%)', width: '8px', height: '8px', borderRadius: '50%', background: '#3b82f6' }} />
+              </div>
+              <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#64748b' }}>
+                <span style={{ color: '#ef4444' }}>{min_price}</span>
+                <span style={{ margin: '0 0.4rem', opacity: 0.3 }}>—</span>
+                <span style={{ color: '#3b82f6' }}>{max_price}</span>
+                <span style={{ fontSize: '0.6rem', marginLeft: '0.25rem', opacity: 0.6 }}>DZD</span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
-      <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#94a3b8' }}>Ref: {official_price.toLocaleString()} DZD</span>
-      {status === 'below' && <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#059669', background: '#ecfdf5', padding: '0.15rem 0.4rem', borderRadius: '4px' }}>-{difference_percentage}%</span>}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', marginTop: '0.5rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#94a3b8' }}>Ref: {official_price.toLocaleString()} DZD</span>
+        {status === 'below' && <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#059669', background: '#ecfdf5', padding: '0.15rem 0.4rem', borderRadius: '4px' }}>-{difference_percentage}%</span>}
+      </div>
+      {min_price && max_price && (
+        <span style={{ fontSize: '0.6rem', fontWeight: 600, color: '#cbd5e1' }}>Range: {min_price}-{max_price}</span>
+      )}
     </div>
   );
 };
@@ -98,9 +123,19 @@ function ProductSplitModal({ product, onClose, onAddToCart, cartLoading }) {
               <button onClick={onClose} style={{ border: 'none', background: '#f1f5f9', color: '#94a3b8', width: '40px', height: '40px', borderRadius: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={20} /></button>
            </div>
 
-           <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', marginBottom: '2rem' }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#1e293b' }}>{parseFloat(p.price).toLocaleString()}</span>
-              <span style={{ fontSize: '1rem', fontWeight: 800, color: '#94a3b8' }}>DZD / {p.unit}</span>
+           <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '2rem' }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+                 <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#1e293b' }}>{parseFloat(p.price).toLocaleString()}</span>
+                 <span style={{ fontSize: '1rem', fontWeight: 800, color: '#94a3b8' }}>DZD / {p.unit}</span>
+              </div>
+              {p.official_price_comparison && p.official_price_comparison.min_price && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.25rem' }}>
+                   <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#6366f1', background: '#eef2ff', padding: '0.2rem 0.6rem', borderRadius: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Market Range</div>
+                   <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#64748b' }}>
+                     {p.official_price_comparison.min_price} <span style={{ opacity: 0.3 }}>—</span> {p.official_price_comparison.max_price} <span style={{ fontSize: '0.6rem', opacity: 0.6 }}>DZD</span>
+                   </span>
+                </div>
+              )}
            </div>
 
            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
@@ -109,10 +144,24 @@ function ProductSplitModal({ product, onClose, onAddToCart, cartLoading }) {
                  <div style={{ fontWeight: 900, fontSize: '1.1rem', color: '#1e293b' }}>{p.stock.toLocaleString()} {p.unit}</div>
               </div>
               <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '16px', border: '1px solid #f1f5f9' }}>
-                 <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.25rem' }}>Producer</div>
-                 <div style={{ fontWeight: 900, fontSize: '1.1rem', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#eef2ff', color: '#4f46e5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem' }}>{p.farmer_name?.charAt(0)}</div>
-                    <span style={{ fontSize: '0.9rem' }}>{p.farmer_name}</span>
+                 <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.5rem' }}>Producer & Origin</div>
+                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                    <div style={{ fontWeight: 900, fontSize: '1rem', color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                       <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#eef2ff', color: '#4f46e5', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem' }}>{p.farmer_name?.charAt(0)}</div>
+                       <span>{p.farmer_name}</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', color: '#64748b', fontSize: '0.75rem' }}>
+                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', background: '#f0f9ff', color: '#0369a1', padding: '0.2rem 0.5rem', borderRadius: '6px', fontWeight: 800 }}>
+                          <MapPin size={10} /> {p.farm_wilaya || 'N/A'}
+                       </div>
+                       <a 
+                          href={`https://wa.me/${p.farmer_phone?.replace(/\D/g, '').startsWith('0') ? '213' + p.farmer_phone.replace(/\D/g, '').substring(1) : p.farmer_phone?.replace(/\D/g, '')}`} 
+                          target="_blank" rel="noopener noreferrer"
+                          style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', background: '#f0fdf4', color: '#15803d', padding: '0.2rem 0.5rem', borderRadius: '6px', fontWeight: 800, textDecoration: 'none' }}
+                       >
+                          <Phone size={10} /> {p.farmer_phone || 'N/A'}
+                       </a>
+                    </div>
                  </div>
               </div>
            </div>

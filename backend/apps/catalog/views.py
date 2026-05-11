@@ -41,6 +41,48 @@ class CatalogProductViewSet(viewsets.ModelViewSet):
             permission_classes = [IsAdminRole]
         return [permission() for permission in permission_classes]
 
+    def perform_create(self, serializer):
+        instance = serializer.save()
+        if instance.ref_price:
+            from apps.pricing.models import PricePublication
+            PricePublication.objects.create(
+                catalog_product=instance,
+                official_price=instance.ref_price,
+                min_price=instance.min_price,
+                max_price=instance.max_price,
+                unit=instance.default_unit,
+                notes='Initial creation'
+            )
+
+    def perform_update(self, serializer):
+        # Fetch current values from DB before update
+        original = CatalogProduct.objects.get(pk=serializer.instance.pk)
+        old_ref = original.ref_price
+        old_min = original.min_price
+        old_max = original.max_price
+        
+        updated_instance = serializer.save()
+        
+        print(f"DEBUG: Price update check for {updated_instance.name}")
+        print(f"DEBUG: Old: {old_ref}, {old_min}, {old_max}")
+        print(f"DEBUG: New: {updated_instance.ref_price}, {updated_instance.min_price}, {updated_instance.max_instance if hasattr(updated_instance, 'max_instance') else updated_instance.max_price}")
+
+        # Check for changes
+        if (old_ref != updated_instance.ref_price or 
+            old_min != updated_instance.min_price or 
+            old_max != updated_instance.max_price):
+            
+            print(f"DEBUG: Creating PricePublication for {updated_instance.name}")
+            from apps.pricing.models import PricePublication
+            PricePublication.objects.create(
+                catalog_product=updated_instance,
+                official_price=updated_instance.ref_price,
+                min_price=updated_instance.min_price,
+                max_price=updated_instance.max_price,
+                unit=updated_instance.default_unit,
+                notes='Admin system price update'
+            )
+
 class ProductViewSet(viewsets.ModelViewSet):
     parser_classes = [MultiPartParser, FormParser, JSONParser]
     serializer_class = ProductSerializer

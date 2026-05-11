@@ -19,6 +19,8 @@ class ProductSerializer(serializers.ModelSerializer):
     farm_name = serializers.CharField(source='farm.name', read_only=True)
     farmer_name = serializers.CharField(source='farmer.full_name', read_only=True)
     farmer_email = serializers.CharField(source='farmer.email', read_only=True)
+    farmer_phone = serializers.CharField(source='farmer.phone', read_only=True)
+    farm_wilaya = serializers.CharField(source='farm.wilaya', read_only=True)
     # Catalog product info
     catalog_product_name = serializers.CharField(source='catalog_product.name', read_only=True, default=None)
     ref_price = serializers.DecimalField(source='catalog_product.ref_price', max_digits=12, decimal_places=2, read_only=True, default=None)

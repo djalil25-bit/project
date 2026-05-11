@@ -68,20 +68,7 @@ const CatalogPriceHistory = () => {
   const processedData = useMemo(() => {
     let rawData = history;
 
-    // Provide mock data conditionally if history is empty, to demonstrate the feature as requested
-    const useMock = rawData.length === 0;
-    if (useMock && product) {
-      const base = parseFloat(product.ref_price) || 120;
-      const min = parseFloat(product.min_price) || 100;
-      const max = parseFloat(product.max_price) || 150;
-      
-      rawData = [
-        { id: 'm1', valid_from: '2025-01-01', official_price: base - 10, min_price: min - 5, max_price: max + 5, notes: 'Initial setup', unit: product.unit || 'kg', mocked: true },
-        { id: 'm2', valid_from: '2025-02-15', official_price: base - 5, min_price: min, max_price: max, notes: 'Market adjustment', unit: product.unit || 'kg', mocked: true },
-        { id: 'm3', valid_from: '2025-03-20', official_price: base + 8, min_price: min, max_price: max, notes: 'Supply shortage', unit: product.unit || 'kg', mocked: true },
-        { id: 'm4', valid_from: '2025-04-10', official_price: base, min_price: min, max_price: max, notes: 'Price stabilization', unit: product.unit || 'kg', mocked: true },
-      ];
-    }
+    const useMock = false;
 
     // Apply Filters
     let filtered = rawData;
@@ -245,16 +232,17 @@ const CatalogPriceHistory = () => {
                   <tr>
                     <th className="pl-6">Effective Date</th>
                     <th>Safety Range</th>
-                    <th>Index Price</th>
+                    <th>Previous Value</th>
+                    <th>New Index Price</th>
                     <th>Trend</th>
                     <th>Changed By</th>
-                    <th className="w-1/3">Reason / Notification</th>
+                    <th className="w-1/4">Reason</th>
                   </tr>
                 </thead>
                 <tbody>
                   {chartData.length === 0 ? (
                     <tr>
-                      <td colSpan="6">
+                      <td colSpan="7">
                         <div className="py-12 text-center text-gray-500 text-sm">
                           No history records exist.
                         </div>
@@ -273,6 +261,9 @@ const CatalogPriceHistory = () => {
                             <span className="mx-2 text-gray-400">→</span>
                             <span className="text-blue-500">{row.ceiling || '--'}</span>
                           </div>
+                        </td>
+                        <td>
+                          <span className="text-gray-400 font-medium">{row.prevPrice ? `${row.prevPrice} DZD` : '—'}</span>
                         </td>
                         <td>
                           <span className="font-bold text-blue-600">{row.indexPrice} DZD</span>
