@@ -28,7 +28,7 @@ const CatalogManager = () => {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({ name: '', description: '', category: '', ref_price: '', min_price: '', max_price: '', unit: 'kg' });
+  const [formData, setFormData] = useState({ name: '', description: '', category: '', ref_price: '', min_price: '', max_price: '', default_unit: 'kg' });
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -66,7 +66,7 @@ const CatalogManager = () => {
       }
       setShowModal(false);
       setEditingId(null);
-      setFormData({ name: '', description: '', category: '', ref_price: '', min_price: '', max_price: '', unit: 'kg' });
+      setFormData({ name: '', description: '', category: '', ref_price: '', min_price: '', max_price: '', default_unit: 'kg' });
       fetchData();
     } catch (err) {
       const data = err.response?.data;
@@ -85,7 +85,7 @@ const CatalogManager = () => {
       ref_price: item.ref_price,
       min_price: item.min_price,
       max_price: item.max_price,
-      unit: item.unit
+      default_unit: item.default_unit || 'kg'
     });
     setShowModal(true);
   };
@@ -221,7 +221,7 @@ const CatalogManager = () => {
                   {/* 3. Index Price */}
                   <div className="flex flex-col items-start md:items-center w-full md:w-[140px] shrink-0">
                     <div className="font-black text-slate-900 text-xs">
-                      {item.ref_price} <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest ml-0.5">DZD/{item.unit}</span>
+                      {item.ref_price} <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest ml-0.5">DZD/{item.default_unit}</span>
                     </div>
                     <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-0.5 opacity-60">Index Price</span>
                   </div>
@@ -326,7 +326,7 @@ const CatalogManager = () => {
                     </div>
                     <div>
                       <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Unit</label>
-                      <input type="text" className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner" required placeholder="e.g. kg, ton" value={formData.unit} onChange={e => setFormData({...formData, unit: e.target.value})} />
+                      <input type="text" className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner" required placeholder="e.g. kg, ton" value={formData.default_unit} onChange={e => setFormData({...formData, default_unit: e.target.value})} />
                     </div>
                   </div>
 
