@@ -27,6 +27,7 @@ export default function FarmerDashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [farmId, setFarmId] = useState(undefined);
+  const [farmName, setFarmName] = useState('');
   const [alertStatus, setAlertStatus] = useState(null); // { alerts_count, has_danger }
 
   useEffect(() => {
@@ -43,10 +44,11 @@ export default function FarmerDashboard() {
         if (farms && farms.length > 0) {
           const fid = farms[0].id;
           setFarmId(fid);
+          setFarmName(farms[0].name || '');
           // Also fetch alert status for the button
           api.get(`/iot/alerts/${fid}/`)
             .then(alertRes => setAlertStatus(alertRes.data))
-            .catch(() => {});
+            .catch(() => { });
         } else {
           setFarmId(null); // No farms — weather widget uses default city
         }
@@ -105,7 +107,7 @@ export default function FarmerDashboard() {
       <div className="relative overflow-hidden bg-gradient-to-br from-[#22543d] via-[#1a402e] to-slate-900 rounded-2xl shadow-[0_12px_30px_rgba(34,84,61,0.25)] text-white p-5 lg:p-6 border border-white/10">
         <div className="absolute top-0 right-0 -mr-12 -mt-12 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-8 w-36 h-36 bg-[#22543d] rounded-full blur-2xl opacity-40 pointer-events-none" />
-        
+
         <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5">
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-emerald-500/20 border border-emerald-400/30 rounded-full text-emerald-300 text-[10px] font-bold uppercase tracking-wider mb-3 backdrop-blur-sm">
@@ -117,7 +119,7 @@ export default function FarmerDashboard() {
             <p className="text-slate-300 text-sm font-medium leading-relaxed mb-4 max-w-xl">
               Manage your agricultural operations, track your sales directly with buyers, and optimize your products based on official Ministry data.
             </p>
-            
+
             {/* Quick Actions Strip inside Hero */}
             <div className="flex flex-wrap gap-3">
               <button onClick={() => navigate('/farmer-dashboard/product/new')} className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-white rounded-lg font-extrabold text-sm shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all transform hover:-translate-y-0.5 hover:scale-105 active:scale-95 duration-200">
@@ -140,8 +142,8 @@ export default function FarmerDashboard() {
       {stats && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {kpis.map((k, i) => (
-            <div 
-              key={i} 
+            <div
+              key={i}
               className="group flex flex-col justify-between bg-white border border-slate-200 rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(34,84,61,0.08)] hover:border-[#22543d]/30 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] transform hover:-translate-y-2 cursor-pointer relative overflow-hidden"
               onClick={() => {
                 if (k.label === 'Active Products') navigate('/farmer-dashboard/products');
@@ -149,14 +151,14 @@ export default function FarmerDashboard() {
               }}
             >
               <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-slate-50 to-transparent rounded-full -mr-10 -mt-10 opacity-50 group-hover:scale-150 transition-transform duration-700 ease-out pointer-events-none" />
-              
+
               <div className="flex items-center gap-4 mb-4 relative z-10">
                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-lg ${k.bgIconCls} transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3`}>
                   {k.icon}
                 </div>
                 <div className="text-xs font-black uppercase tracking-widest text-slate-500">{k.label}</div>
               </div>
-              
+
               <div className="relative z-10 w-full overflow-hidden">
                 <div className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight drop-shadow-sm flex items-end gap-1 w-full truncate" title={k.rawRevenue != null ? k.rawRevenue : k.value}>
                   {k.rawRevenue != null && k.rawRevenue !== undefined
@@ -173,6 +175,10 @@ export default function FarmerDashboard() {
       {/* ── IoT SENSOR WIDGET ──────────────────────────────────────── */}
       {farmId && (
         <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', padding: '0.5rem 0.75rem', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '0.75rem' }}>
+            <span style={{ fontSize: '1.1rem' }}>📡</span>
+            <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#166534' }}>IoT data for: {farmName} (ID: {farmId})</span>
+          </div>
           <SensorWidget farmId={farmId} />
           {/* Alert navigation button */}
           <div style={{ marginTop: '0.75rem', display: 'flex', justifyContent: 'flex-end' }}>
@@ -224,13 +230,13 @@ export default function FarmerDashboard() {
 
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
+
         {/* ── SMART INSIGHT MODULES ─────────────────────────── */}
         <div className="lg:col-span-1 space-y-6">
           <h2 className="text-xl font-black text-slate-900 flex items-center gap-2 tracking-tight">
             <Activity size={22} strokeWidth={2.5} className="text-[#22543d]" /> System Status
           </h2>
-          
+
           <div className="bg-white/80 backdrop-blur-md border border-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-xl transition-all duration-500 relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:scale-110 group-hover:rotate-12 transition-transform duration-700 ease-out"><Activity size={80} /></div>
             <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-5">Operational Metrics</h4>
@@ -247,7 +253,7 @@ export default function FarmerDashboard() {
           </div>
 
           <div className="bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200/50 rounded-3xl p-6 shadow-sm relative overflow-hidden">
-             <div className="absolute top-0 right-0 p-4 opacity-5"><AlertTriangle size={64} /></div>
+            <div className="absolute top-0 right-0 p-4 opacity-5"><AlertTriangle size={64} /></div>
             <h4 className="text-sm font-extrabold text-amber-800 uppercase tracking-widest mb-3 flex items-center gap-2 relative z-10">
               <AlertTriangle size={18} strokeWidth={2.5} /> Urgent Actions
             </h4>
@@ -258,10 +264,10 @@ export default function FarmerDashboard() {
                 </p>
               ) : (
                 <p className="text-sm text-emerald-800 font-bold leading-relaxed flex items-center gap-2">
-                  <CheckCircle size={18} className="text-emerald-600"/> All operational checks are green. You are fully caught up today.
+                  <CheckCircle size={18} className="text-emerald-600" /> All operational checks are green. You are fully caught up today.
                 </p>
               )}
-              <button 
+              <button
                 onClick={() => navigate('/farmer/orders?status=PENDING')}
                 className="mt-5 w-full bg-amber-500 hover:bg-amber-600 text-white font-extrabold py-3 rounded-xl transition-all shadow-md transform hover:-translate-y-0.5 active:scale-95 duration-200 flex justify-center items-center gap-2"
               >

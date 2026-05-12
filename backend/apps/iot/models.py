@@ -13,6 +13,8 @@ class SensorReading(models.Model):
     soil_moisture = models.FloatField(null=True, blank=True)
     ph = models.FloatField(null=True, blank=True)
     rain_status = models.CharField(max_length=20, null=True, blank=True)
+    ir_status = models.CharField(max_length=20, null=True, blank=True)
+    sound_status = models.CharField(max_length=20, null=True, blank=True)
     recorded_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
