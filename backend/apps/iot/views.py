@@ -97,6 +97,8 @@ class SensorDataView(APIView):
             soil_moisture=request.data.get('soil_moisture'),
             ph=request.data.get('ph'),
             rain_status=request.data.get('rain_status'),
+            ir_status=request.data.get('ir_status'),
+            sound_status=request.data.get('sound_status'),
         )
 
         return Response({'status': 'ok'}, status=status.HTTP_201_CREATED)
@@ -125,6 +127,8 @@ class SensorDataView(APIView):
                 'soil_moisture': r.soil_moisture,
                 'ph': r.ph,
                 'rain_status': r.rain_status,
+                'ir_status': r.ir_status,
+                'sound_status': r.sound_status,
                 'recorded_at': r.recorded_at.strftime('%H:%M'),
             }
             for r in readings
@@ -211,6 +215,14 @@ def evaluate_alerts(reading):
             'icon': ICON_MAP['rain'],
         })
 
+    if reading.sound_status == 'detected':
+        alerts.append({
+            'level': 'info',
+            'sensor': 'Son',
+            'message': "Vibration détectée sur la ferme",
+            'icon': "Volume2",
+        })
+
     return alerts
 
 
@@ -254,6 +266,8 @@ class AlertsView(APIView):
                 'soil_moisture': reading.soil_moisture,
                 'ph': reading.ph,
                 'rain_status': reading.rain_status,
+                'ir_status': reading.ir_status,
+                'sound_status': reading.sound_status,
                 'recorded_at': reading.recorded_at.strftime('%d/%m/%Y %H:%M'),
             },
         })
@@ -366,6 +380,8 @@ class AdminIoTOverviewView(APIView):
                     "soil_moisture": reading.soil_moisture,
                     "ph": reading.ph,
                     "rain_status": reading.rain_status,
+                    "ir_status": reading.ir_status,
+                    "sound_status": reading.sound_status,
                 }
             }
 

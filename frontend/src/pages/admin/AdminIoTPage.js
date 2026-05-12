@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api/axiosConfig';
 import { useToast } from '../../context/ToastContext';
-import { 
-  Home, 
-  Wifi, 
-  AlertTriangle, 
-  AlertCircle, 
-  CheckCircle, 
+import {
+  Home,
+  Wifi,
+  AlertTriangle,
+  AlertCircle,
+  CheckCircle,
   RefreshCw,
   ChevronDown,
   ChevronRight,
@@ -21,15 +21,17 @@ import {
   Search,
   ArrowUpDown,
   Filter,
-  Info
+  Info,
+  Eye,
+  Volume2
 } from 'lucide-react';
-import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer,
   Cell,
   Legend
@@ -47,10 +49,10 @@ const AdminIoTPage = () => {
     compare: null
   });
   const [lastUpdated, setLastUpdated] = useState(new Date().toLocaleTimeString());
-  
+
   // Overview Filters
   const [wilayaFilter, setWilayaFilter] = useState('All');
-  
+
   // Table sorting & searching
   const [historySearch, setHistorySearch] = useState('');
   const [compareSearch, setCompareSearch] = useState('');
@@ -61,15 +63,15 @@ const AdminIoTPage = () => {
     setLoading(prev => ({ ...prev, [tab]: true }));
     try {
       let endpoint = '';
-      switch(tab) {
+      switch (tab) {
         case 'overview': endpoint = '/iot/admin/overview/'; break;
-        case 'history':  endpoint = '/iot/admin/alerts-history/'; break;
-        case 'stats':    endpoint = '/iot/admin/sensor-stats/'; break;
-        case 'soil':     endpoint = '/iot/admin/soil-by-wilaya/'; break;
-        case 'compare':  endpoint = '/iot/admin/farm-comparison/'; break;
+        case 'history': endpoint = '/iot/admin/alerts-history/'; break;
+        case 'stats': endpoint = '/iot/admin/sensor-stats/'; break;
+        case 'soil': endpoint = '/iot/admin/soil-by-wilaya/'; break;
+        case 'compare': endpoint = '/iot/admin/farm-comparison/'; break;
         default: return;
       }
-      
+
       const res = await api.get(endpoint);
       setData(prev => ({ ...prev, [tab]: res.data }));
       setLastUpdated(new Date().toLocaleTimeString());
@@ -151,7 +153,7 @@ const AdminIoTPage = () => {
         <div className="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
           <Filter size={18} className="text-gray-400" />
           <span className="text-sm font-bold text-gray-700">Filter by Wilaya:</span>
-          <select 
+          <select
             className="adm-input py-1 px-3 w-48"
             value={wilayaFilter}
             onChange={(e) => setWilayaFilter(e.target.value)}
@@ -174,22 +176,22 @@ const AdminIoTPage = () => {
           {chartData.length > 0 ? (
             <div style={{ width: '100%', height: 320 }}>
               <ResponsiveContainer>
-                <BarChart data={chartData} margin={{ top:10, right:30, left:0, bottom:60 }}>
+                <BarChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 60 }}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                  <XAxis 
-                    dataKey="farm__wilaya" 
-                    angle={-35} 
+                  <XAxis
+                    dataKey="farm__wilaya"
+                    angle={-35}
                     textAnchor="end"
                     interval={0}
                     height={70}
                     tick={{ fontSize: 11, fill: '#6b7280' }}
                   />
                   <YAxis tick={{ fontSize: 11, fill: '#6b7280' }} axisLine={false} />
-                  <Tooltip 
+                  <Tooltip
                     cursor={{ fill: '#f9fafb' }}
                     contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
                   />
-                  <Legend verticalAlign="top" height={36}/>
+                  <Legend verticalAlign="top" height={36} />
                   <Bar dataKey="avg_temperature" radius={[4, 4, 0, 0]} name="Average Temperature (°C)">
                     {chartData.map((entry, index) => {
                       let color = '#22c55e'; // Normal
@@ -284,12 +286,14 @@ const AdminIoTPage = () => {
                   {expandedRows[farm.farm_id] && (
                     <tr className="bg-gray-50">
                       <td colSpan="6" className="p-4">
-                        <div className="grid grid-cols-4 gap-4">
+                        <div className="grid grid-cols-6 gap-4">
                           {[
-                            { label: 'Temp', val: farm.last_reading?.temperature, unit: '°C', icon: <Thermometer size={14}/>, color: 'text-red-600' },
-                            { label: 'Humidity', val: farm.last_reading?.humidity, unit: '%', icon: <Droplets size={14}/>, color: 'text-blue-600' },
-                            { label: 'Soil', val: farm.last_reading?.soil_moisture, unit: '%', icon: <Sprout size={14}/>, color: 'text-green-600' },
-                            { label: 'pH', val: farm.last_reading?.ph, unit: '', icon: <FlaskConical size={14}/>, color: 'text-orange-600' }
+                            { label: 'Temp', val: farm.last_reading?.temperature, unit: '°C', icon: <Thermometer size={14} />, color: 'text-red-600' },
+                            { label: 'Humidity', val: farm.last_reading?.humidity, unit: '%', icon: <Droplets size={14} />, color: 'text-blue-600' },
+                            { label: 'Soil', val: farm.last_reading?.soil_moisture, unit: '%', icon: <Sprout size={14} />, color: 'text-green-600' },
+                            { label: 'pH', val: farm.last_reading?.ph, unit: '', icon: <FlaskConical size={14} />, color: 'text-orange-600' },
+                            { label: 'IR Status', val: farm.last_reading?.ir_status === 'detected' ? 'Detected' : farm.last_reading?.ir_status === 'clear' ? 'Clear' : '--', unit: '', icon: <Eye size={14} />, color: farm.last_reading?.ir_status === 'detected' ? 'text-red-600' : 'text-green-600' },
+                            { label: 'Sound', val: farm.last_reading?.sound_status === 'detected' ? 'Detected' : farm.last_reading?.sound_status === 'silent' ? 'Silent' : '--', unit: '', icon: <Volume2 size={14} />, color: farm.last_reading?.sound_status === 'detected' ? 'text-amber-600' : 'text-gray-500' },
                           ].map(s => (
                             <div key={s.label} className="bg-white p-3 rounded-lg border border-gray-200 text-center">
                               <div className={`flex items-center justify-center gap-1 text-[10px] font-bold uppercase ${s.color} mb-1`}>{s.icon} {s.label}</div>
@@ -312,8 +316,8 @@ const AdminIoTPage = () => {
   // --- TAB 2: ALERT HISTORY ---
   const renderHistory = () => {
     const hData = data.history || [];
-    const filtered = hData.filter(a => 
-      a.farm_name.toLowerCase().includes(historySearch.toLowerCase()) || 
+    const filtered = hData.filter(a =>
+      a.farm_name.toLowerCase().includes(historySearch.toLowerCase()) ||
       a.wilaya.toLowerCase().includes(historySearch.toLowerCase())
     );
 
@@ -322,9 +326,9 @@ const AdminIoTPage = () => {
         <div className="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-gray-100">
           <div className="relative flex-1 max-w-md">
             <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input 
-              type="text" 
-              placeholder="Search by farm or wilaya..." 
+            <input
+              type="text"
+              placeholder="Search by farm or wilaya..."
               className="adm-input pl-10 w-full"
               value={historySearch}
               onChange={(e) => setHistorySearch(e.target.value)}
@@ -354,10 +358,9 @@ const AdminIoTPage = () => {
                   <td>{a.sensor}</td>
                   <td className="text-sm">{a.message}</td>
                   <td>
-                    <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${
-                      a.level === 'danger' ? 'bg-red-100 text-red-600' : 
-                      a.level === 'warning' ? 'bg-orange-100 text-orange-600' : 'bg-blue-100 text-blue-600'
-                    }`}>
+                    <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${a.level === 'danger' ? 'bg-red-100 text-red-600' :
+                        a.level === 'warning' ? 'bg-orange-100 text-orange-600' : 'bg-blue-100 text-blue-600'
+                      }`}>
                       {a.level}
                     </span>
                   </td>
@@ -424,8 +427,8 @@ const AdminIoTPage = () => {
                   <span>{Math.round(avgPercent)}% of capacity</span>
                 </div>
                 <div className="h-3 w-full bg-gray-100 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full transition-all duration-1000 ease-out" 
+                  <div
+                    className="h-full transition-all duration-1000 ease-out"
                     style={{ width: `${avgPercent}%`, backgroundColor: progressColor }}
                   />
                 </div>
@@ -495,11 +498,11 @@ const AdminIoTPage = () => {
   // --- TAB 5: COMPARISON ---
   const renderCompare = () => {
     const cData = data.compare || [];
-    
+
     const sorted = [...cData].sort((a, b) => {
       let aVal = a[compareSort.key] || a.stats[compareSort.key];
       let bVal = b[compareSort.key] || b.stats[compareSort.key];
-      
+
       // Handle special status sorting
       if (compareSort.key === 'status') {
         const priority = { danger: 0, warning: 1, normal: 2 };
@@ -529,9 +532,9 @@ const AdminIoTPage = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
           <div className="relative flex-1 max-w-md">
             <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input 
-              type="text" 
-              placeholder="Search farm..." 
+            <input
+              type="text"
+              placeholder="Search farm..."
               className="adm-input pl-10 w-full"
               value={compareSearch}
               onChange={(e) => setCompareSearch(e.target.value)}
@@ -551,14 +554,14 @@ const AdminIoTPage = () => {
           <table className="admin-table w-full">
             <thead>
               <tr>
-                <th className="cursor-pointer" onClick={() => handleSort('farm_name')}>Farm <ArrowUpDown size={12} className="inline ml-1"/></th>
+                <th className="cursor-pointer" onClick={() => handleSort('farm_name')}>Farm <ArrowUpDown size={12} className="inline ml-1" /></th>
                 <th>Wilaya</th>
-                <th className="cursor-pointer" onClick={() => handleSort('avg_temperature')}>Avg Temp <ArrowUpDown size={12} className="inline ml-1"/></th>
+                <th className="cursor-pointer" onClick={() => handleSort('avg_temperature')}>Avg Temp <ArrowUpDown size={12} className="inline ml-1" /></th>
                 <th>Avg Hum</th>
-                <th className="cursor-pointer" onClick={() => handleSort('avg_soil_moisture')}>Avg Soil <ArrowUpDown size={12} className="inline ml-1"/></th>
+                <th className="cursor-pointer" onClick={() => handleSort('avg_soil_moisture')}>Avg Soil <ArrowUpDown size={12} className="inline ml-1" /></th>
                 <th>Avg pH</th>
                 <th>Readings</th>
-                <th className="cursor-pointer" onClick={() => handleSort('status')}>Status <ArrowUpDown size={12} className="inline ml-1"/></th>
+                <th className="cursor-pointer" onClick={() => handleSort('status')}>Status <ArrowUpDown size={12} className="inline ml-1" /></th>
                 <th>Last Ping</th>
               </tr>
             </thead>
@@ -573,10 +576,9 @@ const AdminIoTPage = () => {
                   <td className={`${(f.stats.avg_ph < 6 || f.stats.avg_ph > 7.5) ? 'text-orange-500' : ''}`}>{f.stats.avg_ph}</td>
                   <td className="text-xs text-gray-500">{f.stats.readings_count}</td>
                   <td>
-                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${
-                      f.status === 'danger' ? 'bg-red-600 text-white shadow-sm' : 
-                      f.status === 'warning' ? 'bg-orange-500 text-white' : 'bg-green-500 text-white'
-                    }`}>
+                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${f.status === 'danger' ? 'bg-red-600 text-white shadow-sm' :
+                        f.status === 'warning' ? 'bg-orange-500 text-white' : 'bg-green-500 text-white'
+                      }`}>
                       {f.status === 'danger' ? '🔴 Critical' : f.status === 'warning' ? '🟡 Warning' : '✅ Normal'}
                     </span>
                   </td>
@@ -594,7 +596,7 @@ const AdminIoTPage = () => {
 
   return (
     <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 space-y-8 animate-fade-in relative z-0 bg-slate-50/30 min-h-screen">
-      
+
       {/* ── HIGH-DENSITY HERO HEADER (GREEN POWER PRO) ─────────────────────────────── */}
       <div className="bg-[#0a3d2e] rounded-2xl overflow-hidden shadow-lg flex flex-col md:flex-row items-center justify-between px-6 py-4 md:px-10 md:py-5 relative border border-[#0f5c44] isolate">
         <div className="absolute inset-0 bg-gradient-to-r from-[#166534]/30 to-transparent pointer-events-none" />
@@ -610,16 +612,16 @@ const AdminIoTPage = () => {
           </p>
         </div>
         <div className="z-10 mt-3 md:mt-0 flex gap-2">
-           <div className="flex flex-col items-end mr-4">
-              <span className="text-[8px] font-black text-emerald-400 uppercase tracking-widest">Last Sync</span>
-              <span className="text-white font-black text-xs">{lastUpdated}</span>
-           </div>
-           <button
-             onClick={refreshCurrentTab}
-             className="bg-[#0f5c44] hover:bg-[#166534] text-white text-[10px] font-black uppercase tracking-widest px-5 py-2.5 rounded-xl transition-all border border-emerald-500/30 shadow-lg shadow-emerald-900/40 flex items-center gap-2"
-           >
-             <RefreshCw size={14} className={Object.values(loading).some(v => v) ? 'animate-spin' : ''} /> Force Refresh
-           </button>
+          <div className="flex flex-col items-end mr-4">
+            <span className="text-[8px] font-black text-emerald-400 uppercase tracking-widest">Last Sync</span>
+            <span className="text-white font-black text-xs">{lastUpdated}</span>
+          </div>
+          <button
+            onClick={refreshCurrentTab}
+            className="bg-[#0f5c44] hover:bg-[#166534] text-white text-[10px] font-black uppercase tracking-widest px-5 py-2.5 rounded-xl transition-all border border-emerald-500/30 shadow-lg shadow-emerald-900/40 flex items-center gap-2"
+          >
+            <RefreshCw size={14} className={Object.values(loading).some(v => v) ? 'animate-spin' : ''} /> Force Refresh
+          </button>
         </div>
       </div>
 
@@ -645,8 +647,8 @@ const AdminIoTPage = () => {
       <div className="min-h-[400px]">
         {loading[activeTab] && !data[activeTab] ? (
           <div className="flex flex-col items-center justify-center py-24 text-slate-400 gap-3">
-             <div className="w-10 h-10 rounded-full border-4 border-slate-100 border-t-emerald-600 animate-spin" />
-             <p className="text-[10px] font-black uppercase tracking-widest animate-pulse">Syncing Sensor Data...</p>
+            <div className="w-10 h-10 rounded-full border-4 border-slate-100 border-t-emerald-600 animate-spin" />
+            <p className="text-[10px] font-black uppercase tracking-widest animate-pulse">Syncing Sensor Data...</p>
           </div>
         ) : (
           <>

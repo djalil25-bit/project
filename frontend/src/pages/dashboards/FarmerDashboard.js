@@ -30,6 +30,8 @@ export default function FarmerDashboard() {
   const [loading, setLoading] = useState(true);
   const [farmId, setFarmId] = useState(undefined);
   const [wilaya, setWilaya] = useState(null);
+  const [farmName, setFarmName] = useState('');
+
   const [alertStatus, setAlertStatus] = useState(null); // { alerts_count, has_danger }
   const [showMarketPanel, setShowMarketPanel] = useState(false);
 
@@ -50,6 +52,7 @@ export default function FarmerDashboard() {
         if (farms && farms.length > 0) {
           const fid = farms[0].id;
           setFarmId(fid);
+          setFarmName(farms[0].name || '');
           // Also fetch alert status for the button
           api.get(`/iot/alerts/${fid}/`)
             .then(alertRes => setAlertStatus(alertRes.data))
@@ -111,7 +114,7 @@ export default function FarmerDashboard() {
       <MarketInsightsBar onOpenPanel={() => setShowMarketPanel(true)} accentColor="#22543d" />
 
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-
+        
         {/* ── HERO WIDGET ───────────────────────────────────────────────── */}
         <div className="relative overflow-hidden bg-gradient-to-br from-[#22543d] via-[#1a402e] to-slate-900 rounded-2xl shadow-[0_12px_30px_rgba(34,84,61,0.25)] text-white p-5 lg:p-6 border border-white/10">
           <div className="absolute top-0 right-0 -mr-12 -mt-12 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
@@ -139,6 +142,13 @@ export default function FarmerDashboard() {
                 </button>
               </div>
             </div>
+
+
+
+
+
+
+
 
             {/* Weather Mini Widget Column */}
             <div className="hidden lg:block shrink-0 relative z-10">

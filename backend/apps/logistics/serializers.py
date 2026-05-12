@@ -4,6 +4,8 @@ from apps.orders.models import Order, OrderItem
 
 class TransporterVisibilityMixin:
     def _is_visible_to_buyer(self, obj):
+        if not hasattr(self, 'context'):
+            return False
         request = self.context.get('request')
         if not request or not request.user:
             return False
