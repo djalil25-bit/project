@@ -53,10 +53,9 @@ import AdminTransactions from './pages/admin/AdminTransactions';
 import AdminAccounts from './pages/admin/AdminAccounts';
 import AdminAlerts from './pages/admin/AdminAlerts';
 import AdminMessages from './pages/admin/AdminMessages';
-import FarmApprovals from './pages/admin/FarmApprovals';
-import VehicleApprovals from './pages/admin/VehicleApprovals';
-
 import AdminIoTPage from './pages/admin/AdminIoTPage';
+import ResourceApprovals from './pages/admin/ResourceApprovals';
+import AdminMarketIntelligence from './pages/admin/AdminMarketIntelligence';
 import AccountPending from './pages/AccountPending';
 
 function App() {
@@ -131,16 +130,19 @@ function App() {
               <AdminIoTPage />
             </ProtectedRoute>
           } />
-          <Route path="/admin-dashboard/farm-approvals" element={
+          <Route path="/admin-dashboard/resource-approvals" element={
             <ProtectedRoute allowedRoles={['admin']}>
-              <FarmApprovals />
+              <ResourceApprovals />
             </ProtectedRoute>
           } />
-          <Route path="/admin-dashboard/vehicle-approvals" element={
+          <Route path="/admin-dashboard/market-intelligence" element={
             <ProtectedRoute allowedRoles={['admin']}>
-              <VehicleApprovals />
+              <AdminMarketIntelligence />
             </ProtectedRoute>
           } />
+          {/* Redirect legacy approval paths to unified registry */}
+          <Route path="/admin-dashboard/farm-approvals" element={<Navigate to="/admin-dashboard/resource-approvals" replace />} />
+          <Route path="/admin-dashboard/vehicle-approvals" element={<Navigate to="/admin-dashboard/resource-approvals" replace />} />
           <Route path="/farmer-dashboard" element={
             <ProtectedRoute allowedRoles={['farmer']}>
               <FarmerDashboard />
@@ -151,12 +153,12 @@ function App() {
               <FarmerWeatherPage />
             </ProtectedRoute>
           } />
-          <Route path="/farmer/orders" element={
+          <Route path="/farmer-dashboard/orders" element={
             <ProtectedRoute allowedRoles={['farmer']}>
               <OrderList />
             </ProtectedRoute>
           } />
-          <Route path="/farmer/orders/:id/request-delivery" element={
+          <Route path="/farmer-dashboard/orders/:id/request-delivery" element={
             <ProtectedRoute allowedRoles={['farmer']}>
               <RequestDelivery />
             </ProtectedRoute>
@@ -196,7 +198,7 @@ function App() {
               <ProductForm />
             </ProtectedRoute>
           } />
-          <Route path="/farmer/products" element={
+          <Route path="/farmer-dashboard/products" element={
             <ProtectedRoute allowedRoles={['farmer']}>
               <ProductList />
             </ProtectedRoute>
@@ -206,7 +208,7 @@ function App() {
               <HarvestRecords />
             </ProtectedRoute>
           } />
-          <Route path="/farmer/iot-alerts" element={
+          <Route path="/farmer-dashboard/iot-alerts" element={
             <ProtectedRoute allowedRoles={['farmer']}>
               <IoTAlertsPage />
             </ProtectedRoute>

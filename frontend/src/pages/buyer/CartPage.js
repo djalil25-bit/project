@@ -24,7 +24,11 @@ import {
   TrendingDown,
   TrendingUp,
   Activity,
-  Phone
+  Phone,
+  ArrowRight,
+  Truck,
+  Layers,
+  Zap
 } from 'lucide-react';
 
 function CartPage() {
@@ -148,310 +152,249 @@ function CartPage() {
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-       <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-t-indigo-600 animate-spin" />
-       <span className="text-xs font-black text-slate-500 uppercase tracking-widest animate-pulse">Scanning Payload...</span>
+       <div className="w-12 h-12 rounded-full border-4 border-indigo-100 border-t-indigo-600 animate-spin" />
+       <span className="text-[10px] font-black text-indigo-900/40 uppercase tracking-[0.2em] animate-pulse">Scanning Payload Registry...</span>
     </div>
   );
 
   return (
-    <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 space-y-10 animate-fade-in relative z-0 bg-slate-50/30 min-h-screen">
+    <div className="buyer-page-wrapper" style={{ padding: '2rem 0', background: 'linear-gradient(135deg, #f8f9fc 0%, #f1f4f9 100%)', minHeight: '100vh' }}>
       
-      {/* ── BREADCRUMBS & HEADER ───────────────────────── */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div>
-          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-indigo-600 mb-3 bg-indigo-50 px-3 py-1 rounded-full w-fit border border-indigo-100 shadow-sm">
-            <Link to="/buyer-dashboard" className="hover:text-indigo-800 transition-colors">Marketplace</Link>
-            <ChevronRight size={10} className="text-indigo-300" />
-            <span className="text-indigo-900 font-black">My Cart</span>
-          </div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-            <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-indigo-600">
-               <ShoppingCart size={22} strokeWidth={2.5} />
-            </div>
-            My Cart
-          </h1>
-          <p className="text-slate-500 font-medium mt-2 max-w-xl text-sm">
-            Review your items and complete your order.
-          </p>
-        </div>
-        <div className="flex items-center gap-3 bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
-           <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-inner">
-              <Package size={20} />
-           </div>
-           <div>
-              <div className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Total Items</div>
-              <div className="text-lg font-black text-slate-900 leading-none">{cartItemCount}</div>
-           </div>
-        </div>
-      </div>
-
-      {/* ── ALERTS ──────────────────────── */}
-      {message && (
-        <div className={`fixed top-24 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-sm font-black tracking-widest uppercase animate-slide-in ${message.type === 'success' ? 'bg-slate-900 text-emerald-400 border border-emerald-500/20' : 'bg-rose-50 text-rose-600 border border-rose-200'}`}>
-           {message.type === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
-           <span>{message.text}</span>
-        </div>
-      )}
-
-      {/* ── MAIN LOGISTICS GRID ──────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      <div className="container" style={{ maxWidth: '1200px' }}>
         
-        {/* LEFT: Payload Registry */}
-        <div className="lg:col-span-8 space-y-6">
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-             <div className="bg-slate-50 px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
-                <div className="flex items-center gap-2 font-black text-[10px] uppercase tracking-widest text-slate-500">
-                   <ShieldCheck size={14} className="text-indigo-600" /> Cart Items
-                </div>
-                {cartItemCount > 0 && (
-                   <div className="text-[10px] font-black text-indigo-600 bg-white px-3 py-1 rounded-full border border-indigo-100 shadow-sm">
-                      {cartTotal.toLocaleString()} DZD
-                   </div>
-                )}
-             </div>
+        {/* Breadcrumb */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem', fontSize: '0.8rem' }}>
+          <Link to="/buyer-dashboard" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>Marketplace</Link>
+          <ChevronRight size={12} style={{ color: '#94a3b8' }} />
+          <span style={{ color: '#4f46e5', fontWeight: 800 }}>Cart Procurement</span>
+        </div>
 
-             {cartItemCount === 0 ? (
-               <div className="p-12 text-center flex flex-col items-center justify-center">
-                 <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-5 text-slate-300 shadow-inner">
-                   <ShoppingBag size={32} />
-                 </div>
-                 <h4 className="text-lg font-black text-slate-800 mb-2">Your cart is empty</h4>
-                 <p className="text-slate-500 font-medium mb-6 max-w-sm mx-auto text-sm">
-                   Browse the marketplace and add products to your cart.
-                 </p>
-                 <button
-                   className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-md active:scale-95"
-                   onClick={() => navigate('/buyer-dashboard')}
-                 >
-                   Browse Products
-                 </button>
-               </div>
-             ) : (
-               <div className="divide-y divide-slate-50">
-                 {cart.items.map(item => {
-                   const p = item.product_detail || {};
-                   const price = parseFloat(p.price || 0);
-                   const subTotal = item.quantity * price;
-                   return (
-                      <div key={item.id} className={`p-6 grid grid-cols-1 md:grid-cols-12 items-center gap-8 transition-all hover:bg-slate-50 group border-b border-slate-100 last:border-0 ${cartLoading ? 'opacity-50 grayscale pointer-events-none' : ''}`}>
-                         
-                         {/* Product Image & Info Column */}
-                         <div className="md:col-span-7 flex flex-row items-center gap-6">
-                            {/* Image Box */}
-                            <div className="w-24 h-24 bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-200 group-hover:border-indigo-300 transition-colors flex shrink-0">
-                               {p.image ? (
-                                 <img src={p.image} alt={p.productName || p.title} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
-                               ) : (
-                                 <div className="w-full h-full bg-slate-50 flex items-center justify-center text-slate-300"><Package size={32} /></div>
-                               )}
-                            </div>
-
-                            {/* Info Block */}
-                            <div className="flex flex-col justify-center py-1">
-                               <h4 className="text-xl font-black text-slate-900 tracking-tight leading-none mb-2" title={p.productName || p.title || 'Unknown Product'}>
-                                  {p.productName || p.title || 'Unknown Product'}
-                               </h4>
-                               
-                               <div className="flex flex-col gap-1.5 mb-2.5">
-                                  <div className="flex items-center gap-2 text-xs text-slate-500 font-bold">
-                                     <Building2 size={14} className="text-indigo-400 shrink-0"/> 
-                                     <span>{p.farm_name || 'AgriGov Vendor'}</span>
-                                  </div>
-                                  <div className="flex items-center">
-                                     <span className="inline-block text-[10px] font-black uppercase tracking-widest text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-md border border-indigo-100 leading-none">
-                                        {p.category_name || 'Item'}
-                                     </span>
-                                  </div>
-                               </div>
-
-                               <div className="text-sm font-black text-slate-800">
-                                  {price.toLocaleString()} <span className="text-[10px] uppercase font-bold tracking-widest text-slate-400 ml-1">DZD/{p.unit}</span>
-                               </div>
-                            </div>
-                         </div>
-
-                         {/* Actions & Metrics Column */}
-                         <div className="md:col-span-5 flex flex-row items-center justify-between md:justify-end gap-6 bg-slate-50/50 md:bg-transparent p-4 md:p-0 rounded-2xl md:rounded-none">
-                            
-                            {/* Distinct Quantity Stepper */}
-                            <div className="flex items-center bg-white border border-slate-200 rounded-xl shadow-sm h-12 p-1.5 shrink-0 w-[130px] justify-between group-hover:border-indigo-300 transition-colors">
-                               <button 
-                                 className="w-8 h-full flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors active:scale-95 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400" 
-                                 onClick={() => updateQuantity(item.product, Number(item.quantity), -1, Number(p.stock))}
-                               >
-                                 <Minus size={16} strokeWidth={2.5}/>
-                               </button>
-                               <div className="flex-1 flex items-center justify-center font-mono font-black text-base text-slate-900 bg-slate-50/50 rounded-md mx-1 select-none h-full">{item.quantity}</div>
-                               <button 
-                                 className="w-8 h-full flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors active:scale-95 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400" 
-                                 onClick={() => updateQuantity(item.product, Number(item.quantity), 1, Number(p.stock))}
-                                 disabled={Number(item.quantity) >= Number(p.stock)}
-                               >
-                                 <Plus size={16} strokeWidth={2.5}/>
-                               </button>
-                            </div>
-
-                            <div className="flex items-center gap-6 shrink-0">
-                               {/* Value Subtotal */}
-                               <div className="flex flex-col items-end w-28 text-right">
-                                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Subtotal</div>
-                                  <div className="font-black text-slate-900 text-sm">{subTotal.toLocaleString()} <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">DZD</span></div>
-                               </div>
-
-                               {/* Delete Action Wrapper */}
-                               <button 
-                                 className="w-10 h-10 rounded-xl flex items-center justify-center text-slate-400 bg-white hover:text-rose-600 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 transition-all shadow-sm hover:shadow active:scale-95 shrink-0"
-                                 onClick={() => removeFromCart(item.product)}
-                                 title="Remove Product"
-                               >
-                                 <Trash2 size={18} />
-                               </button>
-                            </div>
-                         </div>
-                      </div>
-                   );
-                 })}
-               </div>
-             )}
+        {/* Header Section */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2.5rem' }}>
+          <div>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#eef2ff', color: '#4338ca', padding: '0.4rem 1rem', borderRadius: '30px', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '1rem', border: '1px solid #c7d2fe' }}>
+              <ShoppingCart size={14} /> Acquisition Basket
+            </div>
+            <h1 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#1e293b', letterSpacing: '-1px', margin: 0 }}>Review Your <span style={{ color: '#4f46e5' }}>Selection</span></h1>
+            <p style={{ color: '#64748b', fontWeight: 500, margin: '0.5rem 0 0' }}>Validate your requisition assets and initialize the procurement protocol.</p>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+             <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.25rem' }}>Active Payload</div>
+             <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#1e293b' }}>{cartItemCount} Items</div>
           </div>
         </div>
 
-        {/* RIGHT: Terminal Authorization */}
-        <div className="lg:col-span-4 space-y-5 lg:sticky lg:top-6">
-           {cartItemCount > 0 && (
-             <div className="bg-white rounded-2xl shadow-sm p-5 border border-slate-200">
-                <h3 className="text-sm font-black text-slate-900 mb-4 flex items-center gap-2">
-                   <FileText size={18} className="text-indigo-600"/> Order Summary
-                </h3>
+        {/* Alerts */}
+        {message && (
+          <div style={{ position: 'fixed', top: '2rem', left: '50%', transform: 'translateX(-50%)', zIndex: 1000, display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 2rem', background: message.type === 'success' ? '#065f46' : '#991b1b', color: '#fff', borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.2)', animation: 'slideIn 0.3s ease' }}>
+             {message.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}
+             <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>{message.text}</span>
+          </div>
+        )}
 
-                 <div className="space-y-4 mb-8">
-                    <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-                       <span className="text-xs font-semibold text-slate-500">Items</span>
-                       <span className="font-bold text-slate-900 text-sm">{cartItemCount}</span>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: '2.5rem', alignItems: 'start' }}>
+          
+          {/* Main List */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            {cartItemCount === 0 ? (
+              <div style={{ background: '#fff', borderRadius: '32px', padding: '5rem 3rem', textAlign: 'center', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
+                <div style={{ width: '80px', height: '80px', borderRadius: '24px', background: '#f8fafc', color: '#cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem' }}>
+                  <ShoppingBag size={40} />
+                </div>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#1e293b', marginBottom: '1rem' }}>Registry is Empty</h3>
+                <p style={{ color: '#64748b', marginBottom: '2.5rem', maxWidth: '400px', margin: '0 auto 2.5rem' }}>Your digital procurement basket contains no assets. Visit the marketplace to initialize your acquisition.</p>
+                <Link to="/buyer-dashboard" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', background: '#4f46e5', color: '#fff', padding: '1rem 2rem', borderRadius: '16px', fontWeight: 800, textDecoration: 'none', boxShadow: '0 10px 20px rgba(79,70,229,0.2)' }}>
+                  Browse Marketplace <ArrowRight size={18} />
+                </Link>
+              </div>
+            ) : (
+              cart.items.map(item => {
+                const p = item.product_detail || {};
+                const price = parseFloat(p.price || 0);
+                const subTotal = item.quantity * price;
+                return (
+                  <div key={item.id} style={{ background: '#fff', borderRadius: '24px', padding: '1.5rem', border: '1px solid #e2e8f0', display: 'grid', gridTemplateColumns: '120px 1fr auto', gap: '2rem', alignItems: 'center', position: 'relative', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.02)', transition: 'transform 0.2s' }} className="hover-lift">
+                    <div style={{ width: '120px', height: '120px', borderRadius: '16px', background: '#f8fafc', overflow: 'hidden', border: '1px solid #f1f5f9' }}>
+                      {p.image ? (
+                        <img src={p.image} alt={p.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1' }}><Package size={40} /></div>
+                      )}
                     </div>
                     
-                    <div className="flex justify-between items-center group border-b border-slate-100 pb-4">
-                       <span className="text-xs font-bold text-slate-500">Subtotal</span>
-                       <span className="font-bold text-slate-900">{cartTotal.toLocaleString()} DZD</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                         <span style={{ fontSize: '0.65rem', fontWeight: 900, background: '#f1f5f9', color: '#64748b', padding: '0.2rem 0.5rem', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{p.category_name}</span>
+                         <span style={{ fontSize: '0.65rem', fontWeight: 900, background: '#fdf2f8', color: '#db2777', padding: '0.2rem 0.5rem', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Certified Vendor</span>
+                      </div>
+                      <h4 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#1e293b', margin: '0 0 0.5rem' }}>{p.productName || p.title}</h4>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: '#64748b', fontSize: '0.85rem', fontWeight: 600 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Building2 size={14} /> {p.farm_name}</div>
+                        <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#cbd5e1' }}></div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>{price.toLocaleString()} DZD / {p.unit}</div>
+                      </div>
                     </div>
 
-                    <div className="group border-b border-slate-100 pb-4">
-                       <div className="flex justify-between items-center mb-1">
-                          <span className="text-xs font-bold text-slate-500">Transport Fee</span>
-                          <span className={`${estimateLoading ? 'animate-pulse text-indigo-400' : 'font-bold text-indigo-600'}`}>
-                             {estimateLoading ? 'Estimating...' : transportEstimate ? `${transportEstimate.grand_total_transport.toLocaleString()} DZD` : '---'}
-                          </span>
-                       </div>
-                       {transportEstimate && !estimateLoading && (
-                          <div className="flex flex-col gap-1 mt-2">
-                             {transportEstimate.estimates.map((est, idx) => (
-                                <div key={idx} className="flex justify-between items-center text-[9px] bg-slate-50 px-2 py-1 rounded border border-slate-100">
-                                   <span className="text-slate-400 font-bold uppercase truncate max-w-[120px]">{est.farm_name}</span>
-                                   <span className="text-indigo-600 font-black">{est.transport_fee.toLocaleString()} DZD</span>
-                                </div>
-                             ))}
-                             <div className="mt-1 text-[9px] font-medium text-slate-400 px-1 italic">
-                                * Calculated per farmer origin
-                             </div>
-                          </div>
-                       )}
+                    <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '1rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#f8fafc', padding: '0.5rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                         <button onClick={() => updateQuantity(item.product, item.quantity, -1, p.stock)} style={{ width: '32px', height: '32px', borderRadius: '8px', border: 'none', background: '#fff', color: '#475569', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}><Minus size={14} /></button>
+                         <span style={{ width: '40px', textAlign: 'center', fontWeight: 800, fontSize: '1rem', color: '#1e293b' }}>{item.quantity}</span>
+                         <button onClick={() => updateQuantity(item.product, item.quantity, 1, p.stock)} style={{ width: '32px', height: '32px', borderRadius: '8px', border: 'none', background: '#fff', color: '#475569', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }} disabled={item.quantity >= p.stock}><Plus size={14} /></button>
+                      </div>
+                      <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#1e293b' }}>{subTotal.toLocaleString()} <small style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>DZD</small></div>
+                      <button onClick={() => removeFromCart(item.product)} style={{ border: 'none', background: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.5rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase' }}><Trash2 size={16} /> Remove</button>
                     </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
 
-                    <div className="flex justify-between items-end pt-3">
-                       <div>
-                          <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Total</div>
-                          <div className="text-2xl font-black text-slate-900 tracking-tighter leading-none">
-                             {estimateLoading ? '---' : (transportEstimate ? transportEstimate.grand_total.toLocaleString() : cartTotal.toLocaleString())}
-                             <span className="text-xs font-bold text-slate-400 uppercase ml-1">DZD</span>
-                          </div>
-                       </div>
-                    </div>
-                 </div>
+          {/* Sidebar Summary */}
+          <div style={{ position: 'sticky', top: '2rem' }}>
+            <div style={{ background: '#fff', borderRadius: '32px', padding: '2rem', border: '1px solid #e2e8f0', boxShadow: '0 20px 40px rgba(0,0,0,0.04)' }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#1e293b', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <Zap size={20} style={{ color: '#4f46e5' }} /> Authorization Summary
+              </h3>
 
-                 {!showCheckout ? (
-                   <button 
-                     className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-95 flex items-center justify-center gap-3"
-                     onClick={() => setShowCheckout(true)}
-                   >
-                     Proceed to Checkout <ChevronRight size={16} />
-                   </button>
-                 ) : (
-                   <div className="space-y-6 animate-slide-in">
-                      <div className="bg-slate-50/80 rounded-2xl p-6 border border-slate-200 space-y-5 shadow-inner">
-                         <div className="grid grid-cols-2 gap-4">
-                            <div>
-                               <label className="text-[11px] font-black uppercase tracking-widest text-slate-500 mb-2.5 flex items-center gap-2">
-                                  <MapPin size={14} className="text-indigo-500" /> Wilaya
-                               </label>
-                               <select 
-                                 className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm" 
-                                 value={checkoutWilaya} 
-                                 onChange={e => setCheckoutWilaya(e.target.value)}
-                               >
-                                 <option value="">Select Region</option>
-                                 {ALGERIAN_WILAYAS.map(w => (
-                                    <option key={w.id} value={w.id}>{w.id} - {w.name}</option>
-                                 ))}
-                               </select>
-                            </div>
-                            <div>
-                               <label className="text-[11px] font-black uppercase tracking-widest text-slate-500 mb-2.5 flex items-center gap-2">
-                                  <Building2 size={14} className="text-indigo-500" /> Commune
-                               </label>
-                               <input 
-                                 className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all shadow-sm placeholder-slate-300"
-                                 type="text"
-                                 placeholder="e.g. Bir Mourad Raïs"
-                                 value={checkoutCommune}
-                                 onChange={e => setCheckoutCommune(e.target.value)}
-                               />
-                            </div>
-                         </div>
-
-                        <div>
-                           <label className="text-[11px] font-black uppercase tracking-widest text-slate-500 mb-2.5 flex items-center gap-2">
-                              <FileText size={14} className="text-indigo-500" /> Detailed Address & Location
-                           </label>
-                           <textarea 
-                             className="w-full bg-white border border-slate-200 rounded-xl p-4 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all placeholder-slate-400 resize-none h-28 shadow-sm leading-relaxed" 
-                             placeholder="Enter strict delivery details, building number, street name, and any specific landmarks..."
-                             value={checkoutAddress} 
-                             onChange={e => setCheckoutAddress(e.target.value)} 
-                           />
-                        </div>
-                        
-                        <div>
-                           <label className="text-[11px] font-black uppercase tracking-widest text-slate-500 mb-2.5 flex items-center gap-2">
-                              <Phone size={14} className="text-indigo-500" /> Contact Number
-                           </label>
-                           <input 
-                             className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-sm placeholder-slate-400" 
-                             type="tel"
-                             placeholder="e.g. 0555 12 34 56" 
-                             value={checkoutPhone} 
-                             onChange={e => setCheckoutPhone(e.target.value)} 
-                           />
-                        </div>
-                        
-                        <div className="pt-3">
-                           <button
-                             className="w-full bg-slate-900 hover:bg-slate-800 text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg shadow-slate-900/30 transition-all active:scale-95 flex items-center justify-center gap-3 disabled:opacity-50"
-                             onClick={handleCheckout}
-                             disabled={checkoutLoading}
-                           >
-                             {checkoutLoading ? <><div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Processing...</> : <><ShieldCheck size={18} /> Confirm Order</>}
-                           </button>
-                        </div>
-                     </div>
-                     <button className="w-full text-slate-400 hover:text-slate-600 transition-colors text-[10px] font-black uppercase tracking-widest p-2" onClick={() => setShowCheckout(false)}>
-                        <ChevronLeft size={12} className="inline mr-1 mb-0.5" /> Back to Summary
-                     </button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginBottom: '2rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: '#64748b', fontWeight: 600, fontSize: '0.9rem' }}>Gross Asset Value</span>
+                  <span style={{ fontWeight: 800, color: '#1e293b' }}>{cartTotal.toLocaleString()} DZD</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: '#64748b', fontWeight: 600, fontSize: '0.9rem' }}>Logistics Estimation</span>
+                  <span style={{ fontWeight: 800, color: transportEstimate ? '#4f46e5' : '#94a3b8' }}>
+                    {estimateLoading ? (
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div className="w-3 h-3 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div> Calculating...</span>
+                    ) : transportEstimate ? `${transportEstimate.grand_total_transport.toLocaleString()} DZD` : 'Required'}
+                  </span>
+                </div>
+                {transportEstimate && !estimateLoading && (
+                  <div style={{ padding: '1rem', background: '#f8fafc', borderRadius: '16px', border: '1px solid #f1f5f9', fontSize: '0.75rem' }}>
+                    <div style={{ fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.5rem', fontSize: '0.65rem' }}>Route Breakdowns</div>
+                    {transportEstimate.estimates.map((est, i) => (
+                      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem', fontWeight: 600 }}>
+                        <span style={{ color: '#64748b' }}>{est.farm_name}</span>
+                        <span style={{ color: '#4f46e5' }}>+{est.transport_fee.toLocaleString()} DZD</span>
+                      </div>
+                    ))}
                   </div>
                 )}
-             </div>
-           )}
+                <div style={{ height: '1px', background: '#f1f5f9', margin: '0.5rem 0' }}></div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: '#1e293b', fontWeight: 900, fontSize: '1.1rem' }}>Total Requisition</span>
+                  <span style={{ fontWeight: 900, color: '#4f46e5', fontSize: '1.5rem' }}>
+                    {transportEstimate ? transportEstimate.grand_total.toLocaleString() : cartTotal.toLocaleString()} <small style={{ fontSize: '0.75rem', opacity: 0.6 }}>DZD</small>
+                  </span>
+                </div>
+              </div>
+
+              {!showCheckout ? (
+                <button 
+                  onClick={() => setShowCheckout(true)}
+                  disabled={cartItemCount === 0}
+                  style={{ width: '100%', background: '#4f46e5', color: '#fff', padding: '1.25rem', borderRadius: '18px', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', boxShadow: '0 10px 30px rgba(79,70,229,0.25)', transition: 'transform 0.2s' }}
+                  className="hover-lift"
+                >
+                  Proceed to Terminal <ChevronRight size={20} />
+                </button>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                      <div className="form-group">
+                        <label style={{ fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '0.5rem', display: 'block' }}>Wilaya</label>
+                        <select 
+                          style={{ width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1.5px solid #e2e8f0', fontSize: '0.85rem', fontWeight: 600, outline: 'none' }}
+                          value={checkoutWilaya}
+                          onChange={e => setCheckoutWilaya(e.target.value)}
+                        >
+                          <option value="">Select</option>
+                          {ALGERIAN_WILAYAS.map(w => <option key={w.id} value={w.id}>{w.id} - {w.name}</option>)}
+                        </select>
+                      </div>
+                      <div className="form-group">
+                        <label style={{ fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '0.5rem', display: 'block' }}>Commune</label>
+                        <input 
+                          style={{ width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1.5px solid #e2e8f0', fontSize: '0.85rem', fontWeight: 600, outline: 'none' }}
+                          type="text" 
+                          placeholder="e.g. Algiers" 
+                          value={checkoutCommune} 
+                          onChange={e => setCheckoutCommune(e.target.value)} 
+                        />
+                      </div>
+                   </div>
+                   <div className="form-group">
+                      <label style={{ fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '0.5rem', display: 'block' }}>Delivery Address</label>
+                      <textarea 
+                        style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1.5px solid #e2e8f0', fontSize: '0.85rem', fontWeight: 600, outline: 'none', resize: 'none', height: '100px' }}
+                        placeholder="Detailed coordinates for dispatch..."
+                        value={checkoutAddress}
+                        onChange={e => setCheckoutAddress(e.target.value)}
+                      />
+                   </div>
+                   <div className="form-group">
+                      <label style={{ fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '0.5rem', display: 'block' }}>Contact Link</label>
+                      <div style={{ position: 'relative' }}>
+                        <Phone size={14} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                        <input 
+                          style={{ width: '100%', padding: '0.8rem 1rem 0.8rem 2.5rem', borderRadius: '12px', border: '1.5px solid #e2e8f0', fontSize: '0.85rem', fontWeight: 600, outline: 'none' }}
+                          type="tel" 
+                          placeholder="Mobile Number" 
+                          value={checkoutPhone} 
+                          onChange={e => setCheckoutPhone(e.target.value)} 
+                        />
+                      </div>
+                   </div>
+                   
+                   <div style={{ paddingTop: '1rem' }}>
+                      <button 
+                        onClick={handleCheckout}
+                        disabled={checkoutLoading}
+                        style={{ width: '100%', background: '#1e293b', color: '#fff', padding: '1.25rem', borderRadius: '18px', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', boxShadow: '0 10px 30px rgba(30,41,59,0.2)' }}
+                      >
+                        {checkoutLoading ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <><ShieldCheck size={20} /> Authorize Order</>}
+                      </button>
+                      <button 
+                        onClick={() => setShowCheckout(false)}
+                        style={{ width: '100%', background: 'none', border: 'none', color: '#94a3b8', fontWeight: 700, fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '1rem', cursor: 'pointer' }}
+                      >
+                        <ChevronLeft size={12} style={{ marginBottom: '-2px' }} /> Return to Summary
+                      </button>
+                   </div>
+                </div>
+              )}
+            </div>
+
+            <div style={{ marginTop: '1.5rem', padding: '1.5rem', background: 'rgba(255,255,255,0.5)', borderRadius: '24px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              <div style={{ color: '#4f46e5' }}><ShieldCheck size={24} /></div>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#1e293b' }}>Official Protection</div>
+                <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 500 }}>Transactions supervised by the Ministry of Agriculture.</div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
+      
+      {/* Styles for transitions */}
+      <style>{`
+        .hover-lift:hover {
+          transform: translateY(-4px);
+        }
+        @keyframes slideIn {
+          from { transform: translate(-50%, -100%); opacity: 0; }
+          to { transform: translate(-50%, 0); opacity: 1; }
+        }
+        .animate-spin {
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }

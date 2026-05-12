@@ -14,6 +14,7 @@ import {
   Power
 } from 'lucide-react';
 import api from '../../api/axiosConfig';
+import { VEHICLE_TYPES } from '../../utils/constants';
 
 const VehicleSelectionModal = ({ isOpen, onClose, onAccept, mission }) => {
   const [vehicles, setVehicles] = useState([]);
@@ -166,9 +167,20 @@ const VehicleSelectionModal = ({ isOpen, onClose, onAccept, mission }) => {
                       const capacity = parseFloat(v.capacity || 0);
                       const isSufficient = capacity >= totalPayload;
                       const isActive = v.is_active !== false;
-                      const isEligible = isSufficient && isActive;
-                      const capText = capacity >= 1000 ? `${(capacity/1000).toFixed(1)}T` : `${v.capacity}KG`;
+                      const isTypeMatch = !mission?.required_vehicle_type || v.type === mission.required_vehicle_type;
+                      const isEligible = isSufficient && isActive && isTypeMatch;
                       
+                      const capText = capacity >= 1000 ? `${(capacity/1000).toFixed(1)}T` : `${v.capacity}KG`;
+                      const typeName = VEHICLE_TYPES.find(vt => vt.id === v.type)?.name || v.type;
+                      
+                      let statusNote = '';
+                      if (!isActive) statusNote = '[OFFLINE]';
+                      else if (!isTypeMatch) {
+                        const reqTypeName = VEHICLE_TYPES.find(vt => vt.id === mission.required_vehicle_type)?.name || mission.required_vehicle_type;
+                        statusNote = `[TYPE MISMATCH: REQ ${reqTypeName}]`;
+                      }
+                      else if (!isSufficient) statusNote = '[INSUFFICIENT PAYLOAD]';
+
                       return (
                         <option 
                           key={v.id} 
@@ -176,7 +188,7 @@ const VehicleSelectionModal = ({ isOpen, onClose, onAccept, mission }) => {
                           disabled={!isEligible}
                           className={!isEligible ? 'text-slate-300' : 'text-slate-900'}
                         >
-                          {v.model} ({v.plate}) — Cap: {capText} {!isActive ? '[OFFLINE]' : !isSufficient ? '[INSUFFICIENT]' : ''}
+                          {v.model} ({v.plate}) — {typeName} — Cap: {capText} {statusNote}
                         </option>
                       );
                     })}

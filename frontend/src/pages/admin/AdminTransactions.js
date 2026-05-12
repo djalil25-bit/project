@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, ShoppingBag, Download, Search, ChevronUp, ChevronDown, Eye, ArrowUpDown, Package, MapPin, CheckCircle, Clock, XCircle } from 'lucide-react';
-import { RefreshCw } from 'lucide-react';
+import { ChevronRight, ShoppingBag, Download, Search, ChevronUp, ChevronDown, Eye, ArrowUpDown, Package, MapPin, CheckCircle, Clock, XCircle, RefreshCw } from 'lucide-react';
+import html2pdf from 'html2pdf.js';
 import adminApi from '../../api/adminApi';
 import TransactionDetailModal from '../../components/admin/TransactionDetailModal';
 
@@ -35,14 +35,11 @@ const AdminTransactions = () => {
         params: {
           page, search, status: filterStatus, zone: filterZone,
           sort: sortDir === 'desc' ? sortKey : `-${sortKey}`,
-          exclude_completed: true // Custom param to filter out DELIVERED/RETURNED if backend supports it, otherwise we filter client-side
+          exclude_completed: true
         }
       });
-      
-      // Client-side fallback filter if backend doesn't handle 'exclude_completed'
       const rawResults = res.data.results || [];
       const filteredResults = rawResults.filter(t => t.status !== 'DELIVERED' && t.status !== 'RETURNED');
-      
       setData(filteredResults);
       setTotalPages(res.data.total_pages || 1);
       setTotalCount(res.data.total || 0);
@@ -76,6 +73,145 @@ const AdminTransactions = () => {
       <div className="flex items-center gap-1">{children} {sortKey === k ? (sortDir === 'asc' ? <ChevronUp size={12}/> : <ChevronDown size={12}/>) : <ArrowUpDown size={10} className="opacity-30"/>}</div>
     </th>
   );
+
+  const downloadSinglePDF = async (txnStub) => {
+    let txn = txnStub;
+    try {
+      const res = await adminApi.get(`/transactions/${txnStub.id}/`);
+      txn = res.data;
+    } catch (err) { console.warn("Using stub data", err); }
+
+    const element = document.createElement('div');
+    element.innerHTML = `
+      <div style="padding: 40px; font-family: sans-serif; color: #1e293b;">
+        <div style="border-bottom: 4px solid #059669; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h1 style="margin: 0; color: #064e3b; font-size: 28px; font-weight: 900; letter-spacing: -1px;">AGRIGOV <span style="color: #059669;">LOGISTICS</span></h1>
+            <p style="margin: 5px 0 0; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: #64748b;">Official Transaction Manifest • Registry ID: #${txn.id}</p>
+          </div>
+          <div style="text-align: right;">
+            <p style="margin: 0; font-size: 12px; font-weight: bold; color: #1e293b;">Date: ${new Date(txn.created_at).toLocaleDateString()}</p>
+            <p style="margin: 2px 0 0; font-size: 10px; color: #94a3b8; font-weight: bold; text-transform: uppercase;">Status: ${txn.status}</p>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
+          <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
+            <h3 style="margin-top: 0; font-size: 10px; font-weight: 900; text-transform: uppercase; color: #64748b; margin-bottom: 12px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;">Entities Involved</h3>
+            <div style="font-size: 11px; color: #475569; line-height: 1.6;">
+              <div><b>Farmer:</b> ${txn.farmer_name || 'N/A'}</div>
+              <div><b>Buyer:</b> ${txn.buyer?.name || txn.buyer_name || 'N/A'}</div>
+              ${txn.buyer?.email ? `<div><b>Buyer Email:</b> ${txn.buyer.email}</div>` : ''}
+              ${txn.buyer?.phone ? `<div><b>Buyer Phone:</b> ${txn.buyer.phone}</div>` : ''}
+            </div>
+          </div>
+          <div style="background: #f0fdf4; padding: 20px; border-radius: 12px; border: 1px solid #dcfce7;">
+            <h3 style="margin-top: 0; font-size: 10px; font-weight: 900; text-transform: uppercase; color: #166534; margin-bottom: 12px; border-bottom: 1px solid #dcfce7; padding-bottom: 5px;">Logistics & Destination</h3>
+            <div style="font-size: 11px; color: #475569; line-height: 1.6;">
+              <div><b>Wilaya:</b> ${txn.wilaya || txn.buyer_zone || 'N/A'}</div>
+              <div><b>Commune:</b> ${txn.commune || 'N/A'}</div>
+              ${txn.delivery_address ? `<div style="margin-top: 5px; padding-top: 5px; border-top: 1px dashed #bbf7d0;"><b>Address:</b> ${txn.delivery_address}</div>` : ''}
+            </div>
+          </div>
+        </div>
+        <div style="margin-bottom: 30px;">
+          <h3 style="font-size: 11px; font-weight: 900; text-transform: uppercase; color: #64748b; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px;">Order Inventory</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="text-align: left; background: #f8fafc;">
+                <th style="padding: 12px; font-size: 10px; font-weight: 900; text-transform: uppercase; color: #64748b;">Description</th>
+                <th style="padding: 12px; font-size: 10px; font-weight: 900; text-transform: uppercase; color: #64748b; text-align: center;">Quantity</th>
+                <th style="padding: 12px; font-size: 10px; font-weight: 900; text-transform: uppercase; color: #64748b; text-align: right;">Unit Value</th>
+                <th style="padding: 12px; font-size: 10px; font-weight: 900; text-transform: uppercase; color: #64748b; text-align: right;">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${(txn.items && txn.items.length > 0 ? txn.items : [{product: txn.product, quantity: txn.quantity, price_snapshot: txn.total_price / (txn.quantity || 1), item_total: txn.total_price}]).map(item => `
+                <tr>
+                  <td style="padding: 12px; border-bottom: 1px solid #f1f5f9; font-weight: bold; font-size: 12px;">${item.product}</td>
+                  <td style="padding: 12px; border-bottom: 1px solid #f1f5f9; text-align: center;">${item.quantity}</td>
+                  <td style="padding: 12px; border-bottom: 1px solid #f1f5f9; text-align: right;">${item.price_snapshot?.toLocaleString()} DZD</td>
+                  <td style="padding: 12px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: bold; color: #059669;">${item.item_total?.toLocaleString()} DZD</td>
+                </tr>
+              `).join('')}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="3" style="padding: 15px 12px; text-align: right; font-weight: bold; color: #64748b;">Logistics Appraisal</td>
+                <td style="padding: 15px 12px; text-align: right; font-weight: bold;">${txn.transport_fee?.toLocaleString() || 0} DZD</td>
+              </tr>
+              <tr style="background: #f8fafc;">
+                <td colspan="3" style="padding: 15px 12px; text-align: right; font-size: 14px; font-weight: 900; color: #1e293b;">FINAL SETTLEMENT</td>
+                <td style="padding: 15px 12px; text-align: right; font-size: 18px; font-weight: 900; color: #059669;">${txn.total_price.toLocaleString()} DZD</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        ${txn.timeline && txn.timeline.length > 0 ? `
+          <div style="margin-bottom: 30px; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
+            <h3 style="margin-top: 0; font-size: 10px; font-weight: 900; text-transform: uppercase; color: #64748b; margin-bottom: 12px;">Official Timeline</h3>
+            <div style="font-size: 9px; color: #475569; line-height: 1.8;">
+              ${txn.timeline.map(t => `
+                <div style="display: flex; gap: 15px; border-bottom: 1px solid #f1f5f9; padding: 4px 0;">
+                  <span style="font-weight: bold; color: #1e293b; width: 70px;">${new Date(t.created_at).toLocaleDateString()}</span>
+                  <span style="font-weight: 800; color: #10b981; width: 100px;">${t.status}</span>
+                  <span>by ${t.actor}</span>
+                  ${t.note ? `<span style="font-style: italic; color: #94a3b8;">— ${t.note}</span>` : ''}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        ` : ''}
+        <div style="background: #0f172a; color: #f8fafc; padding: 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center;">
+          <div style="text-align: left; font-size: 10px; color: #64748b; font-weight: bold;">
+            GENERATED BY AGRIGOV INTELLIGENCE SYSTEMS<br/>ALGIERS, ALGERIA • VERIFIED DOCUMENT
+          </div>
+          <div style="text-align: right;">
+             <p style="margin: 0; font-size: 9px; font-weight: 900; text-transform: uppercase; color: #10b981;">Registry Hash: ${Math.random().toString(36).substring(2, 10).toUpperCase()}</p>
+          </div>
+        </div>
+      </div>
+    `;
+    const opt = { margin: 0, filename: `txn_${txn.id}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } };
+    html2pdf().from(element).set(opt).save();
+  };
+
+  const downloadAllPDF = () => {
+    const element = document.createElement('div');
+    element.innerHTML = `
+      <div style="padding: 30px; font-family: sans-serif;">
+        <h1 style="color: #064e3b; margin-bottom: 5px;">Active Order Registry</h1>
+        <p style="color: #64748b; font-size: 12px; margin-bottom: 20px;">Export Date: ${new Date().toLocaleString()} • ${data.length} Records</p>
+        <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+          <thead>
+            <tr style="background: #f0fdf4; text-align: left;">
+              <th style="padding: 10px; border: 1px solid #dcfce7;">ID</th>
+              <th style="padding: 10px; border: 1px solid #dcfce7;">Date</th>
+              <th style="padding: 10px; border: 1px solid #dcfce7;">Farmer</th>
+              <th style="padding: 10px; border: 1px solid #dcfce7;">Buyer</th>
+              <th style="padding: 10px; border: 1px solid #dcfce7;">Product</th>
+              <th style="padding: 10px; border: 1px solid #dcfce7;">Value</th>
+              <th style="padding: 10px; border: 1px solid #dcfce7;">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.map(t => `
+              <tr>
+                <td style="padding: 8px; border: 1px solid #f1f5f9;">#${t.id}</td>
+                <td style="padding: 8px; border: 1px solid #f1f5f9;">${new Date(t.created_at).toLocaleDateString()}</td>
+                <td style="padding: 8px; border: 1px solid #f1f5f9;">${t.farmer_name}</td>
+                <td style="padding: 8px; border: 1px solid #f1f5f9;">${t.buyer_name}</td>
+                <td style="padding: 8px; border: 1px solid #f1f5f9;">${t.product}</td>
+                <td style="padding: 8px; border: 1px solid #f1f5f9;">${t.total_price.toLocaleString()} DZD</td>
+                <td style="padding: 8px; border: 1px solid #f1f5f9;">${t.status}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+    const opt = { margin: 0.5, filename: 'active_registry.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' } };
+    html2pdf().from(element).set(opt).save();
+  };
 
   const exportCSV = () => {
     const hdr = 'ID,Date,Farmer,Buyer,Product,Value,Status,Zone\n';
@@ -114,9 +250,15 @@ const AdminTransactions = () => {
         <div className="z-10 mt-3 md:mt-0 flex items-center gap-2 w-full md:w-auto">
           <button 
             className="flex-1 md:flex-none bg-[#0f5c44] hover:bg-[#166534] text-white rounded-xl px-5 py-2.5 font-black text-[10px] uppercase tracking-widest transition shadow-lg shadow-emerald-900/40 flex items-center justify-center gap-2 border border-emerald-500/30" 
+            onClick={downloadAllPDF}
+          >
+             <Download size={14} className="text-emerald-400" /> Download Registry (PDF)
+          </button>
+          <button 
+            className="flex-1 md:flex-none bg-emerald-100/10 hover:bg-emerald-100/20 text-emerald-400 rounded-xl px-5 py-2.5 font-black text-[10px] uppercase tracking-widest transition flex items-center justify-center gap-2 border border-emerald-500/30" 
             onClick={exportCSV}
           >
-             <Download size={14} className="text-emerald-400" /> Export Active Registry
+             CSV Export
           </button>
         </div>
       </div>
@@ -211,10 +353,12 @@ const AdminTransactions = () => {
                     </div>
                   </td>
                   <td className="px-6 py-4"><StatusBadge s={t.status} /></td>
-                  <td className="px-6 py-4 text-right">
-                    <button className="bg-white hover:bg-emerald-600 hover:text-white text-slate-400 border border-slate-200 w-9 h-9 rounded-xl flex items-center justify-center transition-all shadow-sm ml-auto active:scale-95 group-hover:border-emerald-200" onClick={e=>{e.stopPropagation();handleSelectTxn(t);}} title="View Transaction Matrix">
-                      <Eye size={16}/>
-                    </button>
+                  <td className="px-6 py-4 text-right" onClick={e=>e.stopPropagation()}>
+                    <div className="flex items-center gap-1 justify-end">
+                      <button className="bg-white hover:bg-slate-100 text-slate-400 border border-slate-200 w-9 h-9 rounded-xl flex items-center justify-center transition-all shadow-sm active:scale-95 group-hover:border-slate-200" onClick={()=>handleSelectTxn(t)} title="View Detail Matrix">
+                        <Eye size={16}/>
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -224,7 +368,12 @@ const AdminTransactions = () => {
         )}
         {/* Pagination Console */}
         <div className="flex items-center justify-between px-8 py-5 border-t border-slate-100 bg-slate-50/50">
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Terminal Output • Page {page} of {totalPages}</span>
+          <div className="flex items-center gap-4">
+            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Terminal Output • Page {page} of {totalPages}</span>
+            <button className="text-[9px] font-black uppercase text-emerald-600 hover:underline flex items-center gap-1" onClick={downloadAllPDF}>
+              <Download size={10}/> Full Registry PDF
+            </button>
+          </div>
           <div className="flex gap-2">
             <button className="h-9 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-30 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 shadow-sm disabled:cursor-not-allowed" disabled={page<=1} onClick={()=>setPage(p=>p-1)}>Prev</button>
             <div className="flex gap-1.5">

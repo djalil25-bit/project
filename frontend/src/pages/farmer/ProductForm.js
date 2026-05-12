@@ -3,7 +3,9 @@ import api from '../../api/axiosConfig';
 import { useNavigate, Link, useParams, useSearchParams } from 'react-router-dom';
 import {
   ArrowLeft, Package, Home, Tag, Image as ImageIcon,
-  Save, Info, ShieldCheck, AlertTriangle, ChevronRight, Plus
+  Save, Info, ShieldCheck, AlertTriangle, ChevronRight, Plus,
+  Layers, BadgeCheck, FileText, LayoutGrid, CheckCircle2,
+  AlertCircle, X
 } from 'lucide-react';
 
 export default function ProductForm() {
@@ -35,7 +37,6 @@ export default function ProductForm() {
         setFarms(fetchedFarms);
         setCatalog(fetchedCatalog);
 
-        // Pre-select farm from URL query ?farm=N
         const farmParam = qp.get('farm');
         if (farmParam && !id) {
           setFormData(prev => ({ ...prev, farm: farmParam }));
@@ -57,7 +58,6 @@ export default function ProductForm() {
             image: null,
           });
           if (p.catalog_product) {
-            // API may return catalog_product as int or string – use Number() to handle both
             const item = fetchedCatalog.find(i => i.id === Number(p.catalog_product));
             if (item) setSelCatalog(item);
           }
@@ -77,12 +77,9 @@ export default function ProductForm() {
     if (fieldErrors[name]) setFErrors({ ...fieldErrors, [name]: null });
 
     if (name === 'catalog_product') {
-      // Use Number() so both string IDs and integer IDs returned by the API match
       const item = catalog.find(i => i.id === Number(value));
       setSelCatalog(item || null);
       if (item) {
-        // Use functional form of setFormData to avoid stale-closure overwriting the
-        // catalog_product change that was just set two lines above.
         setFormData(prev => ({
           ...prev,
           catalog_product: value,
@@ -93,7 +90,7 @@ export default function ProductForm() {
         }));
       }
       setFErrors({});
-      return; // prevent the generic setFormData below from overwriting
+      return;
     }
   };
 
@@ -141,13 +138,10 @@ export default function ProductForm() {
         await api.post('/products/', data);
         setSuccess('Product added to marketplace successfully!');
       }
-      setFormData({ catalog_product:'', description:'', price:'', stock:'', farm:'', title:'', category:'', unit:'', quality:'STANDARD', image:null });
-      setSelCatalog(null);
-      setTimeout(() => navigate('/farmer-dashboard'), 1500);
+      setTimeout(() => navigate('/farmer-dashboard/products'), 1500);
     } catch (err) {
       const resData = err.response?.data;
       if (resData && typeof resData === 'object') {
-        // Surface field-level errors so the farmer can see exactly what failed
         const fieldErrs = {};
         const topMessages = [];
         Object.entries(resData).forEach(([key, val]) => {
@@ -160,296 +154,298 @@ export default function ProductForm() {
           }
         });
         setFErrors(fieldErrs);
-        setError(topMessages.length > 0 ? topMessages.join(' | ') : 'Submission failed. Please check the fields.');
+        setError(topMessages.length > 0 ? topMessages.join(' | ') : 'Submission failed.');
       } else {
-        setError('Failed to submit. Please check your connection and try again.');
+        setError('Failed to submit. Please check your connection.');
       }
     } finally { setLoading(false); }
   };
 
   return (
-    <div className="farmer-page-wrapper">
-      {/* Breadcrumb */}
-      <div className="f-breadcrumb">
-        <Link to="/farmer-dashboard">Farmer Hub</Link>
-        <span className="f-breadcrumb-sep"><ChevronRight size={11} /></span>
-        <span>{isEdit ? 'Edit Product' : 'Add New Product'}</span>
-      </div>
-
-      {/* Page header */}
-      <div className="flex justify-between items-start flex-wrap gap-4 mb-8">
-        <div>
-          <h1 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">
-            {isEdit ? 'Edit Product' : 'Add New Product'}
-          </h1>
-          <p className="text-sm font-medium text-slate-500 mt-2">
-            {isEdit ? 'Update your product details and pricing.' : 'Register your product on the AgriGov marketplace.'}
-          </p>
+    <div className="farmer-page-wrapper" style={{ paddingBottom: '5rem' }}>
+      
+      {/* ── HEADER & BREADCRUMB ───────────────────────── */}
+      <div style={{ marginBottom: '3rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem', fontSize: '0.8rem' }}>
+          <Link to="/farmer-dashboard" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>Farmer Hub</Link>
+          <ChevronRight size={12} style={{ color: '#94a3b8' }} />
+          <Link to="/farmer-dashboard/products" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>Inventory</Link>
+          <ChevronRight size={12} style={{ color: '#94a3b8' }} />
+          <span style={{ color: '#065f46', fontWeight: 800 }}>{isEdit ? 'Modification Protocol' : 'Registration Protocol'}</span>
         </div>
-        <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 transition-colors shadow-sm">
-          <ArrowLeft size={16} /> Back
-        </button>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+          <div>
+            <h1 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#1e293b', letterSpacing: '-1px', margin: 0 }}>
+              {isEdit ? 'Refine your ' : 'Register New '} <span style={{ color: '#059669' }}>Harvest</span>
+            </h1>
+            <p style={{ color: '#64748b', fontWeight: 500, margin: '0.5rem 0 0' }}>
+              Ensure your product data aligns with official ministry standards for maximum marketplace visibility.
+            </p>
+          </div>
+          <button onClick={() => navigate(-1)} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#fff', color: '#64748b', padding: '0.75rem 1.25rem', borderRadius: '12px', fontWeight: 700, fontSize: '0.85rem', border: '1.5px solid #e2e8f0', cursor: 'pointer' }}>
+             <ArrowLeft size={16} /> Return to Inventory
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8 items-start">
-
-        {/* ── Form card ── */}
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-          <div className="px-5 py-3.5 bg-slate-50 border-b border-slate-100 flex items-center gap-2">
-            <div className="w-1 h-4 bg-[#22543d] rounded-full" />
-            <h3 className="text-xs font-black text-slate-700 uppercase tracking-widest flex items-center gap-2">
-              <Package size={14} className="text-[#22543d]" /> Product Configuration
-            </h3>
-          </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '2.5rem', alignItems: 'start' }}>
+        
+        {/* ── MAIN FORM ─────────────────────────────────── */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
           
-          <div className="p-5 sm:p-6">
-            {error && (
-              <div className="mb-4 p-3.5 bg-red-50 border border-red-100 rounded-xl flex items-start gap-2.5 text-red-600 text-xs font-bold shadow-sm">
-                <AlertTriangle size={16} className="shrink-0 mt-0.5" /> <div>{error}</div>
-              </div>
-            )}
-            {success && (
-              <div className="mb-4 p-3.5 bg-emerald-50 border border-emerald-100 rounded-xl flex items-start gap-2.5 text-emerald-600 text-xs font-bold shadow-sm">
-                <ShieldCheck size={16} className="shrink-0 mt-0.5" /> <div>{success}</div>
-              </div>
-            )}
-            {farms.length === 0 && !loading && (
-              <div className="mb-4 p-3.5 bg-amber-50 border border-amber-100 rounded-xl flex items-start gap-2.5 text-amber-700 text-xs font-bold shadow-sm">
-                <Info size={16} className="shrink-0 mt-0.5" />
-                <div>No active farms found. <Link to="/farmer-dashboard/farm/new" className="underline text-amber-900 font-black hover:text-amber-600">Register a farm</Link> to start selling.</div>
-              </div>
-            )}
+          {error && (
+            <div style={{ background: '#fef2f2', border: '1.5px solid #fecaca', padding: '1.25rem', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '1rem', color: '#991b1b', fontSize: '0.9rem', fontWeight: 700 }}>
+              <AlertCircle size={20} /> {error}
+            </div>
+          )}
+          {success && (
+            <div style={{ background: '#f0fdf4', border: '1.5px solid #bbf7d0', padding: '1.25rem', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '1rem', color: '#166534', fontSize: '0.9rem', fontWeight: 700 }}>
+              <CheckCircle2 size={20} /> {success}
+            </div>
+          )}
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            
+            {/* Identity Group */}
+            <div style={{ background: '#fff', borderRadius: '32px', padding: '2.5rem', border: '1.5px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#ecfdf5', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><BadgeCheck size={24} /></div>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#1e293b' }}>Official Identity</h3>
+              </div>
 
-              {/* Section: Product */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black text-slate-400 pb-1.5 border-b border-slate-100">
-                  <div className="w-1 h-3 bg-[#22543d] rounded-full" />
-                  Product Identifiers
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[11px] font-black uppercase tracking-widest text-[#22543d] flex items-center gap-2">
-                    <Package size={14} className="text-emerald-500" />
-                    Select Market Product <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                     <select
-                       name="catalog_product"
-                       className={`w-full bg-slate-50 border ${fieldErrors.catalog_product ? 'border-red-300 focus:ring-red-500' : 'border-slate-200 focus:ring-[#22543d]'} rounded-xl px-4 py-3.5 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:border-transparent transition-all shadow-sm appearance-none cursor-pointer`}
-                       onChange={handleChange}
-                       required
-                       value={formData.catalog_product}
-                     >
-                       <option value="">Choose from official catalog…</option>
-                       {catalog.map(i => <option key={i.id} value={i.id}>{i.name} ({i.default_unit})</option>)}
-                     </select>
-                     <ChevronRight size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none rotate-90" />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                <div className="form-group">
+                  <label style={{ fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '0.5rem', display: 'block', letterSpacing: '1px' }}>Registry Product <span style={{ color: '#ef4444' }}>*</span></label>
+                  <div style={{ position: 'relative' }}>
+                    <select
+                      name="catalog_product"
+                      style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: fieldErrors.catalog_product ? '2px solid #ef4444' : '1.5px solid #e2e8f0', fontSize: '0.9rem', fontWeight: 700, color: '#1e293b', outline: 'none', background: '#f8fafc' }}
+                      onChange={handleChange}
+                      required
+                      value={formData.catalog_product}
+                    >
+                      <option value="">Choose Catalog Entry…</option>
+                      {catalog.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}
+                    </select>
+                    <ChevronRight size={16} style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%) rotate(90deg)', color: '#94a3b8' }} />
                   </div>
-                  <div className="text-xs font-semibold text-slate-400 ml-1">Only certified products from the AgriGov database can be listed.</div>
+                  {fieldErrors.catalog_product && <div style={{ color: '#ef4444', fontSize: '0.75rem', fontWeight: 700, marginTop: '0.4rem' }}>{fieldErrors.catalog_product}</div>}
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-[11px] font-black uppercase tracking-widest text-[#22543d] flex items-center gap-2">
-                    <Home size={14} className="text-emerald-500" />
-                    Origin Farm <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                     <select
-                       name="farm"
-                       className={`w-full bg-slate-50 border ${fieldErrors.farm ? 'border-red-300 focus:ring-red-500' : 'border-slate-200 focus:ring-[#22543d]'} rounded-xl px-4 py-3.5 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:border-transparent transition-all shadow-sm appearance-none cursor-pointer`}
-                       onChange={handleChange}
-                       required
-                       value={formData.farm}
-                     >
-                       <option value="">Select where this is grown…</option>
-                       {farms.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
-                     </select>
-                     <ChevronRight size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none rotate-90" />
+                <div className="form-group">
+                  <label style={{ fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '0.5rem', display: 'block', letterSpacing: '1px' }}>Producing Farm <span style={{ color: '#ef4444' }}>*</span></label>
+                  <div style={{ position: 'relative' }}>
+                    <select
+                      name="farm"
+                      style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: fieldErrors.farm ? '2px solid #ef4444' : '1.5px solid #e2e8f0', fontSize: '0.9rem', fontWeight: 700, color: '#1e293b', outline: 'none', background: '#f8fafc' }}
+                      onChange={handleChange}
+                      required
+                      value={formData.farm}
+                    >
+                      <option value="">Select Origin Farm…</option>
+                      {farms.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                    </select>
+                    <ChevronRight size={16} style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%) rotate(90deg)', color: '#94a3b8' }} />
                   </div>
+                  {fieldErrors.farm && <div style={{ color: '#ef4444', fontSize: '0.75rem', fontWeight: 700, marginTop: '0.4rem' }}>{fieldErrors.farm}</div>}
                 </div>
               </div>
+            </div>
 
-              {/* Section: Pricing & Quantity */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black text-slate-400 pb-1.5 border-b border-slate-100">
-                  <div className="w-1 h-3 bg-[#22543d] rounded-full" /> Pricing & Stock
-                </div>
+            {/* Economics Group */}
+            <div style={{ background: '#fff', borderRadius: '32px', padding: '2.5rem', border: '1.5px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#fff1f2', color: '#e11d48', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Tag size={24} /></div>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#1e293b' }}>Valuation & Inventory</h3>
+              </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <div className="space-y-2">
-                    <label className="text-[11px] font-black uppercase tracking-widest text-[#22543d] flex items-center gap-2">
-                      <Tag size={14} className="text-emerald-500" />
-                      Asking Price (DZD) <span className="text-red-500">*</span>
-                    </label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                <div className="form-group">
+                  <label style={{ fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '0.5rem', display: 'block', letterSpacing: '1px' }}>Asking Price (DZD) <span style={{ color: '#ef4444' }}>*</span></label>
+                  <div style={{ position: 'relative' }}>
                     <input
                       type="number" step="0.01" name="price"
-                      className={`w-full bg-slate-50 border ${fieldErrors.price ? 'border-red-300 focus:ring-red-500' : 'border-slate-200 focus:ring-[#22543d]'} rounded-xl px-4 py-3.5 text-sm font-black text-slate-900 focus:outline-none focus:ring-2 focus:border-transparent transition-all shadow-sm`}
+                      style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: fieldErrors.price ? '2px solid #ef4444' : '1.5px solid #e2e8f0', fontSize: '1rem', fontWeight: 800, color: '#1e293b', outline: 'none' }}
                       placeholder="0.00" onChange={handleChange} required value={formData.price}
                     />
-                    {fieldErrors.price && (
-                      <div className="text-xs font-bold text-red-500 mt-1">{Array.isArray(fieldErrors.price) ? fieldErrors.price[0] : fieldErrors.price}</div>
-                    )}
+                    <div style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', fontWeight: 900, color: '#cbd5e1', fontSize: '0.8rem' }}>DZD / {selCatalog?.default_unit || 'UNIT'}</div>
                   </div>
+                  {fieldErrors.price && <div style={{ color: '#ef4444', fontSize: '0.75rem', fontWeight: 700, marginTop: '0.4rem' }}>{fieldErrors.price}</div>}
+                </div>
 
-                  <div className="space-y-2">
-                    <label className="text-[11px] font-black uppercase tracking-widest text-[#22543d] flex items-center gap-2">
-                      <Plus size={14} className="text-emerald-500" />
-                      Stock Quantity ({selCatalog?.default_unit || 'Units'}) <span className="text-red-500">*</span>
-                    </label>
+                <div className="form-group">
+                  <label style={{ fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '0.5rem', display: 'block', letterSpacing: '1px' }}>Available Stock <span style={{ color: '#ef4444' }}>*</span></label>
+                  <div style={{ position: 'relative' }}>
                     <input
                       type="number" step="0.01" name="stock"
-                      className={`w-full bg-slate-50 border ${fieldErrors.stock ? 'border-red-300 focus:ring-red-500' : 'border-slate-200 focus:ring-[#22543d]'} rounded-xl px-4 py-3.5 text-sm font-black text-slate-900 focus:outline-none focus:ring-2 focus:border-transparent transition-all shadow-sm`}
-                      placeholder="Enter amount" onChange={handleChange} required value={formData.stock}
+                      style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: fieldErrors.stock ? '2px solid #ef4444' : '1.5px solid #e2e8f0', fontSize: '1rem', fontWeight: 800, color: '#1e293b', outline: 'none' }}
+                      placeholder="0.00" onChange={handleChange} required value={formData.stock}
                     />
-                    {fieldErrors.stock && (
-                      <div className="text-xs font-bold text-red-500 mt-1">{Array.isArray(fieldErrors.stock) ? fieldErrors.stock[0] : fieldErrors.stock}</div>
-                    )}
+                    <div style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', fontWeight: 900, color: '#cbd5e1', fontSize: '0.8rem' }}>{selCatalog?.default_unit || 'UNIT'}</div>
                   </div>
+                  {fieldErrors.stock && <div style={{ color: '#ef4444', fontSize: '0.75rem', fontWeight: 700, marginTop: '0.4rem' }}>{fieldErrors.stock}</div>}
                 </div>
               </div>
+            </div>
 
-              {/* Section: Details */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black text-slate-400 pb-1.5 border-b border-slate-100">
-                  <div className="w-1 h-3 bg-[#22543d] rounded-full" /> Quality & Imagery
+            {/* Quality Group */}
+            <div style={{ background: '#fff', borderRadius: '32px', padding: '2.5rem', border: '1.5px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ShieldCheck size={24} /></div>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#1e293b' }}>Quality & Description</h3>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                <div className="form-group">
+                  <label style={{ fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '0.5rem', display: 'block', letterSpacing: '1px' }}>Quality Grade <span style={{ color: '#ef4444' }}>*</span></label>
+                  <div style={{ position: 'relative' }}>
+                    <select
+                      name="quality"
+                      style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1.5px solid #e2e8f0', fontSize: '0.9rem', fontWeight: 700, color: '#1e293b', outline: 'none', background: '#f8fafc' }}
+                      onChange={handleChange} required value={formData.quality}
+                    >
+                      <option value="PREMIUM">Premium (High End)</option>
+                      <option value="STANDARD">Standard (Regular)</option>
+                      <option value="ECONOMY">Economy (Low Cost)</option>
+                      <option value="ORGANIC">Organic (Certified)</option>
+                    </select>
+                    <ChevronRight size={16} style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%) rotate(90deg)', color: '#94a3b8' }} />
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <div className="space-y-2">
-                    <label className="text-[11px] font-black uppercase tracking-widest text-[#22543d] flex items-center gap-2">
-                      <ShieldCheck size={14} className="text-emerald-500" />
-                      Product Quality <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                       <select
-                         name="quality"
-                         className="w-full bg-slate-50 border border-slate-200 focus:ring-[#22543d] rounded-xl px-4 py-3.5 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:border-transparent transition-all shadow-sm appearance-none cursor-pointer"
-                         onChange={handleChange} required value={formData.quality}
-                       >
-                         <option value="PREMIUM">Premium (High End)</option>
-                         <option value="STANDARD">Standard (Regular)</option>
-                         <option value="ECONOMY">Economy (Low Cost)</option>
-                         <option value="ORGANIC">Organic (Certified)</option>
-                       </select>
-                       <ChevronRight size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none rotate-90" />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-[11px] font-black uppercase tracking-widest text-[#22543d] flex items-center gap-2">
-                      <ImageIcon size={14} className="text-emerald-500" />
-                      Product Photography <span className="text-slate-400 lowercase font-medium">(optional)</span>
-                    </label>
+                <div className="form-group">
+                  <label style={{ fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '0.5rem', display: 'block', letterSpacing: '1px' }}>Harvest Imagery</label>
+                  <div style={{ position: 'relative' }}>
                     <input
                       type="file" name="image"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-medium text-slate-600 focus:outline-none file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-black file:uppercase file:tracking-widest file:bg-emerald-100 file:text-emerald-700 hover:file:bg-emerald-200 transition-all shadow-sm"
+                      style={{ width: '100%', padding: '0.8rem', borderRadius: '16px', border: '1.5px solid #e2e8f0', fontSize: '0.8rem', fontWeight: 600, color: '#64748b', outline: 'none' }}
                       accept="image/*" onChange={handleChange}
                     />
                   </div>
                 </div>
-
-                <div className="space-y-2 pt-2">
-                  <label className="text-[11px] font-black uppercase tracking-widest text-[#22543d]">Harvest Details & Quality Notes</label>
-                  <textarea
-                    name="description"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-4 text-sm font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#22543d] focus:border-transparent transition-all shadow-sm min-h-[120px] resize-y placeholder-slate-400"
-                    placeholder="Tell buyers about your produce: organic, extra fresh, specific variety, etc."
-                    onChange={handleChange} value={formData.description}
-                  />
-                </div>
               </div>
 
-              <div className="flex gap-3 pt-4 border-t border-slate-100">
-                <button
-                  type="submit"
-                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-[#22543d] hover:bg-[#1a402e] text-white rounded-xl text-sm font-black uppercase tracking-wide transition-all active:scale-95 shadow-md disabled:opacity-50 disabled:pointer-events-none"
-                  disabled={loading || farms.length === 0}
-                >
-                  {loading ? 'Processing…' : <><Save size={15} /> {isEdit ? 'Save Changes' : 'Add Product'}</>}
-                </button>
-                <button
-                  type="button"
-                  className="inline-flex items-center justify-center px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-bold uppercase tracking-wide transition-all"
-                  onClick={() => navigate('/farmer-dashboard/products')}
-                >
-                  Discard
-                </button>
+              <div className="form-group">
+                <label style={{ fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '0.5rem', display: 'block', letterSpacing: '1px' }}>Detailed Manifest & Harvest Notes</label>
+                <textarea
+                  name="description"
+                  style={{ width: '100%', padding: '1.25rem', borderRadius: '20px', border: '1.5px solid #e2e8f0', fontSize: '0.9rem', fontWeight: 600, color: '#1e293b', outline: 'none', resize: 'none', minHeight: '120px', lineHeight: 1.6 }}
+                  placeholder="Elaborate on the harvest conditions, specific variety, or any unique quality markers..."
+                  onChange={handleChange} value={formData.description}
+                />
               </div>
-            </form>
-          </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '1.5rem', paddingTop: '1rem' }}>
+               <button
+                 type="submit"
+                 disabled={loading || farms.length === 0}
+                 style={{ flex: 1, background: '#059669', color: '#fff', padding: '1.25rem', borderRadius: '18px', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', boxShadow: '0 10px 30px rgba(5,150,105,0.2)' }}
+               >
+                 {loading ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <><Save size={20} /> {isEdit ? 'Update Requisition' : 'Authorize Listing'}</>}
+               </button>
+               <button
+                 type="button"
+                 onClick={() => navigate('/farmer-dashboard/products')}
+                 style={{ padding: '1.25rem 2.5rem', borderRadius: '18px', border: '1.5px solid #e2e8f0', background: '#fff', color: '#64748b', fontWeight: 800, fontSize: '1rem', cursor: 'pointer' }}
+               >
+                 Discard
+               </button>
+            </div>
+          </form>
         </div>
 
-        {/* ── Sidebar info panel ── */}
-        <div className="sticky top-6 space-y-4">
+        {/* ── SIDEBAR: OFFICIAL DATA ──────────────────── */}
+        <div style={{ position: 'sticky', top: '2rem' }}>
           {selCatalog ? (
-            <div className="bg-gradient-to-br from-[#22543d] to-[#1a402e] text-white rounded-2xl p-5 shadow-lg relative overflow-hidden border border-[#1a402e]">
-              <div className="absolute top-0 right-0 p-4 opacity-5"><Info size={80}/></div>
+            <div style={{ background: 'linear-gradient(135deg, #065f46 0%, #064e3b 100%)', borderRadius: '32px', padding: '2.5rem', color: '#fff', boxShadow: '0 20px 40px rgba(6,95,70,0.15)', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ position: 'absolute', top: '-50px', right: '-50px', opacity: 0.1 }}><Info size={250} /></div>
               
-              <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-emerald-300 mb-6 relative z-10">
-                <Info size={16} /> Official Guide
-              </div>
-
-              <div className="space-y-6 relative z-10">
-                <div className="bg-black/20 p-4 rounded-2xl border border-white/10">
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 mb-1">Recommended Range</div>
-                  <div className="text-xl font-black tracking-tight">
-                    {(() => {
-                      const rMin = selCatalog.min_price !== null ? parseFloat(selCatalog.min_price) : null;
-                      const rMax = selCatalog.max_price !== null ? parseFloat(selCatalog.max_price) : null;
-                      let dMin = selCatalog.min_price;
-                      let dMax = selCatalog.max_price;
-                      if (rMin !== null && rMax !== null && !isNaN(rMin) && !isNaN(rMax) && rMin > rMax) {
-                        dMin = selCatalog.max_price;
-                        dMax = selCatalog.min_price;
-                      }
-                      return `${dMin} – ${dMax}`;
-                    })()} <span className="text-xs font-bold text-emerald-300 ml-1">DZD / {selCatalog.default_unit}</span>
-                  </div>
-                  <div className="text-xs font-medium text-emerald-100/70 mt-2 leading-tight">Based on latest market stabilization data for {selCatalog.name}.</div>
+              <div style={{ position: 'relative', zIndex: 10 }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.15)', padding: '0.5rem 1rem', borderRadius: '30px', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '2.5rem' }}>
+                  <Building2 size={16} /> Ministry Reference
                 </div>
 
-                {selCatalog.description && (
-                  <div>
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 mb-2">Quality Standards</div>
-                    <div className="text-xs font-medium text-emerald-50 leading-relaxed bg-white/5 p-4 rounded-2xl border border-white/10">
-                      {selCatalog.description}
-                    </div>
-                  </div>
-                )}
+                <div style={{ marginBottom: '3rem' }}>
+                   <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#10b981', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.5rem' }}>Market Stabilization Range</div>
+                   <div style={{ fontSize: '2rem', fontWeight: 900, letterSpacing: '-1px' }}>
+                      {selCatalog.min_price} – {selCatalog.max_price} <small style={{ fontSize: '1rem', opacity: 0.6 }}>DZD</small>
+                   </div>
+                   <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', marginTop: '0.5rem', fontWeight: 600 }}>Per {selCatalog.default_unit} • Updated Daily</div>
+                </div>
 
-                <div className="flex items-start gap-3 bg-emerald-500/20 p-4 rounded-xl border border-emerald-500/30">
-                  <ShieldCheck size={20} className="text-emerald-300 shrink-0 mt-0.5" />
-                  <div className="text-xs font-medium text-emerald-100 leading-snug">
-                    Pricing within the recommended range increases your visibility on the buyer marketplace.
-                  </div>
+                <div style={{ marginBottom: '3rem' }}>
+                   <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#10b981', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '1rem' }}>Quality Specifications</div>
+                   <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '20px', padding: '1.5rem', border: '1px solid rgba(255,255,255,0.1)', fontSize: '0.9rem', lineHeight: 1.6, color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>
+                      {selCatalog.description || 'Standard Ministry quality guidelines apply to this category.'}
+                   </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', background: 'rgba(16,185,129,0.2)', padding: '1.25rem', borderRadius: '20px', border: '1px solid rgba(16,185,129,0.3)' }}>
+                   <ShieldCheck size={20} style={{ color: '#10b981', marginTop: '0.2rem' }} />
+                   <p style={{ fontSize: '0.8rem', color: '#fff', fontWeight: 600, margin: 0, lineHeight: 1.5 }}>
+                      Products listed within reference price ranges receive priority indexing in the buyer marketplace.
+                   </p>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="bg-slate-50 border border-slate-200 rounded-[2rem] p-8 text-center flex flex-col items-center">
-              <div className="w-16 h-16 bg-white border border-slate-100 rounded-full flex items-center justify-center mb-4 shadow-sm text-slate-300">
-                <Package size={24} />
-              </div>
-              <h3 className="text-sm font-black text-slate-700 uppercase tracking-widest mb-2">Market Guidelines</h3>
-              <p className="text-xs font-medium text-slate-500 leading-relaxed">
-                Select a product from the registry to view official marketplace guidelines, quality standards, and pricing matrix data.
-              </p>
+            <div style={{ background: '#fff', borderRadius: '32px', padding: '4rem 2rem', border: '1.5px dashed #e2e8f0', textAlign: 'center' }}>
+               <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: '#f8fafc', color: '#cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem' }}><LayoutGrid size={32} /></div>
+               <h4 style={{ fontSize: '1rem', fontWeight: 900, color: '#1e293b', marginBottom: '1rem' }}>Registry Guidance</h4>
+               <p style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: 500, lineHeight: 1.6 }}>
+                  Select a product from the official catalog to synchronize your listing with ministry-grade data benchmarks.
+               </p>
             </div>
           )}
-        </div>
 
+          <div style={{ marginTop: '1.5rem', background: '#f0fdf4', padding: '1.5rem', borderRadius: '24px', border: '1.5px solid #bbf7d0', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+             <div style={{ color: '#16a34a' }}><Info size={24} /></div>
+             <div>
+                <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#166534' }}>Digital Traceability</div>
+                <div style={{ fontSize: '0.75rem', color: '#15803d', fontWeight: 500 }}>Every listing is tagged with a unique batch ID for national tracking.</div>
+             </div>
+          </div>
+        </div>
       </div>
 
-      {/* Mobile: stack sidebar below */}
       <style>{`
-        @media (max-width: 900px) {
-          .farmer-page-wrapper > div[style*="grid-template-columns"] {
-            grid-template-columns: 1fr !important;
-          }
+        .form-group {
+          display: flex;
+          flex-direction: column;
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .animate-spin {
+          animation: spin 1s linear infinite;
         }
       `}</style>
     </div>
   );
 }
+
+const Building2 = ({ size, style }) => (
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    width={size} 
+    height={size} 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2.5" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    style={style}
+  >
+    <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z" />
+    <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2" />
+    <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2" />
+    <path d="M10 6h4" />
+    <path d="M10 10h4" />
+    <path d="M10 14h4" />
+    <path d="M10 18h4" />
+  </svg>
+);

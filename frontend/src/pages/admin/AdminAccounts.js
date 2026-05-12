@@ -157,14 +157,29 @@ const AdminAccounts = () => {
                 
                 {/* 1. Avatar & Info */}
                 <div className="flex items-center gap-4 flex-1 min-w-0 w-full md:w-[300px] shrink-0">
-                  <div className={`w-12 h-12 shrink-0 rounded-xl bg-gradient-to-br ${getAvatarStyle(a.role)} text-white flex items-center justify-center font-black text-xl shadow-sm`}>
-                    {a.full_name?.charAt(0).toUpperCase()}
+                  <div className={`w-12 h-12 shrink-0 rounded-xl bg-gradient-to-br ${getAvatarStyle(a.role)} text-white flex items-center justify-center font-black text-xl shadow-sm overflow-hidden border-2 border-white`}>
+                    {a.profile_picture ? (
+                      <img src={a.profile_picture} alt={a.full_name} className="w-full h-full object-cover" />
+                    ) : (
+                      a.full_name?.charAt(0).toUpperCase()
+                    )}
                   </div>
                   <div className="flex flex-col min-w-0">
                     <div className="font-black text-slate-900 text-base truncate leading-tight">{a.full_name}</div>
                     <div className="flex flex-wrap items-center gap-2 md:gap-3 mt-1 text-[9px] font-bold text-slate-400 uppercase tracking-widest truncate">
                       <span className="flex items-center gap-1 text-slate-500"><Mail size={10} className="text-slate-300"/> {a.email}</span>
-                      {a.phone && <span className="flex items-center gap-1 text-slate-500"><Phone size={10} className="text-slate-300"/> {a.phone}</span>}
+                      {a.phone && (
+                        <a 
+                          href={`https://wa.me/${a.phone.replace(/\D/g, '')}`} 
+                          target="_blank" 
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-lg hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all cursor-pointer group/wa shadow-sm"
+                          title="Contact via WhatsApp"
+                        >
+                          <Phone size={10} className="text-emerald-600 group-hover/wa:text-white transition-colors"/> 
+                          <span className="text-[9px] font-black tracking-normal">{a.phone}</span>
+                        </a>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -182,14 +197,34 @@ const AdminAccounts = () => {
 
                 {/* 3. Stats */}
                 <div className="flex items-center gap-6 w-full md:w-[120px] shrink-0 justify-start md:justify-center">
-                  <div className="flex flex-col items-center">
-                    <span className="text-slate-800 font-black text-sm">{a.stats?.listings || 0}</span> 
-                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Listings</span>
-                  </div>
-                  <div className="flex flex-col items-center">
-                    <span className="text-slate-800 font-black text-sm">{a.stats?.orders || 0}</span> 
-                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Orders</span>
-                  </div>
+                  {a.role === 'transporter' ? (
+                    <>
+                      <div className="flex flex-col items-center">
+                        <span className="text-slate-800 font-black text-sm">{a.stats?.vehicles || 0}</span> 
+                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Vehicles</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <span className="text-slate-800 font-black text-sm">{a.stats?.missions || 0}</span> 
+                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Missions</span>
+                      </div>
+                    </>
+                  ) : a.role === 'buyer' ? (
+                    <div className="flex flex-col items-center">
+                      <span className="text-slate-800 font-black text-sm">{a.stats?.orders || 0}</span> 
+                      <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Orders</span>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex flex-col items-center">
+                        <span className="text-slate-800 font-black text-sm">{a.stats?.listings || 0}</span> 
+                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Listings</span>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <span className="text-slate-800 font-black text-sm">{a.stats?.orders || 0}</span> 
+                        <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Orders</span>
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 {/* 4. Actions */}

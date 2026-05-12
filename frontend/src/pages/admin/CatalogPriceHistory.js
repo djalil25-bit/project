@@ -68,20 +68,7 @@ const CatalogPriceHistory = () => {
   const processedData = useMemo(() => {
     let rawData = history;
 
-    // Provide mock data conditionally if history is empty, to demonstrate the feature as requested
-    const useMock = rawData.length === 0;
-    if (useMock && product) {
-      const base = parseFloat(product.ref_price) || 120;
-      const min = parseFloat(product.min_price) || 100;
-      const max = parseFloat(product.max_price) || 150;
-      
-      rawData = [
-        { id: 'm1', valid_from: '2025-01-01', official_price: base - 10, min_price: min - 5, max_price: max + 5, notes: 'Initial setup', unit: product.unit || 'kg', mocked: true },
-        { id: 'm2', valid_from: '2025-02-15', official_price: base - 5, min_price: min, max_price: max, notes: 'Market adjustment', unit: product.unit || 'kg', mocked: true },
-        { id: 'm3', valid_from: '2025-03-20', official_price: base + 8, min_price: min, max_price: max, notes: 'Supply shortage', unit: product.unit || 'kg', mocked: true },
-        { id: 'm4', valid_from: '2025-04-10', official_price: base, min_price: min, max_price: max, notes: 'Price stabilization', unit: product.unit || 'kg', mocked: true },
-      ];
-    }
+    const useMock = false;
 
     // Apply Filters
     let filtered = rawData;
@@ -96,9 +83,18 @@ const CatalogPriceHistory = () => {
     const formatted = filtered.map((item, index, arr) => {
       const prev = index > 0 ? arr[index - 1] : null;
       let trendNum = 0; // 0=flat, 1=up, -1=down
+      const getVal = (item) => {
+        if (item.min_price != null && item.max_price != null) {
+          return (parseFloat(item.min_price) + parseFloat(item.max_price)) / 2;
+        }
+        return parseFloat(item.official_price);
+      };
+
       if (prev) {
-        if (parseFloat(item.official_price) > parseFloat(prev.official_price)) trendNum = 1;
-        if (parseFloat(item.official_price) < parseFloat(prev.official_price)) trendNum = -1;
+        const currVal = getVal(item);
+        const prevVal = getVal(prev);
+        if (currVal > prevVal) trendNum = 1;
+        if (currVal < prevVal) trendNum = -1;
       }
       const d = new Date(item.valid_from);
       const chartDateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -230,6 +226,86 @@ const CatalogPriceHistory = () => {
             </div>
           </div>
 
+          {/* ── Table Section ────────────────────────────── */}
+          <div className="glass-card overflow-hidden">
+            <div className="flex items-center justify-between p-5 border-b border-gray-100">
+              <h3 className="font-bold text-gray-800 flex items-center gap-2">
+                <Database size={16} className="text-blue-600" /> Historical Price Archive
+              </h3>
+              <span className="adm-badge adm-badge-approved">{chartData.length} Records</span>
+            </div>
+            
+            <div className="overflow-x-auto">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th className="pl-6">Effective Date</th>
+                    <th>Safety Range</th>
+                    <th>Previous Value</th>
+                    <th>New Index Price</th>
+                    <th>Trend</th>
+                    <th>Changed By</th>
+                    <th className="w-1/4">Reason</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {chartData.length === 0 ? (
+                    <tr>
+                      <td colSpan="7">
+                        <div className="py-12 text-center text-gray-500 text-sm">
+                          No history records exist.
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    // Display latest first in the table
+                    [...chartData].reverse().map((row, idx) => (
+                      <tr key={row.id || idx}>
+                        <td className="pl-6">
+                          <span className="font-semibold text-gray-800">{row.chartDate}</span>
+                        </td>
+                        <td>
+                          <div className="flex items-center text-xs">
+                            <span className="text-red-500">{row.floor || '--'}</span>
+                            <span className="mx-2 text-gray-400">→</span>
+                            <span className="text-blue-500">{row.ceiling || '--'}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <span className="text-gray-400 font-medium">{row.prevPrice ? `${row.prevPrice} DZD` : '—'}</span>
+                        </td>
+                        <td>
+                          <span className="font-bold text-blue-600">{row.indexPrice} DZD</span>
+                        </td>
+                        <td>
+                          {row.trendNum === 1 ? (
+                            <span className="flex items-center gap-1 text-red-600 text-xs font-bold bg-red-50 px-2 py-1 rounded w-fit">
+                              <ArrowUpRight size={14} /> UP
+                            </span>
+                          ) : row.trendNum === -1 ? (
+                            <span className="flex items-center gap-1 text-blue-600 text-xs font-bold bg-blue-50 px-2 py-1 rounded w-fit">
+                              <ArrowDownRight size={14} /> DOWN
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-1 text-gray-500 text-xs font-bold bg-gray-100 px-2 py-1 rounded w-fit">
+                              <Minus size={14} /> FLAT
+                            </span>
+                          )}
+                        </td>
+                        <td>
+                          <span className="adm-badge" style={{ background: '#F3F4F6', color: '#6B7280', border: '1px solid #E5E7EB' }}>Admin System</span>
+                        </td>
+                        <td>
+                          <span className="text-sm text-gray-600">{row.notes || '—'}</span>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
           {/* ── Filters & Chart Section ──────────────────── */}
           <div className="glass-card flex flex-col overflow-hidden">
             <div className="flex flex-col md:flex-row items-center justify-between p-5 border-b border-gray-100 gap-4">
@@ -342,82 +418,6 @@ const CatalogPriceHistory = () => {
                   </RechartsLineChart>
                 </ResponsiveContainer>
               )}
-            </div>
-          </div>
-
-          {/* ── Table Section ────────────────────────────── */}
-          <div className="glass-card overflow-hidden">
-            <div className="flex items-center justify-between p-5 border-b border-gray-100">
-              <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                <Database size={16} className="text-blue-600" /> Historical Price Archive
-              </h3>
-              <span className="adm-badge adm-badge-approved">{chartData.length} Records</span>
-            </div>
-            
-            <div className="overflow-x-auto">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th className="pl-6">Effective Date</th>
-                    <th>Safety Range</th>
-                    <th>Index Price</th>
-                    <th>Trend</th>
-                    <th>Changed By</th>
-                    <th className="w-1/3">Reason / Notification</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {chartData.length === 0 ? (
-                    <tr>
-                      <td colSpan="6">
-                        <div className="py-12 text-center text-gray-500 text-sm">
-                          No history records exist.
-                        </div>
-                      </td>
-                    </tr>
-                  ) : (
-                    // Display latest first in the table
-                    [...chartData].reverse().map((row, idx) => (
-                      <tr key={row.id || idx}>
-                        <td className="pl-6">
-                          <span className="font-semibold text-gray-800">{row.chartDate}</span>
-                        </td>
-                        <td>
-                          <div className="flex items-center text-xs">
-                            <span className="text-red-500">{row.floor || '--'}</span>
-                            <span className="mx-2 text-gray-400">→</span>
-                            <span className="text-blue-500">{row.ceiling || '--'}</span>
-                          </div>
-                        </td>
-                        <td>
-                          <span className="font-bold text-blue-600">{row.indexPrice} DZD</span>
-                        </td>
-                        <td>
-                          {row.trendNum === 1 ? (
-                            <span className="flex items-center gap-1 text-red-600 text-xs font-bold bg-red-50 px-2 py-1 rounded w-fit">
-                              <ArrowUpRight size={14} /> UP
-                            </span>
-                          ) : row.trendNum === -1 ? (
-                            <span className="flex items-center gap-1 text-blue-600 text-xs font-bold bg-blue-50 px-2 py-1 rounded w-fit">
-                              <ArrowDownRight size={14} /> DOWN
-                            </span>
-                          ) : (
-                            <span className="flex items-center gap-1 text-gray-500 text-xs font-bold bg-gray-100 px-2 py-1 rounded w-fit">
-                              <Minus size={14} /> FLAT
-                            </span>
-                          )}
-                        </td>
-                        <td>
-                          <span className="adm-badge" style={{ background: '#F3F4F6', color: '#6B7280', border: '1px solid #E5E7EB' }}>Admin System</span>
-                        </td>
-                        <td>
-                          <span className="text-sm text-gray-600">{row.notes || '—'}</span>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
             </div>
           </div>
         </>

@@ -200,16 +200,20 @@ export default function VehicleApprovals() {
               </div>
 
               {/* Carte Grise */}
-              {vehicle.carte_grise && (
-                <div className="px-5 pb-2">
+              <div className="px-5 pb-3">
+                {vehicle.carte_grise ? (
                   <button
                     onClick={() => setCarteGrisePreview(vehicle.carte_grise.startsWith('http') ? vehicle.carte_grise : `http://localhost:8000${vehicle.carte_grise}`)}
-                    className="w-full flex items-center gap-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 px-3 py-2 rounded-xl text-xs font-bold transition-all"
+                    className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-600/20 active:scale-95"
                   >
                     <FileText size={14} /> View Carte Grise Document
                   </button>
-                </div>
-              )}
+                ) : (
+                  <div className="w-full flex items-center justify-center gap-2 bg-slate-100 border border-slate-200 text-slate-400 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest">
+                    <FileText size={14} className="opacity-50" /> Document Missing
+                  </div>
+                )}
+              </div>
 
               {/* Rejection Reason */}
               {vehicle.status === 'REJECTED' && vehicle.rejection_reason && (
@@ -230,16 +234,16 @@ export default function VehicleApprovals() {
                   <button
                     onClick={() => handleApprove(vehicle.id)}
                     disabled={actionLoading === vehicle.id}
-                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white h-10 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white h-11 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
                   >
-                    <Check size={13} /> Approve
+                    <Check size={14} /> Approve
                   </button>
                   <button
                     onClick={() => setRejectModal(vehicle.id)}
                     disabled={actionLoading === vehicle.id}
-                    className="flex-1 bg-white hover:bg-red-50 text-red-600 border-2 border-red-200 h-10 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="flex-1 bg-red-600 hover:bg-red-700 text-white h-11 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-red-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
                   >
-                    <X size={13} /> Reject
+                    <X size={14} /> Reject
                   </button>
                 </div>
               )}

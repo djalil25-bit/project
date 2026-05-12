@@ -3,7 +3,7 @@ import api from '../../api/axiosConfig';
 import { Link } from 'react-router-dom';
 import {
   FileText, XCircle, AlertCircle, RefreshCw, User, ShieldAlert,
-  ShieldCheck, ChevronRight, ClipboardList, Clock, CheckCircle, Package, Truck, MapPin, ChevronDown, ChevronUp, ShoppingBag, Phone
+  ShieldCheck, ChevronRight, ClipboardList, Clock, CheckCircle, Package, Truck, MapPin, ChevronDown, ChevronUp, ShoppingBag, Phone, Wheat
 } from 'lucide-react';
 
 /* ─── Premium E-commerce Timeline Stepper ─────────────────────────────── */
@@ -347,7 +347,6 @@ function OrderHistory() {
                                         </div>
                                         <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter bg-slate-50 px-2 py-1 rounded">{o.items?.length} items</div>
                                       </div>
-
                                       <div className="space-y-3 mb-6">
                                         {o.items?.map(item => {
                                           const name = item.product_detail?.title || item.product_name || 'Item';
@@ -363,7 +362,7 @@ function OrderHistory() {
                                                 </div>
                                                 <div className="truncate min-w-0">
                                                   <div className="font-black text-xs text-slate-800 truncate">{name}</div>
-                                                  <div className="flex items-center gap-2 mt-1">
+                                                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
                                                     <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded uppercase">{qty} {unit}</span>
                                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">@ {unitPrice.toLocaleString()} DZD</span>
                                                   </div>
@@ -384,7 +383,6 @@ function OrderHistory() {
                                             <span>Order Summary</span>
                                             <span className="text-blue-400">#AG-{o.id.toString().padStart(5, '0')}</span>
                                           </div>
-
                                           <div className="space-y-2">
                                             <div className="flex justify-between items-center text-xs font-bold">
                                               <span className="text-slate-500">Products Subtotal</span>
@@ -395,7 +393,6 @@ function OrderHistory() {
                                               <span className="text-indigo-400">+{parseFloat(o.transport_fee || 0).toLocaleString()} DZD</span>
                                             </div>
                                           </div>
-
                                           <div className="flex justify-between items-end pt-3 border-t border-white/10">
                                             <div>
                                               <div className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Total</div>
@@ -416,6 +413,39 @@ function OrderHistory() {
                                   </div>
 
                                   <div className="space-y-6">
+                                    {/* Involved Producers */}
+                                    <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                                      <div className="flex items-center gap-2 mb-4 border-b border-slate-50 pb-3">
+                                        <Wheat size={16} className="text-blue-600" />
+                                        <h6 className="font-black text-xs uppercase tracking-widest m-0">👨‍🌾 Involved Producers</h6>
+                                      </div>
+                                      <div className="space-y-4">
+                                        {Array.from(new Set(o.items?.map(i => i.farmer_name))).map(name => {
+                                          const farmer = o.items.find(i => i.farmer_name === name);
+                                          return (
+                                            <div key={name} className="flex flex-col gap-2 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                                              <div className="flex items-center gap-2">
+                                                <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[10px] font-black">{name?.charAt(0)}</div>
+                                                <span className="text-[11px] font-black text-slate-800 uppercase tracking-tight">{name}</span>
+                                              </div>
+                                              <div className="flex items-center gap-2">
+                                                <div className="flex items-center gap-1 text-[9px] font-bold text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100">
+                                                  <MapPin size={10} /> {farmer?.farm_wilaya || 'N/A'}
+                                                </div>
+                                                <a
+                                                  href={`https://wa.me/${farmer?.farmer_phone?.replace(/\D/g, '').startsWith('0') ? '213' + farmer.farmer_phone.replace(/\D/g, '').substring(1) : farmer?.farmer_phone?.replace(/\D/g, '')}`}
+                                                  target="_blank" rel="noopener noreferrer"
+                                                  className="flex items-center gap-1 text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100 hover:bg-emerald-100 transition-colors no-underline"
+                                                >
+                                                  <Phone size={10} /> {farmer?.farmer_phone || 'N/A'}
+                                                </a>
+                                              </div>
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    </div>
+
                                     {/* Your Delivery Agent Card */}
                                     {o.transporter ? (
                                       <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
@@ -433,7 +463,6 @@ function OrderHistory() {
                                               <div className="text-sm font-black text-slate-800">{o.transporter.name}</div>
                                             </div>
                                           </div>
-
                                           <div className="grid grid-cols-2 gap-3">
                                             <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
                                               <label className="text-[8px] font-black uppercase tracking-widest text-slate-400 block mb-1">Contact</label>

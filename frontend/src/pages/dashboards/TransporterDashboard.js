@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import ProofOfDeliveryModal from '../../components/logistics/ProofOfDeliveryModal';
 import VehicleSelectionModal from '../../components/logistics/VehicleSelectionModal';
+import MissionDetailsModal from '../../components/logistics/MissionDetailsModal';
 import RefusalModal from '../../components/logistics/RefusalModal';
 import MiniWeatherWidget from '../../components/weather/MiniWeatherWidget';
 
@@ -72,18 +73,21 @@ function TransporterDashboard() {
   const [podTarget, setPodTarget] = useState(null);
   const [acceptanceTarget, setAcceptanceTarget] = useState(null);
   const [refusalTarget, setRefusalTarget] = useState(null);
+  const [myVehicles, setMyVehicles] = useState([]);
   const [pickupWilaya, setPickupWilaya] = useState('');
   const [deliveryWilaya, setDeliveryWilaya] = useState('');
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [statsRes, delivRes] = await Promise.all([
+      const [statsRes, delivRes, vehicleRes] = await Promise.all([
         api.get('/dashboards/transporter-stats/'),
         api.get('/deliveries/', { params: { pickup_wilaya: pickupWilaya, delivery_wilaya: deliveryWilaya } }),
+        api.get('/vehicles/')
       ]);
       setStats(statsRes.data);
       setDeliveries(delivRes.data.results || delivRes.data);
+      setMyVehicles(vehicleRes.data.results || vehicleRes.data);
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
   };
@@ -146,6 +150,28 @@ function TransporterDashboard() {
     d.transporter != null && 
     ['assigned', 'picked_up', 'in_transit'].includes(d.status)
   );
+
+  const checkCompatibility = (mission) => {
+    if (!myVehicles || myVehicles.length === 0) return { compatible: false, reason: 'No vehicles registered' };
+    
+    const compatibleVehicles = myVehicles.filter(v => {
+      const isTypeMatch = !mission.required_vehicle_type || v.type === mission.required_vehicle_type;
+      const isCapacityMatch = parseFloat(v.capacity) >= parseFloat(mission.total_quantity || 0);
+      const isActive = v.is_active !== false && v.status === 'ACTIVE';
+      return isTypeMatch && isCapacityMatch && isActive;
+    });
+
+    if (compatibleVehicles.length > 0) return { compatible: true };
+    
+    // Determine reason
+    const hasActiveType = myVehicles.some(v => v.status === 'ACTIVE' && v.is_active !== false);
+    if (!hasActiveType) return { compatible: false, reason: 'No active/approved vehicles' };
+    
+    const typeMatch = myVehicles.some(v => v.type === mission.required_vehicle_type);
+    if (!typeMatch) return { compatible: false, reason: 'No matching vehicle type' };
+    
+    return { compatible: false, reason: 'Insufficient payload capacity' };
+  };
 
   const filtered = activeTab === 'open'
     ? deliveries.filter(d => d.status === 'open')
@@ -322,10 +348,20 @@ function TransporterDashboard() {
               ) : filtered.map(d => (
                 <tr key={d.id}>
                   <td>
-                    <span className="fw-bold text-primary">MIL-{d.id.toString().padStart(4, '0')}</span>
-                    <div className="very-small text-muted d-flex align-items-center mt-1 gap-1">
-                      <Clock size={10} />
-                      {new Date(d.created_at).toLocaleDateString('en-GB')}
+                    <div className="d-flex flex-column gap-1">
+                      <span className="fw-bold text-primary">MIL-{d.id.toString().padStart(4, '0')}</span>
+                      <div className="very-small text-muted d-flex align-items-center gap-1">
+                        <Clock size={10} />
+                        {new Date(d.created_at).toLocaleDateString('en-GB')}
+                      </div>
+                      <div className="mt-2 flex items-center gap-2">
+                         <div className="px-2 py-0.5 bg-indigo-50 border border-indigo-100 rounded text-[9px] font-black text-indigo-600 uppercase">
+                            {parseFloat(d.estimated_distance_km || 0)} KM
+                         </div>
+                         <div className="px-2 py-0.5 bg-emerald-50 border border-emerald-100 rounded text-[9px] font-black text-emerald-600 uppercase">
+                            {parseFloat(d.estimated_fee || 0).toLocaleString()} DZD
+                         </div>
+                      </div>
                     </div>
                   </td>
                   <td>
@@ -372,31 +408,39 @@ function TransporterDashboard() {
                       </div>
                     )}
                     <button
-                      className="btn-agr btn-link btn-sm p-0 mt-2 d-flex align-items-center gap-1"
+                      className="btn-agr btn-primary btn-sm rounded-pill px-3 mt-2 d-flex align-items-center gap-1.5 font-black text-[10px] uppercase tracking-widest shadow-sm hover:scale-105 transition-all"
                       onClick={() => setViewingCargo(d)}
-                      style={{ fontSize: '0.72rem' }}
                     >
-                      <ClipboardList size={11} /> View Cargo
+                      <ClipboardList size={11} /> Mission Manifest
                     </button>
                   </td>
                   <td><StatusBadge status={d.status} /></td>
                   <td style={{ textAlign: 'right' }}>
-                    {d.status === 'open' && (
-                      <div className="d-flex flex-column align-items-end gap-1">
-                        <button
-                          className={`btn-agr btn-sm rounded-pill px-3 fw-bold shadow-sm ${hasActiveMission ? 'bg-slate-200 text-slate-500 cursor-not-allowed border-0' : 'btn-primary'}`}
-                          onClick={() => setAcceptanceTarget(d)}
-                          disabled={actionLoading === d.id + '_accept' || hasActiveMission}
-                        >
-                          {actionLoading === d.id + '_accept' ? 'Authorizing...' : 'Accept Mission'}
-                        </button>
-                        {hasActiveMission && (
-                          <div className="text-muted text-[10px] italic">
-                            Complete your current mission to unlock more.
-                          </div>
-                        )}
-                      </div>
-                    )}
+                    {d.status === 'open' && (() => {
+                      const { compatible, reason } = checkCompatibility(d);
+                      const disabled = !compatible || hasActiveMission || actionLoading === d.id + '_accept';
+                      
+                      return (
+                        <div className="d-flex flex-column align-items-end gap-1">
+                          <button
+                            className={`btn-agr btn-sm rounded-pill px-4 py-2 fw-black text-[10px] uppercase tracking-widest shadow-md transition-all ${disabled ? 'bg-slate-200 text-slate-400 cursor-not-allowed border-0' : 'btn-primary hover:scale-105 active:scale-95'}`}
+                            onClick={() => setAcceptanceTarget(d)}
+                            disabled={disabled}
+                          >
+                            {actionLoading === d.id + '_accept' ? 'Authorizing...' : 'Accept Mission'}
+                          </button>
+                          {hasActiveMission ? (
+                            <div className="text-muted text-[9px] font-bold italic mt-1">
+                              Complete active mission first.
+                            </div>
+                          ) : !compatible && (
+                            <div className="text-rose-500 text-[9px] font-black uppercase tracking-tighter mt-1 bg-rose-50 px-2 py-0.5 rounded border border-rose-100 flex items-center gap-1">
+                               <X size={8} strokeWidth={3} /> {reason}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })()}
                     {d.status === 'assigned' && (
                       <button
                         className="btn-agr btn-success btn-sm rounded-pill px-3 fw-bold"
@@ -469,88 +513,16 @@ function TransporterDashboard() {
 
       {/* ── CARGO MODAL ────────────────────────────── */}
       {viewingCargo && (
-        <div className="modal-overlay" onClick={() => setViewingCargo(null)}>
-          <div className="modal-content animate-scale-in" onClick={e => e.stopPropagation()} style={{ maxWidth: 600 }}>
-            <div className="modal-header border-bottom">
-              <h3 className="h6 mb-0 d-flex align-items-center gap-2">
-                <Package size={16} className="text-primary" />
-                Cargo Details — MIL-{viewingCargo.id.toString().padStart(4, '0')}
-              </h3>
-              <button className="btn-icon" onClick={() => setViewingCargo(null)}><X size={16} /></button>
-            </div>
-            <div className="modal-body p-0">
-              <div className="p-4 bg-slate-50 border-bottom">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden group">
-                     <MapPin size={48} className="absolute -right-2 -top-2 text-slate-100 group-hover:text-emerald-50 transition-colors" />
-                     <div className="very-small text-slate-400 text-uppercase font-black tracking-widest mb-1 relative z-10">Pickup Point</div>
-                     <div className="small font-black text-slate-800 d-flex align-items-center gap-1.5 relative z-10">
-                        <div className="w-5 h-5 rounded bg-emerald-500 text-white flex items-center justify-center shrink-0"><MapPin size={10} /></div>
-                        {viewingCargo.pickup_location}
-                     </div>
-                  </div>
-                  <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm relative overflow-hidden group">
-                     <Navigation size={48} className="absolute -right-2 -top-2 text-slate-100 group-hover:text-blue-50 transition-colors" />
-                     <div className="very-small text-slate-400 text-uppercase font-black tracking-widest mb-1 relative z-10">Delivery Node</div>
-                     <div className="small font-black text-slate-800 d-flex align-items-center gap-1.5 relative z-10">
-                        <div className="w-5 h-5 rounded bg-blue-600 text-white flex items-center justify-center shrink-0"><Navigation size={10} /></div>
-                        {viewingCargo.delivery_location}
-                     </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white px-2 py-1 border-bottom d-flex align-items-center justify-between">
-                 <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-3 py-2">Inventory Ledger</div>
-                 <div className="text-[9px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-pill mx-3">Mission #{viewingCargo.order} — {viewingCargo.order_detail?.buyer_name}</div>
-              </div>
-
-              <div className="table-responsive" style={{ maxHeight: 400 }}>
-                <table className="agr-table mb-0">
-                  <thead>
-                    <tr className="bg-slate-50 text-slate-500 uppercase text-[9px] font-black tracking-[0.1em]">
-                      <th className="ps-4">Product / Node</th>
-                      <th className="text-center">Origin</th>
-                      <th className="text-end">Payload</th>
-                      <th className="text-center pe-4">Quality</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-50">
-                    {viewingCargo.order_detail?.items?.map(item => (
-                      <tr key={item.id} className="hover-bg-light transition-colors group">
-                        <td className="ps-4 py-3">
-                          <div className="fw-black text-slate-900 small">{item.product_name}</div>
-                          <div className="very-small text-muted font-bold uppercase tracking-tighter mt-0.5 group-hover:text-primary transition-colors">ID: {item.id}</div>
-                        </td>
-                        <td className="text-center">
-                           <div className="very-small font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded d-inline-block border border-emerald-100 shadow-sm">{item.farm_name || "Unknown Farm"}</div>
-                        </td>
-                        <td className="text-end">
-                          <span className="fw-black text-slate-800">{parseFloat(item.quantity).toLocaleString()}</span>
-                          <span className="ms-1 text-slate-400 very-small font-black uppercase">{item.product_unit}</span>
-                        </td>
-                        <td className="text-center pe-4">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-tighter ${item.product_quality?.toLowerCase() === 'premium' ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}`}>
-                             {item.product_quality || 'Standard'}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              {viewingCargo.notes && (
-                <div className="p-3 bg-light-soft border-top">
-                  <div className="very-small text-muted text-uppercase fw-bold mb-1">Logistics Notes</div>
-                  <div className="small text-muted fst-italic">"{viewingCargo.notes}"</div>
-                </div>
-              )}
-            </div>
-            <div className="modal-footer">
-              <button className="btn-agr btn-outline w-100" onClick={() => setViewingCargo(null)}>Close</button>
-            </div>
-          </div>
-        </div>
+        <MissionDetailsModal
+          mission={viewingCargo}
+          onClose={() => setViewingCargo(null)}
+          onAccept={(m) => {
+            setViewingCargo(null);
+            setAcceptanceTarget(m);
+          }}
+          hasActiveMission={hasActiveMission}
+          actionLoading={actionLoading === viewingCargo.id + '_accept'}
+        />
       )}
 
       {podTarget && (

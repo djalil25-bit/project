@@ -14,6 +14,9 @@ export default function FarmForm() {
   const [imageFile, setImageFile]     = useState(null);
   const [imagePreview, setPreview]    = useState(null);
   const [existingImage, setExisting]  = useState(null);
+  const [registryFile, setRegistryFile] = useState(null);
+  const [registryPreview, setRegistryPreview] = useState(null);
+  const [existingRegistry, setExistingRegistry] = useState(null);
   const [error, setError]             = useState(null);
   const [loading, setLoading]         = useState(false);
   const fileInputRef = useRef();
@@ -22,18 +25,35 @@ export default function FarmForm() {
   const isEditMode   = !!id;
 
   useEffect(() => {
+    // Fixed: Wilaya of farms is locked to the farmer's registered wilaya
+    api.get('/accounts/profile/')
+      .then(res => {
+        const userWilayaRaw = res.data.address;
+        // Resolve ID if the profile contains a name (e.g. "Constantine" -> "25")
+        const matched = ALGERIAN_WILAYAS.find(w => 
+          w.id === userWilayaRaw || 
+          w.name.toLowerCase() === userWilayaRaw?.toLowerCase()
+        );
+        const resolvedId = matched ? matched.id : userWilayaRaw;
+        setFormData(prev => ({ ...prev, wilaya: resolvedId }));
+      })
+      .catch(err => console.error('Error fetching profile for wilaya sync:', err));
+
     if (!isEditMode) return;
     api.get(`/farms/${id}/`)
       .then(res => {
-        setFormData({
+        setFormData(prev => ({
+          ...prev,
           name: res.data.name || '',
           location: res.data.location || '',
+          // Wilaya will be overwritten by the profile sync but we keep the logic clean
           wilaya: res.data.wilaya || '',
           commune: res.data.commune || '',
           size_hectares: res.data.size_hectares || '',
           description: res.data.description || '',
-        });
+        }));
         if (res.data.image) setExisting(res.data.image);
+        if (res.data.registry_document) setExistingRegistry(res.data.registry_document);
       })
       .catch(() => setError('Failed to load farm data.'));
   }, [id, isEditMode]);
@@ -53,14 +73,28 @@ export default function FarmForm() {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  const handleRegistryChange = e => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setRegistryFile(file);
+    setRegistryPreview(file.name);
+  };
+
+  const clearRegistry = () => {
+    setRegistryFile(null);
+    setRegistryPreview(null);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
     try {
       const body = new FormData();
+      // Ensure the fixed wilaya is included in submission
       Object.entries(formData).forEach(([k, v]) => { if (v !== '') body.append(k, v); });
       if (imageFile) body.append('image', imageFile);
+      if (registryFile) body.append('registry_document', registryFile);
 
       if (isEditMode) {
         await api.patch(`/farms/${id}/`, body, { headers: { 'Content-Type': 'multipart/form-data' } });
@@ -200,17 +234,22 @@ export default function FarmForm() {
                        </label>
                        <select 
                          name="wilaya"
-                         className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-black text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#22543d] focus:border-transparent transition-all shadow-sm"
+                         className="w-full bg-slate-100 border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-black text-slate-500 cursor-not-allowed shadow-sm"
                          value={formData.wilaya}
                          onChange={handleChange}
-                         required
+                         disabled
+                         title="Farms must be located in your registered wilaya."
                        >
                          <option value="">Select Wilaya</option>
                          {ALGERIAN_WILAYAS.map(w => (
                            <option key={w.id} value={w.id}>{w.id} - {w.name}</option>
                          ))}
                        </select>
+                       <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1 mt-1">
+                         <Info size={10} /> Locked to your registered region
+                       </div>
                     </div>
+
                     <div className="space-y-2">
                        <label className="text-[11px] font-black uppercase tracking-widest text-[#22543d] flex items-center gap-2">
                           Commune <span className="text-red-500">*</span>
@@ -241,6 +280,66 @@ export default function FarmForm() {
                   </div>
               </div>
 
+              {/* Registry Document Upload */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black text-slate-400 pb-1.5 border-b border-slate-100">
+                  <div className="w-1 h-3 bg-blue-500 rounded-full" /> Verification Document
+                </div>
+                
+                <div className="space-y-2">
+                  <label className="text-[11px] font-black uppercase tracking-widest text-blue-600 flex items-center gap-2">
+                    <FileText size={14} />
+                    Farm Registry Document <span className="text-red-500">*</span>
+                  </label>
+                  
+                  {registryPreview || existingRegistry ? (
+                    <div className="flex items-center justify-between p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                      <div className="flex items-center gap-3 overflow-hidden">
+                        <div className="w-10 h-10 bg-white border border-blue-100 rounded-lg flex items-center justify-center text-blue-500 shrink-0">
+                          <FileText size={20} />
+                        </div>
+                        <div className="truncate">
+                          <div className="text-xs font-black text-blue-900 truncate">
+                            {registryPreview || 'View Registry Document'}
+                          </div>
+                          <div className="text-[10px] text-blue-600 font-bold uppercase tracking-widest">
+                            {registryPreview ? 'Selected for upload' : 'Already uploaded'}
+                          </div>
+                        </div>
+                      </div>
+                      <button 
+                        type="button" 
+                        onClick={clearRegistry}
+                        className="p-2 text-blue-400 hover:text-red-500 transition-colors"
+                      >
+                        <X size={18} />
+                      </button>
+                    </div>
+                  ) : (
+                    <div
+                      className="w-full border-2 border-dashed border-slate-200 hover:border-blue-400 bg-slate-50 hover:bg-blue-50/30 rounded-xl p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-colors group"
+                      onClick={() => document.getElementById('registry-upload').click()}
+                    >
+                      <div className="w-12 h-12 bg-white border border-slate-200 rounded-full flex items-center justify-center mb-3 shadow-sm text-slate-400 group-hover:text-blue-500 group-hover:border-blue-200 transition-colors">
+                        <Upload size={20} />
+                      </div>
+                      <div className="text-sm font-black text-slate-700 mb-1">Upload Farm Registry Document</div>
+                      <div className="text-[10px] font-medium text-slate-400">PDF, JPG, or PNG — max 10 MB</div>
+                    </div>
+                  )}
+                  <input
+                    id="registry-upload"
+                    type="file"
+                    accept=".pdf,image/*"
+                    className="hidden"
+                    onChange={handleRegistryChange}
+                  />
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1 mt-2">
+                    <Info size={10} /> This document is required for verification.
+                  </div>
+                </div>
+              </div>
+
               {/* Description */}
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black text-slate-400 pb-1.5 border-b border-slate-100">
@@ -259,9 +358,6 @@ export default function FarmForm() {
                     value={formData.description}
                     onChange={handleChange}
                   />
-                  <div className="text-xs font-semibold text-slate-400 ml-1 mt-2">
-                    A good description helps buyers trust your farm and products.
-                  </div>
                 </div>
               </div>
 

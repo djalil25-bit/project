@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'apps.complaints.apps.ComplaintsConfig',
     'apps.admin_ops.apps.AdminOpsConfig',
     'apps.iot.apps.IotConfig',
+    'apps.market_intelligence.apps.MarketIntelligenceConfig',
 ]
 
 MIDDLEWARE = [

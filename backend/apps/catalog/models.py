@@ -7,6 +7,7 @@ class Category(TimeStampedModel):
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True)
     icon = models.CharField(max_length=10, blank=True, default='🌱')
+    objects = models.Manager()
 
     def __str__(self):
         return self.name
@@ -22,6 +23,7 @@ class CatalogProduct(TimeStampedModel):
     ref_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, help_text="Admin reference price")
     min_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     max_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    objects = models.Manager()
 
     def __str__(self):
         return f"{self.name} ({self.category.name})"
@@ -50,9 +52,10 @@ class Product(TimeStampedModel):
     )
     image = models.ImageField(upload_to='products/', null=True, blank=True)
     is_active = models.BooleanField(default=True)
+    objects = models.Manager()
 
     def __str__(self):
-        return f"{self.title} - {self.farmer.full_name}"
+        return f"{self.title} - {self.farmer.full_name}" # type: ignore
 class Favorite(TimeStampedModel):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='favorites')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='favorited_by')
@@ -61,5 +64,7 @@ class Favorite(TimeStampedModel):
         unique_together = ('user', 'product')
         verbose_name_plural = 'Favorites'
 
+    objects = models.Manager()
+
     def __str__(self):
-        return f"{self.user.username} - {self.product.title}"
+        return f"{self.user.email} - {self.product.title}" # type: ignore

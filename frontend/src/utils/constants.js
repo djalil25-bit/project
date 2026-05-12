@@ -15,3 +15,11 @@ export const ALGERIAN_WILAYAS = [
     { id: "53", name: "Béni Abbès" }, { id: "54", name: "Timimoun" }, { id: "55", name: "Touggourt" }, { id: "56", name: "Djanet" },
     { id: "57", name: "In Salah" }, { id: "58", name: "In Guezzam" }
 ];
+
+export const VEHICLE_TYPES = [
+    { id: 'truck',              name: 'Truck' },
+    { id: 'van',                name: 'Van' },
+    { id: 'refrigerated_truck', name: 'Refrigerated Truck' },
+    { id: 'pickup',             name: 'Pickup' },
+    { id: 'utility',            name: 'Utility Vehicle' },
+];

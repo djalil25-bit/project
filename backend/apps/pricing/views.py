@@ -8,7 +8,7 @@ class PricePublicationViewSet(viewsets.ModelViewSet):
     queryset = PricePublication.objects.all().order_by('-valid_from')
     serializer_class = PricePublicationSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    filterset_fields = ['catalog_product', 'category']
+    filterset_fields = ['catalog_product']
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve']:

@@ -20,15 +20,23 @@ class FarmViewSet(viewsets.ModelViewSet):
         return Farm.objects.filter(owner=self.request.user)
 
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)  # status defaults to PENDING
+        # Fixed: Always set farm wilaya to match the farmer's registered wilaya
+        serializer.save(
+            owner=self.request.user,
+            wilaya=self.request.user.address
+        )
 
     def perform_update(self, serializer):
         farm = self.get_object()
+        # Fixed: Ensure wilaya stays synced with owner's registered wilaya
+        extra_args = {'wilaya': self.request.user.address}
+        
         # If farmer edits a REJECTED farm, resubmit it for review
         if farm.status == 'REJECTED':
-            serializer.save(status='PENDING', rejection_reason='')
-        else:
-            serializer.save()
+            extra_args['status'] = 'PENDING'
+            extra_args['rejection_reason'] = ''
+            
+        serializer.save(**extra_args)
 
 
     @action(detail=True, methods=['get'], url_path='stats')

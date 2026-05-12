@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import WeatherWidget from '../../components/weather/WeatherWidget';
-import { ArrowLeft, CloudSun, MapPin } from 'lucide-react';
+import PremiumWeatherView from '../../components/weather/PremiumWeatherView';
+import { ArrowLeft, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ALGERIAN_WILAYAS } from '../../utils/constants';
 
@@ -9,56 +9,44 @@ export default function TransporterWeatherPage() {
   const [selectedWilaya, setSelectedWilaya] = useState('');
 
   return (
-    <div className="animate-fade-in p-6" style={{ maxWidth: '800px', margin: '0 auto' }}>
-      <button 
-        onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors mb-6 font-bold text-sm"
-      >
-        <ArrowLeft size={16} /> Back to Control Center
-      </button>
+    <div className="animate-fade-in p-4 md:p-8 min-h-screen bg-slate-50">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+          <div>
+            <button 
+              onClick={() => navigate(-1)}
+              className="flex items-center gap-2 text-slate-400 hover:text-slate-800 transition-colors mb-4 font-bold text-sm"
+            >
+              <ArrowLeft size={16} /> Back to Dashboard
+            </button>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight">
+              Meteorological Intelligence
+            </h1>
+            <p className="text-slate-500 font-medium mt-1">
+              Real-time atmospheric monitoring for logistics optimization.
+            </p>
+          </div>
 
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-black text-slate-800 flex items-center gap-3">
-            <CloudSun size={28} className="text-sky-500" />
-            National Route Weather
-          </h1>
-          <p className="text-slate-500 text-sm mt-1">
-            Detailed 5-day meteorological forecast and 3-hour interval tracking for major transit hubs.
-          </p>
+          <div className="flex flex-col bg-white p-4 rounded-2xl shadow-sm border border-slate-100 min-w-[240px]">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 flex items-center gap-1.5">
+              <MapPin size={12} /> Target Wilaya
+            </label>
+            <select
+              value={selectedWilaya}
+              onChange={(e) => setSelectedWilaya(e.target.value)}
+              className="bg-slate-50 border-none outline-none focus:ring-2 focus:ring-sky-500/20 rounded-xl px-3 py-2 text-sm font-bold text-slate-700 cursor-pointer transition-all"
+            >
+              <option value="">Current (Auto)</option>
+              {ALGERIAN_WILAYAS.map(w => (
+                <option key={w.id} value={w.name}>{w.name}</option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        {/* Wilaya Filter Dropdown */}
-        <div className="flex flex-col">
-          <label className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 flex items-center gap-1">
-            <MapPin size={12} /> Filter by Wilaya
-          </label>
-          <select
-            value={selectedWilaya}
-            onChange={(e) => setSelectedWilaya(e.target.value)}
-            className="form-control"
-            style={{ 
-              minWidth: '200px', 
-              borderRadius: '0.75rem', 
-              border: '1px solid #e2e8f0', 
-              padding: '0.6rem 1rem',
-              fontSize: '0.875rem',
-              fontWeight: '600',
-              color: '#334155',
-              backgroundColor: '#f8fafc',
-              cursor: 'pointer'
-            }}
-          >
-            <option value="">Default (Algiers)</option>
-            {ALGERIAN_WILAYAS.map(w => (
-              <option key={w.id} value={w.name}>{w.name}</option>
-            ))}
-          </select>
+        <div className="w-full">
+          <PremiumWeatherView wilaya={selectedWilaya || null} />
         </div>
-      </div>
-
-      <div className="shadow-2xl rounded-3xl overflow-hidden border border-slate-200">
-        <WeatherWidget farmId={null} wilaya={selectedWilaya || null} />
       </div>
     </div>
   );

@@ -21,6 +21,10 @@ class Farm(TimeStampedModel):
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to='farms/', null=True, blank=True,
                               help_text='Optional representative image for this farm.')
+    registry_document = models.FileField(
+        upload_to='farms/documents/', null=True, blank=True,
+        help_text='Registry document or certificate for this farm — JPG/PNG/PDF'
+    )
 
     # Admin approval fields
     status = models.CharField(
@@ -33,9 +37,10 @@ class Farm(TimeStampedModel):
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
         null=True, blank=True, related_name='reviewed_farms'
     )
+    objects = models.Manager()
 
     def __str__(self):
-        return f"{self.name} ({self.owner.full_name})"
+        return f"{self.name} ({self.owner.full_name})" # type: ignore
 
 class HarvestRecord(TimeStampedModel):
     farm = models.ForeignKey(Farm, on_delete=models.CASCADE, related_name='harvests')
@@ -43,6 +48,7 @@ class HarvestRecord(TimeStampedModel):
     harvest_date = models.DateField()
     yield_quantity = models.DecimalField(max_digits=12, decimal_places=2, help_text="Quantity in kg or standard units")
     notes = models.TextField(blank=True)
+    objects = models.Manager()
 
     def __str__(self):
         return f"{self.crop_name} - {self.harvest_date} ({self.farm.name})"

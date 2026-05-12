@@ -13,7 +13,7 @@ from apps.catalog.models import Product
 from apps.orders.models import Order, OrderItem, OrderStatusChoices
 from apps.payments.models import Payment
 from apps.farms.models import Farm
-from apps.logistics.models import Vehicle
+from apps.logistics.models import Vehicle, DeliveryRequest
 
 from .models import (
     Alert, AlertConfig, AdminMessage, MessageTemplate,
@@ -640,6 +640,10 @@ class AccountSearchAPIView(APIView):
                 t=Sum(F('quantity') * F('price_snapshot'))
             )['t'] or 0 if u.role == 'farmer' else 0
 
+            # Transporter specific stats
+            vehicle_count = Vehicle.objects.filter(owner=u).count() if u.role == 'transporter' else 0
+            mission_count = DeliveryRequest.objects.filter(transporter=u).count() if u.role == 'transporter' else 0
+
             results.append({
                 'id': u.id,
                 'full_name': u.full_name,
@@ -651,10 +655,13 @@ class AccountSearchAPIView(APIView):
                 'created_at': u.created_at,
                 'last_login': u.last_login,
                 'address': u.address,
+                'profile_picture': request.build_absolute_uri(u.profile_picture.url) if u.profile_picture else None,
                 'stats': {
                     'listings': listing_count,
                     'orders': order_count,
                     'revenue': float(revenue),
+                    'vehicles': vehicle_count,
+                    'missions': mission_count,
                 },
             })
 
@@ -671,8 +678,13 @@ class AccountDetailAPIView(APIView):
             return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
         listing_count = Product.objects.filter(farmer=u, is_active=True).count()
-        order_count = Order.objects.filter(buyer=u).count() + OrderItem.objects.filter(farmer=u).values('order').distinct().count()
+        order_count = Order.objects.filter(buyer=u).count() if u.role == 'buyer' else (
+            OrderItem.objects.filter(farmer=u).values('order').distinct().count() if u.role == 'farmer' else 0
+        )
         revenue = OrderItem.objects.filter(farmer=u).aggregate(t=Sum(F('quantity') * F('price_snapshot')))['t'] or 0
+        
+        vehicle_count = Vehicle.objects.filter(owner=u).count() if u.role == 'transporter' else 0
+        mission_count = DeliveryRequest.objects.filter(transporter=u).count() if u.role == 'transporter' else 0
 
         return Response({
             'id': u.id, 'full_name': u.full_name, 'email': u.email,
@@ -680,7 +692,14 @@ class AccountDetailAPIView(APIView):
             'is_verified': u.is_verified, 'created_at': u.created_at,
             'last_login': u.last_login, 'address': u.address, 'bio': u.bio,
             'trust_level': u.trust_level, 'trust_score': u.trust_score,
-            'stats': {'listings': listing_count, 'orders': order_count, 'revenue': float(revenue)},
+            'profile_picture': request.build_absolute_uri(u.profile_picture.url) if u.profile_picture else None,
+            'stats': {
+                'listings': listing_count, 
+                'orders': order_count, 
+                'revenue': float(revenue),
+                'vehicles': vehicle_count,
+                'missions': mission_count,
+            },
         })
 
 
@@ -981,6 +1000,7 @@ class FarmApprovalListView(APIView):
                 'commune': f.commune,
                 'size_hectares': float(f.size_hectares) if f.size_hectares else None,
                 'image': f.image.url if f.image else None,
+                'registry_document': f.registry_document.url if f.registry_document else None,
                 'status': f.status,
                 'rejection_reason': f.rejection_reason,
                 'created_at': f.created_at,

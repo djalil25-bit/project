@@ -14,6 +14,13 @@ class DeliveryStatusChoices(models.TextChoices):
     DELIVERED = 'delivered', 'Delivered'
     CANCELLED = 'cancelled', 'Cancelled'
 
+class VehicleTypeChoices(models.TextChoices):
+    TRUCK = 'truck', 'Truck'
+    VAN = 'van', 'Van'
+    REFRIGERATED_TRUCK = 'refrigerated_truck', 'Refrigerated Truck'
+    PICKUP = 'pickup', 'Pickup'
+    UTILITY = 'utility', 'Utility Vehicle'
+
 class DeliveryRequest(TimeStampedModel):
     order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='delivery_request')
     transporter = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='deliveries')
@@ -29,7 +36,20 @@ class DeliveryRequest(TimeStampedModel):
     delivery_location = models.TextField(blank=True, default='')
     preferred_delivery_date = models.DateField(null=True, blank=True)
     notes = models.TextField(blank=True, default='')
-    vehicle_size = models.CharField(max_length=50, blank=True, default='', help_text="Required truck capacity or vehicle size")
+    
+    # Logistics Data (Upgraded)
+    required_vehicle_type = models.CharField(
+        max_length=50, 
+        choices=VehicleTypeChoices.choices,
+        default=VehicleTypeChoices.TRUCK
+    )
+    estimated_distance_km = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    estimated_fee = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
+    estimated_duration = models.CharField(max_length=100, blank=True, default='', help_text="e.g. 1h 35m")
+    
+    # Cargo Conditions
+    is_refrigerated = models.BooleanField(default=False)
+    is_fragile = models.BooleanField(default=False)
 
     # Assignment details
     assigned_vehicle_id = models.CharField(max_length=50, blank=True, null=True, help_text="ID of the vehicle from transporter's fleet")
@@ -44,10 +64,10 @@ class DeliveryRequest(TimeStampedModel):
     @property
     def total_quantity(self):
         from django.db.models import Sum
-        return self.order.items.aggregate(total=Sum('quantity'))['total'] or 0
+        return self.order.items.aggregate(total=Sum('quantity'))['total'] or 0 # type: ignore
 
     def __str__(self):
-        return f"Delivery for Order #{self.order.id} - {self.status}"
+        return f"Delivery for Order #{self.order.id} - {self.status}" # type: ignore
 
 
 class VehicleStatusChoices(models.TextChoices):
@@ -63,7 +83,11 @@ class Vehicle(TimeStampedModel):
     plate = models.CharField(max_length=50)
     model = models.CharField(max_length=255)
     capacity = models.CharField(max_length=50, blank=True, default='')
-    type = models.CharField(max_length=50, default='Truck')
+    type = models.CharField(
+        max_length=50, 
+        choices=VehicleTypeChoices.choices,
+        default=VehicleTypeChoices.TRUCK
+    )
     fuelType = models.CharField(max_length=50, default='Diesel')
     is_active = models.BooleanField(default=True)
 
@@ -86,5 +110,5 @@ class Vehicle(TimeStampedModel):
     )
 
     def __str__(self):
-        return f"{self.type} {self.plate} ({self.owner.email})"
+        return f"{self.get_type_display()} {self.plate} ({self.owner.email})" # type: ignore
 

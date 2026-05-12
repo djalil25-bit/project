@@ -6,7 +6,7 @@ const NAV_LINKS = [
   { label: 'Home', to: '/' },
   { label: 'Products', to: '/register' },
   { label: 'Official Prices', to: '/register' },
-  { label: 'How it Works', to: '/#how' },
+  { label: 'How it Works', to: '/#how', anchor: true },
   { label: 'About', to: '/about' },
   { label: 'Contact', to: '/contact' },
 ];
@@ -32,13 +32,29 @@ const PublicNavbar = () => {
           {/* Desktop nav */}
           <div className="pub-nav-links">
             {NAV_LINKS.map(l => (
-              <Link
-                key={l.label}
-                to={l.to}
-                className={`pub-nav-link ${location.pathname === l.to ? 'pub-nav-link-active' : ''}`}
-              >
-                {l.label}
-              </Link>
+              l.anchor ? (
+                <a
+                  key={l.label}
+                  href={l.to}
+                  className="pub-nav-link"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const el = document.getElementById('how');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                    else window.location.href = l.to;
+                  }}
+                >
+                  {l.label}
+                </a>
+              ) : (
+                <Link
+                  key={l.label}
+                  to={l.to}
+                  className={`pub-nav-link ${location.pathname === l.to ? 'pub-nav-link-active' : ''}`}
+                >
+                  {l.label}
+                </Link>
+              )
             ))}
           </div>
 

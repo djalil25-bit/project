@@ -63,7 +63,7 @@ class CustomUserManager(BaseUserManager):
 
 
 class User(AbstractUser, TimeStampedModel):
-    username = None
+    username = None # type: ignore
     email    = models.EmailField(_('email address'), unique=True)
     full_name = models.CharField(max_length=255)
     phone     = models.CharField(max_length=20, blank=True)
@@ -206,6 +206,7 @@ class OTPCode(models.Model):
     code       = models.CharField(max_length=6)
     created_at = models.DateTimeField(auto_now_add=True)
     is_used    = models.BooleanField(default=False)
+    objects    = models.Manager()
 
     def __str__(self):
         return f"{self.user.email} - {self.code}"

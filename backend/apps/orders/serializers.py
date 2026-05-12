@@ -22,6 +22,8 @@ class ProductDetailMini(serializers.Serializer):
     description = serializers.CharField()
     stock = serializers.DecimalField(max_digits=12, decimal_places=2)
     quality = serializers.CharField()
+    farmer_phone = serializers.CharField(source='farmer.phone', read_only=True)
+    farm_wilaya = serializers.CharField(source='farm.wilaya', read_only=True)
 
     def get_farm_name(self, obj):
         return obj.farm.name if obj.farm else None
@@ -47,6 +49,8 @@ class OrderItemSerializer(serializers.ModelSerializer):
     price_per_unit = serializers.DecimalField(source='price_snapshot', max_digits=12, decimal_places=2, read_only=True)
     preferred_delivery_date = serializers.DateField(source='order.preferred_delivery_date', read_only=True)
     farmer_name = serializers.CharField(source='farmer.full_name', read_only=True)
+    farmer_phone = serializers.CharField(source='farmer.phone', read_only=True)
+    farm_wilaya = serializers.CharField(source='product.farm.wilaya', read_only=True)
     farm_name = serializers.SerializerMethodField()
     product_detail = ProductDetailMini(source='product', read_only=True)
 
@@ -57,7 +61,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
             'buyer_wilaya', 'buyer_address', 'buyer_notes', 'payment_method',
             'preferred_delivery_date', 'product_name', 'product_unit', 'product_image',
             'quantity', 'price_per_unit', 'item_total', 'order_status',
-            'delivery_status', 'created_at', 'farmer_name', 'farm_name',
+            'delivery_status', 'created_at', 'farmer_name', 'farmer_phone', 'farm_wilaya', 'farm_name',
             'product_detail'
         )
 

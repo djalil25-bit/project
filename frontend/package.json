@@ -7,6 +7,7 @@
     "bootstrap": "^5.3.8",
     "date-fns": "^4.1.0",
     "fuse.js": "^7.3.0",
+    "html2pdf.js": "^0.14.0",
     "jwt-decode": "^4.0.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.7.0",

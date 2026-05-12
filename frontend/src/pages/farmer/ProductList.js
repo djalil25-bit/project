@@ -3,40 +3,51 @@ import { useNavigate, Link } from 'react-router-dom';
 import api from '../../api/axiosConfig';
 import {
   Plus, Leaf, Search, Edit3, Trash2, Eye, EyeOff,
-  ChevronRight, Tag, AlertCircle, CheckCircle, Package, ArrowUpRight, ArrowDownRight, Minus, Home
+  ChevronRight, Tag, AlertCircle, CheckCircle, Package, 
+  ArrowUpRight, ArrowDownRight, Minus, Home, 
+  Layers, ShoppingBag, TrendingUp, BarChart3, Filter
 } from 'lucide-react';
 
 const PriceCompBadge = ({ comparison }) => {
   if (!comparison) return null;
   const { status, difference_percentage } = comparison;
   if (status === 'above') return (
-    <div className="flex items-center gap-1 text-[9px] font-black text-red-600 bg-red-50 border border-red-200 px-1.5 py-0.5 rounded-md w-fit tracking-wide mt-0.5">
+    <div className="f-price-above" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', marginTop: '0.25rem' }}>
       <ArrowUpRight size={10} strokeWidth={3} /> {difference_percentage}% 
     </div>
   );
   if (status === 'below') return (
-    <div className="flex items-center gap-1 text-[9px] font-black text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-md w-fit tracking-wide mt-0.5">
+    <div className="f-price-below" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem', marginTop: '0.25rem' }}>
       <ArrowDownRight size={10} strokeWidth={3} /> {difference_percentage}% 
     </div>
   );
   return (
-    <div className="flex items-center gap-1 text-[9px] font-black text-slate-500 bg-slate-100 border border-slate-200 px-1.5 py-0.5 rounded-md w-fit tracking-wide mt-0.5">
-      <Minus size={10} strokeWidth={3} /> Avg
+    <div className="f-badge-standard" style={{ fontSize: '0.65rem', padding: '0.1rem 0.4rem', borderRadius: '4px', marginTop: '0.25rem' }}>
+      Avg
     </div>
   );
 };
 
 const QualityBadge = ({ quality }) => {
-  const map = {
-    PREMIUM:  { cls: 'bg-gradient-to-r from-amber-200 to-yellow-400 text-amber-900 border border-amber-300', icon: '⭐' },
-    ORGANIC:  { cls: 'bg-emerald-100 text-emerald-800 border border-emerald-200', icon: '🌿' },
-    STANDARD: { cls: 'bg-slate-100 text-slate-700 border border-slate-200', icon: '✅' },
-    ECONOMY:  { cls: 'bg-slate-50 text-slate-500 border border-slate-200', icon: '📦' },
-  };
-  const q = map[quality] || map.STANDARD;
-  return <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-black tracking-widest shadow-sm ${q.cls}`}>
-    {q.icon} {quality}
-  </span>;
+  const qClass = {
+    PREMIUM:  'f-badge-premium',
+    ORGANIC:  'f-badge-organic',
+    STANDARD: 'f-badge-standard',
+    ECONOMY:  'f-badge-economy',
+  }[quality] || 'f-badge-standard';
+
+  const icon = {
+    PREMIUM:  '⭐',
+    ORGANIC:  '🌿',
+    STANDARD: '✅',
+    ECONOMY:  '📦',
+  }[quality] || '✅';
+
+  return (
+    <span className={`f-badge ${qClass}`}>
+      {icon} {quality}
+    </span>
+  );
 };
 
 export default function ProductList() {
@@ -75,7 +86,6 @@ export default function ProductList() {
     try {
       await api.patch(`/products/${id}/`, { is_active: !cur });
       showToast(`Product ${!cur ? 'published' : 'hidden'} successfully!`);
-      // Update local state instead of full refetch for smoother UX
       setProducts(prev => prev.map(p => p.id === id ? { ...p, is_active: !cur } : p));
     } catch (err) { 
       console.error(err);
@@ -107,220 +117,270 @@ export default function ProductList() {
     return matchSearch && matchStatus && matchCat;
   });
 
+  // Calculate KPIs
+  const kpis = {
+    total: products.length,
+    active: products.filter(p => p.is_active).length,
+    lowStock: products.filter(p => p.stock < 10).length,
+    totalValue: products.reduce((acc, p) => acc + (parseFloat(p.price) * p.stock), 0)
+  };
+
   if (loading) return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-      <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-t-[#22543d] animate-spin" />
-      <span className="text-sm font-bold text-slate-500 uppercase tracking-widest animate-pulse">Syncing Inventory...</span>
+    <div className="f-spinner-wrap">
+      <div className="f-spinner" />
+      <span>Syncing Inventory Registry...</span>
     </div>
   );
 
-  const tabs = [
-    { key: 'ALL',      label: 'All Products', count: products.length },
-    { key: 'ACTIVE',   label: 'Published',    count: products.filter(p => p.is_active).length },
-    { key: 'INACTIVE', label: 'Hidden',       count: products.filter(p => !p.is_active).length },
-  ];
-
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 animate-fade-in relative z-0">
+    <div className="farmer-page-wrapper">
 
       {/* Floating Toast Notification */}
-      <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] transition-all duration-500 transform ${toast ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0 pointer-events-none'}`}>
-        {toast && (
-          <div className={`flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border ${toast.type === 'error' ? 'bg-red-600 border-red-500 text-white' : 'bg-[#22543d] border-emerald-500 text-emerald-50'}`}>
-            {toast.type === 'error' ? <AlertCircle size={20} /> : <CheckCircle size={20} />}
-            <span className="text-sm font-black tracking-tight">{toast.msg}</span>
-          </div>
-        )}
+      {toast && (
+        <div className={`f-alert f-alert-${toast.type === 'error' ? 'danger' : 'success'}`} style={{ position: 'fixed', bottom: '2rem', left: '50%', transform: 'translateX(-50%)', zIndex: 1000, boxShadow: 'var(--f-shadow-hover)', minWidth: '300px' }}>
+          {toast.type === 'error' ? <AlertCircle size={18} /> : <CheckCircle size={18} />}
+          <div>{toast.msg}</div>
+        </div>
+      )}
+
+      {/* Breadcrumb */}
+      <div className="f-breadcrumb" style={{ marginBottom: '1.5rem' }}>
+        <Link to="/farmer-dashboard">Farmer Hub</Link>
+        <span className="f-breadcrumb-sep"><ChevronRight size={11} /></span>
+        <span style={{ fontWeight: 700, color: 'var(--f-forest)' }}>Product Inventory</span>
       </div>
 
-      {/* ── HEADER ─────────────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+      {/* Streamlined Header — Keeping only essential actions */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <div>
-          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-[#22543d] mb-2">
-            <Link to="/farmer-dashboard" className="hover:underline">Farmer Hub</Link>
-            <ChevronRight size={12} className="text-slate-400" />
-            <span className="text-slate-400 flex items-center gap-1"><Package size={12}/> My Products</span>
-          </div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Marketplace Inventory</h1>
+          <h1 style={{ fontSize: '2rem', fontWeight: 900, color: 'var(--f-forest-dark)', margin: 0, letterSpacing: '-1px' }}>
+            Marketplace <span style={{ color: 'var(--f-olive)' }}>Inventory</span>
+          </h1>
+          <p style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 600, margin: '0.25rem 0 0' }}>
+            Manage and monitor your agricultural product registry.
+          </p>
         </div>
+        
         <button 
-          className="inline-flex items-center justify-center gap-2 bg-[#22543d] hover:bg-[#1a402e] text-white px-5 py-2.5 rounded-xl text-sm font-extrabold shadow-[0_4px_15px_rgba(34,84,61,0.2)] transition-all hover:-translate-y-1 active:scale-95"
+          className="btn-f-primary"
           onClick={() => navigate('/farmer-dashboard/product/new')}
+          style={{ 
+            padding: '0.75rem 1.5rem', 
+            borderRadius: '12px', 
+            fontSize: '0.85rem',
+            boxShadow: 'var(--f-shadow-btn)'
+          }}
         >
-          <Plus size={16} strokeWidth={2.5} /> Add Product
+          <Plus size={18} strokeWidth={3} /> Add New Product
         </button>
       </div>
 
-      {/* ── UNIFIED FILTER ARCHITECTURE ────────────────────────────── */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-2 shadow-[0_8px_30px_rgb(0,0,0,0.03)] mb-6 flex flex-col items-stretch xl:flex-row gap-4 xl:items-center w-full">
-        
-        {/* Search */}
-        <div className="relative flex-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#22543d] transition-all text-xs font-bold text-slate-700 placeholder-slate-400 shadow-inner"
-            placeholder="Search catalog by name, category or farm..."
-            value={searchTerm}
-            onChange={e => setSearch(e.target.value)}
-          />
-        </div>
-
-        <div className="hidden xl:block w-px h-6 bg-slate-200 mx-1" />
-
-        {/* Category Select */}
-        <div className="relative w-full xl:w-48">
-          <Tag size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-          <select
-            className="w-full pl-9 pr-8 py-2.5 bg-slate-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#22543d] transition-all text-xs font-bold text-slate-700 appearance-none cursor-pointer shadow-inner"
-            value={catFilter}
-            onChange={e => setCat(e.target.value)}
-          >
-            <option value="">Global Category</option>
-            {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
-          </select>
-          <ChevronRight size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 rotate-90 pointer-events-none" />
-        </div>
-
-        <div className="hidden xl:block w-px h-6 bg-slate-200 mx-1" />
-
-        {/* Status Tab Group */}
-        <div className="flex bg-slate-100 p-1.5 rounded-xl overflow-x-auto hide-scrollbar">
-          {tabs.map(t => (
-            <button
-              key={t.key}
-              className={`whitespace-nowrap px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${statusFilter === t.key ? 'bg-white text-[#22543d] shadow-sm transform scale-105' : 'text-slate-500 hover:text-slate-800'}`}
-              onClick={() => setStatus(t.key)}
-            >
-              {t.label} <span className={`px-2 py-0.5 rounded-md text-[9px] ${statusFilter === t.key ? 'bg-[#22543d]/10 text-[#22543d]' : 'bg-slate-200 text-slate-600'}`}>{t.count}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="text-[10px] font-semibold text-slate-400 mb-3 px-1 flex justify-between items-center">
-        <span>{filtered.length} product{filtered.length !== 1 ? 's' : ''} found</span>
-        {searchTerm && <span className="text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-100 flex items-center gap-1"><Search size={9} strokeWidth={3}/> Filtered</span>}
-      </div>
-
-      {/* ── ZERO-SCROLL DATA GRID ─────────────────────────────────────────────── */}
-      {filtered.length === 0 ? (
-        <div className="bg-white border border-slate-200 rounded-3xl p-16 text-center shadow-sm flex flex-col items-center">
-          <div className="w-20 h-20 bg-slate-50 border border-slate-100 rounded-[2rem] flex items-center justify-center mb-6 shadow-inner text-slate-300">
-            <Package size={40} strokeWidth={1.5} />
+      {/* KPI Section */}
+      <div className="f-kpi-grid">
+        <div className="f-kpi-card">
+          <div className="f-kpi-icon sage">
+            <Package size={20} />
           </div>
-          <h2 className="text-xl font-black text-slate-800 mb-2 tracking-tight uppercase">No Products Found</h2>
-          <p className="text-slate-500 text-sm font-medium mb-8 max-w-xs leading-relaxed">No data parameters in the current registry match your selection criteria.</p>
-          {(searchTerm || catFilter || statusFilter !== 'ALL') ? (
-            <button className="bg-white border border-slate-200 hover:border-slate-400 text-slate-900 px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-sm active:scale-95" onClick={() => { setSearch(''); setCat(''); setStatus('ALL'); }}>
-              Reset Engine Parameters
-            </button>
-          ) : (
-            <button className="bg-[#22543d] border border-[#1a402e] text-white px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest shadow-lg hover:bg-[#1a402e] transition-all transform active:scale-95" onClick={() => navigate('/farmer-dashboard/product/new')}>
-              Add New Product
-            </button>
-          )}
+          <div className="f-kpi-body">
+            <div className="f-kpi-value">{kpis.total}</div>
+            <div className="f-kpi-label">Total SKUs</div>
+          </div>
         </div>
-      ) : (
-        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden relative w-full">
-          <div className="w-full max-w-full overflow-x-auto hide-scrollbar">
-          <table className="w-full min-w-[900px] text-left border-collapse table-fixed">
-              <thead>
-                <tr className="bg-slate-50/80 text-slate-500 uppercase text-[9px] tracking-widest font-black border-b border-slate-100">
-                  <th className="px-6 py-4 w-72 truncate">Product Registry</th>
-                  <th className="px-6 py-4 w-36 truncate">Classification</th>
-                  <th className="px-6 py-4 w-44 truncate">Production Origin</th>
-                  <th className="px-6 py-4 w-36 truncate text-right">Unit Val (DZD)</th>
-                  <th className="px-6 py-4 w-28 truncate text-right">Inventory</th>
-                  <th className="px-6 py-4 w-36 truncate">Quality Spec</th>
-                  <th className="px-6 py-4 w-32 truncate">Deployment</th>
-                  <th className="px-6 py-4 w-36 truncate text-right pr-8">Operations</th>
+        <div className="f-kpi-card">
+          <div className="f-kpi-icon green">
+            <TrendingUp size={20} />
+          </div>
+          <div className="f-kpi-body">
+            <div className="f-kpi-value">{kpis.active}</div>
+            <div className="f-kpi-label">Published LIVE</div>
+          </div>
+        </div>
+        <div className="f-kpi-card">
+          <div className="f-kpi-icon gold">
+            <AlertCircle size={20} />
+          </div>
+          <div className="f-kpi-body">
+            <div className="f-kpi-value" style={{ color: kpis.lowStock > 0 ? 'var(--f-red)' : 'inherit' }}>{kpis.lowStock}</div>
+            <div className="f-kpi-label">Low Stock Alerts</div>
+          </div>
+        </div>
+        <div className="f-kpi-card">
+          <div className="f-kpi-icon blue">
+            <BarChart3 size={20} />
+          </div>
+          <div className="f-kpi-body">
+            <div className="f-kpi-value">{Math.round(kpis.totalValue).toLocaleString()} <small>DZD</small></div>
+            <div className="f-kpi-label">Est. Inventory Value</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Filters Section */}
+      <div className="f-card" style={{ marginBottom: '2rem', border: 'none', boxShadow: 'var(--f-shadow-card)' }}>
+        <div className="f-card-body" style={{ padding: '1rem' }}>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            
+            <div className="f-search-wrap" style={{ flex: 1, minWidth: '250px' }}>
+              <Search size={16} className="f-search-icon" />
+              <input
+                type="text"
+                className="f-search-input"
+                placeholder="Search by product name, category or farm..."
+                value={searchTerm}
+                onChange={e => setSearch(e.target.value)}
+              />
+            </div>
+
+            <div style={{ width: '1px', height: '24px', background: 'var(--f-mint-deep)', margin: '0 0.5rem' }} />
+
+            <div style={{ position: 'relative', width: '200px' }}>
+              <Tag size={14} style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
+              <select
+                className="f-input f-select"
+                style={{ paddingLeft: '2.5rem', fontSize: '0.8rem', fontWeight: 700 }}
+                value={catFilter}
+                onChange={e => setCat(e.target.value)}
+              >
+                <option value="">All Categories</option>
+                {categories.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
+              </select>
+            </div>
+
+            <div className="f-segmented">
+              <button 
+                className={`f-segmented-btn ${statusFilter === 'ALL' ? 'active' : ''}`}
+                onClick={() => setStatus('ALL')}
+              >
+                All ({products.length})
+              </button>
+              <button 
+                className={`f-segmented-btn ${statusFilter === 'ACTIVE' ? 'active' : ''}`}
+                onClick={() => setStatus('ACTIVE')}
+              >
+                Live ({kpis.active})
+              </button>
+              <button 
+                className={`f-segmented-btn ${statusFilter === 'INACTIVE' ? 'active' : ''}`}
+                onClick={() => setStatus('INACTIVE')}
+              >
+                Hidden ({kpis.total - kpis.active})
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Data Grid */}
+      <div className="f-card" style={{ border: 'none' }}>
+        <div className="f-table-wrap">
+          <table className="f-table">
+            <thead>
+              <tr>
+                <th style={{ width: '300px' }}>Product & Market Status</th>
+                <th>Classification</th>
+                <th>Farm Origin</th>
+                <th className="right">Unit Price</th>
+                <th className="right">Inventory</th>
+                <th>Quality</th>
+                <th>Visibility</th>
+                <th className="right" style={{ paddingRight: '1.5rem' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan="8" style={{ padding: '4rem', textAlign: 'center' }}>
+                    <div className="f-empty-state">
+                      <div className="f-empty-icon"><Package size={40} /></div>
+                      <div className="f-empty-title">No matching products found</div>
+                      <div className="f-empty-sub">Adjust your search or filters to see your inventory items.</div>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                  {filtered.map(p => (
-                  <tr key={p.id} className={`hover:bg-slate-50/60 transition-colors group ${!p.is_active ? 'opacity-60' : ''}`}>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 rounded-lg border border-slate-200 overflow-hidden bg-slate-50 shrink-0 flex items-center justify-center">
+              ) : (
+                filtered.map(p => (
+                  <tr key={p.id} style={{ opacity: p.is_active ? 1 : 0.65 }}>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <div className="f-product-thumb">
                           {p.image ? (
-                            <img src={p.image} alt={p.title} className="w-full h-full object-cover" />
+                            <img src={p.image} alt={p.title} />
                           ) : (
-                            <Leaf size={13} className="text-slate-300" />
+                            <Leaf size={16} style={{ color: 'var(--f-sage)' }} />
                           )}
                         </div>
-                        <div className="min-w-0">
-                          <div className="font-bold text-xs text-slate-900 truncate" title={p.title}>{p.title}</div>
+                        <div>
+                          <div style={{ fontWeight: 800, fontSize: '0.85rem', color: 'var(--f-forest-dark)' }}>{p.title}</div>
                           <PriceCompBadge comparison={p.official_price_comparison} />
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3">
-                      <span className="inline-block px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-[9px] font-bold uppercase tracking-wide border border-slate-200/50 truncate max-w-full">
-                        {p.category_name || '—'}
+                    <td>
+                      <span className="f-badge f-badge-active" style={{ fontSize: '0.7rem' }}>
+                        {p.category_name || 'Uncategorized'}
                       </span>
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="text-[10px] font-semibold text-[#22543d] flex items-center gap-1 truncate" title={p.farm_name}>
-                        <Home size={9} className="text-emerald-500 shrink-0" /> {p.farm_name || '—'}
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600, fontSize: '0.8rem', color: 'var(--f-olive)' }}>
+                        <Home size={12} /> {p.farm_name}
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="font-black text-slate-900 text-xs">{Number(p.price).toLocaleString()}</div>
-                      <div className="text-[9px] font-bold text-slate-400 uppercase">DZD / {p.unit}</div>
+                    <td className="right">
+                      <div style={{ fontWeight: 800, fontSize: '0.9rem' }}>{Number(p.price).toLocaleString()} <small style={{ color: '#9ca3af', fontSize: '0.7rem' }}>DZD</small></div>
+                      <div style={{ fontSize: '0.7rem', color: '#9ca3af', textTransform: 'uppercase' }}>per {p.unit}</div>
                     </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className={`font-bold text-xs flex justify-end items-center gap-1 ${p.stock < 10 ? 'text-red-600' : 'text-slate-700'}`}>
-                        {p.stock}{p.stock < 10 && <AlertCircle size={9} className="animate-pulse" />}
+                    <td className="right">
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.4rem', fontWeight: 800, color: p.stock < 10 ? 'var(--f-red)' : 'inherit' }}>
+                        {p.stock} <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>{p.unit}s</span>
+                        {p.stock < 10 && <AlertCircle size={12} />}
                       </div>
-                      <div className="text-[9px] font-bold text-slate-400 uppercase mt-0.5">{p.unit}s</div>
                     </td>
-                    <td className="px-4 py-3">
+                    <td>
                       <QualityBadge quality={p.quality} />
                     </td>
-                    <td className="px-4 py-3">
+                    <td>
                       {p.is_active ? (
-                        <div className="inline-flex items-center gap-1 text-emerald-600 font-black text-[9px] tracking-wide bg-emerald-50 px-2 py-1 rounded border border-emerald-100">
-                          <div className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" /> LIVE
+                        <div className="f-badge f-badge-confirmed">
+                          <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#065f46', marginRight: '4px' }} /> LIVE
                         </div>
                       ) : (
-                        <div className="inline-flex items-center gap-1 text-slate-500 font-black text-[9px] tracking-wide bg-slate-100 px-2 py-1 rounded border border-slate-200">
-                          <EyeOff size={9} strokeWidth={3} /> HIDDEN
+                        <div className="f-badge f-badge-inactive">
+                          <EyeOff size={10} /> HIDDEN
                         </div>
                       )}
                     </td>
-                    <td className="px-4 py-3 text-right pr-4">
-                      <div className="flex gap-1.5 justify-end">
-                        <button
-                          className={`w-8 h-8 flex items-center justify-center rounded-lg transition-all hover:scale-105 border ${p.is_active ? 'bg-white text-slate-400 border-slate-200 hover:text-amber-500 hover:border-amber-200' : 'bg-amber-50 text-amber-600 border-amber-200 hover:bg-amber-100'}`}
-                          title={p.is_active ? 'Hide Product' : 'Publish Product'}
+                    <td className="right" style={{ paddingRight: '1.5rem' }}>
+                      <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                        <button 
+                          className={`btn-f-icon ${p.is_active ? '' : 'gold'}`}
+                          title={p.is_active ? 'Hide from Market' : 'Publish to Market'}
                           onClick={() => toggleActive(p.id, p.is_active)}
                         >
-                          {p.is_active ? <EyeOff size={13} strokeWidth={2.5} /> : <Eye size={13} strokeWidth={2.5} />}
+                          {p.is_active ? <EyeOff size={14} /> : <Eye size={14} />}
                         </button>
-                        <button
-                          className="w-8 h-8 flex items-center justify-center bg-white text-emerald-700 hover:bg-emerald-50 border border-slate-200 hover:border-emerald-300 rounded-lg transition-all hover:scale-105"
-                          title="Edit Product"
+                        <button 
+                          className="btn-f-icon"
+                          title="Edit Details"
                           onClick={() => navigate(`/farmer-dashboard/product/edit/${p.id}`)}
                         >
-                          <Edit3 size={13} strokeWidth={2.5} />
+                          <Edit3 size={14} />
                         </button>
-                        <button
-                          className="w-8 h-8 flex items-center justify-center bg-white text-red-400 hover:text-white hover:bg-red-500 border border-slate-200 hover:border-red-400 rounded-lg transition-all hover:scale-105"
-                          title="Delete Product"
+                        <button 
+                          className="btn-f-icon danger"
+                          title="Remove Product"
                           onClick={() => deleteProduct(p.id)}
                         >
-                          <Trash2 size={13} strokeWidth={2.5} />
+                          <Trash2 size={14} />
                         </button>
                       </div>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
-      )}
+      </div>
     </div>
   );
 }

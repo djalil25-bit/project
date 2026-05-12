@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import api from '../../api/axiosConfig';
 import { X, User as UserIcon, Mail, Phone, MapPin, Briefcase, FileText, CheckCircle, Clock, FileDown, Eye, XCircle, Shield, AlertTriangle } from 'lucide-react';
 
@@ -34,6 +35,11 @@ const UserDetailModal = ({ userId, onClose, onAction }) => {
     if (userId) fetchData();
   }, [userId]);
 
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, []);
+
   if (!userId) return null;
 
   const handleDocumentClick = (doc) => {
@@ -44,8 +50,8 @@ const UserDetailModal = ({ userId, onClose, onAction }) => {
 
   const colors = user ? (roleColors[user.role] || roleColors.buyer) : roleColors.buyer;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm anim-fade-in">
+  const modalContent = (
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm anim-fade-in">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden relative border border-gray-100">
         
         {loading ? (
@@ -65,10 +71,14 @@ const UserDetailModal = ({ userId, onClose, onAction }) => {
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
               <div className="flex items-center gap-4">
                 <div 
-                  className="w-14 h-14 rounded-full flex items-center justify-center text-xl font-extrabold shadow-sm border-2"
+                  className="w-14 h-14 rounded-full flex items-center justify-center text-xl font-extrabold shadow-sm border-2 overflow-hidden"
                   style={{ backgroundColor: colors.bg, color: colors.text, borderColor: colors.border }}
                 >
-                  {user.full_name?.charAt(0).toUpperCase()}
+                  {user.profile_picture ? (
+                    <img src={user.profile_picture} alt={user.full_name} className="w-full h-full object-cover" />
+                  ) : (
+                    user.full_name?.charAt(0).toUpperCase()
+                  )}
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900 leading-tight">{user.full_name}</h2>
@@ -121,9 +131,66 @@ const UserDetailModal = ({ userId, onClose, onAction }) => {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
                       <div><div className="text-xs text-gray-500 mb-1">Email Address</div><div className="font-medium text-gray-900 flex items-center gap-2"><Mail size={14} className="text-gray-400"/> {user.email}</div></div>
-                      <div><div className="text-xs text-gray-500 mb-1">Phone Number</div><div className="font-medium text-gray-900 flex items-center gap-2"><Phone size={14} className="text-gray-400"/> {user.phone || 'N/A'}</div></div>
+                      <div>
+                        <div className="text-xs text-gray-500 mb-1">Phone Number</div>
+                        <div className="font-medium text-gray-900">
+                          {user.phone ? (
+                            <a 
+                              href={`https://wa.me/${user.phone.replace(/\D/g, '')}`} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-xl hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all shadow-sm font-bold"
+                            >
+                              <Phone size={14} className="text-emerald-600 group-hover:text-white"/> {user.phone}
+                            </a>
+                          ) : (
+                            <div className="flex items-center gap-2 text-gray-400">
+                              <Phone size={14} /> N/A
+                            </div>
+                          )}
+                        </div>
+                      </div>
                       <div><div className="text-xs text-gray-500 mb-1">Wilaya / Address</div><div className="font-medium text-gray-900 flex items-center gap-2"><MapPin size={14} className="text-gray-400"/> {user.address || 'N/A'}</div></div>
                       <div><div className="text-xs text-gray-500 mb-1">Registration Date</div><div className="font-medium text-gray-900 flex items-center gap-2"><Clock size={14} className="text-gray-400"/> {new Date(user.created_at).toLocaleString()}</div></div>
+                    </div>
+                  </div>
+
+                  {/* Activity Summary Card */}
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+                    <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4 flex items-center gap-2 text-gray-400">
+                       Platform Activity Metrics
+                    </h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {(user.role === 'farmer' || !user.role) && (
+                        <>
+                          <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-100">
+                            <div className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Listings</div>
+                            <div className="text-2xl font-black text-emerald-900 leading-none mt-1">{user.stats?.listings || 0}</div>
+                          </div>
+                          <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-100">
+                            <div className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Orders</div>
+                            <div className="text-2xl font-black text-emerald-900 leading-none mt-1">{user.stats?.orders || 0}</div>
+                          </div>
+                        </>
+                      )}
+                      {user.role === 'buyer' && (
+                        <div className="p-3 bg-blue-50 rounded-xl border border-blue-100">
+                          <div className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Total Orders</div>
+                          <div className="text-2xl font-black text-blue-900 leading-none mt-1">{user.stats?.orders || 0}</div>
+                        </div>
+                      )}
+                      {user.role === 'transporter' && (
+                        <>
+                          <div className="p-3 bg-amber-50 rounded-xl border border-amber-100">
+                            <div className="text-[10px] font-black text-amber-600 uppercase tracking-widest">Vehicles</div>
+                            <div className="text-2xl font-black text-amber-900 leading-none mt-1">{user.stats?.vehicles || 0}</div>
+                          </div>
+                          <div className="p-3 bg-amber-50 rounded-xl border border-amber-100">
+                            <div className="text-[10px] font-black text-amber-600 uppercase tracking-widest">Missions</div>
+                            <div className="text-2xl font-black text-amber-900 leading-none mt-1">{user.stats?.missions || 0}</div>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
 
@@ -236,22 +303,22 @@ const UserDetailModal = ({ userId, onClose, onAction }) => {
             <div className="p-4 border-t border-gray-100 bg-white flex flex-wrap justify-end gap-3 items-center">
               {user.status === 'pending' && (
                 <>
-                  <button onClick={() => onAction(user.id, 'reject')} className="adm-btn adm-btn-warning bg-red-50 text-red-600 hover:bg-red-100 hover:border-red-200 shadow-none">
-                    Reject Application
+                  <button onClick={() => onAction(user.id, 'reject')} className="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-bold shadow-md shadow-rose-500/20 transition-all flex items-center gap-2 text-sm">
+                    <XCircle size={16}/> Reject Application
                   </button>
-                  <button onClick={() => onAction(user.id, 'approve')} className="adm-btn adm-btn-success shadow-md shadow-green-600/20">
+                  <button onClick={() => onAction(user.id, 'approve')} className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold shadow-md shadow-emerald-500/20 transition-all flex items-center gap-2 text-sm">
                     <CheckCircle size={16}/> Approve Account
                   </button>
                 </>
               )}
               {user.status === 'approved' && (
-                <button onClick={() => onAction(user.id, 'suspend')} className="adm-btn adm-btn-warning shadow-none">
-                  Suspend Account
+                <button onClick={() => onAction(user.id, 'suspend')} className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold shadow-md shadow-amber-500/20 transition-all flex items-center gap-2 text-sm">
+                  <Shield size={16}/> Suspend Account
                 </button>
               )}
               {(user.status === 'suspended' || user.status === 'rejected') && (
-                <button onClick={() => onAction(user.id, 'reactivate')} className="adm-btn adm-btn-primary shadow-none">
-                  Reactivate Account
+                <button onClick={() => onAction(user.id, 'reactivate')} className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-bold shadow-md shadow-blue-500/20 transition-all flex items-center gap-2 text-sm">
+                  <CheckCircle size={16}/> Reactivate Account
                 </button>
               )}
             </div>
@@ -285,6 +352,8 @@ const UserDetailModal = ({ userId, onClose, onAction }) => {
       )}
     </div>
   );
+
+  return ReactDOM.createPortal(modalContent, document.body);
 };
 
 export default UserDetailModal;

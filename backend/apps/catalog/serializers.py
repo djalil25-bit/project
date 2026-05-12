@@ -9,16 +9,55 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class CatalogProductSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
+    trend = serializers.SerializerMethodField()
+    price_change_percentage = serializers.SerializerMethodField()
 
     class Meta:
         model = CatalogProduct
         fields = '__all__'
+
+    def get_trend(self, obj):
+        history = list(obj.price_history.order_by('-created_at')[:2])
+        if len(history) < 2:
+            return 'STABLE'
+        
+        def get_val(pub):
+            if pub.min_price and pub.max_price:
+                return (pub.min_price + pub.max_price) / 2
+            return pub.official_price
+
+        current = get_val(history[0])
+        previous = get_val(history[1])
+        if current > previous:
+            return 'INCREASING'
+        elif current < previous:
+            return 'DECREASING'
+        return 'STABLE'
+
+    def get_price_change_percentage(self, obj):
+        history = list(obj.price_history.order_by('-created_at')[:2])
+        if len(history) < 2:
+            return 0
+            
+        def get_val(pub):
+            if pub.min_price and pub.max_price:
+                return (pub.min_price + pub.max_price) / 2
+            return pub.official_price
+
+        current = get_val(history[0])
+        previous = get_val(history[1])
+        if previous == 0:
+            return 0
+        diff = current - previous
+        return round(float((diff / previous) * 100), 2)
 
 class ProductSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
     farm_name = serializers.CharField(source='farm.name', read_only=True)
     farmer_name = serializers.CharField(source='farmer.full_name', read_only=True)
     farmer_email = serializers.CharField(source='farmer.email', read_only=True)
+    farmer_phone = serializers.CharField(source='farmer.phone', read_only=True)
+    farm_wilaya = serializers.CharField(source='farm.wilaya', read_only=True)
     # Catalog product info
     catalog_product_name = serializers.CharField(source='catalog_product.name', read_only=True, default=None)
     ref_price = serializers.DecimalField(source='catalog_product.ref_price', max_digits=12, decimal_places=2, read_only=True, default=None)
@@ -70,13 +109,13 @@ class ProductSerializer(serializers.ModelSerializer):
             'status': 'above' if diff > 0 else ('below' if diff < 0 else 'equal'),
         }
 
-    def validate(self, data):
+    def validate(self, attrs):
         from decimal import Decimal, InvalidOperation
 
         # --- Farm ownership check ---
-        # `data.get('farm')` yields the Farm *object* (PrimaryKeyRelatedField converts it).
+        # `attrs.get('farm')` yields the Farm *object* (PrimaryKeyRelatedField converts it).
         # Fall back to the existing instance farm on partial updates.
-        farm = data.get('farm', getattr(self.instance, 'farm', None))
+        farm = attrs.get('farm', getattr(self.instance, 'farm', None))
         request = self.context.get('request')
         if farm is not None and request is not None:
             farm_owner_id = getattr(farm, 'owner_id', None)
@@ -91,9 +130,9 @@ class ProductSerializer(serializers.ModelSerializer):
                 )
 
         # --- Price range validation ---
-        # On partial updates catalog_product may not be in `data`; fall back to instance.
-        catalog_product = data.get('catalog_product', getattr(self.instance, 'catalog_product', None))
-        price = data.get('price', getattr(self.instance, 'price', None))
+        # On partial updates catalog_product may not be in `attrs`; fall back to instance.
+        catalog_product = attrs.get('catalog_product', getattr(self.instance, 'catalog_product', None))
+        price = attrs.get('price', getattr(self.instance, 'price', None))
 
         if catalog_product is not None and price is not None:
             # Ensure both sides are Decimal to avoid str/float comparison bugs.
@@ -136,7 +175,7 @@ class ProductSerializer(serializers.ModelSerializer):
             except InvalidOperation:
                 raise serializers.ValidationError({"price": "Invalid price value."})
 
-        stock = data.get('stock', getattr(self.instance, 'stock', None))
+        stock = attrs.get('stock', getattr(self.instance, 'stock', None))
         if stock is not None:
             try:
                 if Decimal(str(stock)) < 0:
@@ -146,13 +185,13 @@ class ProductSerializer(serializers.ModelSerializer):
 
         # --- Category requirement ---
         # Allow instance.category (object) or instance.category_id (int) as fallback.
-        category = data.get('category') or getattr(self.instance, 'category', None)
+        category = attrs.get('category') or getattr(self.instance, 'category', None)
         if not catalog_product and not category:
             raise serializers.ValidationError(
                 {"category": "Category is required if not selecting from catalog."}
             )
 
-        return data
+        return attrs
 
 class FavoriteSerializer(serializers.ModelSerializer):
     product_detail = ProductSerializer(source='product', read_only=True)
