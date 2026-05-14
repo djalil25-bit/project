@@ -173,6 +173,7 @@ class DocumentTypeChoices(models.TextChoices):
     TRADE_REGISTER       = 'trade_register',       _('Trade Register')
     DRIVING_LICENSE      = 'driving_license',      _('Driving License')
     VEHICLE_REGISTRATION = 'vehicle_registration', _('Vehicle Registration')
+    CAR_PHOTO            = 'car_photo',            _('Car Photo')
 
 
 class DocumentReviewStatus(models.TextChoices):

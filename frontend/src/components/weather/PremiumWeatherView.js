@@ -126,7 +126,7 @@ export default function PremiumWeatherView({ farmId, wilaya }) {
             </div>
          </div>
          <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
-            <div className="p-3 bg-blue-50 text-blue-500 rounded-2xl"><CloudRain size={24} /></div>
+            <div className="p-3 bg-emerald-50 text-emerald-500 rounded-2xl"><CloudRain size={24} /></div>
             <div>
                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Précipitations</p>
                <p className="text-lg font-black text-slate-800">1.2<span className="text-xs ml-1 opacity-50">mm</span></p>

@@ -210,7 +210,7 @@ const AdminMessages = () => {
     <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 space-y-8 animate-fade-in relative z-0 bg-slate-50/30 min-h-screen">
       
       {/* ── HIGH-DENSITY HERO HEADER (GREEN POWER PRO) ─────────────────────────────── */}
-      <div className="bg-[#0a3d2e] rounded-2xl overflow-hidden shadow-lg flex flex-col md:flex-row items-center justify-between px-6 py-4 md:px-10 md:py-5 relative border border-[#0f5c44] isolate">
+      <div className="bg-[#022c22] rounded-2xl overflow-hidden shadow-lg flex flex-col md:flex-row items-center justify-between px-6 py-4 md:px-10 md:py-5 relative border border-[#064e3b] isolate">
         <div className="absolute inset-0 bg-gradient-to-r from-[#166534]/30 to-transparent pointer-events-none" />
         <div className="z-10 flex flex-col">
           <div className="flex items-center gap-2 text-emerald-400 text-[9px] font-black uppercase tracking-widest mb-1 opacity-80">
@@ -226,20 +226,20 @@ const AdminMessages = () => {
       </div>
 
       <div className="flex bg-white rounded-xl shadow-sm border border-slate-200 w-fit overflow-hidden p-1">
-        <button className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-colors flex items-center gap-2 ${tab==='compose'?'bg-emerald-600 text-white shadow-md':'text-slate-500 hover:bg-slate-50'}`} onClick={()=>setTab('compose')}><Send size={14}/> Dispatch</button>
+        <button className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-colors flex items-center gap-2 ${tab==='compose'?'bg-[#064e3b] text-white shadow-md':'text-slate-500 hover:bg-slate-50'}`} onClick={()=>setTab('compose')}><Send size={14}/> Dispatch</button>
         {/* Inbox Tab Button Hidden as per user request "supp le buttons in box" */}
-        {/* <button className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-colors flex items-center gap-2 ${tab==='inbox'?'bg-emerald-600 text-white shadow-md':'text-slate-500 hover:bg-slate-50'}`} onClick={()=>setTab('inbox')}><Mail size={14}/> Incoming</button> */}
-        <button className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-colors flex items-center gap-2 ${tab==='history'?'bg-emerald-600 text-white shadow-md':'text-slate-500 hover:bg-slate-50'}`} onClick={()=>setTab('history')}><Clock size={14}/> Logs</button>
+        {/* <button className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-colors flex items-center gap-2 ${tab==='inbox'?'bg-[#064e3b] text-white shadow-md':'text-slate-500 hover:bg-slate-50'}`} onClick={()=>setTab('inbox')}><Mail size={14}/> Incoming</button> */}
+        <button className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-colors flex items-center gap-2 ${tab==='history'?'bg-[#064e3b] text-white shadow-md':'text-slate-500 hover:bg-slate-50'}`} onClick={()=>setTab('history')}><Clock size={14}/> Logs</button>
       </div>
 
       {/* Toast */}
-      {toast && <div className={`fixed top-24 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-[10px] font-black tracking-widest uppercase animate-slide-in ${toast.type === 'error' ? 'bg-rose-50 text-rose-600 border border-rose-200' : 'bg-slate-900 text-emerald-400 border border-emerald-900/50'}`}><ShieldCheck size={16}/> {toast.msg}</div>}
+      {toast && <div className={`fixed top-24 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-[10px] font-black tracking-widest uppercase animate-slide-in ${toast.type === 'error' ? 'bg-rose-50 text-rose-600 border border-rose-200' : 'bg-[#022c22] text-emerald-400 border border-emerald-900/50'}`}><ShieldCheck size={16}/> {toast.msg}</div>}
 
       {/* Compose */}
       {tab==='compose' && (
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 lg:p-8 max-w-4xl space-y-8 animate-fade-in">
           <div className="flex items-center gap-3">
-             <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+             <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#064e3b] flex items-center justify-center">
                <Send size={20} />
              </div>
              <div>
@@ -253,10 +253,10 @@ const AdminMessages = () => {
               <label className="flex items-center gap-3 cursor-pointer group">
                 <div className="relative">
                   <input type="checkbox" checked={bulkMode} onChange={e=>setBulkMode(e.target.checked)} className="peer sr-only"/>
-                  <div className="w-10 h-6 bg-slate-200 rounded-full transition-colors peer-checked:bg-emerald-600 shadow-inner"></div>
+                  <div className="w-10 h-6 bg-slate-200 rounded-full transition-colors peer-checked:bg-[#064e3b] shadow-inner"></div>
                   <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4 shadow-sm"></div>
                 </div>
-                <span className="text-[11px] font-black text-slate-700 uppercase tracking-widest group-hover:text-emerald-600 transition-colors">Broadcast Mode</span>
+                <span className="text-[11px] font-black text-slate-700 uppercase tracking-widest group-hover:text-[#064e3b] transition-colors">Broadcast Mode</span>
               </label>
             </div>
 
@@ -286,7 +286,7 @@ const AdminMessages = () => {
                     ))}
                   </div>
                 )}
-                {recipientId && <div className="text-[9px] font-black uppercase tracking-widest text-emerald-600 mt-2 flex items-center gap-1"><ShieldCheck size={12}/> Recipient Locked: AG-U-{recipientId}</div>}
+                {recipientId && <div className="text-[9px] font-black uppercase tracking-widest text-[#064e3b] mt-2 flex items-center gap-1"><ShieldCheck size={12}/> Recipient Locked: AG-U-{recipientId}</div>}
               </div>
             )}
 
@@ -312,14 +312,14 @@ const AdminMessages = () => {
 
             <div className="flex flex-col sm:flex-row sm:items-center gap-6 bg-slate-50/50 p-6 rounded-2xl border border-slate-200">
               <label className="flex items-center gap-3 cursor-pointer group">
-                <input type="checkbox" checked={schedule} onChange={e=>setSchedule(e.target.checked)} className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 w-4 h-4"/> 
-                <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest group-hover:text-emerald-600 transition-colors">Deferred Execution</span>
+                <input type="checkbox" checked={schedule} onChange={e=>setSchedule(e.target.checked)} className="rounded border-slate-300 text-[#064e3b] focus:ring-emerald-500 w-4 h-4"/> 
+                <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest group-hover:text-[#064e3b] transition-colors">Deferred Execution</span>
               </label>
               {schedule && <input type="datetime-local" className="h-10 bg-white border border-slate-200 rounded-xl px-4 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm animate-fade-in" value={scheduleDate} onChange={e=>setScheduleDate(e.target.value)}/>}
             </div>
 
             <div className="flex gap-4 pt-4">
-              <button className="flex-1 h-12 bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-900/30 text-[10px] font-black px-6 py-3 rounded-xl uppercase tracking-widest transition-all flex items-center justify-center gap-2 disabled:opacity-50" onClick={handleSend} disabled={!subject||!body||sending}><Send size={16}/> {sending ? '...' : schedule ? 'Commit Schedule' : 'Initialize Dispatch'}</button>
+              <button className="flex-1 h-12 bg-[#064e3b] hover:bg-emerald-700 text-white shadow-lg shadow-emerald-900/30 text-[10px] font-black px-6 py-3 rounded-xl uppercase tracking-widest transition-all flex items-center justify-center gap-2 disabled:opacity-50" onClick={handleSend} disabled={!subject||!body||sending}><Send size={16}/> {sending ? '...' : schedule ? 'Commit Schedule' : 'Initialize Dispatch'}</button>
               <button className="px-8 h-12 bg-white hover:bg-slate-50 text-slate-500 border border-slate-200 text-[10px] font-black rounded-xl uppercase tracking-widest transition-all" onClick={()=>{setSubject('');setBody('');setRecipient('');setRecipientId(null);}}>Purge</button>
             </div>
           </div>
@@ -331,7 +331,7 @@ const AdminMessages = () => {
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col animate-fade-in">
           <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
             <h3 className="font-black text-[11px] uppercase tracking-widest text-slate-700">Transmission Logs</h3>
-            <span className="text-[9px] font-black px-2 py-0.5 bg-slate-200 text-slate-600 rounded-full uppercase tracking-widest">{history.length} Entries</span>
+            <span className="text-[9px] font-black px-2 py-0.5 bg-slate-200 text-[#064e3b] rounded-full uppercase tracking-widest">{history.length} Entries</span>
           </div>
           {historyLoading ? (
             <div className="flex flex-col items-center justify-center py-20 gap-3">
@@ -350,10 +350,10 @@ const AdminMessages = () => {
               <tbody>{history.map(m=>(
                 <tr key={m.id} className="border-b border-slate-50 hover:bg-slate-50/30 transition-colors">
                   <td className="px-6 py-4"><div className="font-black text-slate-800 text-sm tracking-tight">{m.recipient_name || m.recipient?.full_name || 'N/A'}</div><div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">{m.recipient_email || m.recipient?.email || ''}</div></td>
-                  <td className="px-6 py-4"><span className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-slate-600 bg-slate-100/50 border border-slate-200 px-2 py-1 rounded-lg w-fit">{channelIcon(m.channel)} {m.channel}</span></td>
+                  <td className="px-6 py-4"><span className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-[#064e3b] bg-slate-100/50 border border-slate-200 px-2 py-1 rounded-lg w-fit">{channelIcon(m.channel)} {m.channel}</span></td>
                   <td className="px-6 py-4 text-[11px] font-bold text-slate-700 tracking-tight uppercase">{m.subject}</td>
                   <td className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">{m.sent_at ? new Date(m.sent_at).toLocaleDateString() : new Date(m.created_at).toLocaleDateString()}</td>
-                  <td className="px-6 py-4 text-right"><span className={`text-[9px] font-black px-2 py-1 rounded-lg uppercase tracking-widest border ${m.status==='READ'?'bg-emerald-50 border-emerald-100 text-emerald-600':'bg-slate-100 border-slate-200 text-slate-400'}`}>{m.status}</span></td>
+                  <td className="px-6 py-4 text-right"><span className={`text-[9px] font-black px-2 py-1 rounded-lg uppercase tracking-widest border ${m.status==='READ'?'bg-emerald-50 border-emerald-100 text-[#064e3b]':'bg-slate-100 border-slate-200 text-slate-400'}`}>{m.status}</span></td>
                 </tr>
               ))}</tbody>
             </table>
@@ -369,7 +369,7 @@ const AdminMessages = () => {
           <div className={`w-full md:w-80 lg:w-96 border-r border-slate-100 flex flex-col bg-slate-50/50 ${selectedThread ? 'hidden md:flex' : 'flex'}`}>
             <div className="p-4 border-b border-slate-100 bg-white flex items-center justify-between">
               <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest flex items-center gap-2">
-                <Inbox size={16} className="text-emerald-600" />
+                <Inbox size={16} className="text-[#064e3b]" />
                 Actor Threads
               </span>
               <div className="flex gap-2 items-center">
@@ -379,7 +379,7 @@ const AdminMessages = () => {
                   <option value="buyer">Buyers</option>
                   <option value="transporter">Logistics</option>
                 </select>
-                <button onClick={fetchInbox} className="text-slate-400 hover:text-emerald-600 p-1 transition-colors"><RefreshCw size={14} className={inboxLoading ? 'animate-spin' : ''}/></button>
+                <button onClick={fetchInbox} className="text-slate-400 hover:text-[#064e3b] p-1 transition-colors"><RefreshCw size={14} className={inboxLoading ? 'animate-spin' : ''}/></button>
               </div>
             </div>
 
@@ -422,7 +422,7 @@ const AdminMessages = () => {
                       </div>
                       <div className="flex items-center gap-2 mb-1">
                         <span className={`text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-widest border
-                          ${group.role === 'farmer' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : group.role === 'buyer' ? 'bg-blue-50 text-blue-700 border-blue-100' : 'bg-amber-50 text-amber-700 border-amber-100'}`}>
+                          ${group.role === 'farmer' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : group.role === 'buyer' ? 'bg-slate-50 text-slate-700 border-slate-100' : 'bg-amber-50 text-amber-700 border-amber-100'}`}>
                           {group.role}
                         </span>
                         <span className="font-bold text-slate-700 text-[11px] truncate opacity-80">{group.messages[group.messages.length - 1].subject}</span>
@@ -465,7 +465,7 @@ const AdminMessages = () => {
                       <h2 className="font-black text-slate-900 text-sm tracking-tight truncate">{selectedThread.name}</h2>
                       <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-100 animate-pulse">
                         <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
-                        <span className="text-[8px] font-black uppercase tracking-widest text-emerald-600">Secure Line</span>
+                        <span className="text-[8px] font-black uppercase tracking-widest text-[#064e3b]">Secure Line</span>
                       </div>
                     </div>
                     <p className="text-[10px] font-black text-slate-400 truncate uppercase tracking-widest mt-1">
@@ -498,7 +498,7 @@ const AdminMessages = () => {
                           <div
                             className={`p-5 text-sm shadow-lg font-medium leading-relaxed transition-all
                               ${isAdmin 
-                                ? 'bg-emerald-600 text-white rounded-3xl rounded-br-none shadow-emerald-900/10' 
+                                ? 'bg-[#064e3b] text-white rounded-3xl rounded-br-none shadow-emerald-900/10' 
                                 : 'bg-white text-slate-800 border border-slate-200 rounded-3xl rounded-bl-none shadow-slate-200/50'
                               }`}
                           >
@@ -532,7 +532,7 @@ const AdminMessages = () => {
                     <button
                       onClick={handleSendInboxReply}
                       disabled={!replyBody.trim() || sending}
-                      className="w-14 h-[52px] shrink-0 bg-emerald-600 text-white rounded-2xl flex items-center justify-center hover:bg-emerald-700 disabled:opacity-30 disabled:grayscale transition-all shadow-xl shadow-emerald-900/20 active:scale-95"
+                      className="w-14 h-[52px] shrink-0 bg-[#064e3b] text-white rounded-2xl flex items-center justify-center hover:bg-emerald-700 disabled:opacity-30 disabled:grayscale transition-all shadow-xl shadow-emerald-900/20 active:scale-95"
                       title="Transmit Message"
                     >
                       {sending ? <RefreshCw size={20} className="animate-spin" /> : <Send size={20} className="ml-1" />}

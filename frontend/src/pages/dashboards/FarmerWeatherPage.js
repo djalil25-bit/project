@@ -46,7 +46,7 @@ export default function FarmerWeatherPage() {
               <ArrowLeft size={16} /> Retour au Dashboard
             </button>
             <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-              <CloudSun size={32} className="text-emerald-500" />
+              <CloudSun size={32} className="text-[#2E6F40]" />
               Intelligence Météorologique
             </h1>
             <p className="text-slate-500 font-medium mt-1">
@@ -58,7 +58,7 @@ export default function FarmerWeatherPage() {
         <div className="w-full">
           {loading ? (
             <div className="flex flex-col items-center justify-center min-h-[600px] w-full bg-white rounded-[3rem] shadow-sm border border-slate-100">
-              <div className="w-12 h-12 rounded-full border-4 border-slate-100 border-t-emerald-500 animate-spin mb-4" />
+              <div className="w-12 h-12 rounded-full border-4 border-slate-100 border-t-[#2E6F40] animate-spin mb-4" />
               <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">Initialisation...</span>
             </div>
           ) : (

@@ -38,7 +38,7 @@ import {
 } from 'recharts';
 
 const AdminIoTPage = () => {
-  const { success, error } = useToast();
+  const { showToast } = useToast();
   const [activeTab, setActiveTab] = useState('overview');
   const [loading, setLoading] = useState({});
   const [data, setData] = useState({
@@ -77,11 +77,11 @@ const AdminIoTPage = () => {
       setLastUpdated(new Date().toLocaleTimeString());
     } catch (err) {
       console.error(`Failed to fetch ${tab} data`, err);
-      error(`Failed to load ${tab} data`);
+      showToast(`Failed to load ${tab} data`, 'error');
     } finally {
       setLoading(prev => ({ ...prev, [tab]: false }));
     }
-  }, [error]);
+  }, [showToast]);
 
   // Lazy load data on tab change
   useEffect(() => {
@@ -170,7 +170,7 @@ const AdminIoTPage = () => {
         {/* Temperature Bar Chart */}
         <div className="glass-card p-6">
           <h3 className="text-lg font-bold text-gray-800 mb-6 flex items-center gap-2">
-            <BarChart3 size={20} className="text-blue-600" />
+            <BarChart3 size={20} className="text-[#064e3b]" />
             📈 Avg Temperature by Wilaya (°C)
           </h3>
           {chartData.length > 0 ? (
@@ -224,7 +224,7 @@ const AdminIoTPage = () => {
                 <p className="text-xs text-gray-500 mb-3">{farm.farmer_name} • {farm.wilaya}</p>
                 <div className="grid grid-cols-2 gap-2 text-[11px] font-medium text-gray-600">
                   <div className="flex items-center gap-1"><Thermometer size={12} className="text-red-400" /> {farm.last_reading?.temperature ?? '--'}°C</div>
-                  <div className="flex items-center gap-1"><Droplets size={12} className="text-blue-400" /> {farm.last_reading?.humidity ?? '--'}%</div>
+                  <div className="flex items-center gap-1"><Droplets size={12} className="text-slate-400" /> {farm.last_reading?.humidity ?? '--'}%</div>
                   <div className="flex items-center gap-1"><Sprout size={12} className="text-green-400" /> {farm.last_reading?.soil_moisture ?? '--'}%</div>
                   <div className="flex items-center gap-1"><FlaskConical size={12} className="text-yellow-400" /> {farm.last_reading?.ph ?? '--'}</div>
                 </div>
@@ -289,7 +289,7 @@ const AdminIoTPage = () => {
                         <div className="grid grid-cols-6 gap-4">
                           {[
                             { label: 'Temp', val: farm.last_reading?.temperature, unit: '°C', icon: <Thermometer size={14} />, color: 'text-red-600' },
-                            { label: 'Humidity', val: farm.last_reading?.humidity, unit: '%', icon: <Droplets size={14} />, color: 'text-blue-600' },
+                            { label: 'Humidity', val: farm.last_reading?.humidity, unit: '%', icon: <Droplets size={14} />, color: 'text-[#064e3b]' },
                             { label: 'Soil', val: farm.last_reading?.soil_moisture, unit: '%', icon: <Sprout size={14} />, color: 'text-green-600' },
                             { label: 'pH', val: farm.last_reading?.ph, unit: '', icon: <FlaskConical size={14} />, color: 'text-orange-600' },
                             { label: 'IR Status', val: farm.last_reading?.ir_status === 'detected' ? 'Detected' : farm.last_reading?.ir_status === 'clear' ? 'Clear' : '--', unit: '', icon: <Eye size={14} />, color: farm.last_reading?.ir_status === 'detected' ? 'text-red-600' : 'text-green-600' },
@@ -359,7 +359,7 @@ const AdminIoTPage = () => {
                   <td className="text-sm">{a.message}</td>
                   <td>
                     <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${a.level === 'danger' ? 'bg-red-100 text-red-600' :
-                        a.level === 'warning' ? 'bg-orange-100 text-orange-600' : 'bg-blue-100 text-blue-600'
+                        a.level === 'warning' ? 'bg-orange-100 text-orange-600' : 'bg-slate-100 text-[#064e3b]'
                       }`}>
                       {a.level}
                     </span>
@@ -414,7 +414,7 @@ const AdminIoTPage = () => {
                 </div>
                 <div className="text-center">
                   <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">Average</div>
-                  <div className="text-xl font-extrabold text-blue-600">{card.data.avg}{card.unit}</div>
+                  <div className="text-xl font-extrabold text-[#064e3b]">{card.data.avg}{card.unit}</div>
                 </div>
                 <div className="text-center">
                   <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-1">Max</div>
@@ -598,7 +598,7 @@ const AdminIoTPage = () => {
     <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 space-y-8 animate-fade-in relative z-0 bg-slate-50/30 min-h-screen">
 
       {/* ── HIGH-DENSITY HERO HEADER (GREEN POWER PRO) ─────────────────────────────── */}
-      <div className="bg-[#0a3d2e] rounded-2xl overflow-hidden shadow-lg flex flex-col md:flex-row items-center justify-between px-6 py-4 md:px-10 md:py-5 relative border border-[#0f5c44] isolate">
+      <div className="bg-[#022c22] rounded-2xl overflow-hidden shadow-lg flex flex-col md:flex-row items-center justify-between px-6 py-4 md:px-10 md:py-5 relative border border-[#064e3b] isolate">
         <div className="absolute inset-0 bg-gradient-to-r from-[#166534]/30 to-transparent pointer-events-none" />
         <div className="z-10 flex flex-col">
           <div className="flex items-center gap-2 text-emerald-400 text-[9px] font-black uppercase tracking-widest mb-1 opacity-80">
@@ -618,7 +618,7 @@ const AdminIoTPage = () => {
           </div>
           <button
             onClick={refreshCurrentTab}
-            className="bg-[#0f5c44] hover:bg-[#166534] text-white text-[10px] font-black uppercase tracking-widest px-5 py-2.5 rounded-xl transition-all border border-emerald-500/30 shadow-lg shadow-emerald-900/40 flex items-center gap-2"
+            className="bg-[#064e3b] hover:bg-[#166534] text-white text-[10px] font-black uppercase tracking-widest px-5 py-2.5 rounded-xl transition-all border border-emerald-500/30 shadow-lg shadow-emerald-900/40 flex items-center gap-2"
           >
             <RefreshCw size={14} className={Object.values(loading).some(v => v) ? 'animate-spin' : ''} /> Force Refresh
           </button>
@@ -637,7 +637,7 @@ const AdminIoTPage = () => {
           <button
             key={t.id}
             onClick={() => setActiveTab(t.id)}
-            className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${activeTab === t.id ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-50'}`}
+            className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${activeTab === t.id ? 'bg-[#064e3b] text-white shadow-md' : 'text-slate-500 hover:bg-slate-50'}`}
           >
             {t.icon} {t.label}
           </button>

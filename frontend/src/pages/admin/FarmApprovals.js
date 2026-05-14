@@ -62,13 +62,13 @@ export default function FarmApprovals() {
       {/* BREADCRUMB & HEADER */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-3 bg-emerald-50 px-3 py-1.5 rounded-full w-fit border border-emerald-100 shadow-sm">
+          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#064e3b] mb-3 bg-emerald-50 px-3 py-1.5 rounded-full w-fit border border-emerald-100 shadow-sm">
             <Link to="/admin-dashboard" className="hover:text-emerald-800 transition-colors">Admin Hub</Link>
             <ChevronRight size={10} className="text-emerald-300" />
             <span className="text-emerald-900">Farm Approvals</span>
           </div>
           <h1 className="text-4xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-            <div className="p-3 bg-white rounded-2xl shadow-sm border border-slate-100 text-emerald-600">
+            <div className="p-3 bg-white rounded-2xl shadow-sm border border-slate-100 text-[#064e3b]">
               <Tractor size={36} strokeWidth={2.5} />
             </div>
             Farm Verification
@@ -77,7 +77,7 @@ export default function FarmApprovals() {
             Review and approve farm registrations before they can list products.
           </p>
         </div>
-        <button onClick={fetchFarms} className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 px-5 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex items-center gap-2 shadow-sm">
+        <button onClick={fetchFarms} className="bg-white border border-slate-200 hover:bg-slate-50 text-[#064e3b] px-5 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex items-center gap-2 shadow-sm">
           <RefreshCw size={14} /> Refresh
         </button>
       </div>
@@ -90,7 +90,7 @@ export default function FarmApprovals() {
             onClick={() => setActiveTab(tab.key)}
             className={`px-5 py-3 text-xs font-black uppercase tracking-widest transition-all border-b-2 ${activeTab === tab.key
               ? 'border-current text-slate-900'
-              : 'border-transparent text-slate-400 hover:text-slate-600'
+              : 'border-transparent text-slate-400 hover:text-[#064e3b]'
             }`}
             style={activeTab === tab.key ? { color: tab.color } : {}}
           >
@@ -170,7 +170,7 @@ export default function FarmApprovals() {
 
                 {/* Owner Info */}
                 <div className="bg-slate-50 rounded-xl p-3 flex items-center gap-3 border border-slate-100">
-                  <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 font-black text-sm">
+                  <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-[#064e3b] font-black text-sm">
                     {farm.owner_name?.charAt(0)?.toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -189,7 +189,7 @@ export default function FarmApprovals() {
                   {farm.registry_document ? (
                     <button
                       onClick={() => setRegistryDocumentPreview(farm.registry_document.startsWith('http') ? farm.registry_document : `http://localhost:8000${farm.registry_document}`)}
-                      className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-600/20 active:scale-95"
+                      className="w-full flex items-center justify-center gap-2 bg-[#064e3b] hover:bg-[#166534] text-white px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-slate-600/20 active:scale-95"
                     >
                       <FileText size={14} /> View Registry Document
                     </button>
@@ -224,7 +224,7 @@ export default function FarmApprovals() {
                     <button
                       onClick={() => handleApprove(farm.id)}
                       disabled={actionLoading === farm.id}
-                      className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white h-11 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
+                      className="flex-1 bg-[#064e3b] hover:bg-emerald-700 text-white h-11 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
                     >
                       <Check size={14} /> Approve
                     </button>
@@ -250,7 +250,7 @@ export default function FarmApprovals() {
 
       {/* REJECTION MODAL */}
       {rejectModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#022c22]/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-white rounded-3xl p-8 shadow-2xl w-full max-w-md animate-scale-in relative">
             <button className="absolute top-5 right-5 w-10 h-10 bg-slate-50 text-slate-400 hover:text-slate-900 rounded-full flex items-center justify-center transition-all" onClick={() => { setRejectModal(null); setRejectReason(''); }}>
               <X size={20} />
@@ -270,7 +270,7 @@ export default function FarmApprovals() {
               autoFocus
             />
             <div className="flex gap-3 mt-6">
-              <button onClick={() => { setRejectModal(null); setRejectReason(''); }} className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 h-12 rounded-xl font-black text-xs uppercase tracking-widest transition-all">Cancel</button>
+              <button onClick={() => { setRejectModal(null); setRejectReason(''); }} className="flex-1 bg-slate-100 hover:bg-slate-200 text-[#064e3b] h-12 rounded-xl font-black text-xs uppercase tracking-widest transition-all">Cancel</button>
               <button onClick={handleReject} disabled={!rejectReason.trim() || actionLoading} className="flex-1 bg-red-600 hover:bg-red-700 text-white h-12 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-red-600/20 disabled:opacity-50">Confirm Rejection</button>
             </div>
           </div>
@@ -278,12 +278,12 @@ export default function FarmApprovals() {
       )}
       {/* REGISTRY DOCUMENT PREVIEW MODAL */}
       {registryDocumentPreview && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in" onClick={() => setRegistryDocumentPreview(null)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#022c22]/60 backdrop-blur-sm animate-fade-in" onClick={() => setRegistryDocumentPreview(null)}>
           <div className="bg-white rounded-3xl p-6 shadow-2xl max-w-2xl w-full max-h-[85vh] animate-scale-in relative overflow-auto" onClick={e => e.stopPropagation()}>
             <button className="absolute top-4 right-4 w-10 h-10 bg-slate-50 text-slate-400 hover:text-slate-900 rounded-full flex items-center justify-center transition-all z-10" onClick={() => setRegistryDocumentPreview(null)}>
               <X size={20} />
             </button>
-            <h3 className="text-lg font-black text-slate-900 mb-4 flex items-center gap-2"><FileText size={18} className="text-blue-600" /> Registry Document</h3>
+            <h3 className="text-lg font-black text-slate-900 mb-4 flex items-center gap-2"><FileText size={18} className="text-[#064e3b]" /> Registry Document</h3>
             {registryDocumentPreview.toLowerCase().endsWith('.pdf') ? (
               <iframe src={registryDocumentPreview} className="w-full h-[60vh] rounded-xl border" title="Registry Document" />
             ) : (

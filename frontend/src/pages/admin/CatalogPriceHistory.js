@@ -15,6 +15,7 @@ import {
 import { 
   ChevronLeft, 
   TrendingUp, 
+  TrendingDown,
   Calendar,
   Filter,
   RefreshCw,
@@ -24,7 +25,8 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Minus,
-  ChevronRight
+  ChevronRight,
+  Clock
 } from 'lucide-react';
 
 const CatalogPriceHistory = () => {
@@ -49,7 +51,14 @@ const CatalogPriceHistory = () => {
       let data = histRes.data.results || histRes.data;
       
       // Sort oldest to newest for the chart
-      data.sort((a, b) => new Date(a.valid_from) - new Date(b.valid_from));
+      // Sort by valid_from, then by created_at for stable chronological order
+      data.sort((a, b) => {
+        const dateA = new Date(a.valid_from);
+        const dateB = new Date(b.valid_from);
+        if (dateA - dateB !== 0) return dateA - dateB;
+        // Fallback to created_at if same valid_from date
+        return new Date(a.created_at) - new Date(b.created_at);
+      });
       setHistory(data);
       
     } catch (err) {
@@ -70,32 +79,28 @@ const CatalogPriceHistory = () => {
 
     const useMock = false;
 
-    // Apply Filters
-    let filtered = rawData;
-    if (startDate) {
-      filtered = filtered.filter(row => new Date(row.valid_from) >= new Date(startDate));
-    }
-    if (endDate) {
-      filtered = filtered.filter(row => new Date(row.valid_from) <= new Date(endDate));
-    }
-
-    // Format for Chart & Calculate previous stats for Table
-    const formatted = filtered.map((item, index, arr) => {
+    // 1. Calculate Trends and Changes on FULL history first
+    const fullFormatted = rawData.map((item, index, arr) => {
       const prev = index > 0 ? arr[index - 1] : null;
-      let trendNum = 0; // 0=flat, 1=up, -1=down
-      const getVal = (item) => {
-        if (item.min_price != null && item.max_price != null) {
-          return (parseFloat(item.min_price) + parseFloat(item.max_price)) / 2;
+      
+      const getVal = (i) => {
+        if (i.min_price != null && i.max_price != null) {
+          return (parseFloat(i.min_price) + parseFloat(i.max_price)) / 2;
         }
-        return parseFloat(item.official_price);
+        return parseFloat(i.official_price);
       };
 
-      if (prev) {
-        const currVal = getVal(item);
-        const prevVal = getVal(prev);
-        if (currVal > prevVal) trendNum = 1;
-        if (currVal < prevVal) trendNum = -1;
+      const currVal = getVal(item);
+      const prevVal = prev ? getVal(prev) : null;
+      
+      let trendNum = 0;
+      let changePercent = null;
+      
+      if (prevVal && prevVal !== 0) {
+        trendNum = currVal > prevVal ? 1 : (currVal < prevVal ? -1 : 0);
+        changePercent = ((currVal - prevVal) / prevVal) * 100;
       }
+
       const d = new Date(item.valid_from);
       const chartDateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
       
@@ -105,12 +110,22 @@ const CatalogPriceHistory = () => {
         floor: parseFloat(item.min_price) || null,
         ceiling: parseFloat(item.max_price) || null,
         indexPrice: parseFloat(item.official_price),
-        prevPrice: prev ? parseFloat(prev.official_price) : null,
-        trendNum
+        prevPrice: prevVal,
+        trendNum,
+        changePercent
       };
     });
 
-    return { data: formatted, isMocked: useMock };
+    // 2. Apply Filters to the already-calculated data
+    let filtered = fullFormatted;
+    if (startDate) {
+      filtered = filtered.filter(row => new Date(row.valid_from) >= new Date(startDate));
+    }
+    if (endDate) {
+      filtered = filtered.filter(row => new Date(row.valid_from) <= new Date(endDate));
+    }
+
+    return { data: filtered, isMocked: useMock };
   }, [history, startDate, endDate, product]);
 
   const { data: chartData, isMocked } = processedData;
@@ -182,7 +197,7 @@ const CatalogPriceHistory = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="glass-stat-card p-4 flex flex-col justify-between">
               <div className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
-                <Layers size={14} className="text-blue-600"/> Current Category
+                <Layers size={14} className="text-[#064e3b]"/> Current Category
               </div>
               <div className="text-lg font-semibold text-gray-800">
                 {product.category_name || "Uncategorized"}
@@ -197,31 +212,31 @@ const CatalogPriceHistory = () => {
                 <div className="text-2xl font-bold text-red-500">
                   {product.min_price || "--"}
                 </div>
-                <div className="text-xs text-gray-500">DZD/{product.unit}</div>
+                <div className="text-xs text-gray-500">DZD/{product.default_unit}</div>
               </div>
             </div>
 
             <div className="glass-stat-card p-4 flex flex-col justify-between">
               <div className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
-                <TrendingUp size={14} className="text-blue-500"/> Current Ceiling Max
+                <TrendingUp size={14} className="text-slate-500"/> Current Ceiling Max
               </div>
               <div className="flex items-baseline gap-2">
-                <div className="text-2xl font-bold text-blue-500">
+                <div className="text-2xl font-bold text-slate-500">
                   {product.max_price || "--"}
                 </div>
-                <div className="text-xs text-gray-500">DZD/{product.unit}</div>
+                <div className="text-xs text-gray-500">DZD/{product.default_unit}</div>
               </div>
             </div>
 
             <div className="glass-stat-card p-4 flex flex-col justify-between">
               <div className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
-                <TrendingUp size={14} className="text-blue-600"/> Target Index Price
+                <TrendingUp size={14} className="text-[#064e3b]"/> Target Index Price
               </div>
               <div className="flex items-baseline gap-2">
-                <div className="text-2xl font-bold text-blue-600">
+                <div className="text-2xl font-bold text-[#064e3b]">
                   {product.ref_price || "--"}
                 </div>
-                <div className="text-xs text-gray-500">DZD/{product.unit}</div>
+                <div className="text-xs text-gray-500">DZD/{product.default_unit}</div>
               </div>
             </div>
           </div>
@@ -230,7 +245,7 @@ const CatalogPriceHistory = () => {
           <div className="glass-card overflow-hidden">
             <div className="flex items-center justify-between p-5 border-b border-gray-100">
               <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                <Database size={16} className="text-blue-600" /> Historical Price Archive
+                <Database size={16} className="text-[#064e3b]" /> Historical Price Archive
               </h3>
               <span className="adm-badge adm-badge-approved">{chartData.length} Records</span>
             </div>
@@ -239,13 +254,13 @@ const CatalogPriceHistory = () => {
               <table className="admin-table">
                 <thead>
                   <tr>
-                    <th className="pl-6">Effective Date</th>
-                    <th>Safety Range</th>
-                    <th>Previous Value</th>
-                    <th>New Index Price</th>
+                    <th className="pl-6">Price Range</th>
+                    <th>Index Price</th>
+                    <th>Unit</th>
                     <th>Trend</th>
-                    <th>Changed By</th>
-                    <th className="w-1/4">Reason</th>
+                    <th>Change</th>
+                    <th>Note</th>
+                    <th className="text-right pr-8">Updated</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -260,43 +275,57 @@ const CatalogPriceHistory = () => {
                   ) : (
                     // Display latest first in the table
                     [...chartData].reverse().map((row, idx) => (
-                      <tr key={row.id || idx}>
-                        <td className="pl-6">
-                          <span className="font-semibold text-gray-800">{row.chartDate}</span>
-                        </td>
-                        <td>
-                          <div className="flex items-center text-xs">
-                            <span className="text-red-500">{row.floor || '--'}</span>
-                            <span className="mx-2 text-gray-400">→</span>
-                            <span className="text-blue-500">{row.ceiling || '--'}</span>
+                      <tr key={row.id || idx} className="group hover:bg-slate-50/50 transition-all duration-300 border-b border-slate-100 last:border-none">
+                        <td className="pl-8 py-6">
+                          <div className="flex items-center gap-1.5 font-black text-sm tracking-tight">
+                            <span className="text-[#059669] text-base">{row.floor || '--'}</span>
+                            <span className="text-slate-300 mx-0.5 font-medium">-</span>
+                            <span className="text-[#dc2626] text-base">{row.ceiling || '--'}</span>
+                            <span className="text-[10px] text-slate-400 font-black uppercase ml-1.5 opacity-70">DA</span>
                           </div>
                         </td>
                         <td>
-                          <span className="text-gray-400 font-medium">{row.prevPrice ? `${row.prevPrice} DZD` : '—'}</span>
+                          <span className="font-black text-[#064e3b] text-sm tracking-tight">{row.indexPrice} DA</span>
                         </td>
                         <td>
-                          <span className="font-bold text-blue-600">{row.indexPrice} DZD</span>
+                          <span className="text-slate-400 font-black text-[11px] uppercase tracking-widest opacity-80">/{product.default_unit}</span>
                         </td>
                         <td>
                           {row.trendNum === 1 ? (
-                            <span className="flex items-center gap-1 text-red-600 text-xs font-bold bg-red-50 px-2 py-1 rounded w-fit">
-                              <ArrowUpRight size={14} /> UP
+                            <span className="flex items-center gap-2 text-[#059669] text-[10px] font-black uppercase tracking-widest bg-[#ecfdf5] px-3.5 py-2 rounded-xl w-fit border border-[#d1fae5] shadow-sm shadow-emerald-900/5">
+                              <TrendingUp size={13} strokeWidth={3} /> Increasing
                             </span>
                           ) : row.trendNum === -1 ? (
-                            <span className="flex items-center gap-1 text-blue-600 text-xs font-bold bg-blue-50 px-2 py-1 rounded w-fit">
-                              <ArrowDownRight size={14} /> DOWN
+                            <span className="flex items-center gap-2 text-[#dc2626] text-[10px] font-black uppercase tracking-widest bg-[#fef2f2] px-3.5 py-2 rounded-xl w-fit border border-[#fee2e2] shadow-sm shadow-red-900/5">
+                              <TrendingDown size={13} strokeWidth={3} /> Decreasing
                             </span>
                           ) : (
-                            <span className="flex items-center gap-1 text-gray-500 text-xs font-bold bg-gray-100 px-2 py-1 rounded w-fit">
-                              <Minus size={14} /> FLAT
+                            <span className="flex items-center gap-2 text-slate-500 text-[10px] font-black uppercase tracking-widest bg-slate-50 px-3.5 py-2 rounded-xl w-fit border border-slate-200">
+                              <Minus size={13} strokeWidth={3} /> Stable
                             </span>
                           )}
                         </td>
                         <td>
-                          <span className="adm-badge" style={{ background: '#F3F4F6', color: '#6B7280', border: '1px solid #E5E7EB' }}>Admin System</span>
+                          {row.changePercent !== null ? (
+                            <div className={`text-base font-black tracking-tighter ${row.changePercent > 0 ? 'text-[#059669]' : row.changePercent < 0 ? 'text-[#dc2626]' : 'text-slate-400'}`}>
+                              {row.changePercent > 0 ? '+' : ''}{row.changePercent.toFixed(2)}%
+                            </div>
+                          ) : (
+                            <span className="text-slate-300 font-black tracking-widest">---</span>
+                          )}
                         </td>
-                        <td>
-                          <span className="text-sm text-gray-600">{row.notes || '—'}</span>
+                        <td className="max-w-[240px]">
+                          <span className="text-xs font-bold text-slate-500 tracking-tight leading-relaxed block truncate group-hover:whitespace-normal group-hover:overflow-visible group-hover:bg-white group-hover:relative group-hover:z-10 transition-all">
+                            {row.notes || '—'}
+                          </span>
+                        </td>
+                        <td className="text-right pr-8">
+                          <div className="flex items-center justify-end gap-2 text-slate-300 group-hover:text-slate-500 transition-colors">
+                            <Clock size={13} className="opacity-70" />
+                            <span className="text-[11px] font-black tracking-widest uppercase tabular-nums">
+                              {new Date(row.valid_from).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                            </span>
+                          </div>
                         </td>
                       </tr>
                     ))

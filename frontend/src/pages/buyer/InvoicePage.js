@@ -27,7 +27,7 @@ function InvoiceList() {
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[40vh] gap-3">
-      <div className="w-9 h-9 rounded-full border-4 border-slate-200 border-t-indigo-600 animate-spin" />
+      <div className="w-9 h-9 rounded-full border-4 border-slate-200 border-t-teal-600 animate-spin" />
       <span className="text-xs font-black text-slate-500 uppercase tracking-widest animate-pulse">Loading invoices...</span>
     </div>
   );
@@ -36,18 +36,18 @@ function InvoiceList() {
     <div className="max-w-5xl mx-auto px-4 md:px-8 py-8 animate-fade-in">
 
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-indigo-600 mb-5 bg-indigo-50 px-3 py-1 rounded-full w-fit border border-indigo-100 shadow-sm">
-        <Link to="/buyer-dashboard" className="hover:text-indigo-800 transition-colors">Marketplace</Link>
-        <ChevronRight size={10} className="text-indigo-300" />
-        <Link to="/buyer-dashboard/orders" className="hover:text-indigo-800 transition-colors">My Orders</Link>
-        <ChevronRight size={10} className="text-indigo-300" />
-        <span className="text-indigo-900">Invoices</span>
+      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-teal-600 mb-5 bg-teal-50 px-3 py-1 rounded-full w-fit border border-teal-100 shadow-sm">
+        <Link to="/buyer-dashboard" className="hover:text-teal-800 transition-colors">Marketplace</Link>
+        <ChevronRight size={10} className="text-teal-300" />
+        <Link to="/buyer-dashboard/orders" className="hover:text-teal-800 transition-colors">My Orders</Link>
+        <ChevronRight size={10} className="text-teal-300" />
+        <span className="text-teal-900">Invoices</span>
       </div>
 
       {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-          <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-indigo-600">
+          <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-teal-600">
             <FileText size={22} strokeWidth={2.5} />
           </div>
           My Invoices
@@ -60,7 +60,7 @@ function InvoiceList() {
           <ShoppingBag size={36} className="text-slate-300 mx-auto mb-3" />
           <h3 className="text-lg font-black text-slate-800 mb-2">No invoices yet</h3>
           <p className="text-sm text-slate-500 mb-5">Invoices are generated for orders that have been fully delivered.</p>
-          <Link to="/buyer-dashboard/orders" className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-md active:scale-95">
+          <Link to="/buyer-dashboard/orders" className="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-md active:scale-95">
             View My Orders
           </Link>
         </div>
@@ -69,7 +69,7 @@ function InvoiceList() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[580px] text-left border-collapse">
               <thead>
-                <tr className="bg-indigo-700 text-indigo-100 uppercase text-[10px] font-black tracking-widest">
+                <tr className="bg-teal-700 text-teal-100 uppercase text-[10px] font-black tracking-widest">
                   <th className="px-4 py-3">Invoice #</th>
                   <th className="px-4 py-3">Date</th>
                   <th className="px-4 py-3">Items</th>
@@ -79,9 +79,9 @@ function InvoiceList() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {orders.map(o => (
-                  <tr key={o.id} className="hover:bg-indigo-50/30 transition-colors">
+                  <tr key={o.id} className="hover:bg-teal-50/30 transition-colors">
                     <td className="px-4 py-3">
-                      <div className="font-black text-indigo-600 text-xs">INV-{o.id.toString().padStart(5, '0')}</div>
+                      <div className="font-black text-teal-600 text-xs">INV-{o.id.toString().padStart(5, '0')}</div>
                       <div className="text-[10px] text-slate-400 font-medium mt-0.5">Order #AG-{o.id.toString().padStart(5, '0')}</div>
                     </td>
                     <td className="px-4 py-3">
@@ -98,7 +98,7 @@ function InvoiceList() {
                     </td>
                     <td className="px-4 py-3 text-right">
                       <button
-                        className="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-widest transition-all shadow-sm active:scale-95"
+                        className="inline-flex items-center gap-1.5 bg-teal-600 hover:bg-teal-700 text-white px-3 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-widest transition-all shadow-sm active:scale-95"
                         onClick={() => navigate(`/buyer-dashboard/invoices/${o.id}`)}
                       >
                         <FileText size={12} /> View
@@ -152,7 +152,7 @@ function InvoiceDetail() {
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[40vh] gap-3">
-      <div className="w-9 h-9 rounded-full border-4 border-slate-200 border-t-indigo-600 animate-spin" />
+      <div className="w-9 h-9 rounded-full border-4 border-slate-200 border-t-teal-600 animate-spin" />
       <span className="text-xs font-black text-slate-500 uppercase tracking-widest animate-pulse">Loading invoice...</span>
     </div>
   );
@@ -161,7 +161,7 @@ function InvoiceDetail() {
     <div className="max-w-lg mx-auto px-4 py-20 text-center">
       <FileText size={40} className="text-slate-300 mx-auto mb-3" />
       <p className="text-slate-500 text-sm mb-4">Invoice not found.</p>
-      <button className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-md active:scale-95" onClick={() => navigate(-1)}>Go Back</button>
+      <button className="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-md active:scale-95" onClick={() => navigate(-1)}>Go Back</button>
     </div>
   );
 
@@ -184,10 +184,10 @@ function InvoiceDetail() {
             className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-xl font-black text-xs uppercase tracking-widest border border-slate-200 shadow-sm transition-all active:scale-95"
             onClick={handleDownload}
           >
-            <Download size={14} className="text-indigo-600" /> Download PDF
+            <Download size={14} className="text-teal-600" /> Download PDF
           </button>
           <button
-            className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-95"
+            className="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-xl font-black text-xs uppercase tracking-widest shadow-md transition-all active:scale-95"
             onClick={handlePrint}
           >
             <Printer size={14} /> Print Invoice
@@ -202,8 +202,8 @@ function InvoiceDetail() {
         <div className="flex justify-between items-start mb-7 pb-5 border-b border-slate-100">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <Package size={22} className="text-indigo-600" />
-              <span className="text-lg font-black text-indigo-700">AgriGov Market</span>
+              <Package size={22} className="text-teal-600" />
+              <span className="text-lg font-black text-teal-700">AgriGov Market</span>
             </div>
             <div className="text-xs text-slate-400 font-medium">Direct Farm-to-Consumer Marketplace</div>
           </div>
@@ -297,7 +297,7 @@ function InvoiceDetail() {
             </div>
             <div className="flex justify-between items-center py-3">
               <span className="font-black text-sm text-slate-800">Total</span>
-              <span className="font-black text-lg text-indigo-700">{parseFloat(order.total_price).toLocaleString()} DZD</span>
+              <span className="font-black text-lg text-teal-700">{parseFloat(order.total_price).toLocaleString()} DZD</span>
             </div>
           </div>
         </div>

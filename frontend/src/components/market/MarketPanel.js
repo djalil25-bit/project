@@ -5,7 +5,7 @@ import api from '../../api/axiosConfig';
 const TREND = {
   INCREASING: { icon: TrendingUp, color: '#059669', bg: '#ecfdf5', label: 'Increasing', sym: '↑' },
   DECREASING: { icon: TrendingDown, color: '#dc2626', bg: '#fef2f2', label: 'Decreasing', sym: '↓' },
-  STABLE: { icon: Minus, color: '#6366f1', bg: '#eef2ff', label: 'Stable', sym: '→' },
+  STABLE: { icon: Minus, color: '#14b8a6', bg: '#f0fdfa', label: 'Stable', sym: '→' },
 };
 
 function MiniChart({ history }) {

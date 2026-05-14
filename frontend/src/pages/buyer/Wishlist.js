@@ -68,7 +68,7 @@ const Wishlist = () => {
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-       <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-t-indigo-600 animate-spin" />
+       <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-t-teal-600 animate-spin" />
        <span className="text-xs font-black text-slate-500 uppercase tracking-widest animate-pulse">Syncing Curation...</span>
     </div>
   );
@@ -79,10 +79,10 @@ const Wishlist = () => {
       {/* ── BREADCRUMBS & HEADER ───────────────────────── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-indigo-600 mb-3 bg-indigo-50 px-3 py-1 rounded-full w-fit border border-indigo-100 shadow-sm">
-            <Link to="/buyer-dashboard" className="hover:text-indigo-800 transition-colors">Marketplace</Link>
-            <ChevronRight size={10} className="text-indigo-300" />
-            <span className="text-indigo-900 font-black">My Wishlist</span>
+          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-teal-600 mb-3 bg-teal-50 px-3 py-1 rounded-full w-fit border border-teal-100 shadow-sm">
+            <Link to="/buyer-dashboard" className="hover:text-teal-800 transition-colors">Marketplace</Link>
+            <ChevronRight size={10} className="text-teal-300" />
+            <span className="text-teal-900 font-black">My Wishlist</span>
           </div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
             <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-rose-500">
@@ -102,7 +102,7 @@ const Wishlist = () => {
             <ChevronLeft size={14} /> Browse Market
           </button>
           <button
-            className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-md active:scale-95"
+            className="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-md active:scale-95"
             onClick={() => navigate('/buyer/cart')}
           >
             <ShoppingCart size={14} /> View Cart
@@ -128,7 +128,7 @@ const Wishlist = () => {
             Browse the marketplace and save your favorite products here.
           </p>
           <button 
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-md active:scale-95"
+            className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-md active:scale-95"
             onClick={() => navigate('/buyer-dashboard')}
           >
             Browse Products
@@ -142,7 +142,7 @@ const Wishlist = () => {
             return (
               <div 
                 key={fav.id} 
-                className="group bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-indigo-200"
+                className="group bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-teal-200"
               >
                 {/* 1. Square Foundation: Image Section */}
                 <div className="relative w-full aspect-square overflow-hidden bg-slate-50">
@@ -165,7 +165,7 @@ const Wishlist = () => {
 
                 {/* 2. Text & Typography Polish */}
                 <div className="flex flex-col flex-1 p-3">
-                   <h4 className="text-sm font-black text-slate-900 leading-tight mb-0.5 group-hover:text-indigo-600 transition-colors line-clamp-2">
+                   <h4 className="text-sm font-black text-slate-900 leading-tight mb-0.5 group-hover:text-teal-600 transition-colors line-clamp-2">
                       {p.title}
                    </h4>
                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1">
@@ -179,7 +179,7 @@ const Wishlist = () => {
 
                       <div className="flex items-center gap-2">
                          <button
-                           className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-black h-9 rounded-xl shadow-sm transition-all active:scale-95 text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 disabled:opacity-50"
+                           className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-black h-9 rounded-xl shadow-sm transition-all active:scale-95 text-[10px] uppercase tracking-widest flex items-center justify-center gap-1.5 disabled:opacity-50"
                            onClick={() => addToCart(p.id)}
                            disabled={cartLoading || p.stock <= 0}
                          >

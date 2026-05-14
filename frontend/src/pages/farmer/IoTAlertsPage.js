@@ -103,7 +103,7 @@ export default function IoTAlertsPage() {
   if (loading) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: '1rem' }}>
-        <div style={{ width: 40, height: 40, border: '3px solid #e2e8f0', borderTop: '3px solid #22543d', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <div style={{ width: 40, height: 40, border: '3px solid #e2e8f0', borderTop: '3px solid #2E6F40', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
         <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Loading IoT data…</span>
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
@@ -132,7 +132,7 @@ export default function IoTAlertsPage() {
     <div style={{ maxWidth: 1200, margin: '0 auto', padding: '1.5rem 1rem' }}>
       {/* HEADER */}
       <div style={{
-        background: 'linear-gradient(135deg, #22543d 0%, #1a402e 50%, #0f2d1e 100%)',
+        background: 'linear-gradient(135deg, #2E6F40 0%, #255933 50%, #0f2d1e 100%)',
         borderRadius: '1.5rem', padding: '1.75rem 2rem', marginBottom: '1.5rem',
         color: '#fff', position: 'relative', overflow: 'hidden',
         boxShadow: '0 12px 30px rgba(34, 84, 61, 0.25)',
@@ -186,7 +186,7 @@ export default function IoTAlertsPage() {
             {alerts.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
                 <div style={{ width: 56, height: 56, borderRadius: '1rem', background: '#dcfce7', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem', border: '1px solid #bbf7d0' }}>
-                  <ShieldCheck size={28} style={{ color: '#16a34a' }} />
+                  <ShieldCheck size={28} style={{ color: '#2E6F40' }} />
                 </div>
                 <h4 style={{ margin: '0 0 0.4rem', fontWeight: 800, color: '#166534', fontSize: '1rem' }}>✅ All good!</h4>
                 <p style={{ color: '#64748b', fontSize: '0.8rem', fontWeight: 500, maxWidth: 240, margin: '0 auto' }}>No alerts detected. All sensors are within normal ranges.</p>
@@ -230,7 +230,7 @@ export default function IoTAlertsPage() {
           {/* LAST READING — 6 sensors + pH */}
           <div style={{ background: '#fff', borderRadius: '1.25rem', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.04)', overflow: 'hidden' }}>
             <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Activity size={18} style={{ color: '#22543d' }} />
+              <Activity size={18} style={{ color: '#2E6F40' }} />
               <h3 style={{ margin: 0, fontSize: '0.9rem', fontWeight: 800, color: '#0f172a' }}>Latest Reading</h3>
               {lastReading && (
                 <span style={{ marginLeft: 'auto', fontSize: '0.7rem', fontWeight: 700, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4 }}>

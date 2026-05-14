@@ -9,9 +9,9 @@
 :root {
   --adm-bg:          #F8FAFC;
   --adm-card:        #FFFFFF;
-  --adm-accent:      #16a34a;
-  --adm-accent-light:#dcfce7;
-  --adm-accent-dark: #15803d;
+  --adm-accent:      #064e3b;
+  --adm-accent-light:#f0fdf4;
+  --adm-accent-dark: #022c22;
   --adm-success:     #00AA44;
   --adm-success-light:#E6F9EE;
   --adm-warning:     #FF9900;
@@ -141,7 +141,7 @@
 
 /* ── Admin Hero Banner ────────────────────────────────── */
 .admin-mode .admin-hero-strip {
-  background: linear-gradient(135deg, #0066CC 0%, #0052A3 40%, #003D7A 100%);
+  background: linear-gradient(135deg, #0a3d2e 0%, #0f5c44 40%, #166534 100%);
   border-radius: 20px;
   position: relative;
   overflow: hidden;

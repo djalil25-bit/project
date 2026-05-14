@@ -14,6 +14,7 @@ const VehicleSettings = () => {
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({ plate: '', model: '', capacity: '', type: 'truck', fuelType: 'Diesel' });
   const [carteGriseFile, setCarteGriseFile] = useState(null);
+  const [carPhotoFile, setCarPhotoFile] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
@@ -36,6 +37,7 @@ const VehicleSettings = () => {
     data.append('type', formData.type);
     data.append('fuelType', formData.fuelType);
     if (carteGriseFile) data.append('carte_grise', carteGriseFile);
+    if (carPhotoFile) data.append('car_photo', carPhotoFile);
     try {
       if (editingId) {
         await api.patch(`/vehicles/${editingId}/`, data, { headers: { 'Content-Type': 'multipart/form-data' } });
@@ -61,13 +63,13 @@ const VehicleSettings = () => {
 
   const startEdit = (v) => {
     setFormData({ plate: v.plate, model: v.model, capacity: v.capacity, type: v.type, fuelType: v.fuelType || 'Diesel' });
-    setCarteGriseFile(null); setEditingId(v.id); setShowForm(true);
+    setCarteGriseFile(null); setCarPhotoFile(null); setEditingId(v.id); setShowForm(true);
   };
 
   const closeForm = () => {
     setShowForm(false); setEditingId(null);
     setFormData({ plate: '', model: '', capacity: '', type: 'truck', fuelType: 'Diesel' });
-    setCarteGriseFile(null);
+    setCarteGriseFile(null); setCarPhotoFile(null);
   };
 
   const getVehicleIcon = (type) => {
@@ -84,18 +86,18 @@ const VehicleSettings = () => {
   };
 
   return (
-    <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-8 space-y-8 animate-fade-in">
+    <div className="max-w-[1100px] mx-auto px-4 md:px-8 py-8 space-y-6 animate-fade-in">
 
       {/* HEADER */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
         <div>
-          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-indigo-500 mb-3 bg-indigo-50 px-3 py-1.5 rounded-full w-fit border border-indigo-100">
-            <Link to="/transporter-dashboard" className="hover:text-indigo-800 transition-colors">Logistics Hub</Link>
+          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#10B981] mb-3 bg-[#10B981]/20 px-3 py-1.5 rounded-full w-fit border border-indigo-100">
+            <Link to="/transporter-dashboard" className="hover:text-[#2DA83B] transition-colors">Logistics Hub</Link>
             <ChevronRight size={10} />
-            <span className="text-indigo-900">Fleet Assets</span>
+            <span className="text-[#2DA83B]">Fleet Assets</span>
           </div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-600/30">
+            <div className="w-10 h-10 bg-[#10B981] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#10B981]/30">
               <Truck size={20} strokeWidth={2.5} />
             </div>
             Managed Fleet
@@ -108,7 +110,7 @@ const VehicleSettings = () => {
         {!showForm && (
           <button
             onClick={() => setShowForm(true)}
-            className="group relative overflow-hidden bg-gradient-to-br from-indigo-600 to-indigo-700 hover:from-indigo-500 hover:to-indigo-600 text-white px-6 py-3.5 rounded-2xl font-black text-xs uppercase tracking-[0.15em] transition-all duration-200 shadow-lg shadow-indigo-600/30 hover:shadow-xl hover:shadow-indigo-600/40 active:scale-95 flex items-center gap-3"
+            className="group relative overflow-hidden bg-gradient-to-br from-[#10B981] to-[#10B981] hover:from-[#10B981] hover:to-[#10B981] text-white px-6 py-3.5 rounded-2xl font-black text-xs uppercase tracking-[0.15em] transition-all duration-200 shadow-lg shadow-[#10B981]/30 hover:shadow-xl hover:shadow-[#10B981]/40 active:scale-95 flex items-center gap-3"
           >
             <div className="w-7 h-7 bg-white/20 rounded-xl flex items-center justify-center group-hover:bg-white/30 transition-colors">
               <Plus size={16} className="group-hover:rotate-90 transition-transform duration-300" />
@@ -120,10 +122,10 @@ const VehicleSettings = () => {
       </div>
 
       {/* FLEET LIST */}
-      <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 gap-4 bg-white rounded-2xl border border-slate-100">
-            <div className="w-8 h-8 rounded-full border-4 border-slate-100 border-t-indigo-600 animate-spin" />
+            <div className="w-8 h-8 rounded-full border-4 border-slate-100 border-t-[#10B981] animate-spin" />
             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Scanning Registry...</span>
           </div>
         ) : vehicles.length === 0 ? (
@@ -133,101 +135,104 @@ const VehicleSettings = () => {
             </div>
             <h4 className="text-xl font-black text-slate-800 mb-1">Registry Empty</h4>
             <p className="text-slate-400 font-medium mb-6 max-w-xs text-sm">No vehicles found. Register your first asset to begin operations.</p>
-            <button onClick={() => setShowForm(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-indigo-600/20 active:scale-95 flex items-center gap-2">
+            <button onClick={() => setShowForm(true)} className="bg-[#10B981] hover:bg-[#10B981] text-white px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-[#10B981]/20 active:scale-95 flex items-center gap-2">
               <Plus size={14} /> Initialize Fleet
             </button>
           </div>
         ) : (
           vehicles.map(v => {
             const sc = statusConfig[v.status] || statusConfig.PENDING;
+            const typeName = VEHICLE_TYPES.find(vt => vt.id === v.type)?.name || v.type;
             return (
-              <div key={v.id} className="group bg-white rounded-[2rem] border border-slate-200 shadow-sm hover:shadow-xl hover:border-slate-300 transition-all duration-300 overflow-hidden flex flex-col md:flex-row relative">
+              <div key={v.id} className="group bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-[#10B981]/25 transition-all duration-300 overflow-hidden flex flex-col">
                 
-                {/* Left Side: Image */}
-                <div className="md:w-1/3 xl:w-1/4 h-48 md:h-auto shrink-0">
+                {/* Image (top) */}
+                <div className="h-36 relative overflow-hidden shrink-0">
                   <img 
-                    src={v.type === 'van' 
-                      ? "https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=800&q=80" 
-                      : "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=800&q=80"}
+                    src={v.car_photo 
+                      ? (v.car_photo.startsWith('http') ? v.car_photo : `http://localhost:8000${v.car_photo}`)
+                      : (v.type === 'van' 
+                        ? "https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=400&q=80" 
+                        : "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=400&q=80")}
                     alt={v.model} 
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                  <div className="absolute top-2.5 left-2.5">
+                    <div className="bg-[#10B981] text-white px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider shadow flex items-center gap-1">
+                      {getVehicleIcon(v.type)} {typeName}
+                    </div>
+                  </div>
+                  <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-end justify-between">
+                    <span className="bg-slate-900/90 backdrop-blur-sm text-white px-2.5 py-1 rounded-lg text-[10px] font-mono font-black tracking-wider">{v.plate}</span>
+                    <div className={`px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider border backdrop-blur-sm flex items-center gap-1 ${
+                      v.status === 'ACTIVE' ? 'bg-emerald-500/90 text-white border-emerald-400/50' :
+                      v.status === 'REJECTED' ? 'bg-red-500/90 text-white border-red-400/50' :
+                      'bg-amber-500/90 text-white border-amber-400/50'
+                    }`}>
+                      <span className={`w-1.5 h-1.5 rounded-full bg-white ${v.status === 'ACTIVE' ? 'animate-pulse' : ''}`} />
+                      {v.status === 'ACTIVE' && v.is_active === false ? 'Offline' : sc.label}
+                    </div>
+                  </div>
                 </div>
 
-                {/* Right Side: Content & Info */}
-                <div className="flex-1 p-5 md:p-6">
-                  {/* Header */}
-                  <div className="flex flex-wrap items-start justify-between gap-4 mb-5">
-                    <div className="space-y-2">
-                      <h3 className="text-xl font-black text-slate-900 tracking-tight leading-none">
-                        {VEHICLE_TYPES.find(vt => vt.id === v.type)?.name || v.type}
-                        <span className="text-slate-400 font-medium text-base ml-2 tracking-normal">{v.model}</span>
-                      </h3>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <div className="bg-slate-900 text-white px-3 py-1 rounded-lg text-[10px] font-mono font-black uppercase tracking-widest shadow-sm">
-                          {v.plate}
-                        </div>
-                        <div className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border ${sc.bg} ${sc.text} ${sc.border} flex items-center gap-1.5 shadow-sm`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${sc.dot} ${v.status === 'ACTIVE' ? 'animate-pulse' : ''}`} />
-                          {v.status === 'ACTIVE' && v.is_active === false ? 'Offline' : sc.label}
-                        </div>
-                      </div>
+                {/* Content (bottom) */}
+                <div className="p-4 flex flex-col flex-1">
+                  {/* Header row */}
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <div className="min-w-0">
+                      <h3 className="text-sm font-black text-slate-900 tracking-tight leading-tight truncate">{v.model}</h3>
+                      <span className="text-[10px] text-slate-400 font-bold">REG-{v.id.toString().padStart(4, '0')}</span>
                     </div>
-
-                    {v.carte_grise && (
-                      <a href={v.carte_grise.startsWith('http') ? v.carte_grise : `http://localhost:8000${v.carte_grise}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50 transition-all shrink-0" title="View Carte Grise">
-                        <FileText size={18} />
-                      </a>
-                    )}
+                    <div className="flex items-center gap-1 shrink-0">
+                      {v.carte_grise && (
+                        <a href={v.carte_grise.startsWith('http') ? v.carte_grise : `http://localhost:8000${v.carte_grise}`} target="_blank" rel="noopener noreferrer" className="w-7 h-7 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center text-slate-400 hover:text-[#10B981] hover:border-[#10B981]/30 transition-all" title="Carte Grise">
+                          <FileText size={13} />
+                        </a>
+                      )}
+                      {v.status === 'REJECTED' && (
+                        <button onClick={(e) => { e.stopPropagation(); startEdit(v); }} className="w-7 h-7 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center text-slate-500 hover:text-[#10B981] hover:border-[#10B981]/30 transition-all" title="Edit">
+                          <Edit2 size={13} />
+                        </button>
+                      )}
+                      {v.status === 'ACTIVE' && (
+                        <button onClick={(e) => { e.stopPropagation(); toggleVehicleStatus(v.id, v.is_active); }} className="w-7 h-7 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center text-slate-500 hover:text-[#10B981] hover:border-[#10B981]/30 transition-all" title={v.is_active === false ? "Activate" : "Deactivate"}>
+                          <Power size={13} />
+                        </button>
+                      )}
+                      <button onClick={(e) => { e.stopPropagation(); removeVehicle(v.id); }} className="w-7 h-7 bg-red-50 border border-red-100 rounded-lg flex items-center justify-center text-red-400 hover:text-red-600 hover:border-red-300 transition-all" title="Delete">
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
                   </div>
 
-                  {/* Status Alerts */}
+                  {/* Status Alert */}
                   {v.status === 'REJECTED' && (
-                    <div className="mb-5 bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-center gap-2">
-                      <AlertCircle size={16} className="text-red-500 shrink-0" />
-                      <p className="text-xs text-red-700 font-bold">{v.rejection_reason || 'Registration rejected.'}</p>
+                    <div className="mb-2 bg-red-50 border border-red-100 rounded-lg px-2.5 py-1.5 flex items-center gap-1.5">
+                      <AlertCircle size={12} className="text-red-500 shrink-0" />
+                      <p className="text-[10px] text-red-600 font-bold truncate">{v.rejection_reason || 'Rejected. Edit & resubmit.'}</p>
                     </div>
                   )}
                   {v.status === 'PENDING' && (
-                    <div className="mb-5 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 flex items-center gap-2">
-                      <Clock size={16} className="text-amber-500 shrink-0" />
-                      <p className="text-xs text-amber-700 font-bold">Awaiting administrative approval. Mission acceptance disabled.</p>
+                    <div className="mb-2 bg-amber-50 border border-amber-100 rounded-lg px-2.5 py-1.5 flex items-center gap-1.5">
+                      <Clock size={12} className="text-amber-500 shrink-0" />
+                      <p className="text-[10px] text-amber-600 font-bold">Awaiting approval.</p>
                     </div>
                   )}
 
-                  {/* Properties Grid (Only Real Data) */}
-                  <div className="flex flex-wrap gap-2">
-                    <div className="bg-slate-50 hover:bg-slate-100 transition-colors border border-slate-100 rounded-xl px-4 py-2.5 min-w-[120px] flex-1">
-                      <div className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Fuel Type</div>
-                      <div className="text-sm font-black text-slate-800">{v.fuelType || 'Diesel'}</div>
+                  {/* Specs */}
+                  <div className="flex items-center gap-1.5 flex-wrap mt-auto">
+                    <div className="flex items-center gap-1 bg-slate-50 border border-slate-100 rounded px-2 py-1">
+                      <Zap size={11} className="text-slate-400" />
+                      <span className="text-[10px] font-black text-slate-700">{v.fuelType || 'Diesel'}</span>
                     </div>
-                    <div className="bg-slate-50 hover:bg-slate-100 transition-colors border border-slate-100 rounded-xl px-4 py-2.5 min-w-[120px] flex-1">
-                      <div className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Max Capacity</div>
-                      <div className="text-sm font-black text-slate-800">{parseFloat(v.capacity) >= 1000 ? `${(parseFloat(v.capacity)/1000).toFixed(1)} tons` : `${v.capacity} kg`}</div>
+                    <div className="flex items-center gap-1 bg-slate-50 border border-slate-100 rounded px-2 py-1">
+                      <Gauge size={11} className="text-slate-400" />
+                      <span className="text-[10px] font-black text-slate-700">{parseFloat(v.capacity) >= 1000 ? `${(parseFloat(v.capacity)/1000).toFixed(1)}t` : `${v.capacity}kg`}</span>
                     </div>
-                    <div className="bg-slate-50 hover:bg-slate-100 transition-colors border border-slate-100 rounded-xl px-4 py-2.5 min-w-[120px] flex-1">
-                      <div className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-0.5">Registry ID</div>
-                      <div className="text-sm font-black text-slate-800 font-mono">REG-{v.id.toString().padStart(4, '0')}</div>
-                    </div>
-                  </div>
-
-                  {/* Explicit Action Bar */}
-                  <div className="mt-5 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-end gap-2">
-                    {v.status === 'REJECTED' && (
-                      <button onClick={(e) => { e.stopPropagation(); startEdit(v); }} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 border border-slate-200 hover:bg-slate-100 hover:border-slate-300 text-slate-700 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all shadow-sm" title="Edit Asset">
-                        <Edit2 size={12} /> Edit
-                      </button>
-                    )}
-                    {v.status === 'ACTIVE' && (
-                      <button onClick={(e) => { e.stopPropagation(); toggleVehicleStatus(v.id, v.is_active); }} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 border border-slate-200 hover:bg-slate-100 hover:border-slate-300 text-slate-700 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all shadow-sm" title={v.is_active === false ? "Activate" : "Deactivate"}>
-                        <Power size={12} /> {v.is_active === false ? "Activate" : "Deactivate"}
-                      </button>
-                    )}
-                    <button onClick={(e) => { e.stopPropagation(); removeVehicle(v.id); }} className="flex items-center gap-1.5 px-3 py-1.5 bg-red-50 border border-red-200 hover:bg-red-100 hover:border-red-300 text-red-600 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all shadow-sm" title="Delete Asset">
-                      <Trash2 size={12} /> Delete
-                    </button>
                   </div>
                 </div>
+
               </div>
             );
           })
@@ -239,7 +244,7 @@ const VehicleSettings = () => {
         <div className="fixed inset-0 z-[5000] flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-md animate-fade-in">
           <div className="bg-white rounded-[2rem] w-full max-w-3xl shadow-2xl animate-scale-in flex flex-col overflow-hidden max-h-[90vh] border border-slate-200/60">
             {/* Modal header stripe */}
-            <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 p-6 md:px-8 flex items-center justify-between shrink-0">
+            <div className="bg-gradient-to-r from-[#10B981] to-[#10B981] p-6 md:px-8 flex items-center justify-between shrink-0">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-white border border-white/10 shadow-inner">
                   {editingId ? <Edit2 size={20} /> : <Plus size={20} strokeWidth={3} />}
@@ -299,6 +304,28 @@ const VehicleSettings = () => {
                         onChange={e => setFormData({...formData, plate: e.target.value})}
                       />
                     </div>
+
+                    {/* Car Photo Upload */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Asset Photo (Optional)</label>
+                        {carPhotoFile && <span className="text-[10px] font-black text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-full uppercase">File Selected</span>}
+                      </div>
+                      <input type="file" accept="image/*" onChange={e => setCarPhotoFile(e.target.files[0])} className="hidden" id="car-photo-input" />
+                      <label htmlFor="car-photo-input" className={`w-full h-12 border-2 border-dashed rounded-xl px-4 flex items-center gap-3 text-sm cursor-pointer transition-all ${carPhotoFile ? 'border-indigo-400 bg-[#10B981]/20 text-[#2DA83B] shadow-inner' : 'border-slate-200 bg-slate-50/50 text-slate-500 hover:border-indigo-400 hover:bg-[#10B981]/20/50 hover:text-[#10B981]'}`}>
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${carPhotoFile ? 'bg-[#10B981]/20 text-[#10B981]' : 'bg-slate-100 text-slate-400'}`}>
+                          <Upload size={16} />
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                          <span className="truncate font-bold text-slate-800 text-xs">
+                            {carPhotoFile ? carPhotoFile.name : 'Upload Vehicle Photo'}
+                          </span>
+                          <span className="text-[10px] font-medium opacity-70">
+                            {carPhotoFile ? `${(carPhotoFile.size / 1024 / 1024).toFixed(2)} MB` : 'JPG or PNG (max 5MB)'}
+                          </span>
+                        </div>
+                      </label>
+                    </div>
                   </div>
 
                   {/* RIGHT COLUMN */}
@@ -338,8 +365,8 @@ const VehicleSettings = () => {
                         {carteGriseFile && <span className="text-[10px] font-black text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-full uppercase">File Selected</span>}
                       </div>
                       <input type="file" accept="image/*,.pdf" onChange={e => setCarteGriseFile(e.target.files[0])} className="hidden" id="carte-grise-input" />
-                      <label htmlFor="carte-grise-input" className={`w-full h-12 border-2 border-dashed rounded-xl px-4 flex items-center gap-3 text-sm cursor-pointer transition-all ${carteGriseFile ? 'border-indigo-400 bg-indigo-50 text-indigo-700 shadow-inner' : 'border-slate-200 bg-slate-50/50 text-slate-500 hover:border-indigo-400 hover:bg-indigo-50/50 hover:text-indigo-600'}`}>
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${carteGriseFile ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-slate-400'}`}>
+                      <label htmlFor="carte-grise-input" className={`w-full h-12 border-2 border-dashed rounded-xl px-4 flex items-center gap-3 text-sm cursor-pointer transition-all ${carteGriseFile ? 'border-indigo-400 bg-[#10B981]/20 text-[#2DA83B] shadow-inner' : 'border-slate-200 bg-slate-50/50 text-slate-500 hover:border-indigo-400 hover:bg-[#10B981]/20/50 hover:text-[#10B981]'}`}>
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${carteGriseFile ? 'bg-[#10B981]/20 text-[#10B981]' : 'bg-slate-100 text-slate-400'}`}>
                           <Upload size={16} />
                         </div>
                         <div className="flex flex-col min-w-0">
@@ -362,7 +389,7 @@ const VehicleSettings = () => {
                 <button type="button" onClick={closeForm} className="w-full md:w-auto px-8 h-12 bg-white border border-slate-200 hover:bg-slate-50 hover:border-slate-300 text-slate-600 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-sm">
                   Cancel
                 </button>
-                <button type="submit" className="w-full md:w-auto px-8 h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black text-xs uppercase tracking-[0.15em] shadow-lg shadow-indigo-600/25 hover:shadow-xl hover:shadow-indigo-600/40 transition-all flex items-center justify-center gap-2 active:scale-95">
+                <button type="submit" className="w-full md:w-auto px-8 h-12 bg-[#10B981] hover:bg-[#10B981] text-white rounded-xl font-black text-xs uppercase tracking-[0.15em] shadow-lg shadow-indigo-600/25 hover:shadow-xl hover:shadow-[#10B981]/40 transition-all flex items-center justify-center gap-2 active:scale-95">
                   <Save size={16} strokeWidth={2.5} /> {editingId ? 'Update Asset' : 'Register Asset'}
                 </button>
               </div>

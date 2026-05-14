@@ -40,6 +40,8 @@ const MissionDetailsModal = ({ mission, onClose, onAccept, hasActiveMission, act
   
   const fee = mission.estimated_fee ? `${parseFloat(mission.estimated_fee).toLocaleString()} DZD` : 'N/A';
   const totalQuantity = items.reduce((acc, item) => acc + parseFloat(item.quantity || 0), 0);
+  const calculatedTotalValue = items.reduce((acc, item) => acc + (parseFloat(item.price || item.price_snapshot || item.unit_price || 0) * parseFloat(item.quantity || 0)), 0);
+  const totalOrderValue = orderDetail.total_price || orderDetail.farmer_total || calculatedTotalValue || 0;
   
   const vehicleTypeLabel = VEHICLE_TYPES.find(vt => vt.id === mission.required_vehicle_type)?.name || 'Standard Truck';
 
@@ -89,11 +91,17 @@ const MissionDetailsModal = ({ mission, onClose, onAccept, hasActiveMission, act
                </div>
             </div>
 
-            <div className="bg-indigo-50 border border-indigo-100 rounded-[1.5rem] p-4 flex flex-col justify-center items-center text-center shadow-sm">
-              <span className="text-[9px] font-black uppercase tracking-widest text-indigo-400 mb-1.5">Financial Yield</span>
-              <div className="text-2xl font-black text-indigo-950 tracking-tighter leading-none mb-2.5">{fee}</div>
-              <div className="text-[9px] font-bold text-indigo-700 bg-white border border-indigo-100 px-3 py-1 rounded-xl flex items-center gap-1.5 shadow-sm">
-                <Calendar size={10} /> {mission.preferred_delivery_date ? new Date(mission.preferred_delivery_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : 'Flexible'}
+            <div className="bg-indigo-50 border border-indigo-100 rounded-[1.5rem] p-4 flex flex-col justify-center gap-2 shadow-sm">
+              <div className="flex justify-between items-center border-b border-indigo-100/50 pb-2">
+                <span className="text-[9px] font-black uppercase tracking-widest text-indigo-400">Order Value</span>
+                <span className="text-sm font-black text-slate-800">{parseFloat(totalOrderValue).toLocaleString()} <span className="text-[9px] text-slate-500">DZD</span></span>
+              </div>
+              <div className="flex justify-between items-center pt-1 mb-1">
+                <span className="text-[9px] font-black uppercase tracking-widest text-emerald-600">Delivery Fee</span>
+                <span className="text-xl font-black text-emerald-600 tracking-tight leading-none">{fee}</span>
+              </div>
+              <div className="text-[9px] font-bold text-indigo-700 bg-white border border-indigo-100 px-3 py-1.5 rounded-xl flex items-center justify-center gap-1.5 shadow-sm">
+                <Calendar size={10} /> {mission.preferred_delivery_date ? new Date(mission.preferred_delivery_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : 'Flexible Date'}
               </div>
             </div>
           </div>
@@ -131,7 +139,7 @@ const MissionDetailsModal = ({ mission, onClose, onAccept, hasActiveMission, act
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <div className={`rounded-[1.25rem] p-3 border flex items-center justify-center gap-2 transition-all shadow-sm ${mission.is_refrigerated ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-slate-50 border-slate-100 text-slate-300'}`}>
+                  <div className={`rounded-[1.25rem] p-3 border flex items-center justify-center gap-2 transition-all shadow-sm ${mission.is_refrigerated ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-slate-50 border-slate-100 text-slate-300'}`}>
                     <Thermometer size={14} /> <span className="text-[9px] font-black uppercase tracking-widest">Fridge</span>
                   </div>
                   <div className={`rounded-[1.25rem] p-3 border flex items-center justify-center gap-2 transition-all shadow-sm ${mission.is_fragile ? 'bg-rose-50 border-rose-200 text-rose-700' : 'bg-slate-50 border-slate-100 text-slate-300'}`}>

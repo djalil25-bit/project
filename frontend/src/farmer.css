@@ -472,7 +472,7 @@
   border: 1px solid #ddd6fe;
 }
 .f-badge-assigned {
-  background: #dbeafe; color: #1e40af;
+  background: #dbeafe; color: #2E7D32;
   border: 1px solid #bfdbfe;
 }
 .f-badge-not-sent {
@@ -659,7 +659,7 @@
 .f-alert-danger  { background: #fff5f5; color: #991b1b; border-color: var(--f-red); }
 .f-alert-success { background: #f0faf4; color: #065f46; border-color: #22c55e; }
 .f-alert-warning { background: #fffbeb; color: #78350f; border-color: var(--f-amber); }
-.f-alert-info    { background: #eff6ff; color: #1e40af; border-color: #3b82f6; }
+.f-alert-info    { background: #eff6ff; color: #2E7D32; border-color: #3b82f6; }
 
 /* ── TABLE SYSTEM ──────────────────────────────────────────── */
 .f-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }

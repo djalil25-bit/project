@@ -86,7 +86,7 @@ const GlobalSearchBar = () => {
         <div className="global-search-results">
           <div className="px-3 py-2 border-b border-gray-100 flex justify-between items-center">
             <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{results.length} results</span>
-            {loading && <span className="text-xs text-blue-500">Searching...</span>}
+            {loading && <span className="text-xs text-slate-500">Searching...</span>}
           </div>
           {results.map((item, i) => {
             const config = typeConfig[item.type];

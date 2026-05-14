@@ -238,25 +238,7 @@ const RequestDelivery = () => {
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem', marginTop: '1rem' }}>
-                    <div className="f-form-group">
-                      <label className="f-form-label">Est. Distance (KM)</label>
-                      <input 
-                        type="number" className="f-input"
-                        value={formData.estimated_distance_km}
-                        onChange={e => setFormData({...formData, estimated_distance_km: e.target.value})}
-                        placeholder="e.g. 78"
-                      />
-                    </div>
-                    <div className="f-form-group">
-                      <label className="f-form-label">Est. Duration</label>
-                      <input 
-                        type="text" className="f-input"
-                        value={formData.estimated_duration}
-                        onChange={e => setFormData({...formData, estimated_duration: e.target.value})}
-                        placeholder="e.g. 1h 35m"
-                      />
-                    </div>
+                  <div style={{ marginTop: '1rem' }}>
                     <div className="f-form-group">
                       <label className="f-form-label">Transport Fee (DZD)</label>
                       <input 
@@ -307,7 +289,7 @@ const RequestDelivery = () => {
                         type="checkbox" 
                         checked={formData.is_refrigerated}
                         onChange={e => setFormData({...formData, is_refrigerated: e.target.checked})}
-                        className="w-4 h-4 accent-emerald-600"
+                        className="w-4 h-4 accent-[#2E6F40]"
                       />
                       <span className="text-sm font-bold text-slate-700">Refrigerated required</span>
                     </label>
@@ -316,7 +298,7 @@ const RequestDelivery = () => {
                         type="checkbox" 
                         checked={formData.is_fragile}
                         onChange={e => setFormData({...formData, is_fragile: e.target.checked})}
-                        className="w-4 h-4 accent-emerald-600"
+                        className="w-4 h-4 accent-[#2E6F40]"
                       />
                       <span className="text-sm font-bold text-slate-700">Fragile cargo</span>
                     </label>

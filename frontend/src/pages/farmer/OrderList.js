@@ -12,11 +12,11 @@ const OrderStatusBadge = ({ status }) => {
   const s = status?.toUpperCase() || '';
   const map = {
     PENDING:            { cls: 'bg-amber-100 text-amber-800 border-amber-200',   icon: <Clock size={12} />,         label: 'Pending'   },
-    CONFIRMED:          { cls: 'bg-emerald-600 text-white border-emerald-700 shadow-sm font-black',  icon: <CheckCircle size={12} />,   label: 'Confirmed' },
+    CONFIRMED:          { cls: 'bg-[#2E6F40] text-white border-[#255933] shadow-sm font-black',  icon: <CheckCircle size={12} />,   label: 'Confirmed' },
     DELIVERED:          { cls: 'bg-slate-900 text-white border-slate-900 shadow-sm font-black',  icon: <Truck size={12} />,         label: 'Delivered' },
     REFUSED_DELIVERY:   { cls: 'bg-rose-100 text-rose-800 border-rose-200 font-black', icon: <ShieldAlert size={12} />, label: 'Refused' },
     RETURN_IN_PROGRESS: { cls: 'bg-rose-50 text-rose-700 border-rose-200 border-dashed animate-pulse', icon: <Truck size={12} />,      label: 'Returning' },
-    RETURNED:           { cls: 'bg-emerald-600 text-white border-emerald-700 shadow-sm font-black', icon: <CheckCircle size={12} />, label: 'Returned' },
+    RETURNED:           { cls: 'bg-[#2E6F40] text-white border-[#255933] shadow-sm font-black', icon: <CheckCircle size={12} />, label: 'Returned' },
     REJECTED:           { cls: 'bg-red-100 text-red-800 border-red-200',   icon: <XCircle size={12} />,       label: 'Rejected'  },
   };
   const b = map[s] || { cls: 'bg-slate-100 text-slate-600 border-slate-200', icon: null, label: s };
@@ -28,17 +28,17 @@ const DeliveryBadge = ({ order }) => {
   const reqStatus   = order.delivery_request?.status?.toUpperCase() || '';
   const delivStatus = order.delivery_status?.toUpperCase() || '';
 
-  if (delivStatus === 'DELIVERED') return <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-full text-[10px] font-extrabold"><CheckCircle size={12} /> Delivered</span>;
+  if (delivStatus === 'DELIVERED') return <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-[#cee8d9] text-emerald-800 border border-[#a2d4b5] rounded-full text-[10px] font-extrabold"><CheckCircle size={12} /> Delivered</span>;
   if (!hasReq)                     return <span className="inline-flex items-center gap-1.5 px-2 py-1 bg-slate-100 text-slate-500 border border-slate-200 rounded-full text-[10px] font-extrabold">Not Sent</span>;
 
   const map = {
     OPEN:               { cls: 'bg-indigo-50 text-indigo-700 border-indigo-200',  label: 'Awaiting' },
-    ASSIGNED:           { cls: 'bg-blue-100 text-blue-800 border-blue-200', label: 'Assigned'             },
+    ASSIGNED:           { cls: 'bg-emerald-100 text-emerald-800 border-emerald-200', label: 'Assigned'             },
     PICKED_UP:          { cls: 'bg-purple-100 text-purple-800 border-purple-200',  label: 'In Transit'           },
     IN_TRANSIT:         { cls: 'bg-purple-100 text-purple-800 border-purple-200',  label: 'In Transit'           },
     REFUSED_DELIVERY:   { cls: 'bg-rose-100 text-rose-800 border-rose-200', label: 'Refused' },
     RETURN_IN_PROGRESS: { cls: 'bg-rose-50 text-rose-700 border-rose-200 border-dashed animate-pulse', label: 'Returning' },
-    RETURNED:           { cls: 'bg-emerald-600 text-white border-emerald-700 font-black', label: 'Returned' },
+    RETURNED:           { cls: 'bg-[#2E6F40] text-white border-[#255933] font-black', label: 'Returned' },
     CANCELLED:          { cls: 'bg-red-100 text-red-800 border-red-200', label: 'Cancelled'            },
   };
   const b = map[reqStatus] || { cls: 'bg-slate-100 text-slate-600 border-slate-200', label: reqStatus || 'Unknown' };
@@ -109,7 +109,7 @@ export default function OrderList() {
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-      <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-t-[#22543d] animate-spin" />
+      <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-t-[#2E6F40] animate-spin" />
       <span className="text-sm font-bold text-slate-500 uppercase tracking-widest animate-pulse">Loading orders...</span>
     </div>
   );
@@ -120,7 +120,7 @@ export default function OrderList() {
       {/* ── HEADER ─────────────────────────────────────────────────── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
         <div>
-          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-[#22543d] mb-2">
+          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-[#2E6F40] mb-2">
             <Link to="/farmer-dashboard" className="hover:underline">Farmer Hub</Link>
             <ChevronRight size={12} className="text-slate-400" />
             <span className="text-slate-400 flex items-center gap-1"><ListOrdered size={12}/> Orders</span>
@@ -140,7 +140,7 @@ export default function OrderList() {
           <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
-            className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#22543d] transition-all text-sm font-semibold text-slate-700 placeholder-slate-400"
+            className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2E6F40] transition-all text-sm font-semibold text-slate-700 placeholder-slate-400"
             placeholder="Search by Order ID or Buyer Name..."
             value={searchTerm}
             onChange={e => setSearch(e.target.value)}
@@ -153,7 +153,7 @@ export default function OrderList() {
           {filterTabs.map(t => (
             <button
               key={t.key}
-              className={`whitespace-nowrap px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${filter === t.key ? 'bg-white text-[#22543d] shadow-[0_2px_8px_rgba(0,0,0,0.05)] scale-105' : 'text-slate-500 hover:text-slate-700'}`}
+              className={`whitespace-nowrap px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${filter === t.key ? 'bg-white text-[#2E6F40] shadow-[0_2px_8px_rgba(0,0,0,0.05)] scale-105' : 'text-slate-500 hover:text-slate-700'}`}
               onClick={() => setFilter(t.key)}
             >
               {t.label}
@@ -167,7 +167,7 @@ export default function OrderList() {
         <div className="w-full max-w-full overflow-x-auto">
           <table className="w-full min-w-[860px] text-left border-collapse">
             <thead>
-              <tr className="bg-[#22543d] text-emerald-100 uppercase text-[10px] font-black tracking-widest">
+              <tr className="bg-[#2E6F40] text-[#cee8d9] uppercase text-[10px] font-black tracking-widest">
                 <th className="px-4 py-3 w-24">Order</th>
                 <th className="px-4 py-3">Buyer</th>
                 <th className="px-4 py-3 w-16 text-center">Items</th>
@@ -193,13 +193,13 @@ export default function OrderList() {
                 </tr>
               ) : filteredOrders.map(o => (
                 <React.Fragment key={o.id}>
-                  <tr className="bg-white hover:bg-emerald-50/40 transition-colors group cursor-pointer border-b border-slate-100 last:border-b-0" onClick={() => setExpanded(expandedRow === o.id ? null : o.id)}>
+                  <tr className="bg-white hover:bg-[#f0faf4]/40 transition-colors group cursor-pointer border-b border-slate-100 last:border-b-0" onClick={() => setExpanded(expandedRow === o.id ? null : o.id)}>
                     <td className="px-4 py-3">
-                      <span className="font-black text-[#22543d] text-xs">#{fmtNum(o)}</span>
+                      <span className="font-black text-[#2E6F40] text-xs">#{fmtNum(o)}</span>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-full bg-[#22543d]/10 text-[#22543d] flex items-center justify-center font-black text-xs shrink-0 border border-[#22543d]/20">
+                        <div className="w-7 h-7 rounded-full bg-[#2E6F40]/10 text-[#2E6F40] flex items-center justify-center font-black text-xs shrink-0 border border-[#2E6F40]/20">
                           {o.buyer_name?.charAt(0) || 'U'}
                         </div>
                         <span className="font-semibold text-xs text-slate-700 truncate max-w-[140px]">{o.buyer_name}</span>
@@ -221,13 +221,13 @@ export default function OrderList() {
                         {o.status?.toUpperCase() === 'PENDING' && (
                           <>
                             <button
-                              className="w-7 h-7 flex items-center justify-center bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white border border-emerald-200 hover:border-emerald-500 rounded-lg transition-all shadow-sm transform hover:scale-110"
+                              className="w-7 h-7 flex items-center justify-center bg-[#f0faf4] text-[#2E6F40] hover:bg-[#2E6F40] hover:text-white border border-[#a2d4b5] hover:border-[#2E6F40] rounded-lg transition-all shadow-sm transform hover:scale-110"
                               title="Confirm"
                               onClick={() => handleAction(o.id, 'confirm')}
                               disabled={actionLoading === o.id + '_confirm'}
                             >
                               {actionLoading === o.id + '_confirm'
-                                ? <span className="inline-block w-3 h-3 border-2 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin" />
+                                ? <span className="inline-block w-3 h-3 border-2 border-[#2E6F40]/30 border-t-[#2E6F40] rounded-full animate-spin" />
                                 : <CheckCircle size={14} strokeWidth={3} />
                               }
                             </button>
@@ -245,7 +245,7 @@ export default function OrderList() {
                           </>
                         )}
                         <button
-                          className={`w-7 h-7 flex items-center justify-center rounded-lg transition-all shadow-sm transform hover:scale-110 ${expandedRow === o.id ? 'bg-[#22543d] text-white border border-[#22543d]' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'}`}
+                          className={`w-7 h-7 flex items-center justify-center rounded-lg transition-all shadow-sm transform hover:scale-110 ${expandedRow === o.id ? 'bg-[#2E6F40] text-white border border-[#2E6F40]' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'}`}
                           title="View"
                           onClick={() => setExpanded(expandedRow === o.id ? null : o.id)}
                         >
@@ -265,7 +265,7 @@ export default function OrderList() {
                             <div className="hidden lg:block absolute left-1/2 top-4 bottom-4 w-px bg-slate-200 -ml-px z-10" />
 
                             <div className="p-6">
-                              <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#22543d] mb-4 pb-2 border-b border-slate-200 border-dashed">
+                              <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#2E6F40] mb-4 pb-2 border-b border-slate-200 border-dashed">
                                 <Package size={14} /> Order Items
                               </div>
                               <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
@@ -285,7 +285,7 @@ export default function OrderList() {
                                           <div className="text-[9px] font-bold text-slate-400 mt-0.5">{item.price_per_unit} DZD/UN</div>
                                         </td>
                                         <td className="px-3 py-2 text-center font-black text-slate-600">{item.quantity}</td>
-                                        <td className="px-3 py-2 text-right font-black text-[#22543d] truncate">{item.item_total}</td>
+                                        <td className="px-3 py-2 text-right font-black text-[#2E6F40] truncate">{item.item_total}</td>
                                       </tr>
                                     ))}
                                   </tbody>
@@ -294,7 +294,7 @@ export default function OrderList() {
                             </div>
 
                             <div className="p-6 bg-white">
-                              <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#22543d] mb-4 pb-2 border-b border-slate-200 border-dashed">
+                              <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#2E6F40] mb-4 pb-2 border-b border-slate-200 border-dashed">
                                 <User size={14} /> Delivery & Totals
                               </div>
                               <div className="space-y-2 mb-6">
@@ -304,9 +304,9 @@ export default function OrderList() {
                                     <a 
                                       href={`https://wa.me/${o.buyer_phone.replace(/\D/g, '').startsWith('0') ? '213' + o.buyer_phone.replace(/\D/g, '').substring(1) : o.buyer_phone.replace(/\D/g, '')}`}
                                       target="_blank" rel="noopener noreferrer"
-                                      className="inline-flex items-center gap-1.5 px-2 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-[11px] font-black hover:bg-emerald-100 hover:border-emerald-300 transition-all shadow-sm"
+                                      className="inline-flex items-center gap-1.5 px-2 py-1 bg-[#f0faf4] text-[#255933] border border-[#a2d4b5] rounded-lg text-[11px] font-black hover:bg-[#cee8d9] hover:border-[#76b08a] transition-all shadow-sm"
                                     >
-                                      <Phone size={11} className="fill-emerald-700" /> {o.buyer_phone}
+                                      <Phone size={11} className="fill-[#255933]" /> {o.buyer_phone}
                                     </a>
                                   ) : (
                                     <span className="text-xs font-black text-slate-400 italic">UNAVAILABLE</span>
@@ -315,7 +315,7 @@ export default function OrderList() {
                                 <div className="flex justify-between items-center bg-slate-50 px-3 py-2 rounded-lg border border-slate-100">
                                   <span className="text-xs font-bold text-slate-500">Delivery Address:</span>
                                   <span className="text-[10px] font-extrabold text-slate-800 text-right truncate max-w-[60%]">
-                                    {o.wilaya && <span className="text-[#22543d] mr-1">{o.wilaya} /</span>}
+                                    {o.wilaya && <span className="text-[#2E6F40] mr-1">{o.wilaya} /</span>}
                                     {o.delivery_address}
                                   </span>
                                 </div>
@@ -324,7 +324,7 @@ export default function OrderList() {
                               <div className="bg-slate-900 text-white p-4 rounded-xl shadow-md border border-slate-800">
                                 <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-slate-400 mb-3 border-b border-white/5 pb-2">
                                   <span>Order Totals</span>
-                                  <span className="text-emerald-400">DZD (Net)</span>
+                                  <span className="text-[#4a8c5f]">DZD (Net)</span>
                                 </div>
                                 <div className="space-y-2">
                                   <div className="flex justify-between items-center text-xs font-bold">
@@ -337,7 +337,7 @@ export default function OrderList() {
                                   </div>
                                   <div className="flex justify-between items-center pt-2 border-t border-white/10 mt-1">
                                     <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Total</span>
-                                    <span className="text-lg font-black text-emerald-400">{(parseFloat(o.order_subtotal || 0) + parseFloat(o.transport_fee || 0)).toLocaleString()}</span>
+                                    <span className="text-lg font-black text-[#4a8c5f]">{(parseFloat(o.order_subtotal || 0) + parseFloat(o.transport_fee || 0)).toLocaleString()}</span>
                                   </div>
                                 </div>
                               </div>
@@ -346,13 +346,13 @@ export default function OrderList() {
                                   <div className="mt-4 pt-2">
                                     {!o.has_delivery_request ? (
                                       <button
-                                        className="w-full flex items-center justify-center gap-2 bg-[#22543d] hover:bg-[#1a402e] text-white py-2.5 rounded-lg text-xs font-extrabold shadow-md transition-transform hover:-translate-y-0.5"
+                                        className="w-full flex items-center justify-center gap-2 bg-[#2E6F40] hover:bg-[#255933] text-white py-2.5 rounded-lg text-xs font-extrabold shadow-md transition-transform hover:-translate-y-0.5"
                                         onClick={() => navigate(`/farmer-dashboard/orders/${o.id}/request-delivery`)}
                                       >
                                         <Truck size={14} strokeWidth={2.5} /> Request Delivery
                                       </button>
                                     ) : (
-                                      <div className="w-full flex items-center justify-center gap-2 bg-emerald-50 text-emerald-700 py-2.5 rounded-lg text-xs font-black border border-emerald-200">
+                                      <div className="w-full flex items-center justify-center gap-2 bg-[#f0faf4] text-[#255933] py-2.5 rounded-lg text-xs font-black border border-[#a2d4b5]">
                                         <CheckCircle size={14} /> Delivery Requested
                                       </div>
                                     )}
@@ -384,8 +384,8 @@ export default function OrderList() {
                                             </div>
                                             {o.returned_at && (
                                               <div className="flex justify-between items-center text-[9px]">
-                                                 <span className="font-bold text-emerald-500 uppercase">Returned On:</span>
-                                                 <span className="font-black text-emerald-700">{new Date(o.returned_at).toLocaleString()}</span>
+                                                 <span className="font-bold text-[#2E6F40] uppercase">Returned On:</span>
+                                                 <span className="font-black text-[#255933]">{new Date(o.returned_at).toLocaleString()}</span>
                                               </div>
                                             )}
                                          </div>
@@ -396,7 +396,7 @@ export default function OrderList() {
                                 {o.delivery_request?.pod_completed_at && (
                                   <div className="mt-4 bg-slate-50 border border-slate-200 p-4 rounded-xl relative overflow-hidden group">
                                     <div className="absolute top-0 right-0 p-3 opacity-5 group-hover:scale-110 transition-transform"><ShieldAlert size={48} /></div>
-                                    <div className="flex items-center gap-1.5 text-[10px] font-black uppercase text-[#22543d] tracking-widest mb-2">
+                                    <div className="flex items-center gap-1.5 text-[10px] font-black uppercase text-[#2E6F40] tracking-widest mb-2">
                                       <CheckCircle size={12} /> Proof of Delivery
                                     </div>
                                     <div className="space-y-1 relative z-10 text-xs">

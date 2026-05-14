@@ -452,3 +452,12 @@ class VehicleViewSet(viewsets.ModelViewSet):
             serializer.save(status='PENDING', rejection_reason='')
         else:
             serializer.save()
+        serializer.save(owner=self.request.user)  # status defaults to PENDING
+
+    def perform_update(self, serializer):
+        vehicle = self.get_object()
+        # If transporter edits a REJECTED vehicle, resubmit it for review
+        if vehicle.status == 'REJECTED':
+            serializer.save(status='PENDING', rejection_reason='')
+        else:
+            serializer.save()

@@ -177,7 +177,7 @@ export default function ProductForm() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
           <div>
             <h1 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#1e293b', letterSpacing: '-1px', margin: 0 }}>
-              {isEdit ? 'Refine your ' : 'Register New '} <span style={{ color: '#059669' }}>Harvest</span>
+              {isEdit ? 'Refine your ' : 'Register New '} <span style={{ color: '#2E6F40' }}>Harvest</span>
             </h1>
             <p style={{ color: '#64748b', fontWeight: 500, margin: '0.5rem 0 0' }}>
               Ensure your product data aligns with official ministry standards for maximum marketplace visibility.
@@ -210,7 +210,7 @@ export default function ProductForm() {
             {/* Identity Group */}
             <div style={{ background: '#fff', borderRadius: '32px', padding: '2.5rem', border: '1.5px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#ecfdf5', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><BadgeCheck size={24} /></div>
+                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#ecfdf5', color: '#2E6F40', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><BadgeCheck size={24} /></div>
                 <h3 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#1e293b' }}>Official Identity</h3>
               </div>
 
@@ -341,7 +341,7 @@ export default function ProductForm() {
                <button
                  type="submit"
                  disabled={loading || farms.length === 0}
-                 style={{ flex: 1, background: '#059669', color: '#fff', padding: '1.25rem', borderRadius: '18px', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', boxShadow: '0 10px 30px rgba(5,150,105,0.2)' }}
+                 style={{ flex: 1, background: '#2E6F40', color: '#fff', padding: '1.25rem', borderRadius: '18px', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', boxShadow: '0 10px 30px rgba(5,150,105,0.2)' }}
                >
                  {loading ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <><Save size={20} /> {isEdit ? 'Update Requisition' : 'Authorize Listing'}</>}
                </button>
@@ -401,7 +401,7 @@ export default function ProductForm() {
           )}
 
           <div style={{ marginTop: '1.5rem', background: '#f0fdf4', padding: '1.5rem', borderRadius: '24px', border: '1.5px solid #bbf7d0', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-             <div style={{ color: '#16a34a' }}><Info size={24} /></div>
+             <div style={{ color: '#2E6F40' }}><Info size={24} /></div>
              <div>
                 <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#166534' }}>Digital Traceability</div>
                 <div style={{ fontSize: '0.75rem', color: '#15803d', fontWeight: 500 }}>Every listing is tagged with a unique batch ID for national tracking.</div>
