@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Leaf, Menu, X, ChevronRight } from 'lucide-react';
+import { Menu, X, ChevronRight } from 'lucide-react';
+import AgriGovLogo from './common/AgriGovLogo';
 
 const NAV_LINKS = [
   { label: 'Home', to: '/' },
@@ -20,13 +21,8 @@ const PublicNavbar = () => {
       <nav className="pub-navbar">
         <div className="container pub-navbar-inner">
           {/* Brand */}
-          <Link to="/" className="pub-brand">
-            <span className="pub-brand-icon">
-              <Leaf size={20} />
-            </span>
-            <span className="pub-brand-text">
-              AgriGov<span className="pub-brand-market"> Market</span>
-            </span>
+          <Link to="/" className="pub-brand" style={{ textDecoration: 'none' }}>
+            <AgriGovLogo size={26} variant="full" />
           </Link>
 
           {/* Desktop nav */}

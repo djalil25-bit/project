@@ -8,39 +8,31 @@ import React from 'react';
  *   className: optional extra class
  */
 const AgriGovLogo = ({ size = 32, variant = 'full', className = '' }) => {
+  const logoSrc = "/images/agrigov_market_logo_annotated_version.png";
+  
   const mark = (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 40 40"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-label="AgriGov Market"
-      style={{ flexShrink: 0 }}
-    >
-      {/* Shield base */}
-      <path
-        d="M20 3L5 9.5V21C5 28.5 11.5 35.2 20 38C28.5 35.2 35 28.5 35 21V9.5L20 3Z"
-        fill="url(#shieldGrad)"
+    <div style={{ 
+      width: size, 
+      height: size, 
+      borderRadius: '50%', 
+      overflow: 'hidden',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: '#fff',
+      border: '1px solid #e2e8f0',
+      flexShrink: 0
+    }}>
+      <img 
+        src={logoSrc} 
+        alt="AgriGov Logo" 
+        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        onError={(e) => {
+          e.target.style.display = 'none';
+          e.target.parentElement.innerHTML = '🌾'; // Fallback emoji
+        }}
       />
-      {/* Leaf shape inside shield */}
-      <path
-        d="M20 12C17 12 14 15 14 19C14 22 16 24.5 19 25.5L19 29H21L21 25.5C24 24.5 26 22 26 19C26 15 23 12 20 12Z"
-        fill="white"
-        opacity="0.95"
-      />
-      {/* Leaf vein */}
-      <line x1="20" y1="25.5" x2="20" y2="15" stroke="url(#shieldGrad)" strokeWidth="1.5" strokeLinecap="round" />
-      {/* Small dots for premium feel */}
-      <circle cx="16" cy="18" r="1" fill="white" opacity="0.4" />
-      <circle cx="24" cy="18" r="1" fill="white" opacity="0.4" />
-      <defs>
-        <linearGradient id="shieldGrad" x1="5" y1="3" x2="35" y2="38" gradientUnits="userSpaceOnUse">
-          <stop offset="0%" stopColor="#0f5233" />
-          <stop offset="100%" stopColor="#1a7a4a" />
-        </linearGradient>
-      </defs>
-    </svg>
+    </div>
   );
 
   if (variant === 'compact') return (
@@ -59,7 +51,7 @@ const AgriGovLogo = ({ size = 32, variant = 'full', className = '' }) => {
         <span style={{
           fontSize: size * 0.48,
           fontWeight: 800,
-          color: 'var(--primary-dark)',
+          color: '#1a4731', // Dark green matching the logo
           letterSpacing: '-0.3px',
           lineHeight: 1.1
         }}>
@@ -68,7 +60,7 @@ const AgriGovLogo = ({ size = 32, variant = 'full', className = '' }) => {
         <span style={{
           fontSize: size * 0.32,
           fontWeight: 500,
-          color: 'var(--primary)',
+          color: '#22543d', // Medium green
           letterSpacing: '0.5px',
           textTransform: 'uppercase'
         }}>

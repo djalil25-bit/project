@@ -3,11 +3,12 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axiosConfig';
 import {
-  Leaf, ShoppingBag, Sprout, Truck, ChevronRight, ChevronLeft,
+  ShoppingBag, Sprout, Truck, ChevronRight, ChevronLeft,
   UploadCloud, X, CheckCircle, ShieldCheck, Eye, EyeOff, Building2,
   FileText, Image as ImageIcon, MapPin, Phone, User, Lock, Mail, CreditCard, LayoutDashboard,
   BarChart3, ArrowLeft, Clock, Home
 } from 'lucide-react';
+import AgriGovLogo from '../components/common/AgriGovLogo';
 
 const WILAYAS = [
   'Adrar','Chlef','Laghouat','Oum El Bouaghi','Batna','Béjaïa','Biskra','Béchar',
@@ -426,9 +427,8 @@ const Register = () => {
         <div className="auth-left-panel auth-left-premium">
           <div className="auth-left-overlay"></div>
           <div className="auth-left-content-inner">
-            <Link to="/" className="auth-logo-link">
-              <Leaf size={26} />
-              <span>AgriGov <strong>Market</strong></span>
+            <Link to="/" className="auth-logo-link" style={{ textDecoration: 'none' }}>
+              <AgriGovLogo size={32} variant="full" />
             </Link>
             <div className="auth-left-body">
               <div className="auth-ministry-tag"><Building2 size={14} /> Ministry of Agriculture</div>
@@ -777,9 +777,8 @@ const Register = () => {
       <div className="auth-left-panel auth-left-premium">
         <div className="auth-left-overlay"></div>
         <div className="auth-left-content-inner">
-          <Link to="/" className="auth-logo-link">
-            <Leaf size={26} />
-            <span>AgriGov <strong>Market</strong></span>
+          <Link to="/" className="auth-logo-link" style={{ textDecoration: 'none' }}>
+            <AgriGovLogo size={32} variant="full" />
           </Link>
           <div className="auth-left-body">
             <div className="auth-ministry-tag">

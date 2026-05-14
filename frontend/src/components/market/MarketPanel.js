@@ -52,7 +52,7 @@ export default function MarketPanel({ isOpen, onClose, accentColor = '#059669' }
       const fetchedCats = (catRes.data.results || catRes.data || []).map(c => c.name.toUpperCase());
       setCategories(['ALL', ...fetchedCats]);
 
-      const products = (prodRes.data.results || prodRes.data || []).filter(p => p.ref_price);
+      const products = (prodRes.data.results || prodRes.data || []).filter(p => p.ref_price || (p.min_price && p.max_price));
       const mappedPrices = products.map((p) => {
         return {
           id: p.id,

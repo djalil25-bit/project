@@ -204,15 +204,9 @@ export default function FarmerDashboard() {
                   fontSize: '0.82rem',
                   transition: 'all 0.3s',
                   boxShadow: alertStatus?.has_danger
-                    ? '0 0 20px rgba(220,38,38,0.3)'
-                    : alertStatus?.alerts_count > 0
-                      ? '0 0 12px rgba(217,119,6,0.2)'
-                      : '0 4px 12px rgba(34,84,61,0.15)',
-                  background: alertStatus?.has_danger
-                    ? 'linear-gradient(135deg, #dc2626, #b91c1c)'
-                    : alertStatus?.alerts_count > 0
-                      ? 'linear-gradient(135deg, #d97706, #b45309)'
-                      : 'linear-gradient(135deg, #22543d, #1a402e)',
+                    ? '0 0 20px rgba(220,38,38,0.4)'
+                    : '0 4px 12px rgba(220,38,38,0.2)',
+                  background: 'linear-gradient(135deg, #dc2626, #991b1b)',
                   color: '#fff',
                 }}
               >

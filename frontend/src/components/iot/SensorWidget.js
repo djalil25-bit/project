@@ -19,11 +19,11 @@ const CARD_STYLES = {
     gridTemplateColumns: 'repeat(3, 1fr)',
   },
   card: {
-    background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-    borderRadius: '1.25rem',
-    padding: '1.25rem',
+    background: '#ffffff',
+    borderRadius: '1.5rem',
+    padding: '0.85rem 1rem',
     border: '1px solid #e2e8f0',
-    boxShadow: '0 4px 20px rgba(0,0,0,0.04)',
+    boxShadow: '0 4px 15px rgba(0,0,0,0.03)',
     transition: 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)',
     cursor: 'default',
     position: 'relative',
@@ -31,35 +31,54 @@ const CARD_STYLES = {
   },
   cardHover: {
     transform: 'translateY(-3px)',
-    boxShadow: '0 12px 30px rgba(0,0,0,0.08)',
+    boxShadow: '0 12px 30px rgba(34,84,61,0.08)',
+    borderColor: 'rgba(34,84,61,0.3)',
   },
   emoji: {
-    fontSize: '1.5rem',
+    fontSize: '1.2rem',
     marginBottom: '0.5rem',
-    display: 'block',
+    display: 'inline-flex',
+    width: '2.2rem',
+    height: '2.2rem',
+    background: '#f8fafc',
+    borderRadius: '0.75rem',
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: '0 2px 4px -1px rgb(0 0 0 / 0.06)',
+  },
+  iconBox: {
+    marginBottom: '0.5rem',
+    width: '2.2rem',
+    height: '2.2rem',
+    borderRadius: '0.75rem',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: '0 2px 4px -1px rgb(0 0 0 / 0.06)',
   },
   value: {
-    fontSize: '1.5rem',
+    fontSize: '1.3rem',
     fontWeight: 900,
     color: '#0f172a',
-    lineHeight: 1.2,
+    lineHeight: 1,
     letterSpacing: '-0.02em',
   },
   label: {
-    fontSize: '0.7rem',
-    fontWeight: 800,
-    color: '#94a3b8',
+    fontSize: '0.6rem',
+    fontWeight: 900,
+    color: '#64748b',
     textTransform: 'uppercase',
     letterSpacing: '0.08em',
     marginTop: '0.25rem',
   },
   alert: {
-    fontSize: '0.7rem',
-    fontWeight: 800,
-    marginTop: '0.4rem',
-    padding: '0.2rem 0.5rem',
+    fontSize: '0.58rem',
+    fontWeight: 900,
+    marginTop: '0.5rem',
+    padding: '0.2rem 0.45rem',
     borderRadius: '0.5rem',
     display: 'inline-block',
+    border: '1px solid transparent',
   },
   badge: {
     fontSize: '0.6rem',
@@ -91,9 +110,11 @@ function KpiCard({ emoji, icon, value, label, alert, alertColor, borderColor, ba
       onMouseLeave={() => setHovered(false)}
     >
       {icon ? (
-        <div style={{ marginBottom: '0.5rem', color: borderColor || '#94a3b8' }}>{icon}</div>
+        <div style={{ ...CARD_STYLES.iconBox, background: `${borderColor}15`, color: borderColor }}>
+          {React.cloneElement(icon, { size: 18 })}
+        </div>
       ) : (
-        <span style={CARD_STYLES.emoji}>{emoji}</span>
+        <div style={CARD_STYLES.emoji}>{emoji}</div>
       )}
       <div style={CARD_STYLES.value}>{value}</div>
       <div style={CARD_STYLES.label}>{label}</div>
@@ -261,8 +282,8 @@ export default function SensorWidget({ farmId }) {
   return (
     <div style={{
       background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 50%, #f0f9ff 100%)',
-      borderRadius: '1.5rem',
-      padding: '1.75rem',
+      borderRadius: '1.25rem',
+      padding: '1.25rem',
       border: '1px solid #bbf7d0',
       boxShadow: '0 8px 30px rgba(34, 84, 61, 0.06)',
     }}>
@@ -311,19 +332,18 @@ export default function SensorWidget({ farmId }) {
         </div>
       </div>
 
-      {/* ROW 1 — 4 cards */}
-      <div style={{ ...CARD_STYLES.container, ...CARD_STYLES.row4 }}>
+      {/* ROW 1 — 3 cards */}
+      <div style={{ ...CARD_STYLES.container, ...CARD_STYLES.row3 }}>
         <KpiCard emoji="🌡️" value={tempValue} label="Temperature" borderColor={tempBorder} alert={tempAlert} alertColor={tempAlertColor} />
         <KpiCard emoji="💧" value={humValue} label="Air Humidity" borderColor="#3b82f6" />
         <KpiCard emoji="🌱" value={soilValue} label="Soil Moisture" alert={soilAlert} alertColor="red" borderColor={soilBorder} />
-        <KpiCard emoji={rainEmoji} value={rainValue} label="Rain Status" borderColor={rainBorder} />
       </div>
 
       {/* ROW 2 — 3 cards */}
       <div style={{ ...CARD_STYLES.container, ...CARD_STYLES.row3 }}>
+        <KpiCard emoji={rainEmoji} value={rainValue} label="Rain Status" borderColor={rainBorder} />
         <KpiCard icon={<Eye size={24} />} value={irValue} label="IR Detection" borderColor={irBorder} alert={irAlert} alertColor="red" />
         <KpiCard icon={<Volume2 size={24} />} value={soundValue} label="Sound / Vibration" borderColor={soundBorder} />
-        <KpiCard emoji="🧪" value="N/A" label="pH Soil" borderColor="#e2e8f0" badge="No Sensor" badgeColor="gray" noteText="pH sensor not connected" />
       </div>
 
       {/* Chart */}

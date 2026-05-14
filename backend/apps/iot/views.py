@@ -146,9 +146,9 @@ ICON_MAP = {
     'soil_high': '🔵',
     'temp_high': '🟠',
     'temp_low': '🟣',
-    'ph_low': '🟡',
-    'ph_high': '🟡',
     'rain': '🔵',
+    'ir': '👁️',
+    'sound': '🔊',
 }
 
 
@@ -191,21 +191,7 @@ def evaluate_alerts(reading):
                 'icon': ICON_MAP['temp_low'],
             })
 
-    if reading.ph is not None:
-        if reading.ph < 6.0:
-            alerts.append({
-                'level': 'warning',
-                'sensor': 'Soil pH',
-                'message': 'Soil too acidic!',
-                'icon': ICON_MAP['ph_low'],
-            })
-        elif reading.ph > 7.5:
-            alerts.append({
-                'level': 'warning',
-                'sensor': 'Soil pH',
-                'message': 'Soil too alkaline!',
-                'icon': ICON_MAP['ph_high'],
-            })
+    # pH Logic Removed per user request
 
     if reading.rain_status == 'pluie':
         alerts.append({
@@ -215,12 +201,20 @@ def evaluate_alerts(reading):
             'icon': ICON_MAP['rain'],
         })
 
+    if reading.ir_status == 'detected':
+        alerts.append({
+            'level': 'danger',
+            'sensor': 'Intrusion',
+            'message': "Mouvement détecté sur la ferme",
+            'icon': ICON_MAP['ir'],
+        })
+
     if reading.sound_status == 'detected':
         alerts.append({
-            'level': 'info',
+            'level': 'warning',
             'sensor': 'Son',
-            'message': "Vibration détectée sur la ferme",
-            'icon': "Volume2",
+            'message': "Bruit suspect détecté",
+            'icon': ICON_MAP['sound'],
         })
 
     return alerts
@@ -321,14 +315,15 @@ class AlertHistoryView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        entries = AlertHistory.objects.filter(farm=farm)[:20]
+        entries = AlertHistory.objects.filter(farm=farm).order_by('-triggered_at')[:20]
 
         # Map sensor names back to icons
         sensor_icon_map = {
             'Soil': '🔴',
             'Temperature': '🟠',
-            'Soil pH': '🟡',
             'Rain': '🔵',
+            'Intrusion': '👁️',
+            'Son': '🔊',
         }
 
         data = [
