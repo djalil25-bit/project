@@ -257,7 +257,7 @@ const ActorMessages = () => {
 
                         <div className="mt-8 pt-6 border-t border-gray-50 flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
+                            <div className="w-6 h-6 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600">
                               <ShieldCheck size={14} />
                             </div>
                             <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">AgriGov Authentication Token</span>

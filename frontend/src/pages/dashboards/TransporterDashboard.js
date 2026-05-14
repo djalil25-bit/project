@@ -25,8 +25,8 @@ import MiniWeatherWidget from '../../components/weather/MiniWeatherWidget';
 const StatusBadge = ({ status }) => {
   const map = {
     open:                { label: 'Available',   cls: 'bg-amber-100 text-amber-800 border-amber-200' },
-    assigned:            { label: 'Assigned',    cls: 'bg-indigo-100 text-indigo-800 border-indigo-200' },
-    picked_up:           { label: 'Picked Up',   cls: 'bg-purple-100 text-purple-800 border-purple-200 shadow-sm' },
+    assigned:            { label: 'Assigned',    cls: 'bg-[#10B981]/20 text-[#2DA83B] border-[#10B981]/50' },
+    picked_up:           { label: 'Picked Up',   cls: 'bg-[#10B981]/20 text-[#2DA83B] border-[#10B981]/50 shadow-sm' },
     in_transit:          { label: 'In Transit',  cls: 'bg-blue-100 text-blue-800 border-blue-200 shadow-sm animate-pulse' },
     refused_delivery:    { label: 'Refused',     cls: 'bg-rose-100 text-rose-800 border-rose-200 font-bold' },
     return_in_progress:  { label: 'Returning',   cls: 'bg-rose-50 text-rose-700 border-rose-200 border-dashed animate-pulse' },
@@ -220,7 +220,7 @@ function TransporterDashboard() {
       {stats && (
         <div className="buyer-kpi-grid mb-4 mt-2">
           <div className="buyer-kpi-card stagger-1 animate-fade-up">
-            <div className="buyer-kpi-icon" style={{ background: '#fef3c7', color: '#d97706' }}>
+            <div className="buyer-kpi-icon" style={{ background: '#10B9811a', color: '#10B981' }}>
               <ClipboardList size={20} />
             </div>
             <div>
@@ -229,7 +229,7 @@ function TransporterDashboard() {
             </div>
           </div>
           <div className="buyer-kpi-card stagger-2 animate-fade-up">
-            <div className="buyer-kpi-icon" style={{ background: '#dbeafe', color: '#1d4ed8' }}>
+            <div className="buyer-kpi-icon" style={{ background: '#10B9811a', color: '#10B981' }}>
               <Truck size={20} />
             </div>
             <div>
@@ -238,7 +238,7 @@ function TransporterDashboard() {
             </div>
           </div>
           <div className="buyer-kpi-card stagger-3 animate-fade-up">
-            <div className="buyer-kpi-icon" style={{ background: '#dcfce7', color: '#16a34a' }}>
+            <div className="buyer-kpi-icon" style={{ background: '#10B9811a', color: '#10B981' }}>
               <CheckCircle size={20} />
             </div>
             <div>
@@ -247,7 +247,7 @@ function TransporterDashboard() {
             </div>
           </div>
           <div className="buyer-kpi-card stagger-4 animate-fade-up">
-            <div className="buyer-kpi-icon" style={{ background: '#ecfdf5', color: '#059669' }}>
+            <div className="buyer-kpi-icon" style={{ background: '#10B9811a', color: '#10B981' }}>
               <span className="font-black text-sm">DZ</span>
             </div>
             <div>
@@ -355,7 +355,7 @@ function TransporterDashboard() {
                         {new Date(d.created_at).toLocaleDateString('en-GB')}
                       </div>
                       <div className="mt-2 flex items-center gap-2">
-                         <div className="px-2 py-0.5 bg-indigo-50 border border-indigo-100 rounded text-[9px] font-black text-indigo-600 uppercase">
+                         <div className="px-2 py-0.5 bg-[#10B981]/20 border border-indigo-100 rounded text-[9px] font-black text-[#10B981] uppercase">
                             {parseFloat(d.estimated_distance_km || 0)} KM
                          </div>
                          <div className="px-2 py-0.5 bg-emerald-50 border border-emerald-100 rounded text-[9px] font-black text-emerald-600 uppercase">
@@ -380,9 +380,9 @@ function TransporterDashboard() {
                         </span>
                       )}
                       {d.assigned_vehicle_info && (
-                        <div className="mt-2 p-1.5 bg-indigo-50 border border-indigo-100 rounded-lg flex items-center gap-2 w-fit">
-                           <Truck size={10} className="text-indigo-600" />
-                           <span className="text-[9px] font-black text-indigo-900 uppercase tracking-tight">
+                        <div className="mt-2 p-1.5 bg-[#10B981]/20 border border-indigo-100 rounded-lg flex items-center gap-2 w-fit">
+                           <Truck size={10} className="text-[#10B981]" />
+                           <span className="text-[9px] font-black text-[#2DA83B] uppercase tracking-tight">
                               {d.assigned_vehicle_info.plate} — {d.assigned_vehicle_info.model}
                            </span>
                         </div>

@@ -39,7 +39,7 @@ const DeliveryTimeline = ({ order }) => {
         <div className="flex justify-between items-center relative z-10 w-full">
           {returnSteps.map((step, idx) => {
             const isActive = idx <= currentIndex;
-            const stepColor = step.color || 'bg-blue-600';
+            const stepColor = step.color || 'bg-teal-600';
             return (
               <div key={step.key} className="flex flex-col items-center gap-1.5" title={step.label}>
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500 ${isActive ? `${stepColor} text-white shadow-lg` : 'bg-white text-slate-300 border-2 border-slate-100'}`}>
@@ -74,17 +74,17 @@ const DeliveryTimeline = ({ order }) => {
   return (
     <div className="relative mb-6 px-4">
       <div className="absolute top-1/2 left-0 w-full h-[3px] bg-slate-100 -translate-y-1/2 rounded-full -z-10 overflow-hidden">
-        <div className="h-full bg-blue-500 transition-all duration-1000 ease-in-out" style={{ width: `${(currentStepIndex / 2) * 100}%` }} />
+        <div className="h-full bg-teal-500 transition-all duration-1000 ease-in-out" style={{ width: `${(currentStepIndex / 2) * 100}%` }} />
       </div>
       <div className="flex justify-between items-center relative z-10 w-full">
         {steps.map((step, idx) => {
           const isActive = idx <= currentStepIndex;
           return (
             <div key={step.key} className="flex flex-col items-center gap-1.5">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500 ${isActive ? 'bg-blue-600 text-white shadow-[0_2px_10px_rgba(37,99,235,0.3)] shadow-inner' : 'bg-white text-slate-300 border-2 border-slate-100'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500 ${isActive ? 'bg-teal-600 text-white shadow-[0_2px_10px_rgba(37,99,235,0.3)] shadow-inner' : 'bg-white text-slate-300 border-2 border-slate-100'}`}>
                 {step.icon}
               </div>
-              <div className={`text-[8px] font-black uppercase tracking-widest ${isActive ? 'text-blue-900 drop-shadow-sm' : 'text-slate-400'}`}>
+              <div className={`text-[8px] font-black uppercase tracking-widest ${isActive ? 'text-teal-900 drop-shadow-sm' : 'text-slate-400'}`}>
                 {step.label}
               </div>
             </div>
@@ -139,9 +139,9 @@ const DeliveryStatusBadge = ({ o }) => {
 
   const config = {
     OPEN: { bg: 'bg-amber-50', color: 'text-amber-600', icon: <Clock size={10} />, label: 'Awaiting' },
-    ASSIGNED: { bg: 'bg-blue-50', color: 'text-blue-600', icon: <User size={10} />, label: 'Assigned' },
-    PICKED_UP: { bg: 'bg-indigo-50', color: 'text-indigo-600', icon: <Truck size={10} />, label: 'Transit' },
-    IN_TRANSIT: { bg: 'bg-indigo-50', color: 'text-indigo-600', icon: <Truck size={10} />, label: 'Transit' },
+    ASSIGNED: { bg: 'bg-teal-50', color: 'text-teal-600', icon: <User size={10} />, label: 'Assigned' },
+    PICKED_UP: { bg: 'bg-teal-50', color: 'text-teal-600', icon: <Truck size={10} />, label: 'Transit' },
+    IN_TRANSIT: { bg: 'bg-teal-50', color: 'text-teal-600', icon: <Truck size={10} />, label: 'Transit' },
     REFUSED_DELIVERY: { bg: 'bg-rose-50', color: 'text-rose-600', icon: <ShieldAlert size={10} />, label: 'Refused' },
     RETURN_IN_PROGRESS: { bg: 'bg-rose-50', color: 'text-rose-600', icon: <Truck size={10} />, label: 'Returning' },
     RETURNED: { bg: 'bg-emerald-50', color: 'text-emerald-600', icon: <RefreshCw size={10} />, label: 'Returned' },
@@ -204,13 +204,13 @@ function OrderHistory() {
       {/* ── BREADCRUMBS & HEADER ───────────────────────── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-blue-600 mb-2">
-            <Link to="/buyer-dashboard" className="hover:underline hover:text-blue-800 transition-colors">Marketplace</Link>
+          <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-teal-600 mb-2">
+            <Link to="/buyer-dashboard" className="hover:underline hover:text-teal-800 transition-colors">Marketplace</Link>
             <ChevronRight size={10} className="text-slate-400" />
             <span className="text-slate-400 flex items-center gap-1"><ClipboardList size={10} /> Orders</span>
           </div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-            <ClipboardList size={20} className="text-blue-600" strokeWidth={2.5} /> My Orders
+            <ClipboardList size={20} className="text-teal-600" strokeWidth={2.5} /> My Orders
           </h1>
         </div>
         <Link to="/buyer-dashboard/invoices" className="flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest transition-all shadow-[0_4px_10px_rgba(0,0,0,0.1)] active:scale-95">
@@ -223,12 +223,12 @@ function OrderHistory() {
         {FILTER_TABS.map(tab => (
           <button
             key={tab.key}
-            className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all duration-300 ${activeFilter === tab.key ? 'bg-blue-50 text-blue-700 border border-blue-200 shadow-sm' : 'bg-transparent text-slate-500 hover:bg-slate-50 border border-transparent'}`}
+            className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all duration-300 ${activeFilter === tab.key ? 'bg-teal-50 text-teal-700 border border-teal-200 shadow-sm' : 'bg-transparent text-slate-500 hover:bg-slate-50 border border-transparent'}`}
             onClick={() => setActiveFilter(tab.key)}
           >
             {tab.label}
             {tab.key !== 'all' && (
-              <span className="ml-0.5 opacity-70 border-l border-blue-200/50 pl-1">
+              <span className="ml-0.5 opacity-70 border-l border-teal-200/50 pl-1">
                 {orders.filter(o => matchesFilter(o, tab.key)).length}
               </span>
             )}
@@ -238,7 +238,7 @@ function OrderHistory() {
 
       {loading ? (
         <div className="flex flex-col items-center justify-center min-h-[40vh] gap-3">
-          <div className="w-8 h-8 rounded-full border-4 border-slate-200 border-t-blue-600 animate-spin" />
+          <div className="w-8 h-8 rounded-full border-4 border-slate-200 border-t-teal-600 animate-spin" />
           <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest animate-pulse">Loading orders...</span>
         </div>
       ) : (
@@ -257,7 +257,7 @@ function OrderHistory() {
                   <RefreshCw size={12} className="text-slate-400" /> Reset Filter
                 </button>
               ) : (
-                <Link to="/buyer-dashboard" className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest shadow-[0_4px_10px_rgba(37,99,235,0.2)] transition-all">Browse Products</Link>
+                <Link to="/buyer-dashboard" className="bg-teal-600 hover:bg-teal-500 text-white px-6 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest shadow-[0_4px_10px_rgba(37,99,235,0.2)] transition-all">Browse Products</Link>
               )}
             </div>
           ) : (
@@ -265,7 +265,7 @@ function OrderHistory() {
               <div className="w-full overflow-x-auto">
                 <table className="w-full text-left border-collapse table-auto">
                   <thead>
-                    <tr className="bg-indigo-700 text-indigo-100 uppercase text-[8px] font-black tracking-widest">
+                    <tr className="bg-teal-700 text-teal-100 uppercase text-[8px] font-black tracking-widest">
                       <th className="px-3 py-2 w-28 border-b border-slate-800">Order</th>
                       <th className="px-3 py-2 w-24 border-b border-slate-800 hidden sm:table-cell">Date</th>
                       <th className="px-3 py-2 w-48 border-b border-slate-800 hidden md:table-cell">Payload</th>
@@ -278,9 +278,9 @@ function OrderHistory() {
                   <tbody>
                     {filtered.map(o => (
                       <React.Fragment key={o.id}>
-                        <tr className="bg-white even:bg-slate-50 hover:bg-blue-50/50 transition-colors group cursor-pointer border-b border-slate-100 last:border-b-0" onClick={() => setExpanded(expanded === o.id ? null : o.id)}>
+                        <tr className="bg-white even:bg-slate-50 hover:bg-teal-50/50 transition-colors group cursor-pointer border-b border-slate-100 last:border-b-0" onClick={() => setExpanded(expanded === o.id ? null : o.id)}>
                           <td className="px-3 py-3">
-                            <span className="font-extrabold text-blue-600 text-xs tracking-tight whitespace-nowrap">#AG-{o.id.toString().padStart(5, '0')}</span>
+                            <span className="font-extrabold text-teal-600 text-xs tracking-tight whitespace-nowrap">#AG-{o.id.toString().padStart(5, '0')}</span>
                             <div className="text-[8px] uppercase tracking-widest font-bold d-flex items-center text-slate-400 mt-0.5 whitespace-nowrap truncate max-w-[80px]">
                               {o.payment_method?.replace(/_/g, ' ') || 'Cash'}
                             </div>
@@ -310,7 +310,7 @@ function OrderHistory() {
                           </td>
                           <td className="px-3 py-3 text-right">
                             <button
-                              className={`w-6 h-6 ml-auto rounded-full flex items-center justify-center transition-colors border border-transparent ${expanded === o.id ? 'bg-blue-600 text-white shadow-sm border-blue-700' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}
+                              className={`w-6 h-6 ml-auto rounded-full flex items-center justify-center transition-colors border border-transparent ${expanded === o.id ? 'bg-teal-600 text-white shadow-sm border-teal-700' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}
                             >
                               {expanded === o.id ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
                             </button>
@@ -319,7 +319,7 @@ function OrderHistory() {
 
                         {/* ── EXPANDED DISPATCH DETAILS (COMPRESSED) ──────────────────────────────── */}
                         {expanded === o.id && (
-                          <tr className="bg-slate-50 border-b-2 border-blue-100">
+                          <tr className="bg-slate-50 border-b-2 border-teal-100">
                             <td colSpan="7" className="p-0 border-0 pointer-events-auto">
                               <div className="p-6 md:p-8 animate-fade-in shadow-inner bg-slate-50/50">
 
@@ -327,7 +327,7 @@ function OrderHistory() {
                                 <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm mb-6">
                                   <div className="flex items-center justify-between mb-4">
                                     <div className="flex items-center gap-2">
-                                      <div className="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center shadow-inner"><RefreshCw size={16} /></div>
+                                      <div className="w-8 h-8 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center shadow-inner"><RefreshCw size={16} /></div>
                                       <h3 className="font-black text-xs uppercase tracking-widest m-0">Delivery Progress</h3>
                                     </div>
                                     <FarmerStatusBadge status={o.status} />
@@ -342,7 +342,7 @@ function OrderHistory() {
                                     <div className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 h-full">
                                       <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
                                         <div className="flex items-center gap-2">
-                                          <Package size={18} className="text-blue-600" />
+                                          <Package size={18} className="text-teal-600" />
                                           <h6 className="font-black text-xs uppercase tracking-widest m-0">Order Items</h6>
                                         </div>
                                         <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter bg-slate-50 px-2 py-1 rounded">{o.items?.length} items</div>
@@ -364,7 +364,7 @@ function OrderHistory() {
                                                   <div className="truncate min-w-0">
                                                     <div className="font-black text-xs text-slate-800 truncate">{name}</div>
                                                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
-                                                       <span className="text-[10px] font-black text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded uppercase">{qty} {unit}</span>
+                                                       <span className="text-[10px] font-black text-teal-600 bg-teal-50 px-1.5 py-0.5 rounded uppercase">{qty} {unit}</span>
                                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">@ {unitPrice.toLocaleString()} DZD</span>
                                                     </div>
                                                   </div>
@@ -382,7 +382,7 @@ function OrderHistory() {
                                             <div className="relative z-10 space-y-4">
                                                <div className="flex justify-between items-center text-[10px] uppercase font-black tracking-widest text-slate-400 border-b border-white/10 pb-3">
                                                   <span>Order Summary</span>
-                                                  <span className="text-blue-400">#AG-{o.id.toString().padStart(5, '0')}</span>
+                                                  <span className="text-teal-400">#AG-{o.id.toString().padStart(5, '0')}</span>
                                                </div>
                                                
                                                <div className="space-y-2">
@@ -392,7 +392,7 @@ function OrderHistory() {
                                                   </div>
                                                   <div className="flex justify-between items-center text-xs font-bold">
                                                      <span className="text-slate-500">Transport Logistics</span>
-                                                     <span className="text-indigo-400">+{parseFloat(o.transport_fee || 0).toLocaleString()} DZD</span>
+                                                     <span className="text-teal-400">+{parseFloat(o.transport_fee || 0).toLocaleString()} DZD</span>
                                                   </div>
                                                </div>
 
@@ -418,7 +418,7 @@ function OrderHistory() {
                                     <div className="space-y-6">
                                          <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
                                            <div className="flex items-center gap-2 mb-4 border-b border-slate-50 pb-3">
-                                             <Wheat size={16} className="text-blue-600" />
+                                             <Wheat size={16} className="text-teal-600" />
                                              <h6 className="font-black text-xs uppercase tracking-widest m-0">👨‍🌾 Involved Producers</h6>
                                            </div>
                                            <div className="space-y-4">
@@ -428,11 +428,11 @@ function OrderHistory() {
                                                 return (
                                                   <div key={name} className="flex flex-col gap-2 bg-slate-50 p-3 rounded-xl border border-slate-100">
                                                      <div className="flex items-center gap-2">
-                                                        <div className="w-5 h-5 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[10px] font-black">{name?.charAt(0)}</div>
+                                                        <div className="w-5 h-5 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center text-[10px] font-black">{name?.charAt(0)}</div>
                                                         <span className="text-[11px] font-black text-slate-800 uppercase tracking-tight">{name}</span>
                                                      </div>
                                                      <div className="flex items-center gap-2">
-                                                        <div className="flex items-center gap-1 text-[9px] font-bold text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100">
+                                                        <div className="flex items-center gap-1 text-[9px] font-bold text-teal-500 bg-teal-50 px-2 py-0.5 rounded border border-teal-100">
                                                            <MapPin size={10} /> {farmer?.farm_wilaya || 'N/A'}
                                                         </div>
                                                         <a 
@@ -453,12 +453,12 @@ function OrderHistory() {
                                     {o.transporter ? (
                                       <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
                                         <div className="flex items-center gap-2 mb-4 border-b border-slate-50 pb-3">
-                                          <Truck size={16} className="text-blue-600" />
+                                          <Truck size={16} className="text-teal-600" />
                                           <h6 className="font-black text-xs uppercase tracking-widest m-0">🚚 Your Delivery Agent</h6>
                                         </div>
                                         <div className="space-y-4">
                                           <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                                            <div className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-blue-600 shadow-sm">
+                                            <div className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-teal-600 shadow-sm">
                                               <User size={20} />
                                             </div>
                                             <div>
@@ -496,7 +496,7 @@ function OrderHistory() {
                                     {/* Logistics Trace */}
                                     <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
                                       <div className="flex items-center gap-2 mb-4 border-b border-slate-50 pb-3">
-                                        <MapPin size={16} className="text-blue-600" />
+                                        <MapPin size={16} className="text-teal-600" />
                                         <h6 className="font-black text-xs uppercase tracking-widest m-0">Logistics Traces</h6>
                                       </div>
                                       <div className="space-y-4">
@@ -591,18 +591,18 @@ function OrderHistory() {
                                     {/* Transaction Logs */}
                                     <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm overflow-hidden flex-1">
                                       <div className="flex items-center gap-2 mb-6 border-b border-slate-50 pb-4">
-                                        <Clock size={16} className="text-blue-600" />
+                                        <Clock size={16} className="text-teal-600" />
                                         <h6 className="font-black text-xs uppercase tracking-widest m-0">Order Timeline</h6>
                                       </div>
                                       <div className="space-y-6 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[1.5px] before:bg-slate-100">
                                         {o.timeline?.slice().reverse().map((entry, idx) => (
                                           <div key={idx} className="relative pl-8 group">
-                                            <div className={`absolute left-0 top-1.5 w-6 h-6 rounded-full border-[3px] border-white flex items-center justify-center shadow-md transition-all ${idx === 0 ? 'bg-blue-600 text-white scale-110' : 'bg-slate-200 text-slate-400 group-hover:bg-slate-300'}`}>
+                                            <div className={`absolute left-0 top-1.5 w-6 h-6 rounded-full border-[3px] border-white flex items-center justify-center shadow-md transition-all ${idx === 0 ? 'bg-teal-600 text-white scale-110' : 'bg-slate-200 text-slate-400 group-hover:bg-slate-300'}`}>
                                               <div className="w-1.5 h-1.5 rounded-full bg-current" />
                                             </div>
                                             <div>
                                               <div className="flex justify-between items-center mb-1">
-                                                <span className={`text-[10px] font-black uppercase tracking-widest ${idx === 0 ? 'text-blue-900' : 'text-slate-500'}`}>{entry.status.replace(/_/g, ' ')}</span>
+                                                <span className={`text-[10px] font-black uppercase tracking-widest ${idx === 0 ? 'text-teal-900' : 'text-slate-500'}`}>{entry.status.replace(/_/g, ' ')}</span>
                                                 <span className="text-[8px] font-black text-slate-300 uppercase bg-slate-50 px-1.5 py-0.5 rounded-lg border border-slate-100">{new Date(entry.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                               </div>
                                               {entry.note && <p className="text-[10px] text-slate-400 font-medium leading-tight mb-1.5 italic bg-slate-50/50 p-2 rounded-lg border border-slate-100/50">"{entry.note}"</p>}

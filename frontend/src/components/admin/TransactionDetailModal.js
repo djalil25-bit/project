@@ -17,7 +17,7 @@ const TransactionDetailModal = ({ txn, onClose, onAction }) => {
       <div style="padding: 40px; font-family: sans-serif; color: #1e293b;">
         <div style="border-bottom: 4px solid #3b82f6; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center;">
           <div>
-            <h1 style="margin: 0; color: #1e3a8a; font-size: 28px; font-weight: 900; letter-spacing: -1px;">AGRIGOV <span style="color: #3b82f6;">MANIFEST</span></h1>
+            <h1 style="margin: 0; color: #1B5E20; font-size: 28px; font-weight: 900; letter-spacing: -1px;">AGRIGOV <span style="color: #3b82f6;">MANIFEST</span></h1>
             <p style="margin: 5px 0 0; font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: #64748b;">Official Order Summary • ID: #${txn.id}</p>
           </div>
           <div style="text-align: right;">
@@ -132,7 +132,7 @@ const TransactionDetailModal = ({ txn, onClose, onAction }) => {
           </div>
           <div className="flex items-center gap-3">
             <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ backgroundColor: `${sc(txn.status)}15`, color: sc(txn.status) }}>{txn.status?.replace(/_/g,' ')}</span>
-            <button onClick={downloadPDF} className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors border border-blue-100" title="Download Official Manifest">
+            <button onClick={downloadPDF} className="p-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors border border-slate-100" title="Download Official Manifest">
               <Download size={18}/>
             </button>
             <button onClick={onClose} className="text-gray-400 hover:text-gray-600 ml-1"><X size={20}/></button>
@@ -142,8 +142,8 @@ const TransactionDetailModal = ({ txn, onClose, onAction }) => {
         {/* Body */}
         <div className="p-6 space-y-5 overflow-y-auto" style={{ maxHeight: '70vh' }}>
           {/* Buyer Info */}
-          <div className="p-4 rounded-xl bg-blue-50 border border-blue-200">
-            <div className="flex items-center gap-2 mb-3"><ShoppingBag size={14} className="text-blue-600"/><span className="text-xs font-bold text-blue-700 uppercase">Buyer</span></div>
+          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+            <div className="flex items-center gap-2 mb-3"><ShoppingBag size={14} className="text-slate-600"/><span className="text-xs font-bold text-slate-700 uppercase">Buyer</span></div>
             <div className="text-sm font-semibold text-gray-800 mb-1">{buyer.name || txn.buyer_name || 'N/A'}</div>
             <div className="space-y-1 text-xs text-gray-600">
               {buyer.email && <div className="flex items-center gap-1.5"><Mail size={11}/> {buyer.email}</div>}
@@ -152,7 +152,7 @@ const TransactionDetailModal = ({ txn, onClose, onAction }) => {
                   href={`https://wa.me/${buyer.phone.replace(/\D/g, '')}`} 
                   target="_blank" 
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-lg hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all shadow-sm font-bold mt-1"
+                  className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-lg hover:bg-[#064e3b] hover:text-white hover:border-emerald-600 transition-all shadow-sm font-bold mt-1"
                 >
                   <Phone size={11}/> {buyer.phone}
                 </a>
@@ -174,14 +174,14 @@ const TransactionDetailModal = ({ txn, onClose, onAction }) => {
                   </div>
                   <div className="text-right">
                     <div className="text-sm font-bold text-gray-900">{item.quantity} × {item.price_snapshot} DZD</div>
-                    <div className="text-xs text-blue-600 font-bold">{item.item_total?.toLocaleString()} DZD</div>
+                    <div className="text-xs text-slate-600 font-bold">{item.item_total?.toLocaleString()} DZD</div>
                   </div>
                 </div>
               ))}
               <div className="grid grid-cols-3 gap-3 mt-3 pt-3 border-t border-gray-200 text-sm">
                 <div><label className="adm-label">Subtotal</label><span className="font-semibold">{txn.order_subtotal?.toLocaleString()} DZD</span></div>
                 <div><label className="adm-label">Transport</label><span className="font-semibold">{txn.transport_fee?.toLocaleString()} DZD</span></div>
-                <div><label className="adm-label">Total</label><span className="font-bold text-blue-600">{txn.total_price?.toLocaleString()} DZD</span></div>
+                <div><label className="adm-label">Total</label><span className="font-bold text-slate-600">{txn.total_price?.toLocaleString()} DZD</span></div>
               </div>
             </div>
           )}
@@ -192,7 +192,7 @@ const TransactionDetailModal = ({ txn, onClose, onAction }) => {
               <div className="flex items-center gap-2 mb-3"><Package size={14} className="text-gray-600"/><span className="text-xs font-bold text-gray-600 uppercase">Product Details</span></div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 <div><label className="adm-label">Product</label><span className="text-sm font-semibold text-gray-800">{txn.product || 'N/A'}</span></div>
-                <div><label className="adm-label">Total Value</label><span className="text-sm font-bold text-blue-600">{txn.total_price?.toLocaleString()} DZD</span></div>
+                <div><label className="adm-label">Total Value</label><span className="text-sm font-bold text-slate-600">{txn.total_price?.toLocaleString()} DZD</span></div>
                 <div><label className="adm-label">Payment</label><span className="text-sm text-gray-700">{txn.payment_method?.replace(/_/g,' ')}</span></div>
               </div>
             </div>
@@ -216,7 +216,7 @@ const TransactionDetailModal = ({ txn, onClose, onAction }) => {
               <div className="space-y-2">
                 {txn.timeline.map((t, i) => (
                   <div key={i} className="flex items-center gap-3 text-xs">
-                    <div className="w-2 h-2 rounded-full bg-blue-500 shrink-0"></div>
+                    <div className="w-2 h-2 rounded-full bg-slate-500 shrink-0"></div>
                     <span className="text-gray-500 w-24 shrink-0">{new Date(t.created_at).toLocaleDateString()}</span>
                     <span className="font-semibold text-gray-700">{t.status}</span>
                     <span className="text-gray-400">by {t.actor}</span>
@@ -233,7 +233,7 @@ const TransactionDetailModal = ({ txn, onClose, onAction }) => {
             <div className="flex flex-wrap gap-2 mt-3">
               <button className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-bold shadow-md shadow-amber-500/20 transition-all flex items-center gap-1.5 text-xs" onClick={() => onAction?.(txn.id, 'flag')}><Flag size={13}/> Flag</button>
               <button className="px-3 py-1.5 bg-rose-500 hover:bg-rose-600 text-white rounded-lg font-bold shadow-md shadow-rose-500/20 transition-all flex items-center gap-1.5 text-xs" onClick={() => onAction?.(txn.id, 'cancel')}><X size={13}/> Force Cancel</button>
-              <button className="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-bold shadow-md shadow-blue-500/20 transition-all flex items-center gap-1.5 text-xs" onClick={() => { onClose(); window.location.href='/admin-dashboard/messages'; }}><MessageSquare size={13}/> Send Message</button>
+              <button className="px-3 py-1.5 bg-slate-500 hover:bg-slate-600 text-white rounded-lg font-bold shadow-md shadow-slate-500/20 transition-all flex items-center gap-1.5 text-xs" onClick={() => { onClose(); window.location.href='/admin-dashboard/messages'; }}><MessageSquare size={13}/> Send Message</button>
             </div>
           </div>
         </div>

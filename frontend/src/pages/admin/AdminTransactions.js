@@ -236,7 +236,7 @@ const AdminTransactions = () => {
     <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 space-y-8 animate-fade-in relative z-0 bg-slate-50/30 min-h-screen">
       
       {/* ── HIGH-DENSITY HERO HEADER (GREEN POWER PRO) ─────────────────────────────── */}
-      <div className="bg-[#0a3d2e] rounded-2xl overflow-hidden shadow-lg flex flex-col md:flex-row items-center justify-between px-6 py-4 md:px-10 md:py-5 relative border border-[#0f5c44] isolate">
+      <div className="bg-[#022c22] rounded-2xl overflow-hidden shadow-lg flex flex-col md:flex-row items-center justify-between px-6 py-4 md:px-10 md:py-5 relative border border-[#064e3b] isolate">
         <div className="absolute inset-0 bg-gradient-to-r from-[#166534]/30 to-transparent pointer-events-none" />
         <div className="z-10 flex flex-col">
           <div className="flex items-center gap-2 text-emerald-400 text-[9px] font-black uppercase tracking-widest mb-1 opacity-80">
@@ -249,7 +249,7 @@ const AdminTransactions = () => {
         </div>
         <div className="z-10 mt-3 md:mt-0 flex items-center gap-2 w-full md:w-auto">
           <button 
-            className="flex-1 md:flex-none bg-[#0f5c44] hover:bg-[#166534] text-white rounded-xl px-5 py-2.5 font-black text-[10px] uppercase tracking-widest transition shadow-lg shadow-emerald-900/40 flex items-center justify-center gap-2 border border-emerald-500/30" 
+            className="flex-1 md:flex-none bg-[#064e3b] hover:bg-[#166534] text-white rounded-xl px-5 py-2.5 font-black text-[10px] uppercase tracking-widest transition shadow-lg shadow-emerald-900/40 flex items-center justify-center gap-2 border border-emerald-500/30" 
             onClick={downloadAllPDF}
           >
              <Download size={14} className="text-emerald-400" /> Download Registry (PDF)
@@ -283,7 +283,7 @@ const AdminTransactions = () => {
             <option value="all">Global Zones</option>
             {zones.map(z=><option key={z} value={z}>{z}</option>)}
           </select>
-          <button className="w-11 h-11 bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-600 rounded-xl flex items-center justify-center transition-colors shadow-sm" onClick={fetchTransactions}>
+          <button className="w-11 h-11 bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-[#064e3b] rounded-xl flex items-center justify-center transition-colors shadow-sm" onClick={fetchTransactions}>
             <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
           </button>
         </div>
@@ -340,10 +340,10 @@ const AdminTransactions = () => {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0 shadow-inner group-hover:bg-white transition-colors">
-                        <Package size={14} className="text-emerald-600"/>
+                        <Package size={14} className="text-[#064e3b]"/>
                       </div>
                       <span className="text-[11px] font-black text-slate-700 uppercase tracking-widest">{t.product}</span>
-                      {t.quantity > 0 && <span className="text-[9px] font-black text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full border border-emerald-100 ml-1">×{t.quantity}</span>}
+                      {t.quantity > 0 && <span className="text-[9px] font-black text-[#064e3b] bg-emerald-50 px-1.5 py-0.5 rounded-full border border-emerald-100 ml-1">×{t.quantity}</span>}
                     </div>
                   </td>
                   <td className="px-6 py-4">
@@ -370,7 +370,7 @@ const AdminTransactions = () => {
         <div className="flex items-center justify-between px-8 py-5 border-t border-slate-100 bg-slate-50/50">
           <div className="flex items-center gap-4">
             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Terminal Output • Page {page} of {totalPages}</span>
-            <button className="text-[9px] font-black uppercase text-emerald-600 hover:underline flex items-center gap-1" onClick={downloadAllPDF}>
+            <button className="text-[9px] font-black uppercase text-[#064e3b] hover:underline flex items-center gap-1" onClick={downloadAllPDF}>
               <Download size={10}/> Full Registry PDF
             </button>
           </div>
@@ -380,7 +380,7 @@ const AdminTransactions = () => {
               {[...Array(Math.min(5, totalPages))].map((_, i) => {
                 const p = page <= 3 ? i+1 : page + i - 2;
                 if (p < 1 || p > totalPages) return null;
-                return <button key={p} className={`w-9 h-9 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center ${p===page?'bg-emerald-600 text-white shadow-lg shadow-emerald-900/30 border border-emerald-500':'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 hover:text-slate-700 shadow-sm'}`} onClick={()=>setPage(p)}>{p}</button>;
+                return <button key={p} className={`w-9 h-9 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center ${p===page?'bg-[#064e3b] text-white shadow-lg shadow-emerald-900/30 border border-emerald-500':'bg-white text-slate-500 border border-slate-200 hover:bg-slate-50 hover:text-slate-700 shadow-sm'}`} onClick={()=>setPage(p)}>{p}</button>;
               })}
             </div>
             <button className="h-9 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-30 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 shadow-sm disabled:cursor-not-allowed" disabled={page>=totalPages} onClick={()=>setPage(p=>p+1)}>Next</button>

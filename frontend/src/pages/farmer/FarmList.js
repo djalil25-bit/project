@@ -28,7 +28,7 @@ export default function FarmList() {
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-      <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-t-[#22543d] animate-spin" />
+      <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-t-[#2E6F40] animate-spin" />
       <span className="text-sm font-bold text-slate-500 uppercase tracking-widest animate-pulse">Syncing Topography...</span>
     </div>
   );
@@ -39,8 +39,8 @@ export default function FarmList() {
       {/* ── HEADER ─────────────────────────────────────────────────── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
         <div>
-          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#22543d] mb-3">
-            <Link to="/farmer-dashboard" className="hover:underline hover:text-[#1a402e] transition-colors">Farmer Hub</Link>
+          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#2E6F40] mb-3">
+            <Link to="/farmer-dashboard" className="hover:underline hover:text-[#255933] transition-colors">Farmer Hub</Link>
             <ChevronRight size={12} className="text-slate-400" />
             <span className="text-slate-400 flex items-center gap-1"><Tractor size={12}/> My Farms</span>
           </div>
@@ -52,7 +52,7 @@ export default function FarmList() {
           </p>
         </div>
         <button 
-          className="inline-flex items-center justify-center gap-2 bg-[#22543d] hover:bg-[#1a402e] text-white px-6 py-3.5 rounded-xl text-sm font-extrabold shadow-[0_4px_15px_rgba(34,84,61,0.3)] hover:shadow-[0_8px_25px_rgba(34,84,61,0.4)] transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 active:scale-95"
+          className="inline-flex items-center justify-center gap-2 bg-[#2E6F40] hover:bg-[#255933] text-white px-6 py-3.5 rounded-xl text-sm font-extrabold shadow-[0_4px_15px_rgba(34,84,61,0.3)] hover:shadow-[0_8px_25px_rgba(34,84,61,0.4)] transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 active:scale-95"
           onClick={() => navigate('/farmer-dashboard/farm/new')}
         >
           <Plus size={18} strokeWidth={3} /> Register New Farm
@@ -70,7 +70,7 @@ export default function FarmList() {
             You must register at least one valid farm to begin selling your products on the marketplace.
           </p>
           <button 
-            className="inline-flex items-center gap-2 bg-[#22543d] hover:bg-[#1a402e] text-white px-8 py-4 rounded-2xl font-extrabold shadow-[0_8px_30px_rgba(34,84,61,0.3)] transition-all duration-300 transform hover:-translate-y-1 hover:scale-105"
+            className="inline-flex items-center gap-2 bg-[#2E6F40] hover:bg-[#255933] text-white px-8 py-4 rounded-2xl font-extrabold shadow-[0_8px_30px_rgba(34,84,61,0.3)] transition-all duration-300 transform hover:-translate-y-1 hover:scale-105"
             onClick={() => navigate('/farmer-dashboard/farm/new')}
           >
             <Plus size={20} strokeWidth={3} /> Initialize Registration
@@ -80,9 +80,9 @@ export default function FarmList() {
         <>
           <div className="flex items-center justify-between mb-5 pb-3 border-b border-slate-200">
             <h3 className="text-base font-black text-slate-900 flex items-center gap-2 tracking-tight">
-              <Sprout size={18} className="text-[#22543d]" strokeWidth={2.5}/> Registered Farms
+              <Sprout size={18} className="text-[#2E6F40]" strokeWidth={2.5}/> Registered Farms
             </h3>
-            <span className="bg-[#22543d]/10 text-[#22543d] font-black tracking-widest uppercase px-3 py-1 rounded-full text-[10px] shadow-inner border border-[#22543d]/20">
+            <span className="bg-[#2E6F40]/10 text-[#2E6F40] font-black tracking-widest uppercase px-3 py-1 rounded-full text-[10px] shadow-inner border border-[#2E6F40]/20">
               {farms.length} Farm{farms.length !== 1 ? 's' : ''}
             </span>
           </div>
@@ -92,7 +92,7 @@ export default function FarmList() {
               <div 
                 key={farm.id} 
                 className={`group bg-white border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5 flex flex-col ${
-                  farm.status === 'REJECTED' ? 'border-red-200' : farm.status === 'PENDING' ? 'border-amber-200' : 'border-slate-200 hover:border-[#22543d]/30'
+                  farm.status === 'REJECTED' ? 'border-red-200' : farm.status === 'PENDING' ? 'border-amber-200' : 'border-slate-200 hover:border-[#2E6F40]/30'
                 }`}
                 style={{ animationDelay: `${idx * 0.04}s` }}
               >
@@ -101,7 +101,7 @@ export default function FarmList() {
                   {farm.image ? (
                     <img src={farm.image} alt={farm.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   ) : (
-                    <div className="absolute inset-0 bg-gradient-to-tr from-[#1a402e] to-[#2d6a4f] flex items-center justify-center">
+                    <div className="absolute inset-0 bg-gradient-to-tr from-[#255933] to-[#2d6a4f] flex items-center justify-center">
                       <ImageOff size={28} className="text-white/20" strokeWidth={1.5} />
                     </div>
                   )}
@@ -113,12 +113,12 @@ export default function FarmList() {
                 {/* Card Body */}
                 <div className="p-4 flex flex-col flex-grow">
                   <div className="flex justify-between items-start gap-2 mb-1.5">
-                    <h4 className="text-sm font-black text-slate-900 truncate tracking-tight cursor-pointer hover:text-[#22543d] transition-colors" title={farm.name} onClick={() => navigate(`/farmer-dashboard/farms/${farm.id}`)}>
+                    <h4 className="text-sm font-black text-slate-900 truncate tracking-tight cursor-pointer hover:text-[#2E6F40] transition-colors" title={farm.name} onClick={() => navigate(`/farmer-dashboard/farms/${farm.id}`)}>
                       {farm.name}
                     </h4>
                     {/* Dynamic Status Badge */}
                     {farm.status === 'ACTIVE' ? (
-                      <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 px-1.5 py-0.5 rounded text-[9px] font-black shrink-0">
+                      <span className="inline-flex items-center gap-1 bg-[#f0faf4] text-[#255933] border border-[#a2d4b5] px-1.5 py-0.5 rounded text-[9px] font-black shrink-0">
                         <Sprout size={8} strokeWidth={3} /> ACTIVE
                       </span>
                     ) : farm.status === 'PENDING' ? (
@@ -139,7 +139,7 @@ export default function FarmList() {
 
                   {farm.size_hectares && (
                     <span className="inline-flex items-center gap-1 bg-slate-50 text-slate-600 border border-slate-200 px-2 py-1 rounded-lg text-[10px] font-black mb-3 w-fit">
-                      <Maximize2 size={10} className="text-[#22543d]" strokeWidth={3} /> {farm.size_hectares} HA
+                      <Maximize2 size={10} className="text-[#2E6F40]" strokeWidth={3} /> {farm.size_hectares} HA
                     </span>
                   )}
 
@@ -169,7 +169,7 @@ export default function FarmList() {
                   {/* Actions */}
                   <div className="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
                     <button 
-                      className="flex-1 flex items-center justify-center gap-1.5 bg-slate-50 hover:bg-[#22543d] border border-slate-200 hover:border-[#1a402e] text-slate-700 hover:text-white px-3 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wide transition-all duration-200"
+                      className="flex-1 flex items-center justify-center gap-1.5 bg-slate-50 hover:bg-[#2E6F40] border border-slate-200 hover:border-[#255933] text-slate-700 hover:text-white px-3 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wide transition-all duration-200"
                       onClick={() => navigate(`/farmer-dashboard/farms/${farm.id}`)}
                     >
                       <ExternalLink size={11} strokeWidth={3} /> View

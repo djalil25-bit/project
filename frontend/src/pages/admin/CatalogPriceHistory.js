@@ -197,7 +197,7 @@ const CatalogPriceHistory = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="glass-stat-card p-4 flex flex-col justify-between">
               <div className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
-                <Layers size={14} className="text-blue-600"/> Current Category
+                <Layers size={14} className="text-[#064e3b]"/> Current Category
               </div>
               <div className="text-lg font-semibold text-gray-800">
                 {product.category_name || "Uncategorized"}
@@ -218,10 +218,10 @@ const CatalogPriceHistory = () => {
 
             <div className="glass-stat-card p-4 flex flex-col justify-between">
               <div className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
-                <TrendingUp size={14} className="text-blue-500"/> Current Ceiling Max
+                <TrendingUp size={14} className="text-slate-500"/> Current Ceiling Max
               </div>
               <div className="flex items-baseline gap-2">
-                <div className="text-2xl font-bold text-blue-500">
+                <div className="text-2xl font-bold text-slate-500">
                   {product.max_price || "--"}
                 </div>
                 <div className="text-xs text-gray-500">DZD/{product.default_unit}</div>
@@ -230,10 +230,10 @@ const CatalogPriceHistory = () => {
 
             <div className="glass-stat-card p-4 flex flex-col justify-between">
               <div className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-2 flex items-center gap-2">
-                <TrendingUp size={14} className="text-blue-600"/> Target Index Price
+                <TrendingUp size={14} className="text-[#064e3b]"/> Target Index Price
               </div>
               <div className="flex items-baseline gap-2">
-                <div className="text-2xl font-bold text-blue-600">
+                <div className="text-2xl font-bold text-[#064e3b]">
                   {product.ref_price || "--"}
                 </div>
                 <div className="text-xs text-gray-500">DZD/{product.default_unit}</div>
@@ -245,7 +245,7 @@ const CatalogPriceHistory = () => {
           <div className="glass-card overflow-hidden">
             <div className="flex items-center justify-between p-5 border-b border-gray-100">
               <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                <Database size={16} className="text-blue-600" /> Historical Price Archive
+                <Database size={16} className="text-[#064e3b]" /> Historical Price Archive
               </h3>
               <span className="adm-badge adm-badge-approved">{chartData.length} Records</span>
             </div>
@@ -285,7 +285,7 @@ const CatalogPriceHistory = () => {
                           </div>
                         </td>
                         <td>
-                          <span className="font-black text-blue-600 text-sm tracking-tight">{row.indexPrice} DA</span>
+                          <span className="font-black text-[#064e3b] text-sm tracking-tight">{row.indexPrice} DA</span>
                         </td>
                         <td>
                           <span className="text-slate-400 font-black text-[11px] uppercase tracking-widest opacity-80">/{product.default_unit}</span>

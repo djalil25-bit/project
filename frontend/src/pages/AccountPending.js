@@ -143,7 +143,7 @@ const AccountPending = () => {
         </div>
 
         {/* What happens next section */}
-        <div className="bg-blue-50/50 rounded-xl p-6 mb-10 border border-blue-100 shadow-sm">
+        <div className="bg-emerald-50/50 rounded-xl p-6 mb-10 border border-emerald-100 shadow-sm">
           <h3 className="text-lg font-bold text-gray-900 mb-2 flex items-center">
             What happens next?
           </h3>

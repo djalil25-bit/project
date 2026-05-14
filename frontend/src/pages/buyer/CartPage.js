@@ -152,8 +152,8 @@ function CartPage() {
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-       <div className="w-12 h-12 rounded-full border-4 border-indigo-100 border-t-indigo-600 animate-spin" />
-       <span className="text-[10px] font-black text-indigo-900/40 uppercase tracking-[0.2em] animate-pulse">Scanning Payload Registry...</span>
+       <div className="w-12 h-12 rounded-full border-4 border-teal-100 border-t-teal-600 animate-spin" />
+       <span className="text-[10px] font-black text-teal-900/40 uppercase tracking-[0.2em] animate-pulse">Scanning Payload Registry...</span>
     </div>
   );
 
@@ -166,16 +166,16 @@ function CartPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem', fontSize: '0.8rem' }}>
           <Link to="/buyer-dashboard" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>Marketplace</Link>
           <ChevronRight size={12} style={{ color: '#94a3b8' }} />
-          <span style={{ color: '#4f46e5', fontWeight: 800 }}>Cart Procurement</span>
+          <span style={{ color: '#0F766E', fontWeight: 800 }}>Cart Procurement</span>
         </div>
 
         {/* Header Section */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2.5rem' }}>
           <div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#eef2ff', color: '#4338ca', padding: '0.4rem 1rem', borderRadius: '30px', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '1rem', border: '1px solid #c7d2fe' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#f0fdfa', color: '#0F766E', padding: '0.4rem 1rem', borderRadius: '30px', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '1rem', border: '1px solid #99f6e4' }}>
               <ShoppingCart size={14} /> Acquisition Basket
             </div>
-            <h1 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#1e293b', letterSpacing: '-1px', margin: 0 }}>Review Your <span style={{ color: '#4f46e5' }}>Selection</span></h1>
+            <h1 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#1e293b', letterSpacing: '-1px', margin: 0 }}>Review Your <span style={{ color: '#0F766E' }}>Selection</span></h1>
             <p style={{ color: '#64748b', fontWeight: 500, margin: '0.5rem 0 0' }}>Validate your requisition assets and initialize the procurement protocol.</p>
           </div>
           <div style={{ textAlign: 'right' }}>
@@ -203,7 +203,7 @@ function CartPage() {
                 </div>
                 <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#1e293b', marginBottom: '1rem' }}>Registry is Empty</h3>
                 <p style={{ color: '#64748b', marginBottom: '2.5rem', maxWidth: '400px', margin: '0 auto 2.5rem' }}>Your digital procurement basket contains no assets. Visit the marketplace to initialize your acquisition.</p>
-                <Link to="/buyer-dashboard" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', background: '#4f46e5', color: '#fff', padding: '1rem 2rem', borderRadius: '16px', fontWeight: 800, textDecoration: 'none', boxShadow: '0 10px 20px rgba(79,70,229,0.2)' }}>
+                <Link to="/buyer-dashboard" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', background: '#0F766E', color: '#fff', padding: '1rem 2rem', borderRadius: '16px', fontWeight: 800, textDecoration: 'none', boxShadow: '0 10px 20px rgba(15,118,110,0.2)' }}>
                   Browse Marketplace <ArrowRight size={18} />
                 </Link>
               </div>
@@ -254,7 +254,7 @@ function CartPage() {
           <div style={{ position: 'sticky', top: '2rem' }}>
             <div style={{ background: '#fff', borderRadius: '32px', padding: '2rem', border: '1px solid #e2e8f0', boxShadow: '0 20px 40px rgba(0,0,0,0.04)' }}>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#1e293b', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <Zap size={20} style={{ color: '#4f46e5' }} /> Authorization Summary
+                <Zap size={20} style={{ color: '#0F766E' }} /> Authorization Summary
               </h3>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', marginBottom: '2rem' }}>
@@ -264,9 +264,9 @@ function CartPage() {
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ color: '#64748b', fontWeight: 600, fontSize: '0.9rem' }}>Logistics Estimation</span>
-                  <span style={{ fontWeight: 800, color: transportEstimate ? '#4f46e5' : '#94a3b8' }}>
+                  <span style={{ fontWeight: 800, color: transportEstimate ? '#0F766E' : '#94a3b8' }}>
                     {estimateLoading ? (
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div className="w-3 h-3 border-2 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div> Calculating...</span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div className="w-3 h-3 border-2 border-teal-200 border-t-teal-600 rounded-full animate-spin"></div> Calculating...</span>
                     ) : transportEstimate ? `${transportEstimate.grand_total_transport.toLocaleString()} DZD` : 'Required'}
                   </span>
                 </div>
@@ -276,7 +276,7 @@ function CartPage() {
                     {transportEstimate.estimates.map((est, i) => (
                       <div key={i} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem', fontWeight: 600 }}>
                         <span style={{ color: '#64748b' }}>{est.farm_name}</span>
-                        <span style={{ color: '#4f46e5' }}>+{est.transport_fee.toLocaleString()} DZD</span>
+                        <span style={{ color: '#0F766E' }}>+{est.transport_fee.toLocaleString()} DZD</span>
                       </div>
                     ))}
                   </div>
@@ -284,7 +284,7 @@ function CartPage() {
                 <div style={{ height: '1px', background: '#f1f5f9', margin: '0.5rem 0' }}></div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ color: '#1e293b', fontWeight: 900, fontSize: '1.1rem' }}>Total Requisition</span>
-                  <span style={{ fontWeight: 900, color: '#4f46e5', fontSize: '1.5rem' }}>
+                  <span style={{ fontWeight: 900, color: '#0F766E', fontSize: '1.5rem' }}>
                     {transportEstimate ? transportEstimate.grand_total.toLocaleString() : cartTotal.toLocaleString()} <small style={{ fontSize: '0.75rem', opacity: 0.6 }}>DZD</small>
                   </span>
                 </div>
@@ -294,7 +294,7 @@ function CartPage() {
                 <button 
                   onClick={() => setShowCheckout(true)}
                   disabled={cartItemCount === 0}
-                  style={{ width: '100%', background: '#4f46e5', color: '#fff', padding: '1.25rem', borderRadius: '18px', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', boxShadow: '0 10px 30px rgba(79,70,229,0.25)', transition: 'transform 0.2s' }}
+                  style={{ width: '100%', background: '#0F766E', color: '#fff', padding: '1.25rem', borderRadius: '18px', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', boxShadow: '0 10px 30px rgba(15,118,110,0.25)', transition: 'transform 0.2s' }}
                   className="hover-lift"
                 >
                   Proceed to Terminal <ChevronRight size={20} />
@@ -367,7 +367,7 @@ function CartPage() {
             </div>
 
             <div style={{ marginTop: '1.5rem', padding: '1.5rem', background: 'rgba(255,255,255,0.5)', borderRadius: '24px', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <div style={{ color: '#4f46e5' }}><ShieldCheck size={24} /></div>
+              <div style={{ color: '#0F766E' }}><ShieldCheck size={24} /></div>
               <div>
                 <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#1e293b' }}>Official Protection</div>
                 <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 500 }}>Transactions supervised by the Ministry of Agriculture.</div>

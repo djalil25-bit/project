@@ -93,7 +93,7 @@ const ComplaintManager = () => {
     <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 space-y-8 animate-fade-in relative z-0 bg-slate-50/30 min-h-screen">
       
       {/* ── HIGH-DENSITY HERO HEADER (GREEN POWER PRO) ─────────────────────────────── */}
-      <div className="bg-[#0a3d2e] rounded-2xl overflow-hidden shadow-lg flex flex-col md:flex-row items-center justify-between px-6 py-4 md:px-10 md:py-5 relative border border-[#0f5c44] isolate">
+      <div className="bg-[#022c22] rounded-2xl overflow-hidden shadow-lg flex flex-col md:flex-row items-center justify-between px-6 py-4 md:px-10 md:py-5 relative border border-[#064e3b] isolate">
         <div className="absolute inset-0 bg-gradient-to-r from-[#166534]/30 to-transparent pointer-events-none" />
         <div className="z-10 flex flex-col">
           <div className="flex items-center gap-2 text-emerald-400 text-[9px] font-black uppercase tracking-widest mb-1 opacity-80">
@@ -140,7 +140,7 @@ const ComplaintManager = () => {
             </select>
           </div>
           <div className="lg:col-span-1 flex justify-end">
-            <button className="w-11 h-11 bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-600 rounded-xl flex items-center justify-center transition-colors" onClick={fetchComplaints} title="Refresh Registry">
+            <button className="w-11 h-11 bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-[#064e3b] rounded-xl flex items-center justify-center transition-colors" onClick={fetchComplaints} title="Refresh Registry">
               <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
             </button>
           </div>
@@ -184,14 +184,14 @@ const ComplaintManager = () => {
                     >
                       <div className="flex items-center justify-between">
                          <span className={`text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-widest border ${
-                           c.status === 'RESOLVED' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 
+                           c.status === 'RESOLVED' ? 'bg-emerald-50 text-[#064e3b] border-emerald-100' : 
                            c.status === 'REJECTED' ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-amber-50 text-amber-600 border-amber-100'
                          }`}>{c.status}</span>
                          <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{c.complaint_type.replace('_', ' ')}</span>
                       </div>
                       <h4 className="font-black text-slate-800 text-sm tracking-tight leading-snug line-clamp-1">{c.title}</h4>
                       <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
-                        <span className="flex items-center gap-1.5 truncate"><User size={12} className="text-emerald-600" /> {c.creator_details?.full_name}</span>
+                        <span className="flex items-center gap-1.5 truncate"><User size={12} className="text-[#064e3b]" /> {c.creator_details?.full_name}</span>
                         <span className="shrink-0">{new Date(c.created_at).toLocaleDateString()}</span>
                       </div>
                     </div>
@@ -208,7 +208,7 @@ const ComplaintManager = () => {
             <div className="flex flex-col flex-1 overflow-hidden">
               <div className="px-6 py-4 border-b border-slate-100 bg-white flex items-center justify-between shrink-0">
                  <div className="flex items-center gap-3">
-                   <button className="lg:hidden p-1.5 text-slate-400 hover:text-slate-600" onClick={() => setSelectedComplaint(null)}>
+                   <button className="lg:hidden p-1.5 text-slate-400 hover:text-[#064e3b]" onClick={() => setSelectedComplaint(null)}>
                      <ArrowLeft size={18} />
                    </button>
                    <div>
@@ -218,7 +218,7 @@ const ComplaintManager = () => {
                  </div>
                  <div className="flex items-center gap-2">
                     {selectedComplaint.order && (
-                      <button className="h-9 bg-slate-900 text-white text-[9px] font-black px-3 rounded-lg uppercase tracking-widest flex items-center gap-2 hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20" onClick={() => navigate(`/admin-dashboard/transactions?id=${selectedComplaint.order}`)}>
+                      <button className="h-9 bg-[#022c22] text-white text-[9px] font-black px-3 rounded-lg uppercase tracking-widest flex items-center gap-2 hover:bg-[#022c22] transition-colors shadow-lg shadow-slate-900/20" onClick={() => navigate(`/admin-dashboard/transactions?id=${selectedComplaint.order}`)}>
                         <LinkIcon size={12} /> Inspect Order
                       </button>
                     )}
@@ -237,7 +237,7 @@ const ComplaintManager = () => {
                         </div>
                         <div className="min-w-0">
                           <div className="font-black text-slate-900 text-sm truncate">{selectedComplaint.creator_details?.full_name}</div>
-                          <div className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mt-0.5">{selectedComplaint.creator_details?.role} Actor</div>
+                          <div className="text-[10px] font-black text-[#064e3b] uppercase tracking-widest mt-0.5">{selectedComplaint.creator_details?.role} Actor</div>
                         </div>
                      </div>
                    </div>
@@ -251,7 +251,7 @@ const ComplaintManager = () => {
                         </div>
                         <div className="flex justify-between text-[11px] font-bold uppercase tracking-widest">
                           <span className="text-slate-400">Current Status:</span>
-                          <span className="text-emerald-600 font-black">{selectedComplaint.status}</span>
+                          <span className="text-[#064e3b] font-black">{selectedComplaint.status}</span>
                         </div>
                      </div>
                    </div>
@@ -267,7 +267,7 @@ const ComplaintManager = () => {
                     <div className="mt-6 pt-6 border-t border-slate-50">
                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-4">Evidence Attachment</span>
                       <a href={selectedComplaint.attachment} target="_blank" rel="noreferrer" className="inline-flex items-center gap-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 p-3 rounded-xl transition-all group">
-                        <div className="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-emerald-600 shadow-sm group-hover:scale-105 transition-transform">
+                        <div className="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-[#064e3b] shadow-sm group-hover:scale-105 transition-transform">
                           <ImageIcon size={18} />
                         </div>
                         <div className="pr-4">
@@ -283,7 +283,7 @@ const ComplaintManager = () => {
                 <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-6">
                   <div className="flex items-center justify-between border-b border-slate-50 pb-4">
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Administrative Resolution</span>
-                    <ShieldAlert size={16} className="text-emerald-600" />
+                    <ShieldAlert size={16} className="text-[#064e3b]" />
                   </div>
 
                   <form onSubmit={handleUpdate} className="space-y-6">
@@ -312,7 +312,7 @@ const ComplaintManager = () => {
                     </div>
 
                     <div className="flex gap-3 pt-2">
-                      <button type="submit" className="flex-1 h-11 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-emerald-900/40 flex items-center justify-center gap-2" disabled={updating}>
+                      <button type="submit" className="flex-1 h-11 bg-[#064e3b] hover:bg-emerald-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-emerald-900/40 flex items-center justify-center gap-2" disabled={updating}>
                         {updating ? '...' : <><Send size={16} /> Sync Resolution Protocol</>}
                       </button>
                       <button type="button" className="px-6 h-11 bg-white border border-slate-200 text-slate-500 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all" onClick={() => setSelectedComplaint(null)}>Cancel</button>

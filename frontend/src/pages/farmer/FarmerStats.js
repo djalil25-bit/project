@@ -14,7 +14,7 @@ import {
 const AgriTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-[#1a402e] rounded-xl px-4 py-3 shadow-[0_10px_25px_rgba(26,74,46,0.5)] min-w-[130px] border border-emerald-500/20">
+    <div className="bg-[#255933] rounded-xl px-4 py-3 shadow-[0_10px_25px_rgba(26,74,46,0.5)] min-w-[130px] border border-[#2E6F40]/20">
       <div className="text-white/60 mb-1 font-bold text-xs uppercase tracking-widest">{label}</div>
       {payload.map((p, i) => (
         <div key={i} className="text-white font-black text-sm">
@@ -46,7 +46,7 @@ export default function FarmerStats() {
 
   if (loading && !data) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-      <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-t-[#22543d] animate-spin" />
+      <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-t-[#2E6F40] animate-spin" />
       <span className="text-sm font-bold text-slate-500 uppercase tracking-widest animate-pulse">Computing Aggregates...</span>
     </div>
   );
@@ -65,13 +65,13 @@ export default function FarmerStats() {
       {/* ── BREADCRUMBS & HEADER ───────────────────────── */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
         <div>
-          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#22543d] mb-4">
-            <button onClick={() => navigate('/farmer-dashboard')} className="hover:underline hover:text-[#1a402e] flex items-center gap-1 transition-colors"><ArrowLeft size={12}/> Back to Dashboard</button>
+          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#2E6F40] mb-4">
+            <button onClick={() => navigate('/farmer-dashboard')} className="hover:underline hover:text-[#255933] flex items-center gap-1 transition-colors"><ArrowLeft size={12}/> Back to Dashboard</button>
             <ChevronRight size={12} className="text-slate-400" />
             <span className="text-slate-400 flex items-center gap-1"><BarChart2 size={12}/> Yield Analytics</span>
           </div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3 mb-1">
-            <TrendingUp size={28} className="text-[#22543d]" strokeWidth={2.5} /> Sales &amp; Revenue Analytics
+            <TrendingUp size={28} className="text-[#2E6F40]" strokeWidth={2.5} /> Sales &amp; Revenue Analytics
           </h1>
           <p className="text-slate-500 font-medium text-sm leading-relaxed max-w-xl">
             Track farm performance, review localized revenue trends, and identify high-yield products across specified periods.
@@ -87,7 +87,7 @@ export default function FarmerStats() {
           ].map(t => (
             <button
               key={t.key}
-              className={`whitespace-nowrap px-6 py-2 rounded-xl text-xs font-black transition-all duration-300 ${timeframe === t.key ? 'bg-white text-[#22543d] shadow-[0_4px_12px_rgba(0,0,0,0.05)] scale-105' : 'text-slate-500 hover:text-slate-700'}`}
+              className={`whitespace-nowrap px-6 py-2 rounded-xl text-xs font-black transition-all duration-300 ${timeframe === t.key ? 'bg-white text-[#2E6F40] shadow-[0_4px_12px_rgba(0,0,0,0.05)] scale-105' : 'text-slate-500 hover:text-slate-700'}`}
               onClick={() => setTimeframe(t.key)}
             >
               {t.label}
@@ -105,8 +105,8 @@ export default function FarmerStats() {
           { icon: <Sprout size={24} />, color: 'indigo', val: data?.best_products?.length || 0, label: 'High-Demand Varieties' },
         ].map((k, i) => {
           const bgMap = {
-            emerald: 'bg-emerald-50 text-emerald-600 border-emerald-100',
-            blue: 'bg-blue-50 text-blue-600 border-blue-100',
+            emerald: 'bg-[#f0faf4] text-[#2E6F40] border-[#cee8d9]',
+            blue: 'bg-emerald-50 text-emerald-600 border-emerald-100',
             amber: 'bg-amber-50 text-amber-600 border-amber-100',
             indigo: 'bg-indigo-50 text-indigo-600 border-indigo-100',
           };
@@ -131,7 +131,7 @@ export default function FarmerStats() {
         <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
           <div className="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
             <h3 className="text-sm font-black text-slate-800 flex items-center gap-2">
-              <TrendingUp size={16} className="text-[#22543d]" strokeWidth={3} /> Revenue Trend
+              <TrendingUp size={16} className="text-[#2E6F40]" strokeWidth={3} /> Revenue Trend
             </h3>
             <span className="bg-slate-100 text-slate-500 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border border-slate-200">Periodic</span>
           </div>
@@ -142,8 +142,8 @@ export default function FarmerStats() {
                 <AreaChart data={data.revenue_trend} margin={{ top: 5, right: 8, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id={AREA_GRAD} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%"   stopColor="#22543d" stopOpacity={0.4} />
-                      <stop offset="100%" stopColor="#22543d" stopOpacity={0.0} />
+                      <stop offset="0%"   stopColor="#2E6F40" stopOpacity={0.4} />
+                      <stop offset="100%" stopColor="#2E6F40" stopOpacity={0.0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -151,9 +151,9 @@ export default function FarmerStats() {
                   <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b', fontWeight: 700 }} tickFormatter={v => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v} width={38} dx={-6} />
                   <Tooltip content={<AgriTooltip />} />
                   <Area type="monotone" dataKey="revenue" name="Revenue"
-                    stroke="#22543d" strokeWidth={2.5} fill={`url(#${AREA_GRAD})`}
-                    dot={{ r: 3, fill: '#22543d', strokeWidth: 2, stroke: '#fff' }}
-                    activeDot={{ r: 5, fill: '#16a34a', stroke: '#fff', strokeWidth: 2 }}
+                    stroke="#2E6F40" strokeWidth={2.5} fill={`url(#${AREA_GRAD})`}
+                    dot={{ r: 3, fill: '#2E6F40', strokeWidth: 2, stroke: '#fff' }}
+                    activeDot={{ r: 5, fill: '#2E6F40', stroke: '#fff', strokeWidth: 2 }}
                   />
                 </AreaChart>
               </ResponsiveContainer>
@@ -167,7 +167,7 @@ export default function FarmerStats() {
         <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
           <div className="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
             <h3 className="text-sm font-black text-slate-800 flex items-center gap-2">
-              <ListOrdered size={16} className="text-[#22543d]" strokeWidth={3} /> Transaction Volume
+              <ListOrdered size={16} className="text-[#2E6F40]" strokeWidth={3} /> Transaction Volume
             </h3>
             <span className="bg-slate-100 text-slate-500 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border border-slate-200">Orders</span>
           </div>
@@ -178,8 +178,8 @@ export default function FarmerStats() {
                 <BarChart data={data.orders_trend} margin={{ top: 5, right: 8, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id={BAR_GRAD} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%"   stopColor="#22543d" stopOpacity={1} />
-                      <stop offset="100%" stopColor="#16a34a" stopOpacity={0.8} />
+                      <stop offset="0%"   stopColor="#2E6F40" stopOpacity={1} />
+                      <stop offset="100%" stopColor="#2E6F40" stopOpacity={0.8} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
@@ -223,7 +223,7 @@ export default function FarmerStats() {
                     <div className="text-xs font-bold text-slate-500 mt-0.5">{f.orders} Confirmed Shipments</div>
                   </div>
                   <div className="text-right shrink-0">
-                    <div className="font-black text-[#22543d] mb-1">{f.revenue.toLocaleString()} <span className="text-[9px] uppercase tracking-widest">DZD</span></div>
+                    <div className="font-black text-[#2E6F40] mb-1">{f.revenue.toLocaleString()} <span className="text-[9px] uppercase tracking-widest">DZD</span></div>
                     <div className="w-24 h-1.5 bg-slate-200 rounded-full overflow-hidden ml-auto">
                       <div className="h-full bg-amber-500 rounded-full" style={{ width: `${Math.min((f.revenue / (data.best_farms[0]?.revenue || 1)) * 100, 100)}%` }} />
                     </div>
@@ -240,16 +240,16 @@ export default function FarmerStats() {
         <div className="bg-white border border-slate-200 rounded-[2rem] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
           <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
             <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
-              <Leaf size={20} className="text-emerald-500" strokeWidth={3} /> High-Velocity Products
+              <Leaf size={20} className="text-[#2E6F40]" strokeWidth={3} /> High-Velocity Products
             </h3>
-            <span className="bg-emerald-50 text-emerald-600 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border border-emerald-200">By Liquid Volume</span>
+            <span className="bg-[#f0faf4] text-[#2E6F40] px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border border-[#a2d4b5]">By Liquid Volume</span>
           </div>
           
           <div className="space-y-4">
             {data?.best_products?.length > 0 ? (
               data.best_products.map((p, i) => (
                 <div key={p.id} className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100 hover:border-slate-200 transition-colors">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-white shrink-0 shadow-sm ${i === 0 ? 'bg-gradient-to-br from-emerald-400 to-emerald-600 border border-emerald-500' : i === 1 ? 'bg-gradient-to-br from-slate-400 to-slate-500 border border-slate-400' : i === 2 ? 'bg-gradient-to-br from-emerald-700 to-emerald-800 border-emerald-800' : 'bg-slate-200 text-slate-500'}`}>
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-white shrink-0 shadow-sm ${i === 0 ? 'bg-gradient-to-br from-[#4a8c5f] to-[#2E6F40] border border-[#2E6F40]' : i === 1 ? 'bg-gradient-to-br from-slate-400 to-slate-500 border border-slate-400' : i === 2 ? 'bg-gradient-to-br from-[#255933] to-emerald-800 border-emerald-800' : 'bg-slate-200 text-slate-500'}`}>
                     {String(i + 1).padStart(2, '0')}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -257,9 +257,9 @@ export default function FarmerStats() {
                     <div className="text-xs font-bold text-slate-500 mt-0.5">{p.qty} Global Units Liquidated</div>
                   </div>
                   <div className="text-right shrink-0">
-                    <div className="font-black text-[#22543d] mb-1">{p.revenue.toLocaleString()} <span className="text-[9px] uppercase tracking-widest">DZD</span></div>
+                    <div className="font-black text-[#2E6F40] mb-1">{p.revenue.toLocaleString()} <span className="text-[9px] uppercase tracking-widest">DZD</span></div>
                     <div className="w-24 h-1.5 bg-slate-200 rounded-full overflow-hidden ml-auto">
-                      <div className="h-full bg-gradient-to-r from-[#22543d] to-emerald-400 rounded-full" style={{ width: `${Math.min((p.qty / (data.best_products[0]?.qty || 1)) * 100, 100)}%` }} />
+                      <div className="h-full bg-gradient-to-r from-[#2E6F40] to-[#4a8c5f] rounded-full" style={{ width: `${Math.min((p.qty / (data.best_products[0]?.qty || 1)) * 100, 100)}%` }} />
                     </div>
                   </div>
                 </div>

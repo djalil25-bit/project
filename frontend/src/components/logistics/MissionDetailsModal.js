@@ -131,7 +131,7 @@ const MissionDetailsModal = ({ mission, onClose, onAccept, hasActiveMission, act
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <div className={`rounded-[1.25rem] p-3 border flex items-center justify-center gap-2 transition-all shadow-sm ${mission.is_refrigerated ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-slate-50 border-slate-100 text-slate-300'}`}>
+                  <div className={`rounded-[1.25rem] p-3 border flex items-center justify-center gap-2 transition-all shadow-sm ${mission.is_refrigerated ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-slate-50 border-slate-100 text-slate-300'}`}>
                     <Thermometer size={14} /> <span className="text-[9px] font-black uppercase tracking-widest">Fridge</span>
                   </div>
                   <div className={`rounded-[1.25rem] p-3 border flex items-center justify-center gap-2 transition-all shadow-sm ${mission.is_fragile ? 'bg-rose-50 border-rose-200 text-rose-700' : 'bg-slate-50 border-slate-100 text-slate-300'}`}>

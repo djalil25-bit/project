@@ -68,7 +68,7 @@ function PriceManager() {
       {/* ── Breadcrumb ────────────────────────────────── */}
       <div className="adm-breadcrumb">
         <Link to="/admin-dashboard">Admin Hub</Link>
-        <ChevronRight size={12} className="text-slate-600" />
+        <ChevronRight size={12} className="text-[#064e3b]" />
         <span className="text-gray-500">Price Indexing</span>
       </div>
 
@@ -86,7 +86,7 @@ function PriceManager() {
       {/* ── Publication Form ──────────────────────────── */}
       <div className="glass-card p-6">
         <h3 className="font-bold text-gray-800 flex items-center gap-2 mb-5">
-          <Plus size={16} className="text-blue-600" /> New Index Publication
+          <Plus size={16} className="text-[#064e3b]" /> New Index Publication
         </h3>
 
         {error && (
@@ -144,8 +144,8 @@ function PriceManager() {
             <div>
               <label className="adm-label">Market Average (DZD)</label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-600 font-black text-[10px]">DZ</span>
-                <input type="number" step="0.01" className="adm-input pl-9 font-bold text-blue-600" placeholder="0.00" value={formData.reference_price} onChange={e => setFormData({ ...formData, reference_price: e.target.value })} required />
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#064e3b] font-black text-[10px]">DZ</span>
+                <input type="number" step="0.01" className="adm-input pl-9 font-bold text-[#064e3b]" placeholder="0.00" value={formData.reference_price} onChange={e => setFormData({ ...formData, reference_price: e.target.value })} required />
               </div>
             </div>
           </div>
@@ -182,7 +182,7 @@ function PriceManager() {
       <div className="glass-card overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h3 className="font-bold text-gray-800 flex items-center gap-2">
-            <Database size={16} className="text-blue-600" /> Historic Price Registry
+            <Database size={16} className="text-[#064e3b]" /> Historic Price Registry
           </h3>
           <span className="adm-badge adm-badge-approved">{publications.length} Indices</span>
         </div>
@@ -209,7 +209,7 @@ function PriceManager() {
                 {publications.length === 0 ? (
                   <tr>
                     <td colSpan="6">
-                      <div className="flex flex-col items-center gap-3 py-14 text-slate-600">
+                      <div className="flex flex-col items-center gap-3 py-14 text-[#064e3b]">
                         <TrendingUp size={40} className="opacity-20" />
                         <p className="text-sm">No price publications on record.</p>
                       </div>
@@ -228,7 +228,7 @@ function PriceManager() {
                       <span className="mx-1.5 text-gray-300">→</span>
                       <span className="text-xs text-green-600">{p.max_price} DZD</span>
                     </td>
-                    <td><span className="font-bold text-blue-600">{p.reference_price} DZD</span></td>
+                    <td><span className="font-bold text-[#064e3b]">{p.reference_price} DZD</span></td>
                     <td>
                       <span className="adm-badge" style={{ background: '#F3F4F6', color: '#6B7280', border: '1px solid #E5E7EB' }}>
                         {p.unit}

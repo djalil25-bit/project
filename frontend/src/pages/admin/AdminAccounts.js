@@ -8,14 +8,14 @@ const RoleBadge = ({ role }) => {
   const r = role?.toLowerCase() || 'buyer';
   if (r === 'farmer') return <span className="text-[9px] font-black uppercase tracking-widest text-emerald-700 bg-emerald-100/80 px-3 py-1 rounded-full border border-emerald-200/50 shadow-sm">{role}</span>;
   if (r === 'transporter') return <span className="text-[9px] font-black uppercase tracking-widest text-amber-700 bg-amber-100/80 px-3 py-1 rounded-full border border-amber-200/50 shadow-sm">{role}</span>;
-  return <span className="text-[9px] font-black uppercase tracking-widest text-blue-700 bg-blue-100/80 px-3 py-1 rounded-full border border-blue-200/50 shadow-sm">{role}</span>;
+  return <span className="text-[9px] font-black uppercase tracking-widest text-slate-700 bg-slate-100/80 px-3 py-1 rounded-full border border-slate-200/50 shadow-sm">{role}</span>;
 };
 
 const getAvatarStyle = (role) => {
   const r = role?.toLowerCase() || 'buyer';
   if (r === 'farmer') return "from-emerald-400 to-emerald-600 shadow-emerald-900/20";
   if (r === 'transporter') return "from-amber-400 to-amber-600 shadow-amber-900/20";
-  return "from-blue-400 to-blue-600 shadow-blue-900/20";
+  return "from-slate-400 to-slate-600 shadow-slate-900/20";
 };
 
 const AdminAccounts = () => {
@@ -73,7 +73,7 @@ const AdminAccounts = () => {
     <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 space-y-8 animate-fade-in relative z-0 bg-slate-50/30 min-h-screen">
       
       {/* ── HIGH-DENSITY HERO HEADER (GREEN POWER PRO) ─────────────────────────────── */}
-      <div className="bg-[#0a3d2e] rounded-2xl overflow-hidden shadow-lg flex flex-col md:flex-row items-center justify-between px-6 py-4 md:px-10 md:py-5 relative border border-[#0f5c44] isolate">
+      <div className="bg-[#022c22] rounded-2xl overflow-hidden shadow-lg flex flex-col md:flex-row items-center justify-between px-6 py-4 md:px-10 md:py-5 relative border border-[#064e3b] isolate">
         <div className="absolute inset-0 bg-gradient-to-r from-[#166534]/30 to-transparent pointer-events-none" />
         <div className="z-10 flex flex-col">
           <div className="flex items-center gap-2 text-emerald-400 text-[9px] font-black uppercase tracking-widest mb-1 opacity-80">
@@ -85,7 +85,7 @@ const AdminAccounts = () => {
           <p className="text-emerald-100/60 text-[10px] font-bold uppercase tracking-widest mt-2">{accounts.length} TOTAL REGISTERED ENTITIES</p>
         </div>
         <div className="z-10 mt-3 md:mt-0 flex gap-2">
-           <div className="bg-[#0f5c44] rounded-xl px-4 py-2 border border-emerald-500/30">
+           <div className="bg-[#064e3b] rounded-xl px-4 py-2 border border-emerald-500/30">
               <div className="text-[8px] font-black text-emerald-400 uppercase tracking-widest">Active nodes</div>
               <div className="text-white font-black text-lg leading-none">{accounts.filter(a => a.is_verified).length}</div>
            </div>
@@ -94,7 +94,7 @@ const AdminAccounts = () => {
 
       {/* Toast */}
       {toast && (
-        <div className={`fixed top-24 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-[10px] font-black tracking-widest uppercase animate-slide-in ${toast.type === 'error' ? 'bg-rose-50 text-rose-600 border border-rose-200' : 'bg-slate-900 text-emerald-400 border border-emerald-900/50'}`}>
+        <div className={`fixed top-24 left-1/2 transform -translate-x-1/2 z-50 px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-[10px] font-black tracking-widest uppercase animate-slide-in ${toast.type === 'error' ? 'bg-rose-50 text-rose-600 border border-rose-200' : 'bg-[#022c22] text-emerald-400 border border-emerald-900/50'}`}>
            <ShieldCheck size={16}/> {toast.msg}
         </div>
       )}
@@ -173,10 +173,10 @@ const AdminAccounts = () => {
                           href={`https://wa.me/${a.phone.replace(/\D/g, '')}`} 
                           target="_blank" 
                           rel="noreferrer"
-                          className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-lg hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all cursor-pointer group/wa shadow-sm"
+                          className="inline-flex items-center gap-1.5 px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-lg hover:bg-[#064e3b] hover:text-white hover:border-emerald-600 transition-all cursor-pointer group/wa shadow-sm"
                           title="Contact via WhatsApp"
                         >
-                          <Phone size={10} className="text-emerald-600 group-hover/wa:text-white transition-colors"/> 
+                          <Phone size={10} className="text-[#064e3b] group-hover/wa:text-white transition-colors"/> 
                           <span className="text-[9px] font-black tracking-normal">{a.phone}</span>
                         </a>
                       )}
@@ -189,7 +189,7 @@ const AdminAccounts = () => {
                   <RoleBadge role={a.role} />
                   <div className="w-px h-6 bg-slate-100 hidden md:block"></div>
                   {a.is_verified ? 
-                     <span className="text-[9px] font-black px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center gap-1 uppercase tracking-widest"><CheckCircle size={10}/> Verified</span> : 
+                     <span className="text-[9px] font-black px-2.5 py-1 rounded-md bg-emerald-50 text-[#064e3b] border border-emerald-100 flex items-center gap-1 uppercase tracking-widest"><CheckCircle size={10}/> Verified</span> : 
                      <span className="text-[9px] font-black px-2.5 py-1 rounded-md bg-amber-50 text-amber-600 border border-amber-100 flex items-center gap-1 uppercase tracking-widest"><Clock size={10}/> Pending</span>
                   }
                   {a.status === 'suspended' && <span className="text-[9px] font-black px-2.5 py-1 rounded-md bg-rose-50 text-rose-600 border border-rose-100 uppercase tracking-widest">Suspended</span>}
@@ -229,10 +229,10 @@ const AdminAccounts = () => {
 
                 {/* 4. Actions */}
                 <div className="flex items-center gap-2 w-full md:w-[200px] shrink-0 justify-start md:justify-end">
-                  <button className="h-9 px-3 bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-[10px] font-black rounded-xl flex items-center gap-1.5 transition-all uppercase tracking-widest shadow-sm active:scale-95" onClick={() => handleMessage(a)}>
+                  <button className="h-9 px-3 bg-white hover:bg-slate-50 text-[#064e3b] border border-slate-200 text-[10px] font-black rounded-xl flex items-center gap-1.5 transition-all uppercase tracking-widest shadow-sm active:scale-95" onClick={() => handleMessage(a)}>
                     <MessageSquare size={12} /> Msg
                   </button>
-                  <button className="h-9 px-3 bg-slate-900 hover:bg-slate-800 text-white border border-slate-800 text-[10px] font-black rounded-xl flex items-center gap-1.5 transition-all uppercase tracking-widest shadow-md active:scale-95" onClick={() => setSelectedUserId(a.id)}>
+                  <button className="h-9 px-3 bg-[#022c22] hover:bg-[#022c22] text-white border border-[#064e3b] text-[10px] font-black rounded-xl flex items-center gap-1.5 transition-all uppercase tracking-widest shadow-md active:scale-95" onClick={() => setSelectedUserId(a.id)}>
                     <Eye size={12} /> View
                   </button>
                   {a.status !== 'suspended' ? (
@@ -246,7 +246,7 @@ const AdminAccounts = () => {
                     </button>
                   ) : (
                     <button
-                      className="h-9 w-9 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl flex items-center justify-center transition-all shadow-md active:scale-95 ml-1"
+                      className="h-9 w-9 bg-[#064e3b] hover:bg-emerald-700 text-white rounded-xl flex items-center justify-center transition-all shadow-md active:scale-95 ml-1"
                       disabled={actionLoading === `${a.id}-approve`}
                       onClick={() => handleAction(a.id, 'approve')}
                       title="Reinstate Account"

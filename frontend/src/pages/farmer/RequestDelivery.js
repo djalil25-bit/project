@@ -307,7 +307,7 @@ const RequestDelivery = () => {
                         type="checkbox" 
                         checked={formData.is_refrigerated}
                         onChange={e => setFormData({...formData, is_refrigerated: e.target.checked})}
-                        className="w-4 h-4 accent-emerald-600"
+                        className="w-4 h-4 accent-[#2E6F40]"
                       />
                       <span className="text-sm font-bold text-slate-700">Refrigerated required</span>
                     </label>
@@ -316,7 +316,7 @@ const RequestDelivery = () => {
                         type="checkbox" 
                         checked={formData.is_fragile}
                         onChange={e => setFormData({...formData, is_fragile: e.target.checked})}
-                        className="w-4 h-4 accent-emerald-600"
+                        className="w-4 h-4 accent-[#2E6F40]"
                       />
                       <span className="text-sm font-bold text-slate-700">Fragile cargo</span>
                     </label>

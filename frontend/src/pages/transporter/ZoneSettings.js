@@ -62,13 +62,13 @@ const ZoneSettings = () => {
       {/* HEADER */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
-          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-indigo-500 mb-3 bg-indigo-50 px-3 py-1.5 rounded-full w-fit border border-indigo-100">
-            <Link to="/transporter-dashboard" className="hover:text-indigo-800 transition-colors">Logistics Hub</Link>
+          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#10B981] mb-3 bg-[#10B981]/20 px-3 py-1.5 rounded-full w-fit border border-indigo-100">
+            <Link to="/transporter-dashboard" className="hover:text-[#2DA83B] transition-colors">Logistics Hub</Link>
             <ChevronRight size={10} />
-            <span className="text-indigo-900">Service Zones</span>
+            <span className="text-[#2DA83B]">Service Zones</span>
           </div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-600/30">
+            <div className="w-10 h-10 bg-gradient-to-br from-[#10B981] to-[#10B981] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#10B981]/30">
               <Navigation size={20} strokeWidth={2.5} />
             </div>
             Service Coverage Grid
@@ -81,7 +81,7 @@ const ZoneSettings = () => {
         {/* Stats */}
         <div className="flex items-center gap-3">
           <div className="bg-white border border-slate-200 rounded-2xl px-5 py-3 flex items-center gap-3 shadow-sm">
-            <div className="w-8 h-8 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+            <div className="w-8 h-8 bg-[#10B981]/20 rounded-xl flex items-center justify-center text-[#10B981]">
               <Signal size={16} />
             </div>
             <div>
@@ -108,10 +108,10 @@ const ZoneSettings = () => {
         <div className="lg:col-span-3 space-y-4">
 
           {/* Dark active-zones card */}
-          <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 rounded-3xl flex flex-col">
+          <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 rounded-3xl flex flex-col">
             {/* Background decoration */}
             <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
-            <div className="absolute top-0 right-0 w-72 h-72 bg-indigo-600/20 blur-3xl rounded-full pointer-events-none" />
+            <div className="absolute top-0 right-0 w-72 h-72 bg-[#10B981]/15 blur-3xl rounded-full pointer-events-none" />
 
             {/* Card header */}
             <div className="relative z-10 flex items-center justify-between px-6 pt-6 pb-4 border-b border-white/10">
@@ -121,12 +121,12 @@ const ZoneSettings = () => {
                 </div>
                 <div>
                   <div className="text-white font-black text-base tracking-tight">Active Coverage Zones</div>
-                  <div className="text-indigo-300 text-[10px] font-bold mt-0.5 uppercase tracking-widest">
+                  <div className="text-[#10B981] text-[10px] font-bold mt-0.5 uppercase tracking-widest">
                     {zones.length} node{zones.length !== 1 ? 's' : ''} selected · hover row to remove
                   </div>
                 </div>
               </div>
-              <Activity size={32} className="text-indigo-500/25" />
+              <Activity size={32} className="text-[#10B981]/20" />
             </div>
 
             {/* Zone list - no scroll, grows naturally */}
@@ -150,7 +150,7 @@ const ZoneSettings = () => {
                       className="group flex items-center justify-between bg-white/8 hover:bg-red-500/10 border border-white/10 hover:border-red-400/30 rounded-xl px-3 py-2.5 transition-all duration-150"
                     >
                       <div className="flex items-center gap-2 min-w-0">
-                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse shrink-0" />
                         <span className="text-white font-bold text-xs tracking-tight truncate">{z}</span>
                       </div>
                       <button
@@ -174,7 +174,7 @@ const ZoneSettings = () => {
               </div>
               <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-indigo-400 to-emerald-400 rounded-full transition-all duration-700"
+                  className="h-full bg-gradient-to-r from-[#10B981]/80 to-emerald-400 rounded-full transition-all duration-700"
                   style={{ width: `${coveragePct}%` }}
                 />
               </div>
@@ -183,7 +183,7 @@ const ZoneSettings = () => {
 
           {/* Info card */}
           <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm flex items-start gap-4">
-            <div className="w-9 h-9 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 shrink-0 border border-indigo-100">
+            <div className="w-9 h-9 bg-[#10B981]/20 rounded-xl flex items-center justify-center text-[#10B981] shrink-0 border border-indigo-100">
               <ShieldCheck size={16} />
             </div>
             <div>
@@ -216,17 +216,17 @@ const ZoneSettings = () => {
               {/* Custom Dropdown (Opens clearly downward) */}
               <div className="relative">
                 <div 
-                  className={`w-full h-11 px-4 bg-slate-50 border ${isDropdownOpen ? 'border-indigo-400' : 'border-slate-200'} rounded-xl flex items-center justify-between cursor-pointer transition-all hover:border-indigo-300`}
+                  className={`w-full h-11 px-4 bg-slate-50 border ${isDropdownOpen ? 'border-indigo-400' : 'border-slate-200'} rounded-xl flex items-center justify-between cursor-pointer transition-all hover:border-[#10B981]/50`}
                   onClick={() => {
                     if (zones.length < ALL_WILAYAS.length) {
                       setIsDropdownOpen(!isDropdownOpen);
                     }
                   }}
                 >
-                  <span className={`text-sm font-medium ${isDropdownOpen ? 'text-indigo-600' : 'text-slate-600'}`}>
+                  <span className={`text-sm font-medium ${isDropdownOpen ? 'text-[#10B981]' : 'text-slate-600'}`}>
                     {zones.length === ALL_WILAYAS.length ? "All zones active" : isDropdownOpen ? "Search or select wilaya..." : "Choose a wilaya to add..."}
                   </span>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={`text-slate-400 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180 text-indigo-500' : ''}`}><path d="m6 9 6 6 6-6"/></svg>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className={`text-slate-400 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180 text-[#10B981]' : ''}`}><path d="m6 9 6 6 6-6"/></svg>
                 </div>
                 
                 {isDropdownOpen && (
@@ -250,10 +250,10 @@ const ZoneSettings = () => {
                           <button
                             key={w}
                             onClick={() => { addZone(w); setIsDropdownOpen(false); setSearch(''); }}
-                            className="w-full text-left px-3 py-2.5 text-sm font-bold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 rounded-lg transition-colors flex items-center justify-between group"
+                            className="w-full text-left px-3 py-2.5 text-sm font-bold text-slate-700 hover:bg-[#10B981]/20 hover:text-[#2DA83B] rounded-lg transition-colors flex items-center justify-between group"
                           >
                             <span>{w}</span>
-                            <div className="w-5 h-5 rounded bg-white group-hover:bg-indigo-600 border border-slate-200 group-hover:border-indigo-600 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
+                            <div className="w-5 h-5 rounded bg-white group-hover:bg-[#10B981] border border-slate-200 group-hover:border-indigo-600 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
                               <Plus size={12} className="text-white" />
                             </div>
                           </button>
@@ -277,7 +277,7 @@ const ZoneSettings = () => {
                 </div>
               ) : (
                 <div className="py-6 flex flex-col items-center text-center">
-                  <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-400 mb-3 border border-indigo-100">
+                  <div className="w-12 h-12 bg-[#10B981]/20 rounded-2xl flex items-center justify-center text-[#10B981] mb-3 border border-indigo-100">
                     <MapPin size={22} />
                   </div>
                   <div className="text-sm font-bold text-slate-600">Expand Your Reach</div>

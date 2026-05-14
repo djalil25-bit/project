@@ -105,7 +105,7 @@ export default function ResourceApprovals() {
               className={`flex-1 sm:flex-none px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${
                 activeType === type.key 
                   ? `bg-white text-${type.color}-600 shadow-md border border-${type.color}-100` 
-                  : 'text-slate-400 hover:text-slate-600'
+                  : 'text-slate-400 hover:text-[#064e3b]'
               }`}
             >
               {type.icon} {type.label}
@@ -123,8 +123,8 @@ export default function ResourceApprovals() {
               onClick={() => setActiveTab(tab.key)}
               className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${
                 activeTab === tab.key
-                  ? 'bg-slate-900 text-white border-slate-900 shadow-lg'
-                  : 'bg-slate-50 text-slate-400 border-slate-100 hover:bg-slate-100 hover:text-slate-600'
+                  ? 'bg-[#022c22] text-white border-slate-900 shadow-lg'
+                  : 'bg-slate-50 text-slate-400 border-slate-100 hover:bg-slate-100 hover:text-[#064e3b]'
               }`}
             >
               {tab.label}
@@ -143,7 +143,7 @@ export default function ResourceApprovals() {
           />
         </div>
         
-        <button onClick={fetchResources} className="hidden md:flex w-11 h-11 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-xl items-center justify-center transition-all shadow-sm">
+        <button onClick={fetchResources} className="hidden md:flex w-11 h-11 bg-white border border-slate-200 hover:bg-slate-50 text-[#064e3b] rounded-xl items-center justify-center transition-all shadow-sm">
           <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
         </button>
       </div>
@@ -238,12 +238,12 @@ const FarmCard = ({ farm, onApprove, onReject, onPreview, actionLoading }) => (
       <div className="flex flex-wrap items-center gap-y-2 gap-x-4 mb-6 text-xs text-slate-500 font-bold uppercase tracking-wider">
         <span className="flex items-center gap-1.5 text-amber-600 bg-amber-50 px-2 py-1 rounded-lg border border-amber-100"><MapPin size={14}/> {farm.wilaya || farm.location}</span>
         {farm.size_hectares && (
-          <span className="flex items-center gap-1.5 text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-100"><Maximize2 size={13}/> {farm.size_hectares} HA</span>
+          <span className="flex items-center gap-1.5 text-[#064e3b] bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-100"><Maximize2 size={13}/> {farm.size_hectares} HA</span>
         )}
       </div>
 
       <div className="bg-slate-50 rounded-2xl p-4 flex items-center gap-4 border border-slate-100 mb-6">
-        <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-emerald-600 font-black text-sm border border-slate-100">
+        <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-[#064e3b] font-black text-sm border border-slate-100">
           {farm.owner_name?.charAt(0)?.toUpperCase()}
         </div>
         <div className="flex-1 min-w-0">
@@ -254,7 +254,7 @@ const FarmCard = ({ farm, onApprove, onReject, onPreview, actionLoading }) => (
 
       <div className="pb-4 mt-auto">
         {farm.registry_document ? (
-          <button onClick={() => onPreview(farm.registry_document.startsWith('http') ? farm.registry_document : `http://localhost:8000${farm.registry_document}`)} className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-600/20 active:scale-95">
+          <button onClick={() => onPreview(farm.registry_document.startsWith('http') ? farm.registry_document : `http://localhost:8000${farm.registry_document}`)} className="w-full flex items-center justify-center gap-2 bg-[#064e3b] hover:bg-[#166534] text-white px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-slate-600/20 active:scale-95">
             <FileText size={14}/> View Registry Document
           </button>
         ) : (
@@ -266,7 +266,7 @@ const FarmCard = ({ farm, onApprove, onReject, onPreview, actionLoading }) => (
 
       {farm.status === 'PENDING' && (
         <div className="grid grid-cols-2 gap-3">
-          <button onClick={() => onApprove(farm.id)} disabled={actionLoading === farm.id} className="bg-emerald-600 hover:bg-emerald-700 text-white h-11 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 disabled:opacity-50">
+          <button onClick={() => onApprove(farm.id)} disabled={actionLoading === farm.id} className="bg-[#064e3b] hover:bg-emerald-700 text-white h-11 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 disabled:opacity-50">
             <Check size={16}/> Approve
           </button>
           <button onClick={() => onReject(farm.id)} disabled={actionLoading === farm.id} className="bg-red-600 hover:bg-red-700 text-white h-11 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-red-600/20 flex items-center justify-center gap-2 disabled:opacity-50">
@@ -283,7 +283,7 @@ const VehicleCard = ({ vehicle, onApprove, onReject, onPreview, actionLoading, g
     <div className="p-6 border-b border-slate-50 flex items-center justify-between">
       <div className="flex items-center gap-4">
         <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm border ${
-          vehicle.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+          vehicle.status === 'ACTIVE' ? 'bg-emerald-50 text-[#064e3b] border-emerald-100' :
           'bg-amber-50 text-amber-600 border-amber-100'
         }`}>
           {getIcon(vehicle.type)}
@@ -305,16 +305,16 @@ const VehicleCard = ({ vehicle, onApprove, onReject, onPreview, actionLoading, g
            <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Fuel Type</div>
            <div className="text-xs font-black text-slate-800">{vehicle.fuelType}</div>
         </div>
-        <div className="bg-indigo-50 rounded-2xl p-4 border border-indigo-100">
-           <div className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-1">Max Payload</div>
-           <div className="text-xs font-black text-indigo-700 flex items-center gap-1">
+        <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+           <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Max Payload</div>
+           <div className="text-xs font-black text-slate-700 flex items-center gap-1">
              <Gauge size={12}/> {parseFloat(vehicle.capacity) >= 1000 ? `${(parseFloat(vehicle.capacity)/1000).toFixed(1)}T` : `${vehicle.capacity}KG`}
            </div>
         </div>
       </div>
 
       <div className="bg-slate-50 rounded-2xl p-4 flex items-center gap-4 border border-slate-100">
-        <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 font-black text-xs border border-indigo-200">
+        <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-[#064e3b] font-black text-xs border border-slate-200">
           {vehicle.owner_name?.charAt(0)?.toUpperCase()}
         </div>
         <div className="flex-1 min-w-0">
@@ -325,7 +325,7 @@ const VehicleCard = ({ vehicle, onApprove, onReject, onPreview, actionLoading, g
 
       <div className="pb-4 mt-auto pt-4">
         {vehicle.carte_grise ? (
-          <button onClick={() => onPreview(vehicle.carte_grise.startsWith('http') ? vehicle.carte_grise : `http://localhost:8000${vehicle.carte_grise}`)} className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-600/20 active:scale-95">
+          <button onClick={() => onPreview(vehicle.carte_grise.startsWith('http') ? vehicle.carte_grise : `http://localhost:8000${vehicle.carte_grise}`)} className="w-full flex items-center justify-center gap-2 bg-[#064e3b] hover:bg-[#166534] text-white px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-slate-600/20 active:scale-95">
             <FileText size={14}/> View Carte Grise
           </button>
         ) : (
@@ -337,7 +337,7 @@ const VehicleCard = ({ vehicle, onApprove, onReject, onPreview, actionLoading, g
 
       {vehicle.status === 'PENDING' && (
         <div className="grid grid-cols-2 gap-3">
-          <button onClick={() => onApprove(vehicle.id)} disabled={actionLoading === vehicle.id} className="bg-emerald-600 hover:bg-emerald-700 text-white h-11 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 disabled:opacity-50">
+          <button onClick={() => onApprove(vehicle.id)} disabled={actionLoading === vehicle.id} className="bg-[#064e3b] hover:bg-emerald-700 text-white h-11 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 disabled:opacity-50">
             <Check size={16}/> Approve
           </button>
           <button onClick={() => onReject(vehicle.id)} disabled={actionLoading === vehicle.id} className="bg-red-600 hover:bg-red-700 text-white h-11 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-red-600/20 flex items-center justify-center gap-2 disabled:opacity-50">
@@ -350,7 +350,7 @@ const VehicleCard = ({ vehicle, onApprove, onReject, onPreview, actionLoading, g
 );
 
 const RejectionModal = ({ isOpen, onClose, onConfirm, reason, setReason, loading, type }) => (
-  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md animate-fade-in">
+  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#022c22]/60 backdrop-blur-md animate-fade-in">
     <div className="bg-white rounded-[2.5rem] p-10 shadow-2xl w-full max-w-lg animate-scale-in relative border border-slate-100">
       <button className="absolute top-6 right-6 w-12 h-12 bg-slate-50 text-slate-400 hover:text-slate-900 rounded-full flex items-center justify-center transition-all shadow-sm" onClick={onClose}>
         <X size={24} />
@@ -370,7 +370,7 @@ const RejectionModal = ({ isOpen, onClose, onConfirm, reason, setReason, loading
         autoFocus
       />
       <div className="flex gap-4 mt-8">
-        <button onClick={onClose} className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 h-14 rounded-2xl font-black text-xs uppercase tracking-widest transition-all">Cancel</button>
+        <button onClick={onClose} className="flex-1 bg-slate-100 hover:bg-slate-200 text-[#064e3b] h-14 rounded-2xl font-black text-xs uppercase tracking-widest transition-all">Cancel</button>
         <button onClick={onConfirm} disabled={!reason.trim() || loading} className="flex-1 bg-red-600 hover:bg-red-700 text-white h-14 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-red-600/20 disabled:opacity-50">Confirm Rejection</button>
       </div>
     </div>
@@ -378,13 +378,13 @@ const RejectionModal = ({ isOpen, onClose, onConfirm, reason, setReason, loading
 );
 
 const DocumentPreviewModal = ({ url, onClose }) => (
-  <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md animate-fade-in" onClick={onClose}>
+  <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-[#022c22]/80 backdrop-blur-md animate-fade-in" onClick={onClose}>
     <div className="bg-white rounded-[2.5rem] p-8 shadow-2xl w-full max-w-4xl max-h-[90vh] animate-scale-in relative overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
       <button className="absolute top-6 right-6 w-12 h-12 bg-slate-50 text-slate-400 hover:text-slate-900 rounded-full flex items-center justify-center transition-all z-10 shadow-sm" onClick={onClose}>
         <X size={24} />
       </button>
       <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 border border-blue-100">
+        <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-[#064e3b] border border-slate-100">
           <FileText size={20}/>
         </div>
         <h3 className="text-xl font-black text-slate-900 tracking-tight">Registry Document Preview</h3>

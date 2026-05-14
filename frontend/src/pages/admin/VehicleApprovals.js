@@ -67,13 +67,13 @@ export default function VehicleApprovals() {
       {/* BREADCRUMB & HEADER */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
-          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-indigo-600 mb-3 bg-indigo-50 px-3 py-1.5 rounded-full w-fit border border-indigo-100 shadow-sm">
-            <Link to="/admin-dashboard" className="hover:text-indigo-800 transition-colors">Admin Hub</Link>
-            <ChevronRight size={10} className="text-indigo-300" />
-            <span className="text-indigo-900">Vehicle Approvals</span>
+          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#064e3b] mb-3 bg-slate-50 px-3 py-1.5 rounded-full w-fit border border-slate-100 shadow-sm">
+            <Link to="/admin-dashboard" className="hover:text-slate-800 transition-colors">Admin Hub</Link>
+            <ChevronRight size={10} className="text-slate-300" />
+            <span className="text-slate-900">Vehicle Approvals</span>
           </div>
           <h1 className="text-4xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-            <div className="p-3 bg-white rounded-2xl shadow-sm border border-slate-100 text-indigo-600">
+            <div className="p-3 bg-white rounded-2xl shadow-sm border border-slate-100 text-[#064e3b]">
               <Truck size={36} strokeWidth={2.5} />
             </div>
             Vehicle Verification
@@ -82,7 +82,7 @@ export default function VehicleApprovals() {
             Review and approve vehicle registrations before they can accept delivery missions.
           </p>
         </div>
-        <button onClick={fetchVehicles} className="bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 px-5 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex items-center gap-2 shadow-sm">
+        <button onClick={fetchVehicles} className="bg-white border border-slate-200 hover:bg-slate-50 text-[#064e3b] px-5 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex items-center gap-2 shadow-sm">
           <RefreshCw size={14} /> Refresh
         </button>
       </div>
@@ -95,7 +95,7 @@ export default function VehicleApprovals() {
             onClick={() => setActiveTab(tab.key)}
             className={`px-5 py-3 text-xs font-black uppercase tracking-widest transition-all border-b-2 ${activeTab === tab.key
               ? 'border-current text-slate-900'
-              : 'border-transparent text-slate-400 hover:text-slate-600'
+              : 'border-transparent text-slate-400 hover:text-[#064e3b]'
             }`}
             style={activeTab === tab.key ? { color: tab.color } : {}}
           >
@@ -110,7 +110,7 @@ export default function VehicleApprovals() {
         <input
           type="text"
           placeholder="Search by plate, model, owner..."
-          className="w-full h-12 pl-11 pr-4 bg-white border-2 border-slate-100 rounded-xl text-sm font-medium focus:outline-none focus:border-indigo-500 transition-all"
+          className="w-full h-12 pl-11 pr-4 bg-white border-2 border-slate-100 rounded-xl text-sm font-medium focus:outline-none focus:border-slate-500 transition-all"
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
@@ -119,7 +119,7 @@ export default function VehicleApprovals() {
       {/* CONTENT */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
-          <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-t-indigo-600 animate-spin" />
+          <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-t-slate-600 animate-spin" />
           <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Loading...</span>
         </div>
       ) : vehicles.length === 0 ? (
@@ -138,7 +138,7 @@ export default function VehicleApprovals() {
               <div className="p-5 flex items-center justify-between border-b border-slate-50">
                 <div className="flex items-center gap-3">
                   <div className={`w-11 h-11 rounded-xl flex items-center justify-center shadow-sm border ${
-                    vehicle.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                    vehicle.status === 'ACTIVE' ? 'bg-emerald-50 text-[#064e3b] border-emerald-100' :
                     vehicle.status === 'REJECTED' ? 'bg-red-50 text-red-500 border-red-100' :
                     'bg-amber-50 text-amber-600 border-amber-100'
                   }`}>
@@ -152,7 +152,7 @@ export default function VehicleApprovals() {
                   </div>
                 </div>
                 <span className={`text-[8px] font-black uppercase tracking-[0.15em] px-2.5 py-1 rounded-lg border flex items-center gap-1.5 ${
-                  vehicle.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
+                  vehicle.status === 'ACTIVE' ? 'bg-emerald-50 text-[#064e3b] border-emerald-200' :
                   vehicle.status === 'REJECTED' ? 'bg-red-50 text-red-600 border-red-200' :
                   'bg-amber-50 text-amber-600 border-amber-200'
                 }`}>
@@ -174,8 +174,8 @@ export default function VehicleApprovals() {
                 <div className="text-right space-y-1">
                   <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Load Capacity</span>
                   <div className="flex items-center gap-1.5 justify-end">
-                    <Gauge size={14} className="text-indigo-500" />
-                    <span className="text-lg font-black text-indigo-600 font-mono">
+                    <Gauge size={14} className="text-slate-500" />
+                    <span className="text-lg font-black text-[#064e3b] font-mono">
                       {parseFloat(vehicle.capacity) >= 1000 ? `${(parseFloat(vehicle.capacity)/1000).toFixed(1)}T` : `${vehicle.capacity}KG`}
                     </span>
                   </div>
@@ -185,7 +185,7 @@ export default function VehicleApprovals() {
               {/* Owner Info */}
               <div className="px-5 py-3">
                 <div className="bg-slate-50 rounded-xl p-3 flex items-center gap-3 border border-slate-100">
-                  <div className="w-9 h-9 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-black text-xs">
+                  <div className="w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center text-[#064e3b] font-black text-xs">
                     {vehicle.owner_name?.charAt(0)?.toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -204,7 +204,7 @@ export default function VehicleApprovals() {
                 {vehicle.carte_grise ? (
                   <button
                     onClick={() => setCarteGrisePreview(vehicle.carte_grise.startsWith('http') ? vehicle.carte_grise : `http://localhost:8000${vehicle.carte_grise}`)}
-                    className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-600/20 active:scale-95"
+                    className="w-full flex items-center justify-center gap-2 bg-[#064e3b] hover:bg-[#166534] text-white px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-slate-600/20 active:scale-95"
                   >
                     <FileText size={14} /> View Carte Grise Document
                   </button>
@@ -234,7 +234,7 @@ export default function VehicleApprovals() {
                   <button
                     onClick={() => handleApprove(vehicle.id)}
                     disabled={actionLoading === vehicle.id}
-                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white h-11 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="flex-1 bg-[#064e3b] hover:bg-emerald-700 text-white h-11 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     <Check size={14} /> Approve
                   </button>
@@ -249,12 +249,12 @@ export default function VehicleApprovals() {
               )}
 
               {/* Footer */}
-              <div className="bg-slate-900 px-5 py-2 flex items-center justify-between mt-auto">
-                <div className="text-[8px] font-black text-slate-600 uppercase tracking-widest">
+              <div className="bg-[#022c22] px-5 py-2 flex items-center justify-between mt-auto">
+                <div className="text-[8px] font-black text-[#064e3b] uppercase tracking-widest">
                   REG: #{vehicle.id.toString().padStart(4, '0')}
                 </div>
                 {vehicle.reviewed_at && (
-                  <div className="text-[8px] text-slate-600 font-medium flex items-center gap-1">
+                  <div className="text-[8px] text-[#064e3b] font-medium flex items-center gap-1">
                     <Clock size={8} /> {new Date(vehicle.reviewed_at).toLocaleDateString()}
                   </div>
                 )}
@@ -266,7 +266,7 @@ export default function VehicleApprovals() {
 
       {/* REJECTION MODAL */}
       {rejectModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#022c22]/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-white rounded-3xl p-8 shadow-2xl w-full max-w-md animate-scale-in relative">
             <button className="absolute top-5 right-5 w-10 h-10 bg-slate-50 text-slate-400 hover:text-slate-900 rounded-full flex items-center justify-center transition-all" onClick={() => { setRejectModal(null); setRejectReason(''); }}>
               <X size={20} />
@@ -286,7 +286,7 @@ export default function VehicleApprovals() {
               autoFocus
             />
             <div className="flex gap-3 mt-6">
-              <button onClick={() => { setRejectModal(null); setRejectReason(''); }} className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 h-12 rounded-xl font-black text-xs uppercase tracking-widest transition-all">Cancel</button>
+              <button onClick={() => { setRejectModal(null); setRejectReason(''); }} className="flex-1 bg-slate-100 hover:bg-slate-200 text-[#064e3b] h-12 rounded-xl font-black text-xs uppercase tracking-widest transition-all">Cancel</button>
               <button onClick={handleReject} disabled={!rejectReason.trim() || actionLoading} className="flex-1 bg-red-600 hover:bg-red-700 text-white h-12 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-red-600/20 disabled:opacity-50">Confirm Rejection</button>
             </div>
           </div>
@@ -295,7 +295,7 @@ export default function VehicleApprovals() {
 
       {/* CARTE GRISE PREVIEW MODAL */}
       {carteGrisePreview && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in" onClick={() => setCarteGrisePreview(null)}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#022c22]/60 backdrop-blur-sm animate-fade-in" onClick={() => setCarteGrisePreview(null)}>
           <div className="bg-white rounded-3xl p-6 shadow-2xl max-w-2xl max-h-[85vh] animate-scale-in relative overflow-auto" onClick={e => e.stopPropagation()}>
             <button className="absolute top-4 right-4 w-10 h-10 bg-slate-50 text-slate-400 hover:text-slate-900 rounded-full flex items-center justify-center transition-all z-10" onClick={() => setCarteGrisePreview(null)}>
               <X size={20} />

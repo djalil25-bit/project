@@ -6,11 +6,15 @@ import {
   CheckCircle, Package, FileText, ChevronRight, Target, ShieldAlert
 } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
+import { useAuth } from '../../context/AuthContext';
+
 
 const ComplaintFormPage = () => {
+  const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const { showToast } = useToast();
+
   
   // Extract context from URL params
   const queryParams = new URLSearchParams(location.search);
@@ -65,7 +69,7 @@ const ComplaintFormPage = () => {
     return (
       <div className="max-w-3xl mx-auto px-4 py-20 animate-fade-in relative z-0">
         <div className="bg-white p-12 text-center rounded-[2.5rem] shadow-[0_20px_60px_rgba(79,70,229,0.08)] border border-slate-100 flex flex-col items-center">
-          <div className="w-24 h-24 bg-indigo-50 text-indigo-500 rounded-[2rem] flex items-center justify-center mb-8 border border-indigo-100 shadow-sm animate-scale-in">
+          <div className={`w-24 h-24 rounded-[2rem] flex items-center justify-center mb-8 border shadow-sm animate-scale-in ${user?.role === 'farmer' ? 'bg-[#2E6F40]/10 text-[#2E6F40] border-[#2E6F40]/20' : user?.role === 'admin' ? 'bg-[#0f5c44]/10 text-[#0f5c44] border-[#0f5c44]/20' : 'bg-teal-50 text-teal-500 border-teal-100'}`}>
             <CheckCircle size={48} strokeWidth={2.5} />
           </div>
           <h2 className="font-black text-3xl text-slate-900 mb-4 tracking-tight">Complaint Submitted</h2>
@@ -76,7 +80,7 @@ const ComplaintFormPage = () => {
             <button onClick={() => navigate(-1)} className="px-8 py-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-sm uppercase tracking-widest rounded-2xl transition-all duration-300 shadow-sm hover:-translate-y-1 active:scale-95">
               Go Back
             </button>
-            <Link to="/complaints" className="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm uppercase tracking-widest rounded-2xl transition-all duration-300 shadow-[0_8px_20px_rgba(79,70,229,0.3)] hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2">
+            <Link to="/complaints" className={`px-8 py-4 text-white font-black text-sm uppercase tracking-widest rounded-2xl transition-all duration-300 hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2 ${user?.role === 'farmer' ? 'bg-[#2E6F40] hover:bg-[#255933] shadow-[#2E6F40]/20' : user?.role === 'admin' ? 'bg-[#0f5c44] hover:bg-[#0a3d2e] shadow-[#0f5c44]/20' : 'bg-teal-600 hover:bg-teal-700 shadow-teal-600/20'}`}>
               <ShieldAlert size={18} /> View Complaints
             </Link>
           </div>
@@ -89,11 +93,11 @@ const ComplaintFormPage = () => {
     <div className="max-w-4xl mx-auto px-4 py-8 pb-20 animate-fade-in relative z-0">
       
       {/* ── BREADCRUMBS ────────────────────────────────────────────── */}
-      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-indigo-600 mb-8">
+      <div className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest mb-8 ${user?.role === 'farmer' ? 'text-[#2E6F40]' : user?.role === 'admin' ? 'text-[#0f5c44]' : 'text-teal-600'}`}>
         {orderId ? (
-          <button onClick={() => navigate(-1)} className="hover:underline hover:text-indigo-800 transition-colors flex items-center gap-1"><ArrowLeft size={12}/> Go Back</button>
+          <button onClick={() => navigate(-1)} className={`hover:underline transition-colors flex items-center gap-1 ${user?.role === 'farmer' ? 'hover:text-[#255933]' : user?.role === 'admin' ? 'hover:text-[#0a3d2e]' : 'hover:text-teal-800'}`}><ArrowLeft size={12}/> Go Back</button>
         ) : (
-          <button onClick={() => navigate('/profile')} className="hover:underline hover:text-indigo-800 transition-colors flex items-center gap-1 cursor-pointer"><ArrowLeft size={12}/> Dashboard</button>
+          <button onClick={() => navigate('/profile')} className={`hover:underline transition-colors flex items-center gap-1 cursor-pointer ${user?.role === 'farmer' ? 'hover:text-[#255933]' : user?.role === 'admin' ? 'hover:text-[#0a3d2e]' : 'hover:text-teal-800'}`}><ArrowLeft size={12}/> Dashboard</button>
         )}
         <ChevronRight size={12} className="text-slate-400 mx-1" />
         <span className="text-slate-400 flex items-center gap-1"><ShieldAlert size={12}/> New Complaint</span>
@@ -111,8 +115,8 @@ const ComplaintFormPage = () => {
             
             {/* Context Section */}
             <div className="bg-white border border-slate-200 shadow-sm rounded-2xl p-5 sm:p-6 relative overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-600 to-indigo-400" />
-              <div className="flex items-center gap-2 mb-5 text-indigo-600 font-black text-[10px] uppercase tracking-widest border-b border-slate-100 pb-3">
+              <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${user?.role === 'farmer' ? 'from-[#2E6F40] to-[#4a8c5f]' : user?.role === 'admin' ? 'from-[#0f5c44] to-[#166534]' : 'from-teal-600 to-teal-400'}`} />
+              <div className={`flex items-center gap-2 mb-5 font-black text-[10px] uppercase tracking-widest border-b border-slate-100 pb-3 ${user?.role === 'farmer' ? 'text-[#2E6F40]' : user?.role === 'admin' ? 'text-[#0f5c44]' : 'text-teal-600'}`}>
                 <Target size={14} /> Report Context
               </div>
               
@@ -121,7 +125,7 @@ const ComplaintFormPage = () => {
                   <label className="block text-xs font-black text-slate-600 uppercase tracking-widest mb-2">Report Type <span className="text-red-500">*</span></label>
                   <div className="relative">
                     <select 
-                      className={`w-full appearance-none pl-4 pr-10 py-3.5 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all text-sm font-bold text-slate-800 ${errors.complaint_type ? 'border-red-400 ring-2 ring-red-400/20' : 'border-slate-200'}`}
+                      className={`w-full appearance-none pl-4 pr-10 py-3.5 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-600 transition-all text-sm font-bold text-slate-800 ${errors.complaint_type ? 'border-red-400 ring-2 ring-red-400/20' : 'border-slate-200'}`}
                       value={formData.complaint_type} 
                       onChange={e => setFormData({...formData, complaint_type: e.target.value})}
                     >
@@ -141,7 +145,7 @@ const ComplaintFormPage = () => {
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">#AG-</div>
                     <input 
                       type="text" 
-                      className={`w-full pl-14 pr-4 py-3.5 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all text-sm font-bold text-slate-800 placeholder-slate-300 ${errors.order ? 'border-red-400 ring-2 ring-red-400/20' : 'border-slate-200'}`}
+                      className={`w-full pl-14 pr-4 py-3.5 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-600 transition-all text-sm font-bold text-slate-800 placeholder-slate-300 ${errors.order ? 'border-red-400 ring-2 ring-red-400/20' : 'border-slate-200'}`}
                       placeholder="000XX"
                       value={formData.order}
                       onChange={e => setFormData({...formData, order: e.target.value})}
@@ -154,7 +158,7 @@ const ComplaintFormPage = () => {
 
             {/* Details Section */}
             <div className="bg-white border border-slate-200 shadow-sm rounded-2xl p-5 sm:p-6">
-              <div className="flex items-center gap-2 mb-5 text-indigo-600 font-black text-[10px] uppercase tracking-widest border-b border-slate-100 pb-3">
+              <div className={`flex items-center gap-2 mb-5 font-black text-[10px] uppercase tracking-widest border-b border-slate-100 pb-3 ${user?.role === 'farmer' ? 'text-[#2E6F40]' : user?.role === 'admin' ? 'text-[#0f5c44]' : 'text-teal-600'}`}>
                 <FileText size={14} /> Complaint Details
               </div>
 
@@ -162,7 +166,7 @@ const ComplaintFormPage = () => {
                 <label className="block text-xs font-black text-slate-600 uppercase tracking-widest mb-2">Brief Subject <span className="text-red-500">*</span></label>
                 <input 
                   type="text" 
-                  className={`w-full px-4 py-3.5 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all text-sm font-bold text-slate-800 placeholder-slate-300 ${errors.title ? 'border-red-400 ring-2 ring-red-400/20' : 'border-slate-200'}`}
+                  className={`w-full px-4 py-3.5 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-600 transition-all text-sm font-bold text-slate-800 placeholder-slate-300 ${errors.title ? 'border-red-400 ring-2 ring-red-400/20' : 'border-slate-200'}`}
                   required 
                   placeholder="e.g., Incomplete shipment received"
                   value={formData.title} 
@@ -174,7 +178,7 @@ const ComplaintFormPage = () => {
               <div>
                 <label className="block text-xs font-black text-slate-600 uppercase tracking-widest mb-2">Detailed Incident Description <span className="text-red-500">*</span></label>
                 <textarea 
-                  className={`w-full px-4 py-3.5 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-600 transition-all text-sm font-bold text-slate-800 placeholder-slate-300 resize-y ${errors.description ? 'border-red-400 ring-2 ring-red-400/20' : 'border-slate-200'}`}
+                  className={`w-full px-4 py-3.5 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-600 transition-all text-sm font-bold text-slate-800 placeholder-slate-300 resize-y ${errors.description ? 'border-red-400 ring-2 ring-red-400/20' : 'border-slate-200'}`}
                   rows="5" 
                   required
                   placeholder="Please describe exactly what happened, when it happened, and what resolution you are seeking..."
@@ -187,19 +191,19 @@ const ComplaintFormPage = () => {
 
             {/* Evidence Section */}
             <div className="bg-white border border-slate-200 shadow-sm rounded-2xl p-5 sm:p-6">
-              <div className="flex items-center gap-2 mb-5 text-indigo-600 font-black text-[10px] uppercase tracking-widest border-b border-slate-100 pb-3">
+              <div className={`flex items-center gap-2 mb-5 font-black text-[10px] uppercase tracking-widest border-b border-slate-100 pb-3 ${user?.role === 'farmer' ? 'text-[#2E6F40]' : user?.role === 'admin' ? 'text-[#0f5c44]' : 'text-teal-600'}`}>
                 <ImageIcon size={14} /> Supporting Evidence
               </div>
               <div className="relative border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors group">
                 <input type="file" id="evidence-upload" hidden accept="image/*" onChange={e => setAttachment(e.target.files[0])} />
                 <label htmlFor="evidence-upload" className="flex flex-col items-center justify-center w-full py-8 cursor-pointer">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-3 transition-all ${attachment ? 'bg-indigo-100 text-indigo-600' : 'bg-white border border-slate-200 text-slate-400 shadow-sm'}`}>
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-3 transition-all ${attachment ? 'bg-teal-100 text-teal-600' : 'bg-white border border-slate-200 text-slate-400 shadow-sm'}`}>
                     <ImageIcon size={24} />
                   </div>
                   <h4 className="text-sm font-black text-slate-800 mb-1">{attachment ? attachment.name : 'Click to upload evidence'}</h4>
                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">PDF, JPG, PNG — max 5 MB</p>
                   {attachment && (
-                    <div className="mt-4 text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg text-xs font-black tracking-widest uppercase flex items-center gap-2 border border-indigo-100">
+                    <div className="mt-4 text-teal-600 bg-teal-50 px-3 py-1.5 rounded-lg text-xs font-black tracking-widest uppercase flex items-center gap-2 border border-teal-100">
                       <CheckCircle size={14} strokeWidth={3} /> Uploaded
                     </div>
                   )}
@@ -218,7 +222,7 @@ const ComplaintFormPage = () => {
               </button>
               <button 
                 type="submit" 
-                className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 rounded-xl font-black text-sm uppercase tracking-wide transition-all shadow-md active:scale-95 flex items-center justify-center gap-2 disabled:opacity-70"
+                className={`flex-1 text-white py-2.5 rounded-xl font-black text-sm uppercase tracking-wide transition-all shadow-md active:scale-95 flex items-center justify-center gap-2 disabled:opacity-70 ${user?.role === 'farmer' ? 'bg-[#2E6F40] hover:bg-[#255933]' : user?.role === 'admin' ? 'bg-[#0f5c44] hover:bg-[#0a3d2e]' : user?.role === 'transporter' ? 'bg-[#2E7D32] hover:bg-[#1B5E20]' : 'bg-teal-600 hover:bg-teal-700'}`}
                 disabled={loading}
               >
                 {loading ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span> Submitting...</> : <><Send size={16} strokeWidth={2.5} /> Submit Report</>}
@@ -229,14 +233,14 @@ const ComplaintFormPage = () => {
 
         {/* Sidebar Info */}
         <div className="lg:col-span-4 lg:sticky lg:top-6">
-          <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-5 shadow-sm">
+          <div className={`border rounded-2xl p-5 shadow-sm ${user?.role === 'farmer' ? 'bg-[#2E6F40]/10 border-[#2E6F40]/20' : user?.role === 'admin' ? 'bg-[#0f5c44]/10 border-[#0f5c44]/20' : 'bg-teal-50 border-teal-100'}`}>
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-9 h-9 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center shrink-0">
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${user?.role === 'farmer' ? 'bg-[#2E6F40]/20 text-[#2E6F40]' : user?.role === 'admin' ? 'bg-[#0f5c44]/20 text-[#0f5c44]' : 'bg-teal-100 text-teal-600'}`}>
                 <AlertCircle size={18} strokeWidth={2.5} />
               </div>
-              <h5 className="font-black text-indigo-900 text-sm">Complaint Policy</h5>
+              <h5 className={`font-black text-sm ${user?.role === 'farmer' ? 'text-[#2E6F40]' : user?.role === 'admin' ? 'text-[#0f5c44]' : 'text-teal-900'}`}>Complaint Policy</h5>
             </div>
-            <p className="text-xs text-indigo-800/80 font-medium leading-relaxed">
+            <p className={`text-xs font-medium leading-relaxed ${user?.role === 'farmer' ? 'text-[#2E6F40]/80' : user?.role === 'admin' ? 'text-[#0f5c44]/80' : 'text-teal-800/80'}`}>
               All complaints are reviewed within 24–48 hours by our support team. Please provide accurate details to ensure a quick resolution. Inaccurate information may delay your case.
             </p>
           </div>

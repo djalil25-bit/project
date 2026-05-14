@@ -88,19 +88,19 @@ function AdminDashboard() {
 
   const STAT_CARDS = stats ? [
     { icon: <Clock size={18} />, color: 'text-amber-600', iconBg: 'bg-amber-50', value: stats.pending_users, label: 'Pending Verifications' },
-    { icon: <Users size={18} />, color: 'text-blue-600', iconBg: 'bg-blue-50', value: stats.total_users, label: 'Platform Members' },
-    { icon: <Wheat size={18} />, color: 'text-emerald-600', iconBg: 'bg-emerald-50', value: stats.total_farmers, label: 'Registered Producers' },
-    { icon: <span className="font-black text-[13px] leading-none">DZ</span>, color: 'text-purple-600', iconBg: 'bg-purple-50', value: `${avgOrderValue.toLocaleString()} DA`, label: 'Avg Order Value' },
-    { icon: <Package size={18} />, color: 'text-teal-600', iconBg: 'bg-teal-50', value: avgProductsPerFarmer, label: 'Avg Products/Farmer' },
-    { icon: <Home size={18} />, color: 'text-slate-600', iconBg: 'bg-slate-50', value: stats.total_farmers, label: 'Active Farms' },
+    { icon: <Users size={18} />, color: 'text-[#064e3b]', iconBg: 'bg-[#064e3b]/10', value: stats.total_users, label: 'Platform Members' },
+    { icon: <Wheat size={18} />, color: 'text-emerald-700', iconBg: 'bg-emerald-50', value: stats.total_farmers, label: 'Registered Producers' },
+    { icon: <span className="font-black text-[13px] leading-none">DZ</span>, color: 'text-indigo-700', iconBg: 'bg-indigo-50', value: `${avgOrderValue.toLocaleString()} DA`, label: 'Avg Order Value' },
+    { icon: <Package size={18} />, color: 'text-teal-700', iconBg: 'bg-teal-50', value: avgProductsPerFarmer, label: 'Avg Products/Farmer' },
+    { icon: <Home size={18} />, color: 'text-[#064e3b]', iconBg: 'bg-[#064e3b]/10', value: stats.total_farmers, label: 'Active Farms' },
   ] : [];
 
   return (
     <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 space-y-10 animate-fade-in relative z-0 bg-slate-50/50 min-h-screen">
       
       {/* ── HIGH-DENSITY HERO HEADER (GREEN POWER PRO) ─────────────────────────────── */}
-      <div className="bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col md:flex-row items-center justify-between px-8 py-8 md:px-12 md:py-10 relative isolate border border-slate-800">
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-900/40 via-teal-900/20 to-transparent pointer-events-none" />
+      <div className="bg-[#022c22] rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col md:flex-row items-center justify-between px-8 py-8 md:px-12 md:py-10 relative isolate border border-[#064e3b]">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#022c22]/60 via-[#064e3b]/30 to-transparent pointer-events-none" />
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
         
@@ -117,10 +117,10 @@ function AdminDashboard() {
         </div>
         <div className="z-10 mt-8 md:mt-0 shrink-0">
           <button
-            className="group bg-white hover:bg-emerald-50 text-slate-900 text-xs font-black uppercase tracking-[0.15em] px-8 py-4 rounded-2xl transition-all duration-300 shadow-xl shadow-white/5 hover:shadow-white/10 flex items-center gap-3 active:scale-95"
+            className="group bg-white hover:bg-[#f0fdf4] text-slate-900 text-xs font-black uppercase tracking-[0.15em] px-8 py-4 rounded-2xl transition-all duration-300 shadow-xl shadow-white/5 hover:shadow-white/10 flex items-center gap-3 active:scale-95"
             onClick={() => navigate('/admin-dashboard/analytics')}
           >
-            <TrendingUp size={16} className="text-emerald-600 group-hover:scale-110 transition-transform" /> 
+            <TrendingUp size={16} className="text-[#064e3b] group-hover:scale-110 transition-transform" /> 
             <span>Full Analytics</span>
           </button>
         </div>
@@ -152,7 +152,7 @@ function AdminDashboard() {
       <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/40 overflow-hidden flex flex-col animate-fade-in relative z-10">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-8 py-6 border-b border-slate-100 bg-white gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 border border-emerald-100 shadow-sm">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-[#064e3b] border border-emerald-100 shadow-sm">
               <UserCheck size={20} />
             </div>
             <div>
@@ -211,11 +211,11 @@ function AdminDashboard() {
                     </td>
                     <td className="px-4 md:px-6 py-4">
                       <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg border flex w-fit items-center gap-1.5 ${
-                        u.role === 'farmer' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
+                        u.role === 'farmer' ? 'bg-emerald-50 text-[#064e3b] border-emerald-100' :
                         u.role === 'transporter' ? 'bg-amber-50 text-amber-600 border-amber-100' :
-                        'bg-blue-50 text-blue-600 border-blue-100'
+                        'bg-slate-50 text-[#064e3b] border-slate-100'
                       }`}>
-                        <div className={`hidden sm:block w-1.5 h-1.5 rounded-full ${u.role === 'farmer' ? 'bg-emerald-500' : u.role === 'transporter' ? 'bg-amber-500' : 'bg-blue-500'}`} />
+                        <div className={`hidden sm:block w-1.5 h-1.5 rounded-full ${u.role === 'farmer' ? 'bg-emerald-500' : u.role === 'transporter' ? 'bg-amber-500' : 'bg-slate-500'}`} />
                         {u.role}
                       </span>
                     </td>
@@ -232,7 +232,7 @@ function AdminDashboard() {
                     <td className="px-4 md:px-6 py-4">
                       <div className="flex items-center justify-end gap-1.5 opacity-100 lg:opacity-80 group-hover:opacity-100 transition-opacity">
                         <button
-                          className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20 text-[9px] md:text-[10px] font-black px-3 py-2 rounded-lg transition-all uppercase tracking-widest flex items-center gap-1.5 active:scale-95 whitespace-nowrap"
+                          className="bg-[#064e3b] hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20 text-[9px] md:text-[10px] font-black px-3 py-2 rounded-lg transition-all uppercase tracking-widest flex items-center gap-1.5 active:scale-95 whitespace-nowrap"
                           onClick={() => handleAction(u.id, 'approve')}
                           disabled={actionLoading === u.id + 'approve'}
                         >

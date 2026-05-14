@@ -69,7 +69,7 @@ export default function FarmerDashboard() {
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-      <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-t-[#22543d] animate-spin" />
+      <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-t-[#2E6F40] animate-spin" />
       <span className="text-sm font-bold text-slate-500 uppercase tracking-widest animate-pulse">Synchronizing Data...</span>
     </div>
   );
@@ -79,7 +79,7 @@ export default function FarmerDashboard() {
   const kpis = stats ? [
     {
       icon: <Sprout size={28} strokeWidth={2.5} className="text-white drop-shadow-sm" />,
-      bgIconCls: 'bg-emerald-500 shadow-emerald-500/30',
+      bgIconCls: 'bg-[#2E6F40] shadow-[#2E6F40]/30',
       value: stats.my_products_count,
       label: 'Active Products',
       micro: 'Products on marketplace',
@@ -93,14 +93,14 @@ export default function FarmerDashboard() {
     },
     {
       icon: <TrendingUp size={28} strokeWidth={2.5} className="text-white drop-shadow-sm" />,
-      bgIconCls: 'bg-blue-500 shadow-blue-500/30',
+      bgIconCls: 'bg-emerald-500 shadow-blue-500/30',
       value: stats.total_items_sold,
       label: 'Units Sold',
       micro: 'Total across all products',
     },
     {
       icon: <span className="text-white font-black text-xl drop-shadow-sm">DZ</span>,
-      bgIconCls: 'bg-emerald-700 shadow-emerald-700/30',
+      bgIconCls: 'bg-[#255933] shadow-[#255933]/30',
       value: null,
       rawRevenue: stats.total_revenue,
       label: 'Total Revenue',
@@ -111,18 +111,18 @@ export default function FarmerDashboard() {
   return (
     <div className="animate-fade-in relative z-0">
       {/* ── MARKET INTELLIGENCE BAR ─────────────────────────────────── */}
-      <MarketInsightsBar onOpenPanel={() => setShowMarketPanel(true)} accentColor="#22543d" />
+      <MarketInsightsBar onOpenPanel={() => setShowMarketPanel(true)} accentColor="#2E6F40" />
 
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
         
         {/* ── HERO WIDGET ───────────────────────────────────────────────── */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-[#22543d] via-[#1a402e] to-slate-900 rounded-2xl shadow-[0_12px_30px_rgba(34,84,61,0.25)] text-white p-5 lg:p-6 border border-white/10">
-          <div className="absolute top-0 right-0 -mr-12 -mt-12 w-48 h-48 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 left-8 w-36 h-36 bg-[#22543d] rounded-full blur-2xl opacity-40 pointer-events-none" />
+        <div className="relative overflow-hidden bg-gradient-to-br from-[#2E6F40] via-[#255933] to-slate-900 rounded-2xl shadow-[0_12px_30px_rgba(34,84,61,0.25)] text-white p-5 lg:p-6 border border-white/10">
+          <div className="absolute top-0 right-0 -mr-12 -mt-12 w-48 h-48 bg-[#2E6F40]/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-8 w-36 h-36 bg-[#2E6F40] rounded-full blur-2xl opacity-40 pointer-events-none" />
 
           <div className="relative z-10 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5">
             <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-emerald-500/20 border border-emerald-400/30 rounded-full text-emerald-300 text-[10px] font-bold uppercase tracking-wider mb-3 backdrop-blur-sm">
+              <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-[#2E6F40]/20 border border-[#4a8c5f]/30 rounded-full text-[#76b08a] text-[10px] font-bold uppercase tracking-wider mb-3 backdrop-blur-sm">
                 <BadgeCheck size={12} /> Certified Producer Workspace
               </div>
               <h1 className="text-2xl sm:text-3xl font-black text-white mb-2 tracking-tight drop-shadow-md">
@@ -134,7 +134,7 @@ export default function FarmerDashboard() {
 
               {/* Quick Actions Strip inside Hero */}
               <div className="flex flex-wrap gap-3">
-                <button onClick={() => navigate('/farmer-dashboard/product/new')} className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-white rounded-lg font-extrabold text-sm shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all transform hover:-translate-y-0.5 hover:scale-105 active:scale-95 duration-200">
+                <button onClick={() => navigate('/farmer-dashboard/product/new')} className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#2E6F40] hover:bg-[#4a8c5f] text-white rounded-lg font-extrabold text-sm shadow-[0_0_15px_rgba(16,185,129,0.3)] transition-all transform hover:-translate-y-0.5 hover:scale-105 active:scale-95 duration-200">
                   <Plus size={16} strokeWidth={3} /> Add New Product
                 </button>
                 <button onClick={() => navigate('/farmer-dashboard/stats')} className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg font-extrabold text-sm backdrop-blur-md transition-all transform hover:-translate-y-0.5 hover:scale-105 active:scale-95 duration-200">
@@ -163,7 +163,7 @@ export default function FarmerDashboard() {
             {kpis.map((k, i) => (
               <div
                 key={i}
-                className="group flex flex-col justify-between bg-white border border-slate-200 rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(34,84,61,0.08)] hover:border-[#22543d]/30 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] transform hover:-translate-y-2 cursor-pointer relative overflow-hidden"
+                className="group flex flex-col justify-between bg-white border border-slate-200 rounded-[2rem] p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_20px_40px_rgba(34,84,61,0.08)] hover:border-[#2E6F40]/30 transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] transform hover:-translate-y-2 cursor-pointer relative overflow-hidden"
                 onClick={() => {
                   if (k.label === 'Active Products') navigate('/farmer-dashboard/products');
                   if (k.label === 'Pending Orders') navigate('/farmer-dashboard/orders?status=PENDING');
@@ -220,7 +220,7 @@ export default function FarmerDashboard() {
                     ? 'linear-gradient(135deg, #dc2626, #b91c1c)'
                     : alertStatus?.alerts_count > 0
                       ? 'linear-gradient(135deg, #d97706, #b45309)'
-                      : 'linear-gradient(135deg, #22543d, #1a402e)',
+                      : 'linear-gradient(135deg, #2E6F40, #255933)',
                   color: '#fff',
                 }}
               >
@@ -250,11 +250,11 @@ export default function FarmerDashboard() {
           <div className="lg:col-span-3 space-y-6">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-black text-slate-900 flex items-center gap-2 tracking-tight">
-                <Clock size={22} strokeWidth={2.5} className="text-[#22543d]" /> Recent Activity
+                <Clock size={22} strokeWidth={2.5} className="text-[#2E6F40]" /> Recent Activity
                 <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest ml-2 bg-slate-100 px-2 py-1 rounded-md border border-slate-200">last 24h</span>
               </h2>
               <button
-                className="text-xs font-black uppercase tracking-widest text-[#22543d] hover:text-[#1a402e] flex items-center transition-all hover:bg-emerald-50 px-3 py-1.5 rounded-lg"
+                className="text-xs font-black uppercase tracking-widest text-[#2E6F40] hover:text-[#255933] flex items-center transition-all hover:bg-[#f0faf4] px-3 py-1.5 rounded-lg"
                 onClick={() => navigate('/farmer-dashboard/orders?status=PENDING')}
               >
                 Full Log <ChevronRight size={14} className="ml-1" strokeWidth={3} />
@@ -264,7 +264,7 @@ export default function FarmerDashboard() {
             <div className="bg-white/90 backdrop-blur-xl border border-white/80 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.05)] overflow-hidden">
               {recent.length === 0 ? (
                 <div className="p-16 flex flex-col items-center justify-center text-center">
-                  <div className="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-3xl flex items-center justify-center mb-6 border border-emerald-100 shadow-sm transform hover:rotate-12 transition-transform duration-500">
+                  <div className="w-20 h-20 bg-[#f0faf4] text-[#2E6F40] rounded-3xl flex items-center justify-center mb-6 border border-[#cee8d9] shadow-sm transform hover:rotate-12 transition-transform duration-500">
                     <CheckCircle size={40} strokeWidth={2.5} />
                   </div>
                   <h3 className="text-2xl font-black text-slate-800 mb-2 tracking-tight">All clear!</h3>
@@ -277,7 +277,7 @@ export default function FarmerDashboard() {
                 <div className="w-full">
                   <table className="w-full text-left border-collapse table-fixed">
                     <thead>
-                      <tr className="bg-[#22543d] text-emerald-100 uppercase text-[10px] tracking-widest font-black">
+                      <tr className="bg-[#2E6F40] text-[#cee8d9] uppercase text-[10px] tracking-widest font-black">
                         <th className="px-4 py-3 w-32 truncate">Ref Code</th>
                         <th className="px-4 py-3 w-48 truncate">Buyer Identity</th>
                         <th className="px-4 py-3 w-32 truncate text-right">Value</th>
@@ -291,13 +291,13 @@ export default function FarmerDashboard() {
                           ? `F-${String(o.farmer_order_number).padStart(3, '0')}`
                           : String(o.id);
                         return (
-                          <tr key={o.id} className="hover:bg-emerald-50/50 transition-colors duration-300 group cursor-pointer" onClick={() => navigate('/farmer-dashboard/orders?status=PENDING')}>
-                            <td className="px-4 py-3 border-l-4 border-transparent group-hover:border-[#22543d]">
-                              <span className="font-black text-[#22543d] text-sm">#{localNum}</span>
+                          <tr key={o.id} className="hover:bg-[#f0faf4]/50 transition-colors duration-300 group cursor-pointer" onClick={() => navigate('/farmer-dashboard/orders?status=PENDING')}>
+                            <td className="px-4 py-3 border-l-4 border-transparent group-hover:border-[#2E6F40]">
+                              <span className="font-black text-[#2E6F40] text-sm">#{localNum}</span>
                             </td>
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#22543d] to-[#1a402e] text-white flex items-center justify-center font-black text-xs shadow-md border border-[#1a402e]">
+                                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#2E6F40] to-[#255933] text-white flex items-center justify-center font-black text-xs shadow-md border border-[#255933]">
                                   {o.buyer_name?.charAt(0)?.toUpperCase()}
                                 </div>
                                 <span className="font-extrabold text-xs text-slate-800 truncate">{o.buyer_name}</span>
@@ -311,7 +311,7 @@ export default function FarmerDashboard() {
                               {timeAgo(o.created_at)}
                             </td>
                             <td className="px-4 py-3 text-right">
-                              <div className="inline-flex p-2 bg-slate-50 text-slate-400 group-hover:bg-[#22543d] group-hover:text-white rounded-lg transition-all duration-300 shadow-sm border border-slate-100 group-hover:border-[#1a402e]">
+                              <div className="inline-flex p-2 bg-slate-50 text-slate-400 group-hover:bg-[#2E6F40] group-hover:text-white rounded-lg transition-all duration-300 shadow-sm border border-slate-100 group-hover:border-[#255933]">
                                 <ChevronRight size={14} strokeWidth={3} />
                               </div>
                             </td>
@@ -328,7 +328,7 @@ export default function FarmerDashboard() {
 
       </div>
       {/* ── MARKET INTELLIGENCE PANEL ──────────────────────────── */}
-      <MarketPanel isOpen={showMarketPanel} onClose={() => setShowMarketPanel(false)} accentColor="#22543d" />
+      <MarketPanel isOpen={showMarketPanel} onClose={() => setShowMarketPanel(false)} accentColor="#2E6F40" />
     </div>
   );
 }

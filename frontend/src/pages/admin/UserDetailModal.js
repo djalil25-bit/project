@@ -104,18 +104,18 @@ const UserDetailModal = ({ userId, onClose, onAction }) => {
             {/* Tabs */}
             <div className="flex border-b border-gray-100 px-6 gap-6 text-sm font-medium">
               <button 
-                className={`py-3 relative ${activeTab === 'profile' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-800'}`}
+                className={`py-3 relative ${activeTab === 'profile' ? 'text-[#064e3b]' : 'text-gray-500 hover:text-gray-800'}`}
                 onClick={() => setActiveTab('profile')}
               >
                 Profile Details
-                {activeTab === 'profile' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-t-full"></div>}
+                {activeTab === 'profile' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#064e3b] rounded-t-full"></div>}
               </button>
               <button 
-                className={`py-3 relative ${activeTab === 'documents' ? 'text-blue-600' : 'text-gray-500 hover:text-gray-800'}`}
+                className={`py-3 relative ${activeTab === 'documents' ? 'text-[#064e3b]' : 'text-gray-500 hover:text-gray-800'}`}
                 onClick={() => setActiveTab('documents')}
               >
                 Documents ({documents.length})
-                {activeTab === 'documents' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 rounded-t-full"></div>}
+                {activeTab === 'documents' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#064e3b] rounded-t-full"></div>}
               </button>
             </div>
 
@@ -139,9 +139,9 @@ const UserDetailModal = ({ userId, onClose, onAction }) => {
                               href={`https://wa.me/${user.phone.replace(/\D/g, '')}`} 
                               target="_blank" 
                               rel="noreferrer"
-                              className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-xl hover:bg-emerald-600 hover:text-white hover:border-emerald-600 transition-all shadow-sm font-bold"
+                              className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-xl hover:bg-[#064e3b] hover:text-white hover:border-emerald-600 transition-all shadow-sm font-bold"
                             >
-                              <Phone size={14} className="text-emerald-600 group-hover:text-white"/> {user.phone}
+                              <Phone size={14} className="text-[#064e3b] group-hover:text-white"/> {user.phone}
                             </a>
                           ) : (
                             <div className="flex items-center gap-2 text-gray-400">
@@ -164,19 +164,19 @@ const UserDetailModal = ({ userId, onClose, onAction }) => {
                       {(user.role === 'farmer' || !user.role) && (
                         <>
                           <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-100">
-                            <div className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Listings</div>
+                            <div className="text-[10px] font-black text-[#064e3b] uppercase tracking-widest">Listings</div>
                             <div className="text-2xl font-black text-emerald-900 leading-none mt-1">{user.stats?.listings || 0}</div>
                           </div>
                           <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-100">
-                            <div className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Orders</div>
+                            <div className="text-[10px] font-black text-[#064e3b] uppercase tracking-widest">Orders</div>
                             <div className="text-2xl font-black text-emerald-900 leading-none mt-1">{user.stats?.orders || 0}</div>
                           </div>
                         </>
                       )}
                       {user.role === 'buyer' && (
-                        <div className="p-3 bg-blue-50 rounded-xl border border-blue-100">
-                          <div className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Total Orders</div>
-                          <div className="text-2xl font-black text-blue-900 leading-none mt-1">{user.stats?.orders || 0}</div>
+                        <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                          <div className="text-[10px] font-black text-[#064e3b] uppercase tracking-widest">Total Orders</div>
+                          <div className="text-2xl font-black text-slate-900 leading-none mt-1">{user.stats?.orders || 0}</div>
                         </div>
                       )}
                       {user.role === 'transporter' && (
@@ -306,7 +306,7 @@ const UserDetailModal = ({ userId, onClose, onAction }) => {
                   <button onClick={() => onAction(user.id, 'reject')} className="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-bold shadow-md shadow-rose-500/20 transition-all flex items-center gap-2 text-sm">
                     <XCircle size={16}/> Reject Application
                   </button>
-                  <button onClick={() => onAction(user.id, 'approve')} className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold shadow-md shadow-emerald-500/20 transition-all flex items-center gap-2 text-sm">
+                  <button onClick={() => onAction(user.id, 'approve')} className="px-4 py-2 bg-emerald-500 hover:bg-[#064e3b] text-white rounded-xl font-bold shadow-md shadow-emerald-500/20 transition-all flex items-center gap-2 text-sm">
                     <CheckCircle size={16}/> Approve Account
                   </button>
                 </>
@@ -317,7 +317,7 @@ const UserDetailModal = ({ userId, onClose, onAction }) => {
                 </button>
               )}
               {(user.status === 'suspended' || user.status === 'rejected') && (
-                <button onClick={() => onAction(user.id, 'reactivate')} className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-bold shadow-md shadow-blue-500/20 transition-all flex items-center gap-2 text-sm">
+                <button onClick={() => onAction(user.id, 'reactivate')} className="px-4 py-2 bg-slate-500 hover:bg-[#064e3b] text-white rounded-xl font-bold shadow-md shadow-slate-500/20 transition-all flex items-center gap-2 text-sm">
                   <CheckCircle size={16}/> Reactivate Account
                 </button>
               )}

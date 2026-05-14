@@ -58,7 +58,7 @@ const AlertsPanel = () => {
             {activeAlerts.length}
           </span>
         </div>
-        <a href="/admin-dashboard/alerts" className="text-xs text-blue-600 font-semibold hover:underline flex items-center gap-1">
+        <a href="/admin-dashboard/alerts" className="text-xs text-slate-600 font-semibold hover:underline flex items-center gap-1">
           View All Alerts <ChevronRight size={12} />
         </a>
       </div>

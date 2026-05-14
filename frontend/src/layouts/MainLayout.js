@@ -229,7 +229,7 @@ const MainLayout = () => {
   const roleAccents = {
     buyer: '#2563eb',
     farmer: '#22543d',
-    transporter: '#d97706',
+    transporter: '#10B981',
     admin: '#059669',
   };
   const accent = roleAccents[user?.role] || 'var(--primary)';
