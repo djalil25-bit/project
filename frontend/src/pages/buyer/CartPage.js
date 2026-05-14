@@ -78,10 +78,11 @@ function CartPage() {
   };
 
   const updateQuantity = async (productId, currentQty, delta, maxStock) => {
-    const newQty = Math.round(currentQty) + delta;
+    const newQty = Math.round(Number(currentQty)) + delta;
+    const maxStockNum = Number(maxStock);
     if (newQty < 1) return removeFromCart(productId);
-    if (newQty > maxStock) {
-      showMsg('danger', `Cannot exceed available stock (${maxStock}).`);
+    if (newQty > maxStockNum) {
+      showMsg('danger', `Cannot exceed available stock (${maxStockNum}).`);
       return;
     }
     setCartLoading(true);
@@ -237,9 +238,9 @@ function CartPage() {
 
                     <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '1rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#f8fafc', padding: '0.5rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                         <button onClick={() => updateQuantity(item.product, item.quantity, -1, p.stock)} style={{ width: '32px', height: '32px', borderRadius: '8px', border: 'none', background: '#fff', color: '#475569', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}><Minus size={14} /></button>
-                         <span style={{ width: '40px', textAlign: 'center', fontWeight: 800, fontSize: '1rem', color: '#1e293b' }}>{item.quantity}</span>
-                         <button onClick={() => updateQuantity(item.product, item.quantity, 1, p.stock)} style={{ width: '32px', height: '32px', borderRadius: '8px', border: 'none', background: '#fff', color: '#475569', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }} disabled={item.quantity >= p.stock}><Plus size={14} /></button>
+                         <button onClick={() => updateQuantity(item.product, Number(item.quantity), -1, Number(p.stock))} style={{ width: '32px', height: '32px', borderRadius: '8px', border: 'none', background: '#fff', color: '#475569', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}><Minus size={14} /></button>
+                         <span style={{ width: '40px', textAlign: 'center', fontWeight: 800, fontSize: '1rem', color: '#1e293b' }}>{Number(item.quantity)}</span>
+                         <button onClick={() => updateQuantity(item.product, Number(item.quantity), 1, Number(p.stock))} style={{ width: '32px', height: '32px', borderRadius: '8px', border: 'none', background: '#fff', color: '#475569', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }} disabled={Number(item.quantity) >= Number(p.stock)}><Plus size={14} /></button>
                       </div>
                       <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#1e293b' }}>{subTotal.toLocaleString()} <small style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>DZD</small></div>
                       <button onClick={() => removeFromCart(item.product)} style={{ border: 'none', background: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.5rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase' }}><Trash2 size={16} /> Remove</button>

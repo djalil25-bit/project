@@ -96,6 +96,12 @@ class Vehicle(TimeStampedModel):
         upload_to='vehicles/carte_grise/', null=True, blank=True,
         help_text='Carte Grise (vehicle registration document) — JPG/PNG/PDF'
     )
+    
+    # Car Photo
+    car_photo = models.ImageField(
+        upload_to='vehicles/photos/', null=True, blank=True,
+        help_text='Photo of the vehicle (optional)'
+    )
 
     # Admin approval fields
     status = models.CharField(

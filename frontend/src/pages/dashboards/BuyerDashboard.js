@@ -288,51 +288,50 @@ function BuyerDashboard() {
       <div className="container" style={{ maxWidth: '1400px', paddingTop: '2rem' }}>
 
         {/* ── HERO BANNER (Institutional Blue Theme) ── */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-[#0f766e] via-[#115e59] to-[#134e4a] rounded-[2rem] shadow-[0_20px_50px_rgba(15,118,110,0.2)] text-white p-4 lg:p-6 border border-white/10 mb-8">
-          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-teal-500/20 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 left-12 w-48 h-48 bg-teal-600/20 rounded-full blur-3xl opacity-40 pointer-events-none" />
-
-          <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-6">
+        <div className="relative overflow-hidden bg-gradient-to-br from-[#0f766e] via-[#115e59] to-[#134e4a] rounded-[1.5rem] shadow-[0_15px_40px_rgba(15,118,110,0.15)] text-white py-3 px-6 lg:px-8 border border-white/10 mb-8">
+          <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
+          
+          <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-4">
             <div className="flex-1">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(15,118,110,0.2)', padding: '0.35rem 0.8rem', borderRadius: '30px', backdropFilter: 'blur(8px)', border: '1px solid rgba(45,212,191,0.3)', fontSize: '0.65rem', fontWeight: 900, color: '#2dd4bf', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                  <ShieldCheck size={12} /> Institutional Marketplace
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.25rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: 'rgba(255,255,255,0.1)', padding: '0.25rem 0.6rem', borderRadius: '8px', fontSize: '0.6rem', fontWeight: 900, color: '#2dd4bf', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                  <ShieldCheck size={10} /> Institutional Marketplace
                 </div>
-                <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Nodes: {products.length}</div>
+                <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Nodes: {products.length}</div>
               </div>
-              <h1 style={{ fontSize: '2.2rem', fontWeight: 900, color: '#fff', letterSpacing: '-1.5px', margin: 0, lineHeight: 1 }}>National <span style={{ color: '#2dd4bf' }}>Commodity</span> Index</h1>
+              <h1 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#fff', letterSpacing: '-1px', margin: 0, lineHeight: 1.1 }}>National <span style={{ color: '#2dd4bf' }}>Commodity</span> Index</h1>
             </div>
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.75rem' }}>
               {/* Expenditure Card */}
-              <div style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(12px)', borderRadius: '24px', padding: '1rem 1.5rem', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', gap: '1rem', minWidth: '180px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(15,118,110,0.2)', color: '#2dd4bf', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><TrendingUp size={20} /></div>
+              <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '16px', padding: '0.6rem 1rem', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <TrendingUp size={16} style={{ color: '#2dd4bf' }} />
                 <div>
-                  <div style={{ fontSize: '0.6rem', fontWeight: 900, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1.5px' }}>Expenditure</div>
-                  <div style={{ fontWeight: 900, fontSize: '1.1rem', color: '#fff' }}>{buyerStats.totalSpent.toLocaleString()} <span style={{ fontSize: '0.65rem', opacity: 0.6 }}>DZD</span></div>
+                  <div style={{ fontSize: '0.55rem', fontWeight: 900, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1px' }}>Expenditure</div>
+                  <div style={{ fontWeight: 900, fontSize: '0.95rem', color: '#fff' }}>{buyerStats.totalSpent.toLocaleString()} <span style={{ fontSize: '0.6rem', opacity: 0.5 }}>DZD</span></div>
                 </div>
               </div>
 
               {/* In Transit Card */}
-              <div style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(12px)', borderRadius: '24px', padding: '1rem 1.5rem', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', gap: '1rem', minWidth: '160px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(16,185,129,0.15)', color: '#34d399', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Truck size={20} /></div>
+              <div style={{ background: 'rgba(255,255,255,0.04)', borderRadius: '16px', padding: '0.6rem 1rem', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <Truck size={16} style={{ color: '#34d399' }} />
                 <div>
-                  <div style={{ fontSize: '0.6rem', fontWeight: 900, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1.5px' }}>In Transit</div>
-                  <div style={{ fontWeight: 900, fontSize: '1.1rem', color: '#fff' }}>{buyerStats.inTransit} <span style={{ fontSize: '0.65rem', opacity: 0.6 }}>LOGS</span></div>
+                  <div style={{ fontSize: '0.55rem', fontWeight: 900, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '1px' }}>In Transit</div>
+                  <div style={{ fontWeight: 900, fontSize: '0.95rem', color: '#fff' }}>{buyerStats.inTransit} <span style={{ fontSize: '0.6rem', opacity: 0.5 }}>LOGS</span></div>
                 </div>
               </div>
 
               {/* Basket Card */}
-              <Link to="/buyer/cart" style={{ background: '#0F766E', borderRadius: '24px', padding: '1rem 1.5rem', display: 'flex', alignItems: 'center', gap: '1.25rem', textDecoration: 'none', color: '#fff', boxShadow: '0 15px 35px rgba(15,118,110,0.4)', transition: 'all 0.3s' }}>
+              <Link to="/buyer/cart" style={{ background: '#0F766E', borderRadius: '16px', padding: '0.6rem 1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', transition: 'all 0.3s' }}>
                 <div style={{ position: 'relative' }}>
-                  <ShoppingCart size={24} />
-                  {cartItemCount > 0 && <span style={{ position: 'absolute', top: '-6px', right: '-6px', background: '#f43f5e', color: '#fff', fontSize: '0.65rem', fontWeight: 900, width: '18px', height: '18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #0F766E' }}>{cartItemCount}</span>}
+                  <ShoppingCart size={18} />
+                  {cartItemCount > 0 && <span style={{ position: 'absolute', top: '-8px', right: '-8px', background: '#f43f5e', color: '#fff', fontSize: '0.55rem', fontWeight: 900, width: '16px', height: '16px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #0F766E' }}>{cartItemCount}</span>}
                 </div>
                 <div>
-                  <div style={{ fontSize: '0.6rem', fontWeight: 900, opacity: 0.7, textTransform: 'uppercase', letterSpacing: '1.5px' }}>Basket</div>
-                  <div style={{ fontWeight: 900, fontSize: '1.1rem' }}>{cartItemCount} Items</div>
+                  <div style={{ fontSize: '0.55rem', fontWeight: 900, opacity: 0.7, textTransform: 'uppercase', letterSpacing: '1px' }}>Basket</div>
+                  <div style={{ fontWeight: 900, fontSize: '0.95rem' }}>{cartItemCount} Items</div>
                 </div>
-                <ChevronRight size={18} style={{ opacity: 0.6 }} />
+                <ChevronRight size={14} style={{ opacity: 0.5 }} />
               </Link>
             </div>
           </div>
@@ -373,7 +372,7 @@ function BuyerDashboard() {
         </div>
 
         {/* Marketplace Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '2rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2rem' }}>
           {filteredProducts.map((p, idx) => (
             <div
               key={p.id}
@@ -381,33 +380,33 @@ function BuyerDashboard() {
               className="hover-card"
             >
               {/* Product Visual */}
-              <div style={{ height: '200px', background: '#f8fafc', position: 'relative', overflow: 'hidden', cursor: 'pointer' }} onClick={() => setSelectedProduct(p)}>
+              <div style={{ height: '180px', background: '#f8fafc', position: 'relative', overflow: 'hidden', cursor: 'pointer' }} onClick={() => setSelectedProduct(p)}>
                 {p.image ? (
                   <img src={p.image} alt={p.title} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }} className="card-img" />
                 ) : (
-                  <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1' }}><Package size={60} /></div>
+                  <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1' }}><Package size={50} /></div>
                 )}
                 <QualityBadge quality={p.quality} />
                 <button
                   onClick={(e) => { e.stopPropagation(); toggleFavorite(p); }}
-                  style={{ position: 'absolute', top: '12px', right: '12px', width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(4px)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', color: p.is_favorite ? '#e11d48' : '#94a3b8', cursor: 'pointer', zIndex: 10 }}
+                  style={{ position: 'absolute', top: '10px', right: '10px', width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(4px)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', color: p.is_favorite ? '#e11d48' : '#94a3b8', cursor: 'pointer', zIndex: 10 }}
                 >
-                  <Heart size={20} fill={p.is_favorite ? 'currentColor' : 'none'} />
+                  <Heart size={18} fill={p.is_favorite ? 'currentColor' : 'none'} />
                 </button>
               </div>
 
               {/* Product Info */}
-              <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <div style={{ padding: '1.25rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
                   <span style={{ fontSize: '0.65rem', fontWeight: 900, color: '#0F766E', textTransform: 'uppercase', letterSpacing: '1px' }}>{p.category_name}</span>
                   <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#cbd5e1' }}></div>
                   <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#94a3b8' }}>{p.farm_name}</span>
                 </div>
-                <h4 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#1e293b', margin: '0 0 0.5rem', lineHeight: 1.2, cursor: 'pointer' }} onClick={() => setSelectedProduct(p)}>{p.title}</h4>
+                <h4 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#1e293b', margin: '0 0 0.5rem', lineHeight: 1.2, cursor: 'pointer' }} onClick={() => setSelectedProduct(p)}>{p.title}</h4>
 
                 <div style={{ marginTop: 'auto' }}>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.4rem' }}>
-                    <span style={{ fontSize: '1.5rem', fontWeight: 900, color: '#1e293b' }}>{parseFloat(p.price).toLocaleString()}</span>
+                    <span style={{ fontSize: '1.3rem', fontWeight: 900, color: '#1e293b' }}>{parseFloat(p.price).toLocaleString()}</span>
                     <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8' }}>DZD / {p.unit}</span>
                   </div>
                   <BenchmarkDisplay comparison={p.official_price_comparison} />

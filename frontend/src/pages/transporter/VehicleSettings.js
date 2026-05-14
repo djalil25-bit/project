@@ -14,6 +14,7 @@ const VehicleSettings = () => {
   const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({ plate: '', model: '', capacity: '', type: 'truck', fuelType: 'Diesel' });
   const [carteGriseFile, setCarteGriseFile] = useState(null);
+  const [carPhotoFile, setCarPhotoFile] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
@@ -36,6 +37,7 @@ const VehicleSettings = () => {
     data.append('type', formData.type);
     data.append('fuelType', formData.fuelType);
     if (carteGriseFile) data.append('carte_grise', carteGriseFile);
+    if (carPhotoFile) data.append('car_photo', carPhotoFile);
     try {
       if (editingId) {
         await api.patch(`/vehicles/${editingId}/`, data, { headers: { 'Content-Type': 'multipart/form-data' } });
@@ -61,13 +63,13 @@ const VehicleSettings = () => {
 
   const startEdit = (v) => {
     setFormData({ plate: v.plate, model: v.model, capacity: v.capacity, type: v.type, fuelType: v.fuelType || 'Diesel' });
-    setCarteGriseFile(null); setEditingId(v.id); setShowForm(true);
+    setCarteGriseFile(null); setCarPhotoFile(null); setEditingId(v.id); setShowForm(true);
   };
 
   const closeForm = () => {
     setShowForm(false); setEditingId(null);
     setFormData({ plate: '', model: '', capacity: '', type: 'truck', fuelType: 'Diesel' });
-    setCarteGriseFile(null);
+    setCarteGriseFile(null); setCarPhotoFile(null);
   };
 
   const getVehicleIcon = (type) => {
@@ -147,9 +149,11 @@ const VehicleSettings = () => {
                 {/* Image (top) */}
                 <div className="h-36 relative overflow-hidden shrink-0">
                   <img 
-                    src={v.type === 'van' 
-                      ? "https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=400&q=80" 
-                      : "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=400&q=80"}
+                    src={v.car_photo 
+                      ? (v.car_photo.startsWith('http') ? v.car_photo : `http://localhost:8000${v.car_photo}`)
+                      : (v.type === 'van' 
+                        ? "https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=400&q=80" 
+                        : "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=400&q=80")}
                     alt={v.model} 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
@@ -299,6 +303,28 @@ const VehicleSettings = () => {
                         placeholder="PLATE-001" required value={formData.plate}
                         onChange={e => setFormData({...formData, plate: e.target.value})}
                       />
+                    </div>
+
+                    {/* Car Photo Upload */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Asset Photo (Optional)</label>
+                        {carPhotoFile && <span className="text-[10px] font-black text-emerald-500 bg-emerald-50 px-2 py-0.5 rounded-full uppercase">File Selected</span>}
+                      </div>
+                      <input type="file" accept="image/*" onChange={e => setCarPhotoFile(e.target.files[0])} className="hidden" id="car-photo-input" />
+                      <label htmlFor="car-photo-input" className={`w-full h-12 border-2 border-dashed rounded-xl px-4 flex items-center gap-3 text-sm cursor-pointer transition-all ${carPhotoFile ? 'border-indigo-400 bg-[#10B981]/20 text-[#2DA83B] shadow-inner' : 'border-slate-200 bg-slate-50/50 text-slate-500 hover:border-indigo-400 hover:bg-[#10B981]/20/50 hover:text-[#10B981]'}`}>
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${carPhotoFile ? 'bg-[#10B981]/20 text-[#10B981]' : 'bg-slate-100 text-slate-400'}`}>
+                          <Upload size={16} />
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                          <span className="truncate font-bold text-slate-800 text-xs">
+                            {carPhotoFile ? carPhotoFile.name : 'Upload Vehicle Photo'}
+                          </span>
+                          <span className="text-[10px] font-medium opacity-70">
+                            {carPhotoFile ? `${(carPhotoFile.size / 1024 / 1024).toFixed(2)} MB` : 'JPG or PNG (max 5MB)'}
+                          </span>
+                        </div>
+                      </label>
                     </div>
                   </div>
 

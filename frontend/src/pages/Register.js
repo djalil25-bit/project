@@ -142,7 +142,7 @@ const Register = () => {
 
   const [files, setFiles] = useState({
     farmer_id: null, farm_photos: [], trade_register: null,
-    driving_license: null, vehicle_registration: null,
+    driving_license: null, vehicle_registration: null, car_photo: null,
   });
 
   const [fieldErrors, setFieldErrors] = useState({});
@@ -256,6 +256,7 @@ const Register = () => {
     } else if (activeRole === 'transporter') {
       if (files.driving_license) fd.append('driving_license', files.driving_license);
       if (files.vehicle_registration) fd.append('vehicle_registration', files.vehicle_registration);
+      if (files.car_photo) fd.append('car_photo', files.car_photo);
     }
 
     try {
@@ -709,6 +710,14 @@ const Register = () => {
                     onDrop={(f) => setFile('vehicle_registration', f)}
                     file={files.vehicle_registration}
                     error={fieldErrors.vehicle_registration}
+                  />
+                  <Dropzone 
+                    label="Vehicle Photo (optional)" 
+                    hint="A photo of the vehicle. JPG or PNG (max 5MB)" 
+                    accept=".jpg,.jpeg,.png"
+                    onDrop={(f) => setFile('car_photo', f)}
+                    file={files.car_photo}
+                    error={fieldErrors.car_photo}
                   />
                 </>
               )}

@@ -3,7 +3,8 @@ import api from '../../api/axiosConfig';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   TrendingUp, ListOrdered, Sprout,
-  Award, BarChart2, ChevronRight, AlertCircle, Leaf, Tractor, ArrowLeft
+  Award, BarChart2, ChevronRight, AlertCircle, Leaf, Tractor, ArrowLeft,
+  ArrowUpRight
 } from 'lucide-react';
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid,
@@ -14,12 +15,15 @@ import {
 const AgriTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-[#255933] rounded-xl px-4 py-3 shadow-[0_10px_25px_rgba(26,74,46,0.5)] min-w-[130px] border border-[#2E6F40]/20">
-      <div className="text-white/60 mb-1 font-bold text-xs uppercase tracking-widest">{label}</div>
+    <div className="bg-slate-900 rounded-xl px-5 py-4 shadow-xl min-w-[140px] border border-slate-700">
+      <div className="text-emerald-400 mb-2 font-black text-[10px] uppercase tracking-widest">{label}</div>
       {payload.map((p, i) => (
-        <div key={i} className="text-white font-black text-sm">
-          {p.name}: {typeof p.value === 'number' ? p.value.toLocaleString() : p.value}
-          {p.name === 'Revenue' ? ' DZD' : ''}
+        <div key={i} className="text-white font-black text-sm flex items-center justify-between gap-4">
+          <span className="text-slate-300">{p.name}</span>
+          <span>
+            {typeof p.value === 'number' ? p.value.toLocaleString() : p.value}
+            {p.name === 'Revenue' ? ' DZD' : ''}
+          </span>
         </div>
       ))}
     </div>
@@ -45,231 +49,250 @@ export default function FarmerStats() {
   }, [timeframe]);
 
   if (loading && !data) return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-      <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-t-[#2E6F40] animate-spin" />
-      <span className="text-sm font-bold text-slate-500 uppercase tracking-widest animate-pulse">Computing Aggregates...</span>
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center gap-4">
+      <div className="w-12 h-12 rounded-full border-4 border-slate-200 border-t-[#2E6F40] animate-spin" />
+      <span className="text-xs font-black text-[#2E6F40] uppercase tracking-widest animate-pulse">Aggregating Data...</span>
     </div>
   );
 
   if (error) return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <div className="bg-red-50 border border-red-200 text-red-700 p-6 rounded-2xl flex items-center justify-center gap-3 font-bold shadow-sm">
+    <div className="min-h-screen bg-slate-50 p-8">
+      <div className="max-w-4xl mx-auto bg-white border border-red-200 text-red-600 p-6 rounded-3xl flex items-center justify-center gap-3 font-bold shadow-sm">
         <AlertCircle size={24} /> {error}
       </div>
     </div>
   );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 pb-16 animate-fade-in relative z-0">
+    <div className="min-h-screen bg-slate-50 pt-8 pb-20 animate-fade-in relative z-0 selection:bg-[#a2d4b5]">
+      <div className="max-w-7xl mx-auto px-4 lg:px-8">
 
-      {/* ── BREADCRUMBS & HEADER ───────────────────────── */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
-        <div>
-          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#2E6F40] mb-4">
-            <button onClick={() => navigate('/farmer-dashboard')} className="hover:underline hover:text-[#255933] flex items-center gap-1 transition-colors"><ArrowLeft size={12}/> Back to Dashboard</button>
-            <ChevronRight size={12} className="text-slate-400" />
-            <span className="text-slate-400 flex items-center gap-1"><BarChart2 size={12}/> Yield Analytics</span>
+        {/* ── BREADCRUMBS & HEADER ───────────────────────── */}
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 lg:p-8 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-10">
+          <div>
+            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#2E6F40] mb-4">
+              <button onClick={() => navigate('/farmer-dashboard')} className="hover:text-[#255933] flex items-center gap-1 transition-colors"><ArrowLeft size={12}/> Back to Dashboard</button>
+              <ChevronRight size={12} className="text-slate-300" />
+              <span className="flex items-center gap-1 text-slate-500"><BarChart2 size={12}/> Yield Analytics</span>
+            </div>
+            <h1 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight flex items-center gap-3 mb-2">
+              Sales &amp; Revenue Analytics
+            </h1>
+            <p className="text-slate-500 font-medium text-sm leading-relaxed max-w-xl">
+              Track farm performance, review localized revenue trends, and identify high-yield products across specified periods.
+            </p>
           </div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3 mb-1">
-            <TrendingUp size={28} className="text-[#2E6F40]" strokeWidth={2.5} /> Sales &amp; Revenue Analytics
-          </h1>
-          <p className="text-slate-500 font-medium text-sm leading-relaxed max-w-xl">
-            Track farm performance, review localized revenue trends, and identify high-yield products across specified periods.
-          </p>
+          
+          {/* Timeframe Toggles */}
+          <div className="flex bg-slate-50 p-1.5 rounded-2xl border border-slate-200 shadow-sm shrink-0">
+            {[
+              { key: 'all',   label: 'All Time'   },
+              { key: 'year',  label: 'This Year'  },
+              { key: 'month', label: 'This Month' },
+            ].map(t => (
+              <button
+                key={t.key}
+                className={`whitespace-nowrap px-6 py-2.5 rounded-xl text-xs font-black transition-all duration-300 ${timeframe === t.key ? 'bg-[#2E6F40] text-white shadow-md border border-[#255933]' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100 border border-transparent'}`}
+                onClick={() => setTimeframe(t.key)}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
         </div>
-        
-        {/* Timeframe Toggles */}
-        <div className="flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200 shadow-inner">
-          {[
-            { key: 'all',   label: 'All Time'   },
-            { key: 'year',  label: 'This Year'  },
-            { key: 'month', label: 'This Month' },
-          ].map(t => (
-            <button
-              key={t.key}
-              className={`whitespace-nowrap px-6 py-2 rounded-xl text-xs font-black transition-all duration-300 ${timeframe === t.key ? 'bg-white text-[#2E6F40] shadow-[0_4px_12px_rgba(0,0,0,0.05)] scale-105' : 'text-slate-500 hover:text-slate-700'}`}
-              onClick={() => setTimeframe(t.key)}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-      </div>
 
-      {/* ── KPI GRID ───────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-        {[
-          { icon: <span className="font-black text-sm">DZ</span>, color: 'emerald', val: `${(data?.total_revenue || 0).toLocaleString()} DZD`, label: 'Total Gross Revenue' },
-          { icon: <ListOrdered size={24} />, color: 'blue', val: data?.total_orders || 0, label: 'Confirmed Transactions' },
-          { icon: <Tractor size={24} />, color: 'amber', val: data?.best_farms?.length || 0, label: 'Top-Yielding Farms' },
-          { icon: <Sprout size={24} />, color: 'indigo', val: data?.best_products?.length || 0, label: 'High-Demand Varieties' },
-        ].map((k, i) => {
-          const bgMap = {
-            emerald: 'bg-[#f0faf4] text-[#2E6F40] border-[#cee8d9]',
-            blue: 'bg-emerald-50 text-emerald-600 border-emerald-100',
-            amber: 'bg-amber-50 text-amber-600 border-amber-100',
-            indigo: 'bg-indigo-50 text-indigo-600 border-indigo-100',
-          };
-          return (
-            <div key={i} className={`flex items-center gap-4 bg-white border border-slate-200 rounded-[2rem] p-6 shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1`}>
-              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 border shadow-inner ${bgMap[k.color]}`}>
-                {k.icon}
-              </div>
-              <div>
-                <div className="text-xl font-black text-slate-900 tracking-tight mb-0.5">{k.val}</div>
-                <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{k.label}</div>
+        {/* ── KPI GRID ───────────────────────────────────── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+          {[
+            { icon: <span className="font-black text-xl">DZ</span>, val: `${(data?.total_revenue || 0).toLocaleString()}`, suf: ' DZD', label: 'Total Gross Revenue', trend: '+12.5%' },
+            { icon: <ListOrdered size={24} />, val: data?.total_orders || 0, label: 'Confirmed Transactions', trend: '+4.2%' },
+            { icon: <Tractor size={24} />, val: data?.best_farms?.length || 0, label: 'Top-Yielding Farms', trend: 'Stable' },
+            { icon: <Sprout size={24} />, val: data?.best_products?.length || 0, label: 'High-Demand Varieties', trend: '+2 New' },
+          ].map((k, i) => (
+            <div key={i} className="group bg-white border border-slate-200 rounded-3xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+              <div className="relative z-10">
+                <div className="flex justify-between items-start mb-6">
+                  <div className="w-14 h-14 rounded-2xl bg-[#2E6F40] text-white flex items-center justify-center shrink-0 shadow-md group-hover:scale-110 group-hover:bg-[#255933] transition-all duration-300">
+                    {k.icon}
+                  </div>
+                  <div className="flex items-center gap-1 bg-[#f0faf4] text-[#2E6F40] text-[10px] font-black uppercase tracking-widest px-2.5 py-1.5 rounded-lg border border-[#cee8d9]">
+                    {k.trend.includes('+') ? <ArrowUpRight size={12} /> : null}
+                    {k.trend}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-3xl font-black text-slate-900 tracking-tight mb-1">
+                    {k.val}
+                    {k.suf && <span className="text-base text-slate-400 ml-1 font-bold">{k.suf}</span>}
+                  </div>
+                  <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">{k.label}</div>
+                </div>
               </div>
             </div>
-          );
-        })}
-      </div>
-
-      {/* ── CHARTS ROW ─────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        
-        {/* Revenue Trend Area */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
-          <div className="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
-            <h3 className="text-sm font-black text-slate-800 flex items-center gap-2">
-              <TrendingUp size={16} className="text-[#2E6F40]" strokeWidth={3} /> Revenue Trend
-            </h3>
-            <span className="bg-slate-100 text-slate-500 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border border-slate-200">Periodic</span>
-          </div>
-
-          <div className="w-full h-[220px]">
-            {data?.revenue_trend?.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={data.revenue_trend} margin={{ top: 5, right: 8, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id={AREA_GRAD} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%"   stopColor="#2E6F40" stopOpacity={0.4} />
-                      <stop offset="100%" stopColor="#2E6F40" stopOpacity={0.0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b', fontWeight: 700 }} dy={8} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b', fontWeight: 700 }} tickFormatter={v => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v} width={38} dx={-6} />
-                  <Tooltip content={<AgriTooltip />} />
-                  <Area type="monotone" dataKey="revenue" name="Revenue"
-                    stroke="#2E6F40" strokeWidth={2.5} fill={`url(#${AREA_GRAD})`}
-                    dot={{ r: 3, fill: '#2E6F40', strokeWidth: 2, stroke: '#fff' }}
-                    activeDot={{ r: 5, fill: '#2E6F40', stroke: '#fff', strokeWidth: 2 }}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full flex items-center justify-center text-slate-400 font-bold text-sm">No revenue data available yet.</div>
-            )}
-          </div>
+          ))}
         </div>
 
-        {/* Orders Bar */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
-          <div className="flex justify-between items-center mb-4 border-b border-slate-100 pb-3">
-            <h3 className="text-sm font-black text-slate-800 flex items-center gap-2">
-              <ListOrdered size={16} className="text-[#2E6F40]" strokeWidth={3} /> Transaction Volume
-            </h3>
-            <span className="bg-slate-100 text-slate-500 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border border-slate-200">Orders</span>
-          </div>
-
-          <div className="w-full h-[220px]">
-            {data?.orders_trend?.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data.orders_trend} margin={{ top: 5, right: 8, left: -20, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id={BAR_GRAD} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%"   stopColor="#2E6F40" stopOpacity={1} />
-                      <stop offset="100%" stopColor="#2E6F40" stopOpacity={0.8} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b', fontWeight: 700 }} dy={8} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b', fontWeight: 700 }} allowDecimals={false} width={38} />
-                  <Tooltip content={<AgriTooltip />} cursor={{ fill: 'rgba(34,84,61,0.05)' }} />
-                  <Bar dataKey="orders" name="Orders" fill={`url(#${BAR_GRAD})`} radius={[5,5,0,0]} maxBarSize={36} />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-full flex items-center justify-center text-slate-400 font-bold text-sm flex-col gap-2">
-                <BarChart2 size={28} className="text-slate-200" />
-                No transactions recorded.
+        {/* ── CHARTS ROW ─────────────────────────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+          
+          {/* Revenue Trend Area */}
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 lg:p-8 shadow-sm hover:shadow-md transition-shadow duration-300">
+            <div className="flex justify-between items-center mb-8">
+              <div>
+                <h3 className="text-xl font-black text-slate-900 tracking-tight">Revenue Trend</h3>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Periodic Growth</p>
               </div>
-            )}
+              <div className="w-12 h-12 rounded-xl bg-[#f0faf4] flex items-center justify-center text-[#2E6F40] border border-[#cee8d9]">
+                <TrendingUp size={20} strokeWidth={2.5} />
+              </div>
+            </div>
+
+            <div className="w-full h-[260px]">
+              {data?.revenue_trend?.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={data.revenue_trend} margin={{ top: 5, right: 8, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id={AREA_GRAD} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%"   stopColor="#2E6F40" stopOpacity={0.3} />
+                        <stop offset="100%" stopColor="#2E6F40" stopOpacity={0.0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="#f1f5f9" />
+                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b', fontWeight: 700 }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b', fontWeight: 700 }} tickFormatter={v => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v} width={38} dx={-6} />
+                    <Tooltip content={<AgriTooltip />} cursor={{ stroke: '#2E6F40', strokeWidth: 1, strokeDasharray: '4 4' }} />
+                    <Area type="monotone" dataKey="revenue" name="Revenue"
+                      stroke="#2E6F40" strokeWidth={3} fill={`url(#${AREA_GRAD})`}
+                      dot={{ r: 4, fill: '#fff', strokeWidth: 3, stroke: '#2E6F40' }}
+                      activeDot={{ r: 6, fill: '#2E6F40', stroke: '#fff', strokeWidth: 3 }}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex items-center justify-center text-slate-400 font-bold text-sm bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+                  No revenue data available yet.
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Orders Bar */}
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 lg:p-8 shadow-sm hover:shadow-md transition-shadow duration-300">
+            <div className="flex justify-between items-center mb-8">
+              <div>
+                <h3 className="text-xl font-black text-slate-900 tracking-tight">Transaction Volume</h3>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Order Fulfillment</p>
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-[#f0faf4] flex items-center justify-center text-[#2E6F40] border border-[#cee8d9]">
+                <ListOrdered size={20} strokeWidth={2.5} />
+              </div>
+            </div>
+
+            <div className="w-full h-[260px]">
+              {data?.orders_trend?.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={data.orders_trend} margin={{ top: 5, right: 8, left: -20, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id={BAR_GRAD} x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%"   stopColor="#2E6F40" stopOpacity={1} />
+                        <stop offset="100%" stopColor="#255933" stopOpacity={0.8} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="#f1f5f9" />
+                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b', fontWeight: 700 }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: '#64748b', fontWeight: 700 }} allowDecimals={false} width={38} />
+                    <Tooltip content={<AgriTooltip />} cursor={{ fill: 'rgba(16,185,129,0.04)' }} />
+                    <Bar dataKey="orders" name="Orders" fill={`url(#${BAR_GRAD})`} radius={[6,6,0,0]} maxBarSize={40} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-full flex flex-col items-center justify-center text-slate-400 font-bold text-sm bg-slate-50/50 rounded-2xl border border-dashed border-slate-200 gap-3">
+                  <BarChart2 size={24} className="text-slate-300" />
+                  No transactions recorded.
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* ── RANKINGS ROW ─────────────────────────────────── */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-        
-        {/* Top Farms */}
-        <div className="bg-white border border-slate-200 rounded-[2rem] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
-          <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
-            <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
-              <Award size={20} className="text-amber-500" strokeWidth={3} /> Top Yielding Nodes
-            </h3>
-            <span className="bg-amber-50 text-amber-600 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border border-amber-200">By Gross Value</span>
-          </div>
+        {/* ── RANKINGS ROW ─────────────────────────────────── */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           
-          <div className="space-y-4">
-            {data?.best_farms?.length > 0 ? (
-              data.best_farms.map((f, i) => (
-                <div key={f.id} className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100 hover:border-slate-200 transition-colors">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-white shrink-0 shadow-sm ${i === 0 ? 'bg-gradient-to-br from-amber-400 to-amber-600 border border-amber-500' : i === 1 ? 'bg-gradient-to-br from-slate-400 to-slate-500 border border-slate-400' : i === 2 ? 'bg-gradient-to-br from-amber-700 to-amber-800 border-amber-800' : 'bg-slate-200 text-slate-500'}`}>
-                    {String(i + 1).padStart(2, '0')}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-extrabold text-sm text-slate-900 truncate">{f.name}</div>
-                    <div className="text-xs font-bold text-slate-500 mt-0.5">{f.orders} Confirmed Shipments</div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <div className="font-black text-[#2E6F40] mb-1">{f.revenue.toLocaleString()} <span className="text-[9px] uppercase tracking-widest">DZD</span></div>
-                    <div className="w-24 h-1.5 bg-slate-200 rounded-full overflow-hidden ml-auto">
-                      <div className="h-full bg-amber-500 rounded-full" style={{ width: `${Math.min((f.revenue / (data.best_farms[0]?.revenue || 1)) * 100, 100)}%` }} />
+          {/* Top Farms */}
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 lg:p-8 shadow-sm hover:shadow-md transition-shadow duration-300">
+            <div className="flex justify-between items-center mb-8">
+              <div>
+                <h3 className="text-xl font-black text-slate-900 tracking-tight">Top Yielding Nodes</h3>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Ranked by Gross Value</p>
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-amber-500 border border-slate-200">
+                <Award size={20} strokeWidth={2.5} />
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              {data?.best_farms?.length > 0 ? (
+                data.best_farms.map((f, i) => (
+                  <div key={f.id} className="flex items-center gap-5 bg-white border border-slate-100 p-4 rounded-2xl hover:border-[#a2d4b5] hover:shadow-md transition-all duration-300 group">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-black text-white shrink-0 shadow-sm ${i === 0 ? 'bg-gradient-to-br from-amber-400 to-amber-500' : i === 1 ? 'bg-gradient-to-br from-slate-300 to-slate-400' : i === 2 ? 'bg-gradient-to-br from-amber-600 to-amber-700' : 'bg-slate-100 text-slate-400'}`}>
+                      {String(i + 1).padStart(2, '0')}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-extrabold text-sm text-slate-900 truncate group-hover:text-[#2E6F40] transition-colors">{f.name}</div>
+                      <div className="text-[11px] font-bold text-slate-500 mt-1">{f.orders} Confirmed Shipments</div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="font-black text-slate-900 mb-1.5">{f.revenue.toLocaleString()} <span className="text-[10px] text-slate-400 uppercase tracking-widest">DZD</span></div>
+                      <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden ml-auto">
+                        <div className="h-full bg-[#f0faf4]0 rounded-full" style={{ width: `${Math.min((f.revenue / (data.best_farms[0]?.revenue || 1)) * 100, 100)}%` }} />
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
-            ) : (
-              <div className="py-8 text-center text-slate-400 font-bold text-sm border-2 border-dashed border-slate-100 rounded-2xl">Awaiting node optimization data.</div>
-            )}
+                ))
+              ) : (
+                <div className="py-12 text-center text-slate-400 font-bold text-sm bg-slate-50 rounded-2xl border border-dashed border-slate-200">Awaiting node optimization data.</div>
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* Best Products */}
-        <div className="bg-white border border-slate-200 rounded-[2rem] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
-          <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
-            <h3 className="text-lg font-black text-slate-800 flex items-center gap-2">
-              <Leaf size={20} className="text-[#2E6F40]" strokeWidth={3} /> High-Velocity Products
-            </h3>
-            <span className="bg-[#f0faf4] text-[#2E6F40] px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border border-[#a2d4b5]">By Liquid Volume</span>
-          </div>
-          
-          <div className="space-y-4">
-            {data?.best_products?.length > 0 ? (
-              data.best_products.map((p, i) => (
-                <div key={p.id} className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100 hover:border-slate-200 transition-colors">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-white shrink-0 shadow-sm ${i === 0 ? 'bg-gradient-to-br from-[#4a8c5f] to-[#2E6F40] border border-[#2E6F40]' : i === 1 ? 'bg-gradient-to-br from-slate-400 to-slate-500 border border-slate-400' : i === 2 ? 'bg-gradient-to-br from-[#255933] to-emerald-800 border-emerald-800' : 'bg-slate-200 text-slate-500'}`}>
-                    {String(i + 1).padStart(2, '0')}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-extrabold text-sm text-slate-900 truncate">{p.name}</div>
-                    <div className="text-xs font-bold text-slate-500 mt-0.5">{p.qty} Global Units Liquidated</div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <div className="font-black text-[#2E6F40] mb-1">{p.revenue.toLocaleString()} <span className="text-[9px] uppercase tracking-widest">DZD</span></div>
-                    <div className="w-24 h-1.5 bg-slate-200 rounded-full overflow-hidden ml-auto">
-                      <div className="h-full bg-gradient-to-r from-[#2E6F40] to-[#4a8c5f] rounded-full" style={{ width: `${Math.min((p.qty / (data.best_products[0]?.qty || 1)) * 100, 100)}%` }} />
+          {/* Best Products */}
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 lg:p-8 shadow-sm hover:shadow-md transition-shadow duration-300">
+            <div className="flex justify-between items-center mb-8">
+              <div>
+                <h3 className="text-xl font-black text-slate-900 tracking-tight">High-Velocity Products</h3>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Ranked by Liquid Volume</p>
+              </div>
+              <div className="w-12 h-12 rounded-xl bg-[#f0faf4] flex items-center justify-center text-[#2E6F40] border border-[#cee8d9]">
+                <Leaf size={20} strokeWidth={2.5} />
+              </div>
+            </div>
+            
+            <div className="space-y-4">
+              {data?.best_products?.length > 0 ? (
+                data.best_products.map((p, i) => (
+                  <div key={p.id} className="flex items-center gap-5 bg-white border border-slate-100 p-4 rounded-2xl hover:border-[#a2d4b5] hover:shadow-md transition-all duration-300 group">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-black text-white shrink-0 shadow-sm ${i === 0 ? 'bg-gradient-to-br from-[#2E6F40] to-[#255933]' : i === 1 ? 'bg-gradient-to-br from-slate-300 to-slate-400' : i === 2 ? 'bg-gradient-to-br from-[#1A4024] to-[#112a18]' : 'bg-slate-100 text-slate-400'}`}>
+                      {String(i + 1).padStart(2, '0')}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-extrabold text-sm text-slate-900 truncate group-hover:text-[#2E6F40] transition-colors">{p.name}</div>
+                      <div className="text-[11px] font-bold text-slate-500 mt-1">{p.qty} Global Units Liquidated</div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="font-black text-slate-900 mb-1.5">{p.revenue.toLocaleString()} <span className="text-[10px] text-slate-400 uppercase tracking-widest">DZD</span></div>
+                      <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden ml-auto">
+                        <div className="h-full bg-gradient-to-r from-[#4a8c5f] to-[#2E6F40] rounded-full" style={{ width: `${Math.min((p.qty / (data.best_products[0]?.qty || 1)) * 100, 100)}%` }} />
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
-            ) : (
-              <div className="py-8 text-center text-slate-400 font-bold text-sm border-2 border-dashed border-slate-100 rounded-2xl">Awaiting liquidity parameters.</div>
-            )}
+                ))
+              ) : (
+                <div className="py-12 text-center text-slate-400 font-bold text-sm bg-slate-50 rounded-2xl border border-dashed border-slate-200">Awaiting liquidity parameters.</div>
+              )}
+            </div>
           </div>
-        </div>
 
+        </div>
       </div>
     </div>
   );

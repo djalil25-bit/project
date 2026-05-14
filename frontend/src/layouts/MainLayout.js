@@ -227,7 +227,7 @@ const MainLayout = () => {
   const currentLinks = roleLinks[user?.role] || [];
 
   const roleAccents = {
-    buyer: '#2563eb',
+    buyer: '#0F766E',
     farmer: '#22543d',
     transporter: '#10B981',
     admin: '#059669',

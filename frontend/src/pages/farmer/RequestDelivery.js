@@ -238,25 +238,7 @@ const RequestDelivery = () => {
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem', marginTop: '1rem' }}>
-                    <div className="f-form-group">
-                      <label className="f-form-label">Est. Distance (KM)</label>
-                      <input 
-                        type="number" className="f-input"
-                        value={formData.estimated_distance_km}
-                        onChange={e => setFormData({...formData, estimated_distance_km: e.target.value})}
-                        placeholder="e.g. 78"
-                      />
-                    </div>
-                    <div className="f-form-group">
-                      <label className="f-form-label">Est. Duration</label>
-                      <input 
-                        type="text" className="f-input"
-                        value={formData.estimated_duration}
-                        onChange={e => setFormData({...formData, estimated_duration: e.target.value})}
-                        placeholder="e.g. 1h 35m"
-                      />
-                    </div>
+                  <div style={{ marginTop: '1rem' }}>
                     <div className="f-form-group">
                       <label className="f-form-label">Transport Fee (DZD)</label>
                       <input 

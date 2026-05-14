@@ -355,9 +355,6 @@ function TransporterDashboard() {
                         {new Date(d.created_at).toLocaleDateString('en-GB')}
                       </div>
                       <div className="mt-2 flex items-center gap-2">
-                         <div className="px-2 py-0.5 bg-[#10B981]/20 border border-indigo-100 rounded text-[9px] font-black text-[#10B981] uppercase">
-                            {parseFloat(d.estimated_distance_km || 0)} KM
-                         </div>
                          <div className="px-2 py-0.5 bg-emerald-50 border border-emerald-100 rounded text-[9px] font-black text-emerald-600 uppercase">
                             {parseFloat(d.estimated_fee || 0).toLocaleString()} DZD
                          </div>
@@ -368,11 +365,11 @@ function TransporterDashboard() {
                     <div className="d-flex flex-column gap-1">
                       <div className="mission-origin">
                         <MapPin size={11} />
-                        {(d.pickup_location || `Farm #${d.order_detail?.items?.[0]?.farmer}`)?.substring(0, 28)}...
+                        {(d.pickup_location || `Farm #${d.order_detail?.items?.[0]?.farmer}`)}
                       </div>
                       <div className="mission-dest">
                         <Navigation size={11} />
-                        {(d.delivery_location || d.order_detail?.delivery_address)?.substring(0, 28)}...
+                        {(d.delivery_location || d.order_detail?.delivery_address)}
                       </div>
                       {d.vehicle_size && !d.assigned_vehicle_info && (
                         <span className="status-badge status-assigned very-small" style={{ fontSize: '0.62rem', alignSelf: 'flex-start', marginTop: 2 }}>

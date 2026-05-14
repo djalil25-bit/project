@@ -139,6 +139,7 @@ class RegisterSerializer(serializers.Serializer):
     capacity_tons    = serializers.DecimalField(max_digits=8, decimal_places=2, required=False, default=0.0)
     driving_license  = serializers.FileField(required=False)   # REQUIRED for transporters
     vehicle_registration = serializers.FileField(required=False)  # REQUIRED for transporters
+    car_photo        = serializers.FileField(required=False)
 
     def validate_email(self, value):
         if User.objects.filter(email=value).exists():
@@ -189,6 +190,8 @@ class RegisterSerializer(serializers.Serializer):
                 raise serializers.ValidationError({'vehicle_registration': 'Vehicle registration document is required.'})
             _validate_file(data['driving_license'])
             _validate_file(data['vehicle_registration'])
+            if data.get('car_photo'):
+                _validate_file(data['car_photo'])
 
         return data
 
@@ -218,6 +221,7 @@ class RegisterSerializer(serializers.Serializer):
         capacity_tons        = validated_data.pop('capacity_tons', 0.0)
         driving_license      = validated_data.pop('driving_license', None)
         vehicle_registration = validated_data.pop('vehicle_registration', None)
+        car_photo            = validated_data.pop('car_photo', None)
 
         with transaction.atomic():
             user = User.objects.create_user(
@@ -303,6 +307,10 @@ class RegisterSerializer(serializers.Serializer):
                 if vehicle_registration:
                     UserDocument.objects.create(
                         user=user, document_type=DocumentTypeChoices.VEHICLE_REGISTRATION, file=vehicle_registration
+                    )
+                if car_photo:
+                    UserDocument.objects.create(
+                        user=user, document_type=DocumentTypeChoices.CAR_PHOTO, file=car_photo
                     )
 
             return user

@@ -57,7 +57,7 @@ class MissionOrderItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = OrderItem
-        fields = ['id', 'product_name', 'product_unit', 'product_quality', 'quantity', 'farm_name']
+        fields = ['id', 'product_name', 'product_unit', 'product_quality', 'quantity', 'farm_name', 'price_snapshot']
 
     def get_product_name(self, obj):
         return obj.product.title if obj.product else "Deleted Product"
@@ -176,7 +176,7 @@ class VehicleSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'owner', 'owner_name', 'owner_email',
             'plate', 'model', 'capacity', 'type', 'fuelType',
-            'is_active', 'carte_grise',
+            'is_active', 'carte_grise', 'car_photo',
             'status', 'rejection_reason', 'reviewed_at', 'reviewed_by',
             'created_at', 'updated_at',
         ]
