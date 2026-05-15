@@ -12,11 +12,29 @@ from .serializers import (
     DeliveryRequestSerializer, 
     DeliveryStatusUpdateSerializer,
     ProofOfDeliverySerializer,
-    VehicleSerializer
+    VehicleSerializer,
+    TransportPricingRuleSerializer
 )
 from apps.accounts.permissions import IsTransporterRole, IsFarmerRole
 from apps.orders.models import OrderStatusChoices, DeliveryStatusChoices as OrderDeliveryStatus
 from apps.common.constants import get_wilaya_name
+from .models import DeliveryRequest, DeliveryStatusChoices, Vehicle, TransportPricingRule
+
+class TransportPricingRuleViewSet(viewsets.ModelViewSet):
+    queryset = TransportPricingRule.objects.all().order_by('vehicle_type')
+    serializer_class = TransportPricingRuleSerializer
+    permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
+
+    @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def calculate_fee(self, request):
+        distance = request.data.get('distance')
+        weight = request.data.get('weight', 0)
+        v_type = request.data.get('vehicle_type', 'truck')
+        
+        from .models import calculate_transport_fee
+        res = calculate_transport_fee(distance, weight, v_type)
+        return Response(res)
+
 
 logger = logging.getLogger(__name__)
 
@@ -54,9 +72,12 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
         first_item = order.items.first()
         if first_item and first_item.farmer:
             wilaya = ''
+            farm = None
             # Try to get from farm first
-            if first_item.product and first_item.product.farm and first_item.product.farm.wilaya:
-                wilaya = first_item.product.farm.wilaya
+            if first_item.product and first_item.product.farm:
+                farm = first_item.product.farm
+                if farm.wilaya:
+                    wilaya = farm.wilaya
             
             # Fallback to farmer's registered address (which stores wilaya name)
             if not wilaya:
@@ -64,6 +85,20 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
                 
             if wilaya:
                 serializer.validated_data['pickup_wilaya'] = wilaya
+            
+            # Auto-populate delivery GPS from buyer's order wilaya
+        buyer_wilaya = order.wilaya or ''
+        if buyer_wilaya and not serializer.validated_data.get('delivery_latitude'):
+            from apps.common.constants import WILAYA_COORDS
+            coords = WILAYA_COORDS.get(str(buyer_wilaya).strip())
+            if coords:
+                serializer.validated_data['delivery_latitude'] = coords[0]
+                serializer.validated_data['delivery_longitude'] = coords[1]
+            
+        # 3. Inherit the official transport fee from the order
+        # This ensures the buyer, farmer, and transporter all see the exact same price
+        if order.transport_fee:
+            serializer.validated_data['estimated_fee'] = order.transport_fee
             
         serializer.save()
 
@@ -91,20 +126,27 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
             open_missions_q = Q(status=DeliveryStatusChoices.OPEN)
             
             if service_zones:
-                # Include missions where pickup_wilaya is empty as a fallback
-                zone_q = Q(pickup_wilaya='') | Q(pickup_wilaya__isnull=True)
-                for zone in service_zones:
-                    if zone.strip():
-                        zone_q |= Q(pickup_wilaya__iexact=zone.strip())
-                open_missions_q &= zone_q
+                # If they want ALL_ALGERIA, we do NOT restrict to service zones.
+                if pickup_wilaya != 'ALL_ALGERIA':
+                    # Restrict to service zones
+                    # We remove the fallback for empty wilaya to ensure only matching or "All Algeria" missions are seen
+                    zone_q = Q()
+                    for zone in service_zones:
+                        if zone.strip():
+                            zone_q |= Q(pickup_wilaya__iexact=zone.strip())
+                    open_missions_q &= zone_q
                 
             visibility_q = Q(transporter=user) | open_missions_q
+            qs = qs.filter(visibility_q)
             
             # 2. Apply additional search filters from query params
-            if pickup_wilaya:
-                qs = qs.filter(pickup_wilaya=pickup_wilaya)
+            # BUT: Filters should only apply to OPEN missions. 
+            # A transporter should ALWAYS see their own assigned missions regardless of the wilaya filter.
+            if pickup_wilaya and pickup_wilaya not in ['ALL_ALGERIA', 'ALL_ZONES']:
+                qs = qs.filter(Q(pickup_wilaya__iexact=pickup_wilaya) | Q(transporter=user))
+                
             if delivery_wilaya:
-                qs = qs.filter(order__wilaya=delivery_wilaya)
+                qs = qs.filter(Q(order__wilaya=delivery_wilaya) | Q(transporter=user))
 
             # 3. Handle specific actions vs general list
             if self.action in ['my_missions', 'update_status']:
@@ -142,19 +184,17 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
                 return Response({"error": "This delivery is no longer open. It may have just been accepted by someone else."}, status=status.HTTP_409_CONFLICT)
         
         # 1. NEW: Vehicle Compatibility Validation
-        # Check if the transporter has ANY active and approved vehicle that matches the required type
+        # Check if the transporter has ANY active and approved vehicle that has sufficient capacity
         from .models import VehicleStatusChoices
         has_compatible_vehicle = Vehicle.objects.filter(
             owner=request.user,
-            type=delivery.required_vehicle_type,
             status=VehicleStatusChoices.ACTIVE,
             is_active=True
         ).exists()
 
         if not has_compatible_vehicle:
-            required_display = delivery.get_required_vehicle_type_display()
             return Response(
-                {"error": f"Compatibility Error: This mission requires a {required_display}. Your fleet does not contain a compatible approved vehicle."},
+                {"error": f"Compatibility Error: Your fleet does not contain an active approved vehicle."},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
@@ -206,14 +246,7 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
         if selected_vehicle.get('is_active') is False:
             return Response({"error": "The selected vehicle is currently marked as inactive/offline."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # NEW: Ensure the SPECIFICALLY SELECTED vehicle matches the required type
-        if selected_vehicle.get('type') != delivery.required_vehicle_type:
-            required_display = delivery.get_required_vehicle_type_display()
-            selected_display = selected_vehicle.get('type', 'Unknown').replace('_', ' ').capitalize()
-            return Response(
-                {"error": f"Type Mismatch: This mission requires a {required_display}, but you selected a {selected_display}."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        # (Removed strict vehicle type matching to allow upgrades/flexible assignments)
 
         # Check admin approval status (Vehicle model only)
         vehicle_status = selected_vehicle.get('status', 'ACTIVE')  # Legacy JSON vehicles default to ACTIVE
@@ -443,15 +476,6 @@ class VehicleViewSet(viewsets.ModelViewSet):
         return Vehicle.objects.filter(owner=self.request.user).order_by('-created_at')
 
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)  # status defaults to PENDING
-
-    def perform_update(self, serializer):
-        vehicle = self.get_object()
-        # If transporter edits a REJECTED vehicle, resubmit it for review
-        if vehicle.status == 'REJECTED':
-            serializer.save(status='PENDING', rejection_reason='')
-        else:
-            serializer.save()
         serializer.save(owner=self.request.user)  # status defaults to PENDING
 
     def perform_update(self, serializer):

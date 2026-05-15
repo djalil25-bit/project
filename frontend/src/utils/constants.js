@@ -17,6 +17,7 @@ export const ALGERIAN_WILAYAS = [
 ];
 
 export const VEHICLE_TYPES = [
+    { id: 'standard',           name: 'Standard (All Types)' },
     { id: 'truck',              name: 'Truck' },
     { id: 'van',                name: 'Van' },
     { id: 'refrigerated_truck', name: 'Refrigerated Truck' },

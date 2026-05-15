@@ -44,6 +44,8 @@ import CatalogManager from './pages/admin/CatalogManager';
 import CatalogPriceHistory from './pages/admin/CatalogPriceHistory';
 import VehicleSettings from './pages/transporter/VehicleSettings';
 import ZoneSettings from './pages/transporter/ZoneSettings';
+import TransportPricingManager from './pages/admin/TransportPricingManager';
+
 import Profile from './pages/Profile';
 import UserComplaints from './pages/complaints/UserComplaints';
 import ComplaintFormPage from './pages/complaints/ComplaintFormPage';
@@ -55,9 +57,11 @@ import AdminAlerts from './pages/admin/AdminAlerts';
 import AdminMessages from './pages/admin/AdminMessages';
 import AdminIoTPage from './pages/admin/AdminIoTPage';
 import ResourceApprovals from './pages/admin/ResourceApprovals';
+
 import AccountPending from './pages/AccountPending';
 
 function App() {
+
   return (
     <ToastProvider>
       <Routes>
@@ -134,6 +138,12 @@ function App() {
               <ResourceApprovals />
             </ProtectedRoute>
           } />
+          <Route path="/admin-dashboard/logistics-pricing" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <TransportPricingManager />
+            </ProtectedRoute>
+          } />
+
           {/* Redirect legacy approval paths to unified registry */}
           <Route path="/admin-dashboard/farm-approvals" element={<Navigate to="/admin-dashboard/resource-approvals" replace />} />
           <Route path="/admin-dashboard/vehicle-approvals" element={<Navigate to="/admin-dashboard/resource-approvals" replace />} />

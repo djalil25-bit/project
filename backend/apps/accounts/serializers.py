@@ -120,6 +120,8 @@ class RegisterSerializer(serializers.Serializer):
     farm_location    = serializers.CharField(max_length=255, required=False, allow_blank=True)
     production_type  = serializers.CharField(max_length=20, required=False, allow_blank=True)
     farm_size        = serializers.DecimalField(max_digits=10, decimal_places=2, required=False, default=0.0)
+    farm_latitude    = serializers.FloatField(required=False, allow_null=True)
+    farm_longitude   = serializers.FloatField(required=False, allow_null=True)
     farmer_id        = serializers.FileField(required=False)   # REQUIRED for farmers — validated in validate()
     farm_photos      = serializers.ListField(                  # Multiple optional
         child=serializers.FileField(), required=False
@@ -208,6 +210,8 @@ class RegisterSerializer(serializers.Serializer):
         production_type = validated_data.pop('production_type', '')
         commune         = validated_data.pop('commune', '')
         farm_size       = validated_data.pop('farm_size', 0.0)
+        farm_latitude   = validated_data.pop('farm_latitude', None)
+        farm_longitude  = validated_data.pop('farm_longitude', None)
         farmer_id_file  = validated_data.pop('farmer_id', None)
         farm_photos     = validated_data.pop('farm_photos', [])
 
@@ -253,7 +257,9 @@ class RegisterSerializer(serializers.Serializer):
                     location=farm_location,
                     wilaya=farm_wilaya,
                     commune=commune,
-                    size_hectares=farm_size
+                    size_hectares=farm_size,
+                    latitude=farm_latitude,
+                    longitude=farm_longitude
                 )
                 if farm_photos:
                     farm.image = farm_photos[0]

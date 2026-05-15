@@ -107,14 +107,19 @@ class DeliveryRequestSerializer(TransporterVisibilityMixin, serializers.ModelSer
         model = DeliveryRequest
         fields = [
             'id', 'order', 'order_detail', 'transporter', 'status', 
-            'pickup_location', 'pickup_wilaya', 'delivery_location', 'preferred_delivery_date', 
+            'pickup_location', 'pickup_wilaya', 'pickup_commune',
+            'delivery_location', 'delivery_wilaya', 'delivery_commune',
+            'preferred_delivery_date', 
+            'delivery_latitude', 'delivery_longitude',
             'notes', 'required_vehicle_type', 'created_at', 'updated_at',
             'total_quantity', 'assigned_vehicle_id', 'assigned_vehicle_info',
             'pod_photo', 'pod_recipient_name', 'pod_notes', 'pod_completed_at',
             'transporter_name', 'transporter_phone', 'vehicle_type', 'plate_number_masked',
             'estimated_distance_km', 'estimated_fee', 'estimated_duration',
-            'is_refrigerated', 'is_fragile', 'farmer_name', 'farmer_phone'
+            'is_refrigerated', 'is_fragile', 'farmer_name', 'farmer_phone',
+            'pricing_breakdown'
         ]
+
         read_only_fields = ('created_at', 'updated_at', 'transporter', 'pod_completed_at', 'total_quantity')
 
     def get_farmer_name(self, obj):
@@ -135,6 +140,17 @@ class DeliveryRequestSerializer(TransporterVisibilityMixin, serializers.ModelSer
             if first_item and first_item.farmer:
                 return first_item.farmer.phone
         return None
+
+    pricing_breakdown = serializers.SerializerMethodField()
+
+    def get_pricing_breakdown(self, obj):
+        from .models import calculate_transport_fee
+        return calculate_transport_fee(
+            distance=obj.estimated_distance_km,
+            weight_kg=obj.total_quantity,
+            vehicle_type=obj.required_vehicle_type
+        )
+
 
 class DeliveryStatusUpdateSerializer(serializers.Serializer):
     status = serializers.ChoiceField(choices=['picked_up', 'in_transit', 'delivered', 'cancelled'])
@@ -184,4 +200,19 @@ class VehicleSerializer(serializers.ModelSerializer):
             'owner', 'status', 'rejection_reason',
             'reviewed_at', 'reviewed_by', 'created_at', 'updated_at',
         )
+
+# ── Pricing Serializer ──────────────────────────────────────────────────
+from .models import TransportPricingRule
+
+class TransportPricingRuleSerializer(serializers.ModelSerializer):
+    vehicle_type_display = serializers.CharField(source='get_vehicle_type_display', read_only=True)
+    
+    class Meta:
+        model = TransportPricingRule
+        fields = [
+            'id', 'vehicle_type', 'vehicle_type_display', 
+            'base_fee', 'price_per_km', 'weight_multiplier', 
+            'is_active', 'created_at', 'updated_at'
+        ]
+
 

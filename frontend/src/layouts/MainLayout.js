@@ -43,8 +43,10 @@ import {
   ListOrdered,
   Users,
   Activity,
-  Wifi
+  Wifi,
+  Zap
 } from 'lucide-react';
+
 import VerifiedBadge from '../components/common/VerifiedBadge';
 import AgriGovLogo from '../components/common/AgriGovLogo';
 
@@ -197,7 +199,9 @@ const MainLayout = () => {
       { label: t('nav_categories'), path: '/admin-dashboard/categories', icon: <FolderTree size={18} /> },
       { label: t('nav_complaint_center'), path: '/admin-dashboard/complaints', icon: <ShieldAlert size={18} /> },
       { label: 'Approvals Registry', path: '/admin-dashboard/resource-approvals', icon: <ShieldCheck size={18} /> },
+      { label: 'Pricing Protocol', path: '/admin-dashboard/logistics-pricing', icon: <Zap size={18} /> },
     ],
+
     farmer: [
       { label: t('nav_dashboard'), path: '/farmer-dashboard', icon: <LayoutDashboard size={18} strokeWidth={2.2} /> },
       { label: t('nav_statistics'), path: '/farmer-dashboard/stats', icon: <BarChart3 size={18} strokeWidth={2.2} /> },

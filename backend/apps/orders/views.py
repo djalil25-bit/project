@@ -46,6 +46,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         for item in cart_items:
             items_by_farmer[item.product.farmer_id].append(item)
 
+        distances_map = request.data.get('distances', {}) # { farmer_id_str: distance_float }
         estimates = []
         grand_total_transport = Decimal('0.00')
         grand_total_subtotal = Decimal('0.00')
@@ -61,10 +62,14 @@ class OrderViewSet(viewsets.ModelViewSet):
             total_qty = sum(item.quantity for item in items)
             subtotal = sum(item.product.price * item.quantity for item in items)
             
+            # Get real distance if provided by frontend (OSRM)
+            provided_dist = distances_map.get(str(fid))
+            
             est = TransportPricingService.estimate_order_transport(
                 origin_wilaya, origin_commune,
                 wilaya, commune,
-                total_qty
+                total_qty,
+                distance=provided_dist
             )
             
             estimates.append({
@@ -149,10 +154,15 @@ class OrderViewSet(viewsets.ModelViewSet):
                     origin_wilaya = farm.wilaya if farm and farm.wilaya else ""
                     origin_commune = farm.commune if farm and farm.commune else ""
                     
+                    # Get real distance if provided by frontend
+                    distances_map = request.data.get('distances', {})
+                    provided_dist = distances_map.get(str(fid))
+
                     est = TransportPricingService.estimate_order_transport(
                         origin_wilaya, origin_commune,
                         wilaya, commune,
-                        total_qty
+                        total_qty,
+                        distance=provided_dist
                     )
                     transport_fee = est['total_transport']
 

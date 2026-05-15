@@ -17,6 +17,7 @@ const VehicleSettings = () => {
   const [carPhotoFile, setCarPhotoFile] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
 
   useEffect(() => { fetchVehicles(); }, []);
 
@@ -186,9 +187,16 @@ const VehicleSettings = () => {
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
                       {v.carte_grise && (
-                        <a href={v.carte_grise.startsWith('http') ? v.carte_grise : `http://localhost:8000${v.carte_grise}`} target="_blank" rel="noopener noreferrer" className="w-7 h-7 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center text-slate-400 hover:text-[#10B981] hover:border-[#10B981]/30 transition-all" title="Carte Grise">
+                        <button 
+                          onClick={(e) => { 
+                            e.stopPropagation(); 
+                            setPreviewUrl(v.carte_grise.startsWith('http') ? v.carte_grise : `http://localhost:8000${v.carte_grise}`);
+                          }} 
+                          className="w-7 h-7 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center text-slate-400 hover:text-[#10B981] hover:border-[#10B981]/30 transition-all" 
+                          title="Carte Grise"
+                        >
                           <FileText size={13} />
-                        </a>
+                        </button>
                       )}
                       {v.status === 'REJECTED' && (
                         <button onClick={(e) => { e.stopPropagation(); startEdit(v); }} className="w-7 h-7 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center text-slate-500 hover:text-[#10B981] hover:border-[#10B981]/30 transition-all" title="Edit">
@@ -397,6 +405,29 @@ const VehicleSettings = () => {
           </div>
         </div>,
         document.body
+      )}
+
+      {/* ── DOCUMENT PREVIEW MODAL ── */}
+      {previewUrl && (
+        <div className="fixed inset-0 z-[6000] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-fade-in" onClick={() => setPreviewUrl(null)}>
+          <div className="bg-white rounded-3xl overflow-hidden max-w-4xl w-full max-h-[90vh] shadow-2xl animate-scale-in relative flex flex-col" onClick={e => e.stopPropagation()}>
+            <div className="px-6 py-4 border-b flex justify-between items-center bg-slate-50">
+              <h3 className="font-black text-slate-900 tracking-tight flex items-center gap-2">
+                <FileText size={18} className="text-indigo-600" />
+                Document Manifest Registry
+              </h3>
+              <button onClick={() => setPreviewUrl(null)} className="w-10 h-10 rounded-full hover:bg-slate-200 flex items-center justify-center transition-all">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto bg-slate-100 flex-1 flex justify-center items-center">
+              <img src={previewUrl} alt="Document Preview" className="max-w-full h-auto rounded-lg shadow-lg border-4 border-white" />
+            </div>
+            <div className="p-4 bg-white text-center border-t">
+              <button onClick={() => setPreviewUrl(null)} className="px-8 py-2.5 bg-slate-900 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/20 active:scale-95">Close Preview</button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

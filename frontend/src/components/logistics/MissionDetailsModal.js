@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { 
+import {
   X, 
   MapPin, 
   Navigation, 
@@ -17,11 +17,15 @@ import {
   CheckCircle,
   TrendingUp,
   Layers,
-  ArrowRight
+  ArrowRight,
+  Route,
+  Zap
 } from 'lucide-react';
-import { VEHICLE_TYPES } from '../../utils/constants';
 
-const MissionDetailsModal = ({ mission, onClose, onAccept, hasActiveMission, actionLoading }) => {
+import { VEHICLE_TYPES } from '../../utils/constants';
+import MissionRouteMap from '../maps/MissionRouteMap';
+
+const MissionDetailsModal = ({ mission, onClose, onAccept, hasActiveMission, actionLoading, compatibility }) => {
   useEffect(() => {
     // Disable background scrolling when modal is open
     // We check if mission exists to only lock scroll when modal is actually displaying
@@ -46,7 +50,8 @@ const MissionDetailsModal = ({ mission, onClose, onAccept, hasActiveMission, act
   const vehicleTypeLabel = VEHICLE_TYPES.find(vt => vt.id === mission.required_vehicle_type)?.name || 'Standard Truck';
 
   const isAccepted = mission.status !== 'open';
-  const canAccept = mission.status === 'open' && !hasActiveMission;
+  const isCompatible = compatibility?.compatible !== false;
+  const canAccept = mission.status === 'open' && !hasActiveMission && isCompatible;
 
   return ReactDOM.createPortal(
     <div className="fixed inset-0 z-[5000] flex items-center justify-center bg-slate-900/50 backdrop-blur-md animate-fade-in p-4">
@@ -91,20 +96,52 @@ const MissionDetailsModal = ({ mission, onClose, onAccept, hasActiveMission, act
                </div>
             </div>
 
-            <div className="bg-indigo-50 border border-indigo-100 rounded-[1.5rem] p-4 flex flex-col justify-center gap-2 shadow-sm">
-              <div className="flex justify-between items-center border-b border-indigo-100/50 pb-2">
-                <span className="text-[9px] font-black uppercase tracking-widest text-indigo-400">Order Value</span>
-                <span className="text-sm font-black text-slate-800">{parseFloat(totalOrderValue).toLocaleString()} <span className="text-[9px] text-slate-500">DZD</span></span>
+            <div className="bg-slate-900 border border-slate-800 rounded-[1.5rem] p-4 flex flex-col justify-center gap-2 shadow-xl shadow-slate-900/20 text-white">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-6 h-6 rounded-lg bg-amber-500 flex items-center justify-center text-slate-900 shadow-lg shadow-amber-500/20"><Zap size={14} fill="currentColor" /></div>
+                <span className="text-[10px] font-black uppercase tracking-[0.1em] text-slate-400">Institutional Pricing</span>
               </div>
-              <div className="flex justify-between items-center pt-1 mb-1">
-                <span className="text-[9px] font-black uppercase tracking-widest text-emerald-600">Delivery Fee</span>
-                <span className="text-xl font-black text-emerald-600 tracking-tight leading-none">{fee}</span>
+              
+              <div className="space-y-1.5 py-2 border-y border-white/5 my-1">
+                <div className="flex gap-4">
+                  <div className="flex-1">
+                    <span className="text-[7px] font-black text-slate-500 uppercase block tracking-widest leading-none mb-1">Road Distance</span>
+                    <span className="text-[11px] font-black text-white">{mission.estimated_distance_km || '0'} <small className="very-small text-slate-500">KM</small></span>
+                  </div>
+                  <div className="flex-1">
+                    <span className="text-[7px] font-black text-slate-500 uppercase block tracking-widest leading-none mb-1">Est. Duration</span>
+                    <span className="text-[11px] font-black text-white">{mission.estimated_duration || 'N/A'}</span>
+                  </div>
+                </div>
               </div>
-              <div className="text-[9px] font-bold text-indigo-700 bg-white border border-indigo-100 px-3 py-1.5 rounded-xl flex items-center justify-center gap-1.5 shadow-sm">
-                <Calendar size={10} /> {mission.preferred_delivery_date ? new Date(mission.preferred_delivery_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : 'Flexible Date'}
+
+              <div style={{ marginTop: '0.5rem', padding: '1rem', background: '#eab308', borderRadius: '12px', color: '#000' }}>
+                <div style={{ fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.15rem', opacity: 0.8 }}>Institutional Assignment Fee</div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
+                  <span style={{ fontSize: '1.5rem', fontWeight: 900 }}>{fee}</span>
+                </div>
               </div>
+              <div className="mt-2 text-[8px] font-black text-slate-500 uppercase tracking-widest text-center">Calculated by AgriGov Engine</div>
             </div>
+
           </div>
+
+          {/* Mission Route Map */}
+          {(mission.pickup_latitude && mission.delivery_latitude) && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 px-2">
+                <Route size={12} className="text-indigo-500" />
+                <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Mission Route</span>
+              </div>
+              <MissionRouteMap
+                pickupCoords={[mission.pickup_latitude, mission.pickup_longitude]}
+                destinationCoords={[mission.delivery_latitude, mission.delivery_longitude]}
+                pickupLabel={mission.pickup_wilaya || mission.pickup_location}
+                destinationLabel={orderDetail.wilaya || orderDetail.delivery_address}
+                height="220px"
+              />
+            </div>
+          )}
 
           {/* Cargo & Requirements Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -181,7 +218,12 @@ const MissionDetailsModal = ({ mission, onClose, onAccept, hasActiveMission, act
               disabled={!canAccept || actionLoading}
               className={`flex-[2.5] h-10 rounded-xl font-black text-[10px] uppercase tracking-[0.15em] shadow-lg flex items-center justify-center gap-2 transition-all ${!canAccept ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none' : 'bg-indigo-600 text-white hover:bg-indigo-700 active:scale-[0.98] shadow-indigo-600/20'}`}
             >
-              {actionLoading ? 'Verifying...' : <><CheckCircle size={16} /> {hasActiveMission ? 'Limit Reached' : 'Accept Assignment'}</>}
+              {actionLoading ? 'Verifying...' : (
+                <>
+                  <CheckCircle size={16} /> 
+                  {hasActiveMission ? 'Limit Reached' : !isCompatible ? (compatibility?.reason || 'Incompatible') : 'Accept Assignment'}
+                </>
+              )}
             </button>
           )}
         </div>

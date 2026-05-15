@@ -3,7 +3,7 @@ import api from '../../api/axiosConfig';
 import { Link } from 'react-router-dom';
 import {
   FileText, XCircle, AlertCircle, RefreshCw, User, ShieldAlert,
-  ShieldCheck, ChevronRight, ClipboardList, Clock, CheckCircle, Package, Truck, MapPin, ChevronDown, ChevronUp, ShoppingBag, Phone, Wheat
+  ShieldCheck, ChevronRight, ClipboardList, Clock, CheckCircle, Package, Truck, MapPin, ChevronDown, ChevronUp, ShoppingBag, Phone, Wheat, X
 } from 'lucide-react';
 
 /* ─── Premium E-commerce Timeline Stepper ─────────────────────────────── */
@@ -184,6 +184,7 @@ function OrderHistory() {
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(null);
   const [activeFilter, setActiveFilter] = useState('all');
+  const [previewDoc, setPreviewDoc] = useState(null);
 
   useEffect(() => {
     async function fetchOrders() {
@@ -563,8 +564,15 @@ function OrderHistory() {
                                         <h6 className="font-black text-xs uppercase tracking-[0.2em] text-emerald-800 mb-2">Authenticated PoD</h6>
                                         <div className="text-[10px] text-emerald-600 font-bold uppercase tracking-widest mb-4">Signed by {o.delivery_request.pod_recipient_name}</div>
                                         {o.delivery_request.pod_photo && (
-                                          <button onClick={() => window.open(o.delivery_request.pod_photo, '_blank')} className="w-full h-32 rounded-xl border border-emerald-200 overflow-hidden bg-white hover:border-emerald-400 transition-all shadow-sm">
-                                            <img src={o.delivery_request.pod_photo} alt="PoD Trace" className="w-full h-full object-cover" />
+                                          <button 
+                                            onClick={() => {
+                                              const url = o.delivery_request.pod_photo;
+                                              const absUrl = url?.startsWith('http') ? url : `http://localhost:8000${url}`;
+                                              setPreviewDoc(absUrl);
+                                            }} 
+                                            className="w-full h-32 rounded-xl border border-emerald-200 overflow-hidden bg-white hover:border-emerald-400 transition-all shadow-sm"
+                                          >
+                                            <img src={o.delivery_request.pod_photo?.startsWith('http') ? o.delivery_request.pod_photo : `http://localhost:8000${o.delivery_request.pod_photo}`} alt="PoD Trace" className="w-full h-full object-cover" />
                                           </button>
                                         )}
                                       </div>
@@ -630,6 +638,40 @@ function OrderHistory() {
               </div>
             </div>
           )}
+        </div>
+      )}
+      {/* Document Preview Modal */}
+      {previewDoc && (
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md animate-fade-in" onClick={() => setPreviewDoc(null)}>
+          <div className="bg-white rounded-3xl p-6 shadow-2xl w-full max-w-4xl max-h-[90vh] animate-scale-in relative overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-black text-slate-900 flex items-center gap-2">
+                <ShieldCheck className="text-teal-600" size={24} /> Document Preview
+              </h3>
+              <div className="flex items-center gap-3">
+                <a href={previewDoc} download className="bg-slate-100 hover:bg-teal-600 text-slate-600 hover:text-white px-4 py-2 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all flex items-center gap-2">
+                  <Package size={14} /> Download
+                </a>
+                <button onClick={() => setPreviewDoc(null)} className="w-10 h-10 bg-slate-100 text-slate-400 hover:text-slate-900 rounded-full flex items-center justify-center transition-all">
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+            
+            <div className="flex-1 bg-slate-50 rounded-2xl border border-slate-100 overflow-auto flex items-center justify-center min-h-[50vh]">
+              {previewDoc.toLowerCase().endsWith('.pdf') ? (
+                <iframe src={previewDoc} className="w-full h-full min-h-[60vh]" title="PoD Preview" />
+              ) : (
+                <img src={previewDoc} alt="PoD Preview" className="max-w-full max-h-full object-contain shadow-sm" />
+              )}
+            </div>
+            
+            <div className="mt-6 flex justify-end">
+              <button onClick={() => setPreviewDoc(null)} className="bg-slate-900 text-white px-8 py-3 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all hover:bg-slate-800 shadow-lg active:scale-95">
+                Close Protocol
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

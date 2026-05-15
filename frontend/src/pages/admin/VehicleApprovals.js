@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import adminApi from '../../api/adminApi';
 import { Link } from 'react-router-dom';
 import {
@@ -293,21 +294,44 @@ export default function VehicleApprovals() {
         </div>
       )}
 
-      {/* CARTE GRISE PREVIEW MODAL */}
-      {carteGrisePreview && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#022c22]/60 backdrop-blur-sm animate-fade-in" onClick={() => setCarteGrisePreview(null)}>
-          <div className="bg-white rounded-3xl p-6 shadow-2xl max-w-2xl max-h-[85vh] animate-scale-in relative overflow-auto" onClick={e => e.stopPropagation()}>
-            <button className="absolute top-4 right-4 w-10 h-10 bg-slate-50 text-slate-400 hover:text-slate-900 rounded-full flex items-center justify-center transition-all z-10" onClick={() => setCarteGrisePreview(null)}>
-              <X size={20} />
-            </button>
-            <h3 className="text-lg font-black text-slate-900 mb-4 flex items-center gap-2"><FileText size={18} /> Carte Grise Document</h3>
-            {carteGrisePreview.endsWith('.pdf') ? (
-              <iframe src={carteGrisePreview} className="w-full h-[60vh] rounded-xl border" title="Carte Grise" />
-            ) : (
-              <img src={carteGrisePreview} alt="Carte Grise" className="w-full rounded-xl border shadow-sm" />
-            )}
+      {carteGrisePreview && ReactDOM.createPortal(
+        <div className="fixed inset-0 z-[100] bg-[#022c22]/98 backdrop-blur-xl flex flex-col animate-fade-in" onClick={() => setCarteGrisePreview(null)}>
+          {/* HIGH VISIBILITY FLOATING CLOSE BUTTON */}
+          <button 
+            onClick={() => setCarteGrisePreview(null)} 
+            className="fixed top-6 right-6 w-14 h-14 bg-rose-500 hover:bg-rose-600 text-white rounded-full flex items-center justify-center transition-all shadow-[0_0_30px_rgba(244,63,94,0.4)] border-2 border-white/20 active:scale-90 group z-[120]"
+            title="Close Preview"
+          >
+            <X size={32} className="group-hover:rotate-90 transition-transform duration-300" />
+          </button>
+
+          <div className="flex items-center justify-between p-4 md:p-6 bg-white/5 border-b border-white/10 shrink-0">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+                <FileText size={20}/>
+              </div>
+              <div>
+                <h3 className="text-sm font-black text-white uppercase tracking-widest leading-none">Carte Grise Document</h3>
+                <p className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest mt-1 opacity-60">Verified Vehicle Registration</p>
+              </div>
+            </div>
           </div>
-        </div>
+          
+          <div className="flex-1 p-4 md:p-8 flex items-center justify-center overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="max-w-[95vw] max-h-[85vh] bg-slate-900/60 rounded-2xl md:rounded-[2rem] border border-white/10 overflow-hidden relative shadow-2xl flex items-center justify-center p-1 md:p-2">
+              {carteGrisePreview.toLowerCase().endsWith('.pdf') ? (
+                <iframe src={carteGrisePreview} className="w-[90vw] h-[80vh] border-0 bg-white rounded-xl" title="Carte Grise" />
+              ) : (
+                <img 
+                  src={carteGrisePreview} 
+                  alt="Carte Grise" 
+                  className="max-w-full max-h-full object-contain rounded-xl shadow-2xl" 
+                />
+              )}
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
     </div>
   );

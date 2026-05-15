@@ -15,6 +15,7 @@ class DeliveryStatusChoices(models.TextChoices):
     CANCELLED = 'cancelled', 'Cancelled'
 
 class VehicleTypeChoices(models.TextChoices):
+    STANDARD = 'standard', 'Standard (Any)'
     TRUCK = 'truck', 'Truck'
     VAN = 'van', 'Van'
     REFRIGERATED_TRUCK = 'refrigerated_truck', 'Refrigerated Truck'
@@ -33,7 +34,14 @@ class DeliveryRequest(TimeStampedModel):
     # Farmer fills these when requesting
     pickup_location = models.TextField(blank=True, default='')
     pickup_wilaya = models.CharField(max_length=100, blank=True, default='')
+    pickup_commune = models.CharField(max_length=100, blank=True, default='')
+    
     delivery_location = models.TextField(blank=True, default='')
+    delivery_wilaya = models.CharField(max_length=100, blank=True, default='')
+    delivery_commune = models.CharField(max_length=100, blank=True, default='')
+    
+    delivery_latitude = models.FloatField(null=True, blank=True)
+    delivery_longitude = models.FloatField(null=True, blank=True)
     preferred_delivery_date = models.DateField(null=True, blank=True)
     notes = models.TextField(blank=True, default='')
     
@@ -115,6 +123,79 @@ class Vehicle(TimeStampedModel):
         null=True, blank=True, related_name='reviewed_vehicles'
     )
 
-    def __str__(self):
-        return f"{self.get_type_display()} {self.plate} ({self.owner.email})" # type: ignore
+class TransportPricingRule(TimeStampedModel):
+    vehicle_type = models.CharField(
+        max_length=50, 
+        choices=VehicleTypeChoices.choices,
+        unique=True,
+        help_text="The vehicle type this rule applies to."
+    )
+    base_fee = models.DecimalField(
+        max_digits=12, decimal_places=2, default=500.00,
+        help_text="Minimum cost just to start the mission."
+    )
+    price_per_km = models.DecimalField(
+        max_digits=10, decimal_places=2, default=15.00,
+        help_text="Cost added for each kilometer of travel."
+    )
+    weight_multiplier = models.FloatField(
+        default=0.01,
+        help_text="Multiplier applied based on total weight/quantity. (e.g. price += weight * multiplier)"
+    )
+    is_active = models.BooleanField(default=True)
 
+    def __str__(self):
+        return f"Pricing Rule: {self.get_vehicle_type_display()}"
+
+    class Meta:
+        verbose_name = "Transport Pricing Rule"
+        verbose_name_plural = "Transport Pricing Rules"
+
+
+def calculate_transport_fee(distance, weight_kg, vehicle_type):
+    """
+    Unified pricing engine. Price is based on distance and weight, 
+    but is constant across all vehicle types to ensure consistency.
+    """
+    try:
+        safe_distance = float(distance) if distance is not None else 0.0
+        safe_weight = float(weight_kg) if weight_kg is not None else 0.0
+        
+        # Always use 'standard' rule for universal pricing as requested
+        rule = TransportPricingRule.objects.filter(vehicle_type='standard', is_active=True).first()
+        if not rule:
+            # Fallback to the first active rule if standard is missing
+            rule = TransportPricingRule.objects.filter(is_active=True).first()
+
+        if not rule:
+            # Absolute system fallback if no rules exist in DB
+            base = 500.0
+            dist_cost = safe_distance * 15.0
+            weight_cost = safe_weight * 0.1
+            source = "SYSTEM_DEFAULT"
+            weight_mult = 0.1
+        else:
+            base = float(rule.base_fee)
+            dist_cost = safe_distance * float(rule.price_per_km)
+            weight_cost = safe_weight * float(rule.weight_multiplier)
+            source = f"RULE_{rule.id}"
+            weight_mult = float(rule.weight_multiplier)
+
+        total = base + dist_cost + weight_cost
+
+        return {
+            "total": round(total, 2),
+            "breakdown": {
+                "base": round(base, 2),
+                "distance": round(dist_cost, 2),
+                "weight": round(weight_cost, 2),
+                "weight_multiplier": weight_mult
+            },
+            "rule_source": source
+        }
+    except Exception as e:
+        return {
+            "total": 0,
+            "breakdown": {"base": 0, "distance": 0, "weight": 0, "weight_multiplier": 0},
+            "rule_source": f"ERROR: {str(e)}"
+        }

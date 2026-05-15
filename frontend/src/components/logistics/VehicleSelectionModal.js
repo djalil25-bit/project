@@ -167,7 +167,7 @@ const VehicleSelectionModal = ({ isOpen, onClose, onAccept, mission }) => {
                       const capacity = parseFloat(v.capacity || 0);
                       const isSufficient = capacity >= totalPayload;
                       const isActive = v.is_active !== false;
-                      const isTypeMatch = !mission?.required_vehicle_type || v.type === mission.required_vehicle_type;
+                      const isTypeMatch = !mission.required_vehicle_type || mission.required_vehicle_type === 'standard' || v.type === mission.required_vehicle_type; 
                       const isEligible = isSufficient && isActive && isTypeMatch;
                       
                       const capText = capacity >= 1000 ? `${(capacity/1000).toFixed(1)}T` : `${v.capacity}KG`;

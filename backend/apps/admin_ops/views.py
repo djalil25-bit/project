@@ -1,5 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.conf import settings
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics, status
 from django.db.models import Q, Sum, Count, Avg, Min, Max, F
@@ -24,6 +25,10 @@ from .serializers import (
     AdminMessageSerializer, MessageTemplateSerializer,
     ActivityLogSerializer, FlaggedAccountSerializer
 )
+from django.core.mail import send_mail
+from apps.notifications.models import create_notification, NotificationType
+import threading
+from django.db import connection
 
 
 # ─── UTILITY: log admin actions ───────────────────────────────────
@@ -771,21 +776,47 @@ class MessageSendAPIView(APIView):
             return Response({'error': 'recipient_id, subject, and body are required'},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        from apps.notifications.models import create_notification, NotificationType
-        from django.core.mail import send_mail
-        import threading
+        def get_html_content(subject, body):
+            return f"""
+            <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; background-color: #ffffff;">
+                <div style="background-color: #064e3b; padding: 24px; text-align: center;">
+                    <h1 style="color: #ffffff; margin: 0; font-size: 20px; text-transform: uppercase; letter-spacing: 2px;">AgriGov Institutional</h1>
+                </div>
+                <div style="padding: 32px; color: #1e293b; line-height: 1.6;">
+                    <h2 style="margin-top: 0; color: #0f172a; font-size: 18px;">{subject}</h2>
+                    <div style="white-space: pre-wrap; font-size: 14px; margin-bottom: 24px;">{body}</div>
+                    <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #f1f5f9; text-align: center;">
+                        <p style="font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px;">
+                            Official Administrative Transmission • AgriGov Platform
+                        </p>
+                    </div>
+                </div>
+            </div>
+            """
 
-        def send_email_thread(subject, body, recipient_email):
+        def dispatch_email_sync(msg_id, subject, body, recipient_email):
+            """Helper to send email synchronously."""
             try:
                 send_mail(
-                    subject,
-                    body,
-                    None,  # uses DEFAULT_FROM_EMAIL
-                    [recipient_email],
+                    subject=subject,
+                    message=body,
+                    from_email=settings.EMAIL_HOST_USER, # Simpler sender for higher compatibility
+                    recipient_list=[recipient_email],
+                    html_message=get_html_content(subject, body),
                     fail_silently=False,
                 )
+                AdminMessage.objects.filter(pk=msg_id).update(status='SENT', sent_at=timezone.now())
+                return True
             except Exception as e:
-                print(f"Failed to send email to {recipient_email}: {e}")
+                print(f"CRITICAL: Failed to send email to {recipient_email}: {str(e)}")
+                AdminMessage.objects.filter(pk=msg_id).update(status='FAILED')
+                return False
+
+        def bulk_dispatch_thread(subject, body, recipients_data):
+            """Thread for bulk email dispatch."""
+            for msg_id, email in recipients_data:
+                dispatch_email_sync(msg_id, subject, body, email)
+            connection.close() # Important for threads
 
         if recipient_id == 'bulk':
             if target_role and target_role != 'all':
@@ -793,33 +824,46 @@ class MessageSendAPIView(APIView):
             else:
                 recipients = User.objects.exclude(role=RoleChoices.ADMIN)
 
-            for user in recipients:
-                msg = AdminMessage.objects.create(
+            msgs = [
+                AdminMessage(
                     sender=request.user,
                     recipient=user,
                     channel=channel.upper(),
                     subject=subject,
                     body=body,
-                    status='SENT',
+                    status='PENDING',
                     is_reply_allowed=is_reply_allowed,
-                    sent_at=timezone.now(),
-                )
+                ) for user in recipients
+            ]
+            
+            created_msgs = AdminMessage.objects.bulk_create(msgs)
+            
+            recipients_email_data = []
+            for msg in created_msgs:
                 create_notification(
-                    user=user,
+                    user=msg.recipient,
                     message=f"{subject}\n{body[:100]}...",
                     notif_type=NotificationType.GENERAL,
                     link=f"/messages?message_id={msg.id}"
                 )
-                if channel.upper() == 'EMAIL' and user.email:
-                    threading.Thread(target=send_email_thread, args=(subject, body, user.email)).start()
+                if channel.upper() == 'EMAIL' and msg.recipient.email:
+                    recipients_email_data.append((msg.id, msg.recipient.email))
 
-            log_activity(request.user, 'Bulk Message Sent', {'target_role': target_role, 'subject': subject, 'count': recipients.count()})
-            return Response({'message': f'Message sent to {recipients.count()} users'}, status=status.HTTP_201_CREATED)
+            if recipients_email_data:
+                threading.Thread(
+                    target=bulk_dispatch_thread, 
+                    args=(subject, body, recipients_email_data)
+                ).start()
+            else:
+                AdminMessage.objects.filter(id__in=[m.id for m in created_msgs]).update(status='SENT', sent_at=timezone.now())
+
+            log_activity(request.user, 'Bulk Message Sent', {'target_role': target_role, 'subject': subject, 'count': len(created_msgs)})
+            return Response({'message': f'Message initialized for {len(created_msgs)} users'}, status=status.HTTP_201_CREATED)
 
         else:
             try:
                 recipient = User.objects.get(pk=recipient_id)
-            except User.DoesNotExist:
+            except (User.DoesNotExist, ValueError):
                 return Response({'error': 'Recipient not found'}, status=status.HTTP_404_NOT_FOUND)
 
             msg = AdminMessage.objects.create(
@@ -828,21 +872,28 @@ class MessageSendAPIView(APIView):
                 channel=channel.upper(),
                 subject=subject,
                 body=body,
-                status='SENT',
+                status='PENDING',
                 is_reply_allowed=is_reply_allowed,
-                sent_at=timezone.now(),
             )
+            
             create_notification(
                 user=recipient,
                 message=f"{subject}\n{body[:100]}...",
                 notif_type=NotificationType.GENERAL,
                 link=f"/messages?message_id={msg.id}"
             )
+
             if channel.upper() == 'EMAIL' and recipient.email:
-                threading.Thread(target=send_email_thread, args=(subject, body, recipient.email)).start()
+                # Individual emails are now sent synchronously to avoid threading issues in local dev
+                dispatch_email_sync(msg.id, subject, body, recipient.email)
+            else:
+                msg.status = 'SENT'
+                msg.sent_at = timezone.now()
+                msg.save()
 
             log_activity(request.user, 'Message Sent', {'to': recipient.email, 'subject': subject})
             return Response(AdminMessageSerializer(msg).data, status=status.HTTP_201_CREATED)
+
 
 
 class MessageHistoryAPIView(generics.ListAPIView):

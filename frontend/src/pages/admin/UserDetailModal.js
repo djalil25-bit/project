@@ -25,7 +25,12 @@ const UserDetailModal = ({ userId, onClose, onAction }) => {
           api.get(`/auth/admin/users/${userId}/documents/`)
         ]);
         setUser(userRes.data);
-        setDocuments(Array.isArray(docsRes.data) ? docsRes.data : docsRes.data.results || []);
+        const docs = Array.isArray(docsRes.data) ? docsRes.data : docsRes.data.results || [];
+        const formattedDocs = docs.map(d => ({
+          ...d,
+          file_url: d.file_url?.startsWith('http') ? d.file_url : `http://localhost:8000${d.file_url}`
+        }));
+        setDocuments(formattedDocs);
       } catch (err) {
         console.error('Failed to fetch user details:', err);
       } finally {
@@ -43,7 +48,10 @@ const UserDetailModal = ({ userId, onClose, onAction }) => {
   if (!userId) return null;
 
   const handleDocumentClick = (doc) => {
-    setPreviewDoc(doc);
+    const url = doc.file_url?.startsWith('http') 
+      ? doc.file_url 
+      : `http://localhost:8000${doc.file_url}`;
+    setPreviewDoc({ ...doc, file_url: url });
   };
 
   const closePreview = () => setPreviewDoc(null);
@@ -265,7 +273,7 @@ const UserDetailModal = ({ userId, onClose, onAction }) => {
                                 <button onClick={() => handleDocumentClick(doc)} className="bg-white p-2 rounded-full text-gray-900 hover:scale-110 transition-transform shadow-lg" title="Preview">
                                   <Eye size={18} />
                                 </button>
-                                <a href={doc.file_url} target="_blank" rel="noreferrer" className="bg-white p-2 rounded-full text-gray-900 hover:scale-110 transition-transform shadow-lg" title="Download">
+                                <a href={doc.file_url} download className="bg-white p-2 rounded-full text-gray-900 hover:scale-110 transition-transform shadow-lg" title="Download">
                                   <FileDown size={18} />
                                 </a>
                               </div>
@@ -326,29 +334,57 @@ const UserDetailModal = ({ userId, onClose, onAction }) => {
         )}
       </div>
 
-      {/* Document Preview Modal */}
-      {previewDoc && (
-        <div className="fixed inset-0 z-[60] bg-black/90 flex flex-col items-center justify-center p-4">
-          <div className="absolute top-4 right-4 flex gap-4">
-            <a href={previewDoc.file_url} target="_blank" rel="noreferrer" className="text-white/70 hover:text-white transition-colors bg-white/10 p-2 rounded-full">
-              <FileDown size={24} />
-            </a>
-            <button onClick={closePreview} className="text-white/70 hover:text-white transition-colors bg-white/10 p-2 rounded-full">
-              <X size={24} />
-            </button>
+      {/* Fullscreen Document Preview Modal */}
+      {previewDoc && ReactDOM.createPortal(
+        <div className="fixed inset-0 z-[100] bg-[#022c22]/98 backdrop-blur-xl flex flex-col animate-fade-in" onClick={closePreview}>
+          {/* HIGH VISIBILITY FLOATING CLOSE BUTTON */}
+          <button 
+            onClick={closePreview} 
+            className="fixed top-6 right-6 w-14 h-14 bg-rose-500 hover:bg-rose-600 text-white rounded-full flex items-center justify-center transition-all shadow-[0_0_30px_rgba(244,63,94,0.4)] border-2 border-white/20 active:scale-90 group z-[120]"
+            title="Close Preview"
+          >
+            <X size={32} className="group-hover:rotate-90 transition-transform duration-300" />
+          </button>
+
+          <div className="flex items-center justify-between p-4 md:p-6 bg-white/5 border-b border-white/10 shrink-0">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+                <FileText size={20}/>
+              </div>
+              <div>
+                <h3 className="text-sm font-black text-white uppercase tracking-widest leading-none">
+                  {previewDoc.document_type.replace(/_/g, ' ')}
+                </h3>
+                <p className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest mt-1 opacity-60">Verified Document Asset</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 mr-16">
+              <a 
+                href={previewDoc.file_url} 
+                download 
+                className="h-10 px-4 bg-white/10 hover:bg-white/20 text-white text-[10px] font-black uppercase tracking-widest rounded-xl border border-white/10 transition-all active:scale-95 flex items-center gap-2"
+                title="Download for Archival"
+              >
+                <FileDown size={14} /> <span className="hidden xs:inline">Download</span>
+              </a>
+            </div>
           </div>
-          <h3 className="absolute top-4 left-4 text-white font-bold capitalize text-lg bg-black/50 px-4 py-1 rounded-full">
-            {previewDoc.document_type.replace(/_/g, ' ')}
-          </h3>
           
-          <div className="w-full max-w-5xl h-full max-h-[85vh] flex items-center justify-center">
-            {previewDoc.file_url.toLowerCase().endsWith('.pdf') ? (
-              <iframe src={previewDoc.file_url} className="w-full h-full rounded-xl bg-white" title="PDF Preview" />
-            ) : (
-              <img src={previewDoc.file_url} alt="Document Preview" className="max-w-full max-h-full object-contain rounded-xl" />
-            )}
+          <div className="flex-1 p-4 md:p-8 flex items-center justify-center overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="max-w-[95vw] max-h-[85vh] bg-slate-900/60 rounded-2xl md:rounded-[2rem] border border-white/10 overflow-hidden relative shadow-2xl flex items-center justify-center p-1 md:p-2">
+              {previewDoc.file_url.toLowerCase().endsWith('.pdf') ? (
+                <iframe src={previewDoc.file_url} className="w-[90vw] h-[80vh] border-0 bg-white rounded-xl" title="PDF Preview" />
+              ) : (
+                <img 
+                  src={previewDoc.file_url} 
+                  alt="Document Preview" 
+                  className="max-w-full max-h-full object-contain rounded-xl shadow-2xl" 
+                />
+              )}
+            </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

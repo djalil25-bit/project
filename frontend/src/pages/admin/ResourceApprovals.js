@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import adminApi from '../../api/adminApi';
 import { Link } from 'react-router-dom';
 import {
   Tractor, Truck, ChevronRight, Search, Check, X, Clock,
   MapPin, Maximize2, User, Phone, Mail, AlertTriangle,
-  ImageOff, RefreshCw, FileText, Gauge, Zap
+  ImageOff, RefreshCw, FileText, Gauge, Zap, ExternalLink
 } from 'lucide-react';
 
 const RESOURCE_TYPES = [
@@ -233,15 +234,36 @@ const FarmCard = ({ farm, onApprove, onReject, onPreview, actionLoading }) => (
         </span>
       </div>
     </div>
-    <div className="p-6 flex flex-col flex-1">
-      <h3 className="text-xl font-black text-slate-900 tracking-tight mb-2">{farm.name}</h3>
-      <div className="flex flex-wrap items-center gap-y-2 gap-x-4 mb-6 text-xs text-slate-500 font-bold uppercase tracking-wider">
-        <span className="flex items-center gap-1.5 text-amber-600 bg-amber-50 px-2 py-1 rounded-lg border border-amber-100"><MapPin size={14}/> {farm.wilaya || farm.location}</span>
+    <div className="p-6 flex flex-col gap-2">
+      <div className="flex items-center justify-between">
+        <h3 className="text-xl font-black text-slate-900 tracking-tight">{farm.name}</h3>
+        <span className="text-[10px] font-black text-slate-400">ID: {farm.id}</span>
+      </div>
+      <div className="flex items-center gap-4 text-xs text-slate-500 font-medium">
+        <span className="flex items-center gap-1"><MapPin size={12} className="text-amber-500" /> {farm.wilaya || farm.location}</span>
+        {farm.commune && <span className="text-slate-400">• {farm.commune}</span>}
         {farm.size_hectares && (
-          <span className="flex items-center gap-1.5 text-[#064e3b] bg-emerald-50 px-2 py-1 rounded-lg border border-emerald-100"><Maximize2 size={13}/> {farm.size_hectares} HA</span>
+          <span className="flex items-center gap-1"><Maximize2 size={11} className="text-emerald-500" /> {farm.size_hectares} HA</span>
         )}
       </div>
 
+      {/* REPOSITIONED: Document Preview now at the top of content */}
+      <div className="mt-2">
+        {farm.registry_document ? (
+          <button 
+            onClick={() => onPreview(farm.registry_document.startsWith('http') ? farm.registry_document : `http://localhost:8000${farm.registry_document}`)} 
+            className="w-full flex items-center justify-center gap-2 bg-[#064e3b] hover:bg-[#166534] text-white px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-emerald-600/20 active:scale-95"
+          >
+            <FileText size={14}/> View Registry Document
+          </button>
+        ) : (
+          <div className="w-full flex items-center justify-center gap-2 bg-slate-50 border border-slate-100 text-slate-400 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest italic">
+            <FileText size={14} className="opacity-50"/> Document Not Uploaded
+          </div>
+        )}
+      </div>
+    </div>
+    <div className="p-6 flex flex-col flex-1">
       <div className="bg-slate-50 rounded-2xl p-4 flex items-center gap-4 border border-slate-100 mb-6">
         <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-[#064e3b] font-black text-sm border border-slate-100">
           {farm.owner_name?.charAt(0)?.toUpperCase()}
@@ -252,20 +274,8 @@ const FarmCard = ({ farm, onApprove, onReject, onPreview, actionLoading }) => (
         </div>
       </div>
 
-      <div className="pb-4 mt-auto">
-        {farm.registry_document ? (
-          <button onClick={() => onPreview(farm.registry_document.startsWith('http') ? farm.registry_document : `http://localhost:8000${farm.registry_document}`)} className="w-full flex items-center justify-center gap-2 bg-[#064e3b] hover:bg-[#166534] text-white px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-slate-600/20 active:scale-95">
-            <FileText size={14}/> View Registry Document
-          </button>
-        ) : (
-          <div className="w-full flex items-center justify-center gap-2 bg-slate-100 border border-slate-200 text-slate-400 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest">
-            <FileText size={14} className="opacity-50" /> Document Missing
-          </div>
-        )}
-      </div>
-
       {farm.status === 'PENDING' && (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 mt-auto">
           <button onClick={() => onApprove(farm.id)} disabled={actionLoading === farm.id} className="bg-[#064e3b] hover:bg-emerald-700 text-white h-11 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 disabled:opacity-50">
             <Check size={16}/> Approve
           </button>
@@ -300,6 +310,34 @@ const VehicleCard = ({ vehicle, onApprove, onReject, onPreview, actionLoading, g
     </div>
 
     <div className="p-6 space-y-6 flex-1 flex flex-col">
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xl font-black text-slate-900 tracking-tight">{vehicle.model}</h3>
+          <span className="text-[10px] font-black text-slate-400">ID: {vehicle.id}</span>
+        </div>
+        <div className="flex items-center gap-4 text-xs text-slate-500 font-medium">
+          <span className="bg-slate-100 px-2 py-0.5 rounded text-slate-600 uppercase tracking-widest text-[9px] font-black">{vehicle.type}</span>
+          <span className="text-slate-400">•</span>
+          <span className="font-bold text-slate-700">{vehicle.plate_number}</span>
+        </div>
+
+        {/* REPOSITIONED: Registration Preview now at the top of content */}
+        <div className="mt-2">
+          {vehicle.carte_grise ? (
+            <button 
+              onClick={() => onPreview(vehicle.carte_grise.startsWith('http') ? vehicle.carte_grise : `http://localhost:8000${vehicle.carte_grise}`)} 
+              className="w-full flex items-center justify-center gap-2 bg-[#064e3b] hover:bg-[#166534] text-white px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-emerald-600/20 active:scale-95"
+            >
+              <FileText size={14}/> View Registration Document
+            </button>
+          ) : (
+            <div className="w-full flex items-center justify-center gap-2 bg-slate-50 border border-slate-100 text-slate-400 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest italic">
+              <FileText size={14} className="opacity-50"/> Registration Missing
+            </div>
+          )}
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
            <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Fuel Type</div>
@@ -323,20 +361,8 @@ const VehicleCard = ({ vehicle, onApprove, onReject, onPreview, actionLoading, g
         </div>
       </div>
 
-      <div className="pb-4 mt-auto pt-4">
-        {vehicle.carte_grise ? (
-          <button onClick={() => onPreview(vehicle.carte_grise.startsWith('http') ? vehicle.carte_grise : `http://localhost:8000${vehicle.carte_grise}`)} className="w-full flex items-center justify-center gap-2 bg-[#064e3b] hover:bg-[#166534] text-white px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-slate-600/20 active:scale-95">
-            <FileText size={14}/> View Carte Grise
-          </button>
-        ) : (
-          <div className="w-full flex items-center justify-center gap-2 bg-slate-100 border border-slate-200 text-slate-400 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest">
-            <FileText size={14} className="opacity-50" /> Document Missing
-          </div>
-        )}
-      </div>
-
       {vehicle.status === 'PENDING' && (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 mt-auto">
           <button onClick={() => onApprove(vehicle.id)} disabled={actionLoading === vehicle.id} className="bg-[#064e3b] hover:bg-emerald-700 text-white h-11 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 disabled:opacity-50">
             <Check size={16}/> Approve
           </button>
@@ -349,53 +375,89 @@ const VehicleCard = ({ vehicle, onApprove, onReject, onPreview, actionLoading, g
   </div>
 );
 
-const RejectionModal = ({ isOpen, onClose, onConfirm, reason, setReason, loading, type }) => (
-  <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#022c22]/60 backdrop-blur-md animate-fade-in">
-    <div className="bg-white rounded-[2.5rem] p-10 shadow-2xl w-full max-w-lg animate-scale-in relative border border-slate-100">
-      <button className="absolute top-6 right-6 w-12 h-12 bg-slate-50 text-slate-400 hover:text-slate-900 rounded-full flex items-center justify-center transition-all shadow-sm" onClick={onClose}>
-        <X size={24} />
-      </button>
-      <div className="mb-8 text-center">
-        <div className="w-20 h-20 bg-red-50 rounded-3xl flex items-center justify-center text-red-500 mx-auto mb-6 border border-red-100 shadow-inner">
-          <AlertTriangle size={32} />
+const RejectionModal = ({ isOpen, onClose, onConfirm, reason, setReason, loading, type }) => {
+  if (!isOpen) return null;
+
+  const modalContent = (
+    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-[#022c22]/60 backdrop-blur-md animate-fade-in">
+      <div className="bg-white rounded-[2.5rem] p-10 shadow-2xl w-full max-w-lg animate-scale-in relative border border-slate-100" onClick={e => e.stopPropagation()}>
+        <button className="absolute top-6 right-6 w-12 h-12 bg-slate-50 text-slate-400 hover:text-slate-900 rounded-full flex items-center justify-center transition-all shadow-sm" onClick={onClose}>
+          <X size={24} />
+        </button>
+        <div className="mb-8 text-center">
+          <div className="w-20 h-20 bg-red-50 rounded-3xl flex items-center justify-center text-red-500 mx-auto mb-6 border border-red-100 shadow-inner">
+            <AlertTriangle size={32} />
+          </div>
+          <h3 className="text-3xl font-black text-slate-900 tracking-tight">Reject {type}</h3>
+          <p className="text-slate-500 font-medium mt-2">Explicit feedback helps the user correct their submission.</p>
         </div>
-        <h3 className="text-3xl font-black text-slate-900 tracking-tight">Reject {type}</h3>
-        <p className="text-slate-500 font-medium mt-2">Explicit feedback helps the user correct their submission.</p>
-      </div>
-      <textarea
-        className="w-full h-40 bg-slate-50 border-2 border-slate-100 rounded-3xl p-6 text-sm font-bold text-slate-900 resize-none focus:outline-none focus:border-red-400 focus:bg-white transition-all shadow-inner"
-        placeholder="Reason for rejection..."
-        value={reason}
-        onChange={e => setReason(e.target.value)}
-        autoFocus
-      />
-      <div className="flex gap-4 mt-8">
-        <button onClick={onClose} className="flex-1 bg-slate-100 hover:bg-slate-200 text-[#064e3b] h-14 rounded-2xl font-black text-xs uppercase tracking-widest transition-all">Cancel</button>
-        <button onClick={onConfirm} disabled={!reason.trim() || loading} className="flex-1 bg-red-600 hover:bg-red-700 text-white h-14 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-red-600/20 disabled:opacity-50">Confirm Rejection</button>
+        <textarea
+          className="w-full h-40 bg-slate-50 border-2 border-slate-100 rounded-3xl p-6 text-sm font-bold text-slate-900 resize-none focus:outline-none focus:border-red-400 focus:bg-white transition-all shadow-inner"
+          placeholder="Reason for rejection..."
+          value={reason}
+          onChange={e => setReason(e.target.value)}
+          autoFocus
+        />
+        <div className="flex gap-4 mt-8">
+          <button onClick={onClose} className="flex-1 bg-slate-100 hover:bg-slate-200 text-[#064e3b] h-14 rounded-2xl font-black text-xs uppercase tracking-widest transition-all">Cancel</button>
+          <button onClick={onConfirm} disabled={!reason.trim() || loading} className="flex-1 bg-red-600 hover:bg-red-700 text-white h-14 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-red-600/20 disabled:opacity-50">Confirm Rejection</button>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
 
-const DocumentPreviewModal = ({ url, onClose }) => (
-  <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-[#022c22]/80 backdrop-blur-md animate-fade-in" onClick={onClose}>
-    <div className="bg-white rounded-[2.5rem] p-8 shadow-2xl w-full max-w-4xl max-h-[90vh] animate-scale-in relative overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
-      <button className="absolute top-6 right-6 w-12 h-12 bg-slate-50 text-slate-400 hover:text-slate-900 rounded-full flex items-center justify-center transition-all z-10 shadow-sm" onClick={onClose}>
-        <X size={24} />
+  return ReactDOM.createPortal(modalContent, document.body);
+};
+
+const DocumentPreviewModal = ({ url, onClose }) => {
+  const modalContent = (
+    <div className="fixed inset-0 z-[100] bg-[#022c22]/98 backdrop-blur-xl animate-fade-in flex flex-col" onClick={onClose}>
+      {/* HIGH VISIBILITY FLOATING CLOSE BUTTON */}
+      <button 
+        onClick={onClose} 
+        className="fixed top-6 right-6 w-14 h-14 bg-rose-500 hover:bg-rose-600 text-white rounded-full flex items-center justify-center transition-all shadow-[0_0_30px_rgba(244,63,94,0.4)] border-2 border-white/20 active:scale-90 group z-[120]"
+        title="Close Preview"
+      >
+        <X size={32} className="group-hover:rotate-90 transition-transform duration-300" />
       </button>
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center text-[#064e3b] border border-slate-100">
-          <FileText size={20}/>
+
+      {/* Full Screen Header */}
+      <div className="flex items-center justify-between p-4 md:p-6 bg-white/5 border-b border-white/10 shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+            <FileText size={20}/>
+          </div>
+          <div className="hidden sm:block">
+            <h3 className="text-sm font-black text-white uppercase tracking-widest leading-none">AgriGov Registry Preview</h3>
+            <p className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest mt-1 opacity-60">Ministry Secure Document Grid</p>
+          </div>
         </div>
-        <h3 className="text-xl font-black text-slate-900 tracking-tight">Registry Document Preview</h3>
+        <div className="flex items-center gap-3 mr-16">
+          <button 
+            className="h-10 px-4 bg-white/10 hover:bg-white/20 text-white text-[10px] font-black uppercase tracking-widest rounded-xl border border-white/10 transition-all active:scale-95 flex items-center gap-2"
+            onClick={() => window.open(url, '_blank')}
+          >
+            <ExternalLink size={14} /> <span className="hidden xs:inline">Open Original</span>
+          </button>
+        </div>
       </div>
-      <div className="flex-1 bg-slate-50 rounded-3xl border border-slate-200 overflow-hidden relative min-h-[500px]">
+      
+      <div className="flex-1 p-4 md:p-8 flex items-center justify-center overflow-hidden" onClick={e => e.stopPropagation()}>
+      <div className="max-w-[95vw] max-h-[85vh] bg-slate-900/60 rounded-2xl md:rounded-[2rem] border border-white/10 overflow-hidden relative shadow-[0_0_50px_rgba(0,0,0,0.3)] flex items-center justify-center p-1 md:p-2">
         {url.toLowerCase().endsWith('.pdf') ? (
-          <iframe src={url} className="w-full h-full" title="Document Preview" />
+          <iframe src={url} className="w-[90vw] h-[80vh] border-0 bg-white rounded-xl" title="Document Preview" />
         ) : (
-          <img src={url} alt="Document Preview" className="w-full h-full object-contain" />
+          <img 
+            src={url} 
+            alt="Document Preview" 
+            className="max-w-full max-h-full object-contain rounded-xl shadow-2xl" 
+            style={{ imageRendering: 'high-quality' }}
+          />
         )}
       </div>
     </div>
-  </div>
-);
+    </div>
+  );
+
+  return ReactDOM.createPortal(modalContent, document.body);
+};

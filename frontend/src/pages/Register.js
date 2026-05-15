@@ -8,6 +8,7 @@ import {
   FileText, Image as ImageIcon, MapPin, Phone, User, Lock, Mail, CreditCard, LayoutDashboard,
   BarChart3, ArrowLeft, Clock, Home
 } from 'lucide-react';
+import LocationPicker from '../components/maps/LocationPicker';
 
 const WILAYAS = [
   'Adrar','Chlef','Laghouat','Oum El Bouaghi','Batna','Béjaïa','Biskra','Béchar',
@@ -134,6 +135,7 @@ const Register = () => {
     full_name: '', phone: '', wilaya: '', commune: '',
     // Farmer
     farm_name: '', farm_location: '', production_type: '', farm_size: '',
+    farm_latitude: null, farm_longitude: null,
     // Buyer
     buyer_type: 'individual', company_name: '', tax_number: '',
     // Transporter
@@ -245,7 +247,7 @@ const Register = () => {
     const fd = new FormData();
     fd.append('role', activeRole);
     Object.entries(formData).forEach(([k, v]) => { 
-      if (k !== 'confirm_password' && v !== '') fd.append(k, v); 
+      if (k !== 'confirm_password' && v !== '' && v !== null) fd.append(k, v); 
     });
     
     if (activeRole === 'farmer') {
@@ -594,6 +596,22 @@ const Register = () => {
                       <label className="auth-label">Commune *</label>
                       <input className={`auth-input ${fieldErrors.commune?'auth-input-error':''}`} placeholder="e.g. Boufarik" value={formData.commune} onChange={e=>setField('commune',e.target.value)} />
                       {fieldErrors.commune && <span className="auth-field-error">{fieldErrors.commune}</span>}
+                    </div>
+                  </div>
+
+                  {/* ── MAP LOCATION PICKER ── */}
+                  <div className="auth-field mt-2">
+                    <label className="auth-label">Pinpoint Your Farm on the Map (Optional)</label>
+                    <p className="text-xs text-slate-500 mb-2">This helps buyers and transporters find you more easily.</p>
+                    <div style={{ borderRadius: '0.75rem', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+                      <LocationPicker
+                        latitude={formData.farm_latitude}
+                        longitude={formData.farm_longitude}
+                        onLocationSelect={(lat, lng) => {
+                          setField('farm_latitude', lat);
+                          setField('farm_longitude', lng);
+                        }}
+                      />
                     </div>
                   </div>
                 </>

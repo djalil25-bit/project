@@ -6,30 +6,30 @@ import {
   Compass, Navigation, CloudLightning
 } from 'lucide-react';
 
-const CONDITION_MAP_FR = {
-  'clear sky': 'Ciel dégagé',
-  'few clouds': 'Quelques nuages',
-  'scattered clouds': 'Nuages épars',
-  'broken clouds': 'Nuages fragmentés',
-  'shower rain': 'Averses',
-  'rain': 'Pluie',
-  'thunderstorm': 'Orage',
-  'snow': 'Neige',
-  'mist': 'Brume',
-  'overcast clouds': 'Ciel couvert',
-  'light rain': 'Pluie légère',
-  'moderate rain': 'Pluie modérée',
-  'heavy intensity rain': 'Forte pluie',
-  'fog': 'Brouillard',
-  'thunderstorm with rain': 'Orages probables',
-  'thunderstorm with light rain': 'Orages légers',
-  'thunderstorm with heavy rain': 'Orages violents'
+const CONDITION_MAP_EN = {
+  'clear sky': 'Clear Sky',
+  'few clouds': 'Few Clouds',
+  'scattered clouds': 'Scattered Clouds',
+  'broken clouds': 'Broken Clouds',
+  'shower rain': 'Showers',
+  'rain': 'Rain',
+  'thunderstorm': 'Thunderstorm',
+  'snow': 'Snow',
+  'mist': 'Mist',
+  'overcast clouds': 'Overcast',
+  'light rain': 'Light Rain',
+  'moderate rain': 'Moderate Rain',
+  'heavy intensity rain': 'Heavy Rain',
+  'fog': 'Fog',
+  'thunderstorm with rain': 'Probable Thunderstorms',
+  'thunderstorm with light rain': 'Light Thunderstorms',
+  'thunderstorm with heavy rain': 'Severe Thunderstorms'
 };
 
-const getConditionFr = (desc) => {
-  if (!desc) return 'Inconnu';
+const getConditionEn = (desc) => {
+  if (!desc) return 'Unknown';
   const lower = desc.toLowerCase();
-  return CONDITION_MAP_FR[lower] || desc;
+  return CONDITION_MAP_EN[lower] || desc;
 };
 
 const getWeatherTheme = (iconCode) => {
@@ -73,7 +73,7 @@ export default function PremiumWeatherView({ farmId, wilaya }) {
       const res = await api.get(`/dashboards/weather/${queryParams.toString() ? '?' + queryParams.toString() : ''}`);
       setData(res.data);
     } catch (err) {
-      setError('Impossible de charger les données météo.');
+      setError('Failed to load weather data.');
     } finally {
       setLoading(false);
     }
@@ -87,7 +87,7 @@ export default function PremiumWeatherView({ farmId, wilaya }) {
     <div className="w-full min-h-[600px] flex items-center justify-center bg-white rounded-3xl border border-slate-100">
       <div className="text-center">
         <div className="w-12 h-12 border-4 border-sky-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Mise à jour des systèmes...</p>
+        <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Updating systems...</p>
       </div>
     </div>
   );
@@ -96,7 +96,7 @@ export default function PremiumWeatherView({ farmId, wilaya }) {
     <div className="w-full min-h-[400px] flex items-center justify-center bg-slate-50 rounded-3xl border border-dashed border-slate-200 p-8">
       <div className="text-center">
         <p className="text-slate-500 font-medium mb-6">{error}</p>
-        <button onClick={fetchWeather} className="px-8 py-3 bg-white text-slate-800 font-bold rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all">Réessayer</button>
+        <button onClick={fetchWeather} className="px-8 py-3 bg-white text-slate-800 font-bold rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all">Retry</button>
       </div>
     </div>
   );
@@ -114,29 +114,29 @@ export default function PremiumWeatherView({ farmId, wilaya }) {
          <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
             <div className="p-3 bg-amber-50 text-amber-500 rounded-2xl"><Sunrise size={24} /></div>
             <div>
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Lever du soleil</p>
+               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sunrise</p>
                <p className="text-lg font-black text-slate-800">05:42</p>
             </div>
          </div>
          <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
             <div className="p-3 bg-rose-50 text-rose-500 rounded-2xl"><Sunset size={24} /></div>
             <div>
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Coucher du soleil</p>
+               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sunset</p>
                <p className="text-lg font-black text-slate-800">19:26</p>
             </div>
          </div>
          <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
             <div className="p-3 bg-emerald-50 text-emerald-500 rounded-2xl"><CloudRain size={24} /></div>
             <div>
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Précipitations</p>
+               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Precipitation</p>
                <p className="text-lg font-black text-slate-800">1.2<span className="text-xs ml-1 opacity-50">mm</span></p>
             </div>
          </div>
          <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
             <div className="p-3 bg-purple-50 text-purple-500 rounded-2xl"><CloudLightning size={24} /></div>
             <div>
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Indice UV</p>
-               <p className="text-lg font-black text-slate-800">4<span className="text-xs ml-1 opacity-50">Moyen</span></p>
+               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">UV Index</p>
+               <p className="text-lg font-black text-slate-800">4<span className="text-xs ml-1 opacity-50">Medium</span></p>
             </div>
          </div>
       </div>
@@ -161,7 +161,7 @@ export default function PremiumWeatherView({ farmId, wilaya }) {
             </div>
             
             <p className="text-2xl md:text-3xl font-bold opacity-90 mb-4">
-              {getConditionFr(current?.description)}
+              {getConditionEn(current?.description)}
             </p>
             
             <div className="flex items-center justify-center md:justify-start gap-4 text-lg font-medium opacity-80">
@@ -169,7 +169,7 @@ export default function PremiumWeatherView({ farmId, wilaya }) {
               <span className="w-px h-4 bg-white/30" />
               <span>↓ {forecast[0]?.temp_min || current?.temp - 4}°</span>
               <span className="w-px h-4 bg-white/30" />
-              <span>Ressenti {current?.feels_like}°</span>
+              <span>Feels like {current?.feels_like}°</span>
             </div>
           </div>
 
@@ -186,10 +186,10 @@ export default function PremiumWeatherView({ farmId, wilaya }) {
 
           {/* Right: Quick Stats Sidebar */}
           <div className="grid grid-cols-2 md:grid-cols-1 gap-4 w-full md:w-auto">
-            <StatCard icon={<Droplets size={20} />} label="Humidité" value={current?.humidity} unit="%" />
-            <StatCard icon={<Wind size={20} />} label="Vent" value={current?.wind_speed} unit="km/h" />
-            <StatCard icon={<Eye size={20} />} label="Visibilité" value={current?.visibility || '10'} unit="km" />
-            <StatCard icon={<Compass size={20} />} label="Pression" value={current?.pressure || '1013'} unit="hPa" />
+            <StatCard icon={<Droplets size={20} />} label="Humidity" value={current?.humidity} unit="%" />
+            <StatCard icon={<Wind size={20} />} label="Wind" value={current?.wind_speed} unit="km/h" />
+            <StatCard icon={<Eye size={20} />} label="Visibility" value={current?.visibility || '10'} unit="km" />
+            <StatCard icon={<Compass size={20} />} label="Pressure" value={current?.pressure || '1013'} unit="hPa" />
           </div>
         </div>
       </div>
@@ -200,10 +200,10 @@ export default function PremiumWeatherView({ farmId, wilaya }) {
         {/* Hourly Forecast (2/3 width) */}
         <div className="lg:col-span-2 bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm overflow-hidden">
           <div className="flex items-center justify-between mb-8">
-            <h3 className="text-xl font-black text-slate-800 tracking-tight">Prévisions horaires</h3>
+            <h3 className="text-xl font-black text-slate-800 tracking-tight">Hourly Forecast</h3>
             <div className="flex items-center gap-2 text-slate-400 font-bold text-[10px] uppercase tracking-widest">
                <Navigation size={12} className="rotate-45" />
-               Mise à jour à l'instant
+               Updated just now
             </div>
           </div>
           
@@ -242,11 +242,11 @@ export default function PremiumWeatherView({ farmId, wilaya }) {
 
         {/* 7-Day List (1/3 width) */}
         <div className="bg-white rounded-[2.5rem] p-8 border border-slate-100 shadow-sm">
-          <h3 className="text-xl font-black text-slate-800 tracking-tight mb-8">7 Jours suivants</h3>
+          <h3 className="text-xl font-black text-slate-800 tracking-tight mb-8">Next 7 Days</h3>
           <div className="flex flex-col gap-6">
             {forecast.slice(1).map((day, i) => (
               <div key={i} className="flex items-center justify-between group cursor-default">
-                <span className="text-slate-500 font-bold w-12 text-sm">{new Date(day.date).toLocaleDateString('fr-FR', { weekday: 'short' })}</span>
+                <span className="text-slate-500 font-bold w-12 text-sm">{new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' })}</span>
                 <div className="flex items-center gap-3 w-20">
                   <div className="text-2xl group-hover:rotate-12 transition-transform">
                     {day.icon_code?.includes('01') ? '☀️' : day.icon_code?.includes('10') ? '🌧️' : '☁️'}
@@ -261,7 +261,7 @@ export default function PremiumWeatherView({ farmId, wilaya }) {
             ))}
           </div>
           <button onClick={fetchWeather} className="w-full mt-10 py-4 bg-slate-50 hover:bg-slate-100 text-slate-500 text-xs font-bold rounded-2xl transition-all border border-slate-100">
-            VOIR PLUS DE DÉTAILS
+            VIEW MORE DETAILS
           </button>
         </div>
 

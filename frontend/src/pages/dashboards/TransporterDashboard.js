@@ -14,7 +14,8 @@ import {
   Camera,
   X,
   Phone,
-  CloudSun
+  CloudSun,
+  Route
 } from 'lucide-react';
 import ProofOfDeliveryModal from '../../components/logistics/ProofOfDeliveryModal';
 import VehicleSelectionModal from '../../components/logistics/VehicleSelectionModal';
@@ -92,7 +93,7 @@ function TransporterDashboard() {
     finally { setLoading(false); }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); }, [pickupWilaya, deliveryWilaya]);
 
   const handleAccept = async (id, vehicleId) => {
     setActionLoading(id + '_accept');
@@ -155,7 +156,7 @@ function TransporterDashboard() {
     if (!myVehicles || myVehicles.length === 0) return { compatible: false, reason: 'No vehicles registered' };
     
     const compatibleVehicles = myVehicles.filter(v => {
-      const isTypeMatch = !mission.required_vehicle_type || v.type === mission.required_vehicle_type;
+      const isTypeMatch = !mission.required_vehicle_type || mission.required_vehicle_type === 'standard' || v.type === mission.required_vehicle_type;
       const isCapacityMatch = parseFloat(v.capacity) >= parseFloat(mission.total_quantity || 0);
       const isActive = v.is_active !== false && v.status === 'ACTIVE';
       return isTypeMatch && isCapacityMatch && isActive;
@@ -167,7 +168,7 @@ function TransporterDashboard() {
     const hasActiveType = myVehicles.some(v => v.status === 'ACTIVE' && v.is_active !== false);
     if (!hasActiveType) return { compatible: false, reason: 'No active/approved vehicles' };
     
-    const typeMatch = myVehicles.some(v => v.type === mission.required_vehicle_type);
+    const typeMatch = !mission.required_vehicle_type || mission.required_vehicle_type === 'standard' || myVehicles.some(v => v.type === mission.required_vehicle_type);
     if (!typeMatch) return { compatible: false, reason: 'No matching vehicle type' };
     
     return { compatible: false, reason: 'Insufficient payload capacity' };
@@ -276,11 +277,18 @@ function TransporterDashboard() {
             <Select
               className="react-select-container"
               classNamePrefix="react-select"
-              options={stats?.service_zones?.map(z => ({ value: z, label: z })) || []}
-              value={pickupWilaya ? { value: pickupWilaya, label: pickupWilaya } : null}
-              onChange={val => setPickupWilaya(val ? val.value : '')}
+              options={[
+                { value: 'ALL_ALGERIA', label: '🌍 All Algeria' },
+                { value: 'ALL_ZONES',   label: '🏢 All My Service Zones' },
+                ...(stats?.service_zones?.map(z => ({ value: z, label: z })) || [])
+              ]}
+              value={
+                pickupWilaya === 'ALL_ALGERIA' ? { value: 'ALL_ALGERIA', label: '🌍 All Algeria' } :
+                pickupWilaya === 'ALL_ZONES' || !pickupWilaya ? { value: 'ALL_ZONES', label: '🏢 All My Service Zones' } :
+                { value: pickupWilaya, label: pickupWilaya }
+              }
+              onChange={val => setPickupWilaya(val ? val.value : 'ALL_ZONES')}
               placeholder="All My Service Zones"
-              isClearable
               menuPlacement="bottom"
               menuPortalTarget={document.body}
               styles={reactSelectStyles}
@@ -370,6 +378,16 @@ function TransporterDashboard() {
                       <div className="mission-dest">
                         <Navigation size={11} />
                         {(d.delivery_location || d.order_detail?.delivery_address)}
+                      </div>
+                      <div className="mt-1 d-flex align-items-center gap-3">
+                        <div className="very-small text-muted d-flex align-items-center gap-1">
+                          <Route size={10} className="text-slate-400" />
+                          <span className="fw-bold">{d.estimated_distance_km || '0'} KM</span>
+                        </div>
+                        <div className="very-small text-muted d-flex align-items-center gap-1">
+                          <Clock size={10} className="text-slate-400" />
+                          <span className="fw-bold">{d.estimated_duration || 'N/A'}</span>
+                        </div>
                       </div>
                       {d.vehicle_size && !d.assigned_vehicle_info && (
                         <span className="status-badge status-assigned very-small" style={{ fontSize: '0.62rem', alignSelf: 'flex-start', marginTop: 2 }}>
@@ -519,6 +537,7 @@ function TransporterDashboard() {
           }}
           hasActiveMission={hasActiveMission}
           actionLoading={actionLoading === viewingCargo.id + '_accept'}
+          compatibility={checkCompatibility(viewingCargo)}
         />
       )}
 

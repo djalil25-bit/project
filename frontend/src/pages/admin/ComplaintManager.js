@@ -17,7 +17,10 @@ import {
   Send,
   Link as LinkIcon,
   RefreshCw,
-  Image as ImageIcon
+  Image as ImageIcon,
+  X,
+  FileText,
+  FileDown
 } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
 
@@ -51,6 +54,7 @@ const ComplaintManager = () => {
   const [adminNotes, setAdminNotes] = useState('');
   const [newStatus, setNewStatus] = useState('OPEN');
   const [updating, setUpdating] = useState(false);
+  const [attachmentPreview, setAttachmentPreview] = useState(null);
 
   useEffect(() => {
     fetchComplaints();
@@ -266,15 +270,23 @@ const ComplaintManager = () => {
                   {selectedComplaint.attachment && (
                     <div className="mt-6 pt-6 border-t border-slate-50">
                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-4">Evidence Attachment</span>
-                      <a href={selectedComplaint.attachment} target="_blank" rel="noreferrer" className="inline-flex items-center gap-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 p-3 rounded-xl transition-all group">
+                      <button 
+                        onClick={() => {
+                          const url = selectedComplaint.attachment.startsWith('http') 
+                            ? selectedComplaint.attachment 
+                            : `http://localhost:8000${selectedComplaint.attachment}`;
+                          setAttachmentPreview(url);
+                        }} 
+                        className="inline-flex items-center gap-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 p-3 rounded-xl transition-all group w-full text-left"
+                      >
                         <div className="w-10 h-10 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-[#064e3b] shadow-sm group-hover:scale-105 transition-transform">
                           <ImageIcon size={18} />
                         </div>
                         <div className="pr-4">
                            <div className="text-[11px] font-black text-slate-800 uppercase tracking-widest">View Supporting Evidence</div>
-                           <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">External Document / Media</div>
+                           <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">In-App Manifest Preview</div>
                         </div>
-                      </a>
+                      </button>
                     </div>
                   )}
                 </div>
@@ -333,6 +345,37 @@ const ComplaintManager = () => {
         </div>
 
       </div>
+      {/* ── ATTACHMENT PREVIEW MODAL ── */}
+      {attachmentPreview && (
+        <div className="fixed inset-0 z-[6000] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-fade-in" onClick={() => setAttachmentPreview(null)}>
+          <div className="bg-white rounded-3xl overflow-hidden max-w-4xl w-full max-h-[90vh] shadow-2xl animate-scale-in relative flex flex-col" onClick={e => e.stopPropagation()}>
+            <div className="px-6 py-4 border-b flex justify-between items-center bg-slate-50">
+              <h3 className="font-black text-slate-900 tracking-tight flex items-center gap-2">
+                <FileText size={18} className="text-[#064e3b]" />
+                Evidence Manifest Registry
+              </h3>
+              <div className="flex items-center gap-2">
+                <a href={attachmentPreview} download className="p-2 text-slate-600 hover:bg-slate-200 rounded-full transition-all" title="Download">
+                  <FileDown size={20} />
+                </a>
+                <button onClick={() => setAttachmentPreview(null)} className="w-10 h-10 rounded-full hover:bg-slate-200 flex items-center justify-center transition-all">
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+            <div className="p-4 overflow-y-auto bg-slate-100 flex-1 flex justify-center items-center">
+              {attachmentPreview.toLowerCase().endsWith('.pdf') ? (
+                <iframe src={attachmentPreview} className="w-full h-full min-h-[60vh] rounded-lg shadow-lg border-4 border-white" title="Evidence Preview" />
+              ) : (
+                <img src={attachmentPreview} alt="Evidence Preview" className="max-w-full h-auto rounded-lg shadow-lg border-4 border-white" />
+              )}
+            </div>
+            <div className="p-4 bg-white text-center border-t">
+              <button onClick={() => setAttachmentPreview(null)} className="px-8 py-2.5 bg-[#064e3b] text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-[#022c22] transition-all shadow-lg shadow-emerald-900/20 active:scale-95">Close Protocol</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

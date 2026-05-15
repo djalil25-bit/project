@@ -23,6 +23,8 @@ const AdminMessages = () => {
   const [scheduleDate, setScheduleDate] = useState('');
   const [bulkMode, setBulkMode] = useState(false);
   const [bulkRole, setBulkRole] = useState('all');
+  const [isReplyAllowed, setIsReplyAllowed] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState('');
   
   const [history, setHistory] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(false);
@@ -118,7 +120,7 @@ const AdminMessages = () => {
 
   useEffect(() => {
     if (tab === 'history') fetchHistory();
-    if (tab === 'templates') fetchTemplates();
+    fetchTemplates(); // Always fetch templates to have them ready for compose
     if (tab === 'inbox') fetchInbox();
   }, [tab, fetchHistory, fetchTemplates, fetchInbox]);
 
@@ -140,6 +142,7 @@ const AdminMessages = () => {
         subject,
         body,
         channel: channel.toUpperCase(),
+        is_reply_allowed: isReplyAllowed,
         ...(schedule && { scheduled_for: scheduleDate }),
       });
       setToast({ msg: 'Message sent successfully!', type: 'success' });
@@ -300,6 +303,35 @@ const AdminMessages = () => {
             </div>
 
             <div className="space-y-4">
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <div>
+                   <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Load Template</label>
+                   <select 
+                     className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner"
+                     value={selectedTemplate}
+                     onChange={(e) => {
+                       const tId = e.target.value;
+                       setSelectedTemplate(tId);
+                       if (tId) {
+                         const t = templates.find(temp => temp.id === parseInt(tId));
+                         if (t) { setSubject(t.subject); setBody(t.body); }
+                       }
+                     }}
+                   >
+                     <option value="">Custom Message</option>
+                     {templates.map(t => (
+                       <option key={t.id} value={t.id}>{t.name}</option>
+                     ))}
+                   </select>
+                 </div>
+                 <div className="flex items-center gap-4 pt-6">
+                    <label className="flex items-center gap-3 cursor-pointer group">
+                      <input type="checkbox" checked={isReplyAllowed} onChange={e=>setIsReplyAllowed(e.target.checked)} className="rounded border-slate-300 text-[#064e3b] focus:ring-emerald-500 w-4 h-4"/> 
+                      <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest group-hover:text-[#064e3b] transition-colors">Reply Protocol</span>
+                    </label>
+                 </div>
+               </div>
+
                <div>
                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Subject Header</label>
                  <input className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner" placeholder="Enter transmission subject..." value={subject} onChange={e=>setSubject(e.target.value)}/>
@@ -353,7 +385,16 @@ const AdminMessages = () => {
                   <td className="px-6 py-4"><span className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-[#064e3b] bg-slate-100/50 border border-slate-200 px-2 py-1 rounded-lg w-fit">{channelIcon(m.channel)} {m.channel}</span></td>
                   <td className="px-6 py-4 text-[11px] font-bold text-slate-700 tracking-tight uppercase">{m.subject}</td>
                   <td className="px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-center">{m.sent_at ? new Date(m.sent_at).toLocaleDateString() : new Date(m.created_at).toLocaleDateString()}</td>
-                  <td className="px-6 py-4 text-right"><span className={`text-[9px] font-black px-2 py-1 rounded-lg uppercase tracking-widest border ${m.status==='READ'?'bg-emerald-50 border-emerald-100 text-[#064e3b]':'bg-slate-100 border-slate-200 text-slate-400'}`}>{m.status}</span></td>
+                  <td className="px-6 py-4 text-right">
+                    <span className={`text-[9px] font-black px-2 py-1 rounded-lg uppercase tracking-widest border ${
+                      m.status==='READ'?'bg-emerald-50 border-emerald-100 text-[#064e3b]':
+                      m.status==='SENT'?'bg-emerald-50/50 border-emerald-100/50 text-emerald-600':
+                      m.status==='FAILED'?'bg-rose-50 border-rose-100 text-rose-600':
+                      'bg-slate-100 border-slate-200 text-slate-400'
+                    }`}>
+                      {m.status}
+                    </span>
+                  </td>
                 </tr>
               ))}</tbody>
             </table>

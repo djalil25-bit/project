@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import UserDetailModal from '../admin/UserDetailModal';
 import { useNavigate } from 'react-router-dom';
+import AdminMapView from '../../components/maps/AdminMapView';
 
 const StatusBadge = ({ status }) => (
   <span className={`adm-badge adm-badge-${status}`}>
@@ -45,6 +46,7 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
   const [selectedUserId, setSelectedUserId] = useState(null);
+  const [mapData, setMapData] = useState({ farms: [], transporters: [] });
 
   const fetchStats = async () => {
     try {
@@ -63,7 +65,14 @@ function AdminDashboard() {
     finally { setLoading(false); }
   };
 
-  useEffect(() => { fetchStats(); fetchUsers(); }, []);
+  const fetchMapData = async () => {
+    try {
+      const res = await api.get('/dashboards/admin-map-data/');
+      setMapData(res.data);
+    } catch (err) { console.error('Map data error:', err); }
+  };
+
+  useEffect(() => { fetchStats(); fetchUsers(); fetchMapData(); }, []);
 
   const handleAction = async (userId, action) => {
     setActionLoading(userId + action);
@@ -147,6 +156,13 @@ function AdminDashboard() {
           ))}
         </div>
       )}
+
+      {/* ── National Asset Map ──────────────────────────── */}
+      <AdminMapView
+        farms={mapData.farms}
+        transporters={mapData.transporters}
+        height="420px"
+      />
 
       {/* ── Pending Accounts Registry ─────────────────────── */}
       <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/40 overflow-hidden flex flex-col animate-fade-in relative z-10">

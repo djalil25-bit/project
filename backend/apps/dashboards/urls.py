@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import (
-    AdminDashboardStatsAPIView, AdminAnalyticsAPIView,
+    AdminDashboardStatsAPIView, AdminAnalyticsAPIView, AdminMapDataAPIView,
     FarmerDashboardStatsAPIView, FarmerAnalyticsAPIView,
     TransporterDashboardStatsAPIView, ActorMessageAPIView,
     WeatherAPIView,
@@ -9,6 +9,7 @@ from .views import (
 urlpatterns = [
     path('admin-stats/', AdminDashboardStatsAPIView.as_view(), name='admin_stats'),
     path('admin-analytics/', AdminAnalyticsAPIView.as_view(), name='admin_analytics'),
+    path('admin-map-data/', AdminMapDataAPIView.as_view(), name='admin_map_data'),
     path('farmer-stats/', FarmerDashboardStatsAPIView.as_view(), name='farmer_stats'),
     path('farmer-analytics/', FarmerAnalyticsAPIView.as_view(), name='farmer_analytics'),
     path('transporter-stats/', TransporterDashboardStatsAPIView.as_view(), name='transporter_stats'),

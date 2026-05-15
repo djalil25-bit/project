@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ALGERIAN_WILAYAS } from '../../utils/constants';
+import { WILAYA_DATA } from '../../utils/algeria_locations';
 import api from '../../api/axiosConfig';
+import { getLogisticsData, getWilayaCoords } from '../../utils/logistics_engine';
 import {
   ShoppingCart,
   ShoppingBag,
@@ -50,6 +52,12 @@ function CartPage() {
   const [estimateLoading, setEstimateLoading] = useState(false);
   const [transportEstimate, setTransportEstimate] = useState(null);
   const [message, setMessage] = useState(null);
+
+  const availableCommunes = React.useMemo(() => {
+    if (!checkoutWilaya) return [];
+    const wilayaObj = WILAYA_DATA.find(w => w.id === checkoutWilaya);
+    return wilayaObj ? wilayaObj.communes : [];
+  }, [checkoutWilaya]);
 
   const fetchCart = async () => {
     try {
@@ -102,9 +110,39 @@ function CartPage() {
     }
     setEstimateLoading(true);
     try {
+      // 1. Group items by farmer and prepare distances map
+      const itemsByFarmer = {};
+      cart.items.forEach(item => {
+        const p = item.product_detail || {};
+        if (p.farmer) {
+          itemsByFarmer[p.farmer] = p;
+        }
+      });
+
+      const destCoords = getWilayaCoords(checkoutWilaya);
+      const distances = {};
+
+      if (destCoords) {
+        for (const [farmerId, p] of Object.entries(itemsByFarmer)) {
+          const farmCoords = p.farm_latitude && p.farm_longitude 
+            ? { lat: p.farm_latitude, lng: p.farm_longitude }
+            : getWilayaCoords(p.farm_wilaya);
+          
+          if (farmCoords) {
+            try {
+              const logData = await getLogisticsData(farmCoords, destCoords);
+              distances[farmerId] = parseFloat(logData.distance_km);
+            } catch (e) {
+              console.error("OSRM Error for farmer", farmerId, e);
+            }
+          }
+        }
+      }
+
       const res = await api.post('/orders/estimate_delivery/', {
         wilaya: checkoutWilaya,
-        commune: checkoutCommune
+        commune: checkoutCommune,
+        distances: distances
       });
       setTransportEstimate(res.data);
     } catch (err) {
@@ -137,6 +175,10 @@ function CartPage() {
         payment_method: checkoutPayment,
         notes: checkoutNotes,
         preferred_delivery_date: checkoutDate || null,
+        distances: transportEstimate?.estimates?.reduce((acc, est) => {
+           acc[est.farmer_id] = est.distance_km;
+           return acc;
+        }, {})
       });
       const orders = Array.isArray(res.data) ? res.data : [res.data];
       await fetchCart();
@@ -263,13 +305,16 @@ function CartPage() {
                   <span style={{ color: '#64748b', fontWeight: 600, fontSize: '0.9rem' }}>Gross Asset Value</span>
                   <span style={{ fontWeight: 800, color: '#1e293b' }}>{cartTotal.toLocaleString()} DZD</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ color: '#64748b', fontWeight: 600, fontSize: '0.9rem' }}>Logistics Estimation</span>
-                  <span style={{ fontWeight: 800, color: transportEstimate ? '#0F766E' : '#94a3b8' }}>
-                    {estimateLoading ? (
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><div className="w-3 h-3 border-2 border-teal-200 border-t-teal-600 rounded-full animate-spin"></div> Calculating...</span>
-                    ) : transportEstimate ? `${transportEstimate.grand_total_transport.toLocaleString()} DZD` : 'Required'}
-                  </span>
+                <div style={{ padding: '1rem', background: '#eab308', borderRadius: '16px', color: '#000', marginTop: '0.5rem' }}>
+                  <div style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', marginBottom: '0.25rem', opacity: 0.8 }}>Institutional Transport Quote</div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
+                    <span style={{ fontSize: '1.25rem', fontWeight: 900 }}>
+                      {estimateLoading ? (
+                        <span style={{ fontSize: '0.8rem', opacity: 0.6 }}>Calculating...</span>
+                      ) : transportEstimate ? `${transportEstimate.grand_total_transport.toLocaleString()}` : '0'}
+                    </span>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 800 }}>DZD</span>
+                  </div>
                 </div>
                 {transportEstimate && !estimateLoading && (
                   <div style={{ padding: '1rem', background: '#f8fafc', borderRadius: '16px', border: '1px solid #f1f5f9', fontSize: '0.75rem' }}>
@@ -308,7 +353,10 @@ function CartPage() {
                         <select 
                           style={{ width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1.5px solid #e2e8f0', fontSize: '0.85rem', fontWeight: 600, outline: 'none' }}
                           value={checkoutWilaya}
-                          onChange={e => setCheckoutWilaya(e.target.value)}
+                          onChange={e => {
+                            setCheckoutWilaya(e.target.value);
+                            setCheckoutCommune('');
+                          }}
                         >
                           <option value="">Select</option>
                           {ALGERIAN_WILAYAS.map(w => <option key={w.id} value={w.id}>{w.id} - {w.name}</option>)}
@@ -316,13 +364,15 @@ function CartPage() {
                       </div>
                       <div className="form-group">
                         <label style={{ fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '0.5rem', display: 'block' }}>Commune</label>
-                        <input 
+                        <select 
                           style={{ width: '100%', padding: '0.8rem', borderRadius: '12px', border: '1.5px solid #e2e8f0', fontSize: '0.85rem', fontWeight: 600, outline: 'none' }}
-                          type="text" 
-                          placeholder="e.g. Algiers" 
-                          value={checkoutCommune} 
-                          onChange={e => setCheckoutCommune(e.target.value)} 
-                        />
+                          value={checkoutCommune}
+                          onChange={e => setCheckoutCommune(e.target.value)}
+                          disabled={!checkoutWilaya}
+                        >
+                          <option value="">{checkoutWilaya ? 'Select Commune' : 'Pick Wilaya First'}</option>
+                          {availableCommunes.map(c => <option key={c} value={c}>{c}</option>)}
+                        </select>
                       </div>
                    </div>
                    <div className="form-group">

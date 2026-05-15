@@ -24,6 +24,8 @@ class ProductDetailMini(serializers.Serializer):
     quality = serializers.CharField()
     farmer_phone = serializers.CharField(source='farmer.phone', read_only=True)
     farm_wilaya = serializers.CharField(source='farm.wilaya', read_only=True)
+    farm_latitude = serializers.FloatField(source='farm.latitude', read_only=True)
+    farm_longitude = serializers.FloatField(source='farm.longitude', read_only=True)
 
     def get_farm_name(self, obj):
         return obj.farm.name if obj.farm else None
@@ -51,6 +53,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
     farmer_name = serializers.CharField(source='farmer.full_name', read_only=True)
     farmer_phone = serializers.CharField(source='farmer.phone', read_only=True)
     farm_wilaya = serializers.CharField(source='product.farm.wilaya', read_only=True)
+    farm_commune = serializers.CharField(source='product.farm.commune', read_only=True)
     farm_name = serializers.SerializerMethodField()
     product_detail = ProductDetailMini(source='product', read_only=True)
 
@@ -61,7 +64,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
             'buyer_wilaya', 'buyer_address', 'buyer_notes', 'payment_method',
             'preferred_delivery_date', 'product_name', 'product_unit', 'product_image',
             'quantity', 'price_per_unit', 'item_total', 'order_status',
-            'delivery_status', 'created_at', 'farmer_name', 'farmer_phone', 'farm_wilaya', 'farm_name',
+            'delivery_status', 'created_at', 'farmer_name', 'farmer_phone', 'farm_wilaya', 'farm_commune', 'farm_name',
             'product_detail'
         )
 

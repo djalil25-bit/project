@@ -6,11 +6,14 @@ import {
   Home, MapPin, Maximize2, Save, FileText,
   ChevronRight, ArrowLeft, Info, Upload, X, AlertTriangle
 } from 'lucide-react';
+import LocationPicker from '../../components/maps/LocationPicker';
 
 export default function FarmForm() {
   const [formData, setFormData] = useState({
     name: '', location: '', wilaya: '', commune: '', size_hectares: '', description: '',
   });
+  const [latitude, setLatitude] = useState(null);
+  const [longitude, setLongitude] = useState(null);
   const [imageFile, setImageFile]     = useState(null);
   const [imagePreview, setPreview]    = useState(null);
   const [existingImage, setExisting]  = useState(null);
@@ -52,6 +55,8 @@ export default function FarmForm() {
           size_hectares: res.data.size_hectares || '',
           description: res.data.description || '',
         }));
+        if (res.data.latitude) setLatitude(res.data.latitude);
+        if (res.data.longitude) setLongitude(res.data.longitude);
         if (res.data.image) setExisting(res.data.image);
         if (res.data.registry_document) setExistingRegistry(res.data.registry_document);
       })
@@ -93,6 +98,8 @@ export default function FarmForm() {
       const body = new FormData();
       // Ensure the fixed wilaya is included in submission
       Object.entries(formData).forEach(([k, v]) => { if (v !== '') body.append(k, v); });
+      if (latitude !== null) body.append('latitude', latitude);
+      if (longitude !== null) body.append('longitude', longitude);
       if (imageFile) body.append('image', imageFile);
       if (registryFile) body.append('registry_document', registryFile);
 
@@ -278,6 +285,17 @@ export default function FarmForm() {
                       onChange={handleChange}
                     />
                   </div>
+
+                  {/* Map Location Picker */}
+                  <LocationPicker
+                    latitude={latitude}
+                    longitude={longitude}
+                    onLocationChange={(lat, lng) => {
+                      setLatitude(lat);
+                      setLongitude(lng);
+                    }}
+                    height="280px"
+                  />
               </div>
 
               {/* Registry Document Upload */}

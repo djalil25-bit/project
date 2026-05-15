@@ -1,59 +1,77 @@
 from decimal import Decimal
+from .models import TransportPricingRule, calculate_transport_fee
 from apps.common.constants import TRANSPORT_CONFIG
 
 class TransportPricingService:
     @staticmethod
     def get_estimated_distance(origin_wilaya, origin_commune, dest_wilaya, dest_commune):
         """
-        Simple bracket-based distance estimation.
-        Returns distance in KM.
+        Geographic Haversine estimation between Wilaya centers.
         """
         if not origin_wilaya or not dest_wilaya:
             return TRANSPORT_CONFIG['BRACKETS']['DISTANT_WILAYA']
 
-        if origin_wilaya == dest_wilaya:
-            if origin_commune and dest_commune and origin_commune.lower() == dest_commune.lower():
-                return TRANSPORT_CONFIG['BRACKETS']['SAME_COMMUNE']
-            return TRANSPORT_CONFIG['BRACKETS']['SAME_WILAYA']
-        
-        # Simple neighbor detection (Mock logic for demo: shared first char or proximity in list)
-        # In a real app, this would use a neighbor map.
-        try:
-            w1 = int(origin_wilaya)
-            w2 = int(dest_wilaya)
-            if abs(w1 - w2) <= 3: # Mock neighbor proximity
-                return TRANSPORT_CONFIG['BRACKETS']['NEIGHBOR_WILAYA']
-        except ValueError:
-            pass
+        from apps.common.constants import WILAYA_COORDS
+        import math
+
+        def haversine(lat1, lon1, lat2, lon2):
+            R = 6371.0
+            dlat = math.radians(lat2 - lat1)
+            dlon = math.radians(lon2 - lon1)
+            a = math.sin(dlat / 2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2)**2
+            c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+            return R * c
+
+        # Try to find Wilaya IDs
+        from apps.common.constants import ALGERIAN_WILAYAS
+        def get_id(name):
+            for wid, wname in ALGERIAN_WILAYAS:
+                if str(name).lower() == wname.lower() or str(name) == wid:
+                    return wid
+            return None
+
+        id1 = get_id(origin_wilaya)
+        id2 = get_id(dest_wilaya)
+
+        if id1 and id2 and id1 == id2:
+             if origin_commune and dest_commune and str(origin_commune).lower() == str(dest_commune).lower():
+                 return TRANSPORT_CONFIG['BRACKETS']['SAME_COMMUNE']
+             return TRANSPORT_CONFIG['BRACKETS']['SAME_WILAYA']
+
+        if id1 and id2 and id1 in WILAYA_COORDS and id2 in WILAYA_COORDS:
+            c1 = WILAYA_COORDS[id1]
+            c2 = WILAYA_COORDS[id2]
+            direct = haversine(c1[0], c1[1], c2[0], c2[1])
+            # Add 30% for road circuitry
+            return round(direct * 1.3, 1)
 
         return TRANSPORT_CONFIG['BRACKETS']['DISTANT_WILAYA']
 
     @classmethod
-    def estimate_order_transport(cls, farm_wilaya, farm_commune, dest_wilaya, dest_commune, total_quantity):
+    def estimate_order_transport(cls, farm_wilaya, farm_commune, dest_wilaya, dest_commune, total_quantity, distance=None):
         """
-        Calculates transport cost for a single farmer order.
-        Formula: Base + (Dist * KmRate) + (Qty * QtyRate)
+        Calculates transport cost for a single farmer order using the official pricing rules.
         """
-        distance = cls.get_estimated_distance(farm_wilaya, farm_commune, dest_wilaya, dest_commune)
+        if distance is None:
+            distance = cls.get_estimated_distance(farm_wilaya, farm_commune, dest_wilaya, dest_commune)
         
-        base_fee = Decimal(str(TRANSPORT_CONFIG['BASE_FEE']))
-        km_rate = Decimal(str(TRANSPORT_CONFIG['KM_RATE']))
-        qty_rate = Decimal(str(TRANSPORT_CONFIG['QUANTITY_RATE']))
-        
-        distance_cost = Decimal(str(distance)) * km_rate
-        quantity_cost = Decimal(str(total_quantity)) * qty_rate
-        
-        total_transport = base_fee + distance_cost + quantity_cost
+        # Default to 'truck' for general estimation unless specified otherwise
+        pricing_result = calculate_transport_fee(
+            distance=distance,
+            weight_kg=total_quantity, # Quantity is treated as weight in this simple model
+            vehicle_type='standard'
+        )
         
         return {
-            'total_transport': total_transport,
-            'base_fee': base_fee,
+            'total_transport': Decimal(str(pricing_result['total'])),
+            'base_fee': Decimal(str(pricing_result['breakdown']['base'])),
             'distance_km': distance,
-            'distance_cost': distance_cost,
+            'distance_cost': Decimal(str(pricing_result['breakdown']['distance'])),
             'quantity': total_quantity,
-            'quantity_cost': quantity_cost,
+            'quantity_cost': Decimal(str(pricing_result['breakdown']['weight'])),
             'labels': {
-                'distance_label': 'Intra-commune' if distance <= 5 else 'Regional' if distance <= 30 else 'National',
-                'description': f"Estimated {distance}km routing from {farm_wilaya} to {dest_wilaya}"
+                'distance_label': 'Intra-commune' if distance <= 15 else 'Regional' if distance <= 100 else 'Inter-Wilaya',
+                'description': f"Estimated {distance}km routing ({pricing_result['rule_source']})"
             }
         }
+
