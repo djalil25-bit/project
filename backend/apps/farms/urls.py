@@ -3,8 +3,10 @@ from rest_framework.routers import DefaultRouter
 from .views import FarmViewSet, HarvestRecordViewSet
 
 router = DefaultRouter()
-router.register(r'farms', FarmViewSet, basename='farm')
-router.register(r'harvest-records', HarvestRecordViewSet, basename='harvest-record')
+router.register(r'farms', FarmViewSet, 
+                basename='farm')
+router.register(r'harvests', HarvestRecordViewSet,
+                basename='harvest')
 
 urlpatterns = [
     path('', include(router.urls)),

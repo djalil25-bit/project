@@ -42,13 +42,30 @@ class Farm(TimeStampedModel):
     def __str__(self):
         return f"{self.name} ({self.owner.full_name})" # type: ignore
 
-class HarvestRecord(TimeStampedModel):
-    farm = models.ForeignKey(Farm, on_delete=models.CASCADE, related_name='harvests')
-    crop_name = models.CharField(max_length=255)
-    harvest_date = models.DateField()
-    yield_quantity = models.DecimalField(max_digits=12, decimal_places=2, help_text="Quantity in kg or standard units")
-    notes = models.TextField(blank=True)
-    objects = models.Manager()
+class HarvestRecord(models.Model):
+    farm = models.ForeignKey(
+        Farm,
+        on_delete=models.CASCADE,
+        related_name='harvest_records'
+    )
+    crop_name = models.CharField(max_length=200)
+    year = models.IntegerField()
+    quantity_produced = models.FloatField(
+        help_text="Quantity in KG or TON"
+    )
+    unit = models.CharField(
+        max_length=20,
+        choices=[('KG','KG'),('TON','TON'),
+                 ('LITER','LITER'),('PIECE','PIECE')],
+        default='KG'
+    )
+    record_date = models.DateField()
+    notes = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-record_date']
 
     def __str__(self):
-        return f"{self.crop_name} - {self.harvest_date} ({self.farm.name})"
+        return f"{self.crop_name} - {self.farm.name} ({self.year})"

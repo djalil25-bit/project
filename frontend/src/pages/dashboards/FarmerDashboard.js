@@ -10,7 +10,7 @@ import {
   Plus, Sprout, TrendingUp, Clock,
   Package, ChevronRight, CheckCircle, ExternalLink, ListOrdered,
   BadgeCheck, ShoppingBag, CloudSun, Target,
-  ShieldAlert
+  ShieldAlert, Wheat
 } from 'lucide-react';
 
 function timeAgo(dateStr) {
@@ -64,6 +64,8 @@ export default function FarmerDashboard() {
         console.error('[IoT] Could not load farms:', err);
         setFarmId(null); // On error — still show weather with default city
       });
+
+
   }, []);
 
   if (loading) return (
@@ -241,6 +243,10 @@ export default function FarmerDashboard() {
             </div>
           </div>
         )}
+
+
+
+
 
 
 

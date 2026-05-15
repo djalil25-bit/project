@@ -23,13 +23,13 @@ class FarmViewSet(viewsets.ModelViewSet):
         # Fixed: Always set farm wilaya to match the farmer's registered wilaya
         serializer.save(
             owner=self.request.user,
-            wilaya=self.request.user.address
+            wilaya=getattr(self.request.user, 'address', '')
         )
 
     def perform_update(self, serializer):
         farm = self.get_object()
         # Fixed: Ensure wilaya stays synced with owner's registered wilaya
-        extra_args = {'wilaya': self.request.user.address}
+        extra_args = {'wilaya': getattr(self.request.user, 'address', '')}
         
         # If farmer edits a REJECTED farm, resubmit it for review
         if farm.status == 'REJECTED':
@@ -72,9 +72,81 @@ class FarmViewSet(viewsets.ModelViewSet):
         })
 
 
+from apps.accounts.permissions import IsFarmerRole, IsAdminRole
+
 class HarvestRecordViewSet(viewsets.ModelViewSet):
     serializer_class = HarvestRecordSerializer
-    permission_classes = [IsAuthenticated, IsFarmerRole]
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve',
+                           'create', 'update',
+                           'partial_update', 'destroy']:
+            return [IsFarmerRole()]
+        return [IsAdminRole()]
 
     def get_queryset(self):
-        return HarvestRecord.objects.filter(farm__owner=self.request.user)
+        user = self.request.user
+        queryset = HarvestRecord.objects.select_related(
+            'farm', 'farm__owner'
+        ).filter(farm__owner=user)
+
+        # Filter by farm_id if provided
+        farm_id = self.request.query_params.get('farm_id')
+        if farm_id:
+            queryset = queryset.filter(farm__id=farm_id)
+
+        # Filter by year if provided
+        year = self.request.query_params.get('year')
+        if year:
+            queryset = queryset.filter(year=year)
+
+        # Filter by crop_name if provided
+        crop = self.request.query_params.get('crop')
+        if crop:
+            queryset = queryset.filter(
+                crop_name__icontains=crop)
+
+        return queryset
+
+    def perform_create(self, serializer):
+        serializer.save()
+
+    # Extra action : stats per farm
+    @action(detail=False, methods=['get'],
+            url_path='stats')
+    def stats(self, request):
+        from django.db.models import Sum, Count, Avg
+        queryset = self.get_queryset()
+
+        total_records = queryset.count()
+        total_quantity = queryset.aggregate(
+            total=Sum('quantity_produced')
+        )['total'] or 0
+
+        # Group by crop_name
+        by_crop = queryset.values('crop_name').annotate(
+            total_quantity=Sum('quantity_produced'),
+            records_count=Count('id')
+        ).order_by('-total_quantity')
+
+        # Group by year
+        by_year = queryset.values('year').annotate(
+            total_quantity=Sum('quantity_produced'),
+            records_count=Count('id')
+        ).order_by('-year')
+
+        # Group by farm
+        by_farm = queryset.values(
+            'farm__id', 'farm__name', 'farm__wilaya'
+        ).annotate(
+            total_quantity=Sum('quantity_produced'),
+            records_count=Count('id')
+        ).order_by('-total_quantity')
+
+        return Response({
+            'total_records': total_records,
+            'total_quantity': round(total_quantity, 2),
+            'by_crop': list(by_crop),
+            'by_year': list(by_year),
+            'by_farm': list(by_farm)
+        })

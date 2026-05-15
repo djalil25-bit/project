@@ -29,7 +29,7 @@ import FarmForm from './pages/farmer/FarmForm';
 import FarmList from './pages/farmer/FarmList';
 import ProductForm from './pages/farmer/ProductForm';
 import OrderList from './pages/farmer/OrderList';
-import HarvestRecords from './pages/farmer/HarvestRecords';
+import HarvestsPage from './pages/farmer/HarvestsPage';
 import ProductList from './pages/farmer/ProductList';
 import RequestDelivery from './pages/farmer/RequestDelivery';
 import FarmDetail from './pages/farmer/FarmDetail';
@@ -199,7 +199,7 @@ function App() {
           } />
           <Route path="/farmer-dashboard/harvests" element={
             <ProtectedRoute allowedRoles={['farmer']}>
-              <HarvestRecords />
+              <HarvestsPage />
             </ProtectedRoute>
           } />
           <Route path="/farmer-dashboard/iot-alerts" element={
