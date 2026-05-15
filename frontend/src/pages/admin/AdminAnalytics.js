@@ -92,7 +92,10 @@ const AdminAnalytics = () => {
     if (leaderYear !== 'All') params.year = leaderYear;
     
     adminApi.get('/analytics/top-sellers/', { params })
-      .then(res => setLeaders(res.data || { sellers: [], buyers: [], transporters: [] }))
+      .then(res => {
+        console.log("Leaderboard Data:", res.data);
+        setLeaders(res.data || { sellers: [], buyers: [], transporters: [] });
+      })
       .catch(() => setLeaders({ sellers: [], buyers: [], transporters: [] }))
       .finally(() => setLeadersLoading(false));
   };
@@ -601,38 +604,28 @@ const LeaderboardRow = ({ actor, index, colors, metricLabel, metricSuffix, roleN
         </div>
       </div>
 
-      {/* 2. USER INFO COLUMN (Full Name & Role, Email, Phone) */}
-      <div className="flex-1 min-w-0 flex flex-col justify-center px-1">
-        <div className="flex items-center gap-2 mb-1.5">
-          <h4 className="text-[14px] font-black text-slate-900 truncate tracking-tight leading-none">
-            {actor.name}
+      {/* 2. USER INFO COLUMN (Full Name & Details) */}
+      <div className="flex-1 min-w-0 flex flex-col justify-center pl-2 pr-4">
+        <div className="flex items-center gap-1.5 mb-1 max-w-full">
+          <h4 className="text-[14px] font-black text-slate-900 tracking-tight truncate">
+            {actor.name || 'Anonymous Member'}
           </h4>
-          {roleName && (
-            <span className={`px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-widest leading-none shrink-0 ${
-              isTop1 ? `${colors.bg} text-white` : 'bg-slate-200 text-slate-500'
-            }`}>
-              {roleName}
-            </span>
-          )}
           {isTop1 && <Crown size={12} className="text-yellow-500 fill-yellow-500 shrink-0" />}
         </div>
-        <div className="flex flex-col gap-1">
-          <div className="text-[10px] font-bold text-slate-500 truncate leading-none lowercase tracking-tight">
+        <div className="flex flex-col gap-0.5">
+          <div className="text-[10px] font-bold text-slate-500 truncate leading-none lowercase tracking-tight opacity-70">
             {actor.email || 'Email Protected'}
-          </div>
-          <div className="text-[10px] font-bold text-slate-400 truncate leading-none tracking-widest mt-0.5">
-            {actor.phone || '+213 (0) -- -- -- --'}
           </div>
         </div>
       </div>
 
       {/* 3. MAIN STATISTIC */}
-      <div className="text-right shrink-0 min-w-[100px] flex flex-col justify-center border-l border-slate-100 pl-4">
-        <div className={`text-sm font-black tracking-tight ${isTop1 ? colors.text : 'text-slate-900'}`}>
-          {Number(actor.metric_value).toLocaleString()} <span className="text-[9px] opacity-60 ml-0.5">{metricSuffix}</span>
+      <div className="text-right shrink-0 w-[90px] flex flex-col justify-center border-l border-slate-100 pl-3">
+        <div className={`text-[13px] font-black tracking-tight leading-none ${isTop1 ? colors.text : 'text-slate-900'}`}>
+          {Number(actor.metric_value).toLocaleString()} 
         </div>
-        <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mt-1">
-          {metricLabel}
+        <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mt-1.5">
+          {metricSuffix}
         </div>
       </div>
 

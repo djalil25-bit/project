@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import { X, User, ShoppingBag, Package, Truck, MapPin, Phone, Mail, CheckCircle, AlertTriangle, MessageSquare, Flag, Download } from 'lucide-react';
+import { X, User, ShoppingBag, Package, Truck, MapPin, Phone, Mail, CheckCircle, AlertTriangle, MessageSquare, Flag, Download, ExternalLink } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
 
 const TransactionDetailModal = ({ txn, onClose, onAction }) => {
@@ -207,6 +207,35 @@ const TransactionDetailModal = ({ txn, onClose, onAction }) => {
               <div><label className="adm-label">Commune</label><span className="text-sm text-gray-700">{txn.commune || 'N/A'}</span></div>
             </div>
             {txn.delivery_address && <div className="mt-2 text-xs text-gray-500"><label className="adm-label">Address</label>{txn.delivery_address}</div>}
+
+            {/* Governance Alerts */}
+            {txn.delivery && (txn.delivery.inactivity_flag || txn.delivery.relinquished_at) && (
+              <div className="mt-4 pt-4 border-t border-orange-200/50">
+                <span className="text-xs font-bold text-red-600 uppercase tracking-wide flex items-center gap-1.5 mb-3"><AlertTriangle size={14}/> Governance Alerts</span>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {txn.delivery.inactivity_flag && (
+                    <div className="p-2.5 bg-red-50 border border-red-100 rounded-lg">
+                      <div className="text-[10px] font-black text-red-800 uppercase">Inactivity Abandonment</div>
+                      <div className="text-xs text-red-600 mt-0.5">Mission automatically returned to marketplace due to 2h inactivity.</div>
+                    </div>
+                  )}
+                  {txn.delivery.relinquished_at && (
+                    <div className="p-2.5 bg-amber-50 border border-amber-100 rounded-lg">
+                      <div className="text-[10px] font-black text-amber-800 uppercase flex items-center justify-between">
+                        Mission Relinquished
+                        <span className="opacity-70 font-bold">{new Date(txn.delivery.relinquished_at).toLocaleString()}</span>
+                      </div>
+                      <div className="text-xs text-amber-700 mt-0.5"><span className="font-semibold">Reason:</span> {txn.delivery.relinquish_reason || 'N/A'}</div>
+                      {txn.delivery.relinquish_proof && (
+                         <a href={txn.delivery.relinquish_proof} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 mt-1.5 text-[10px] font-black uppercase text-blue-600 hover:text-blue-800 transition-colors">
+                           View Proof Document <ExternalLink size={10} />
+                         </a>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Timeline */}

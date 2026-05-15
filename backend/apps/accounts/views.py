@@ -20,10 +20,10 @@ from .serializers import (
     AdminUserDetailSerializer,
     VerifyOTPSerializer,
 )
-from .models import RoleChoices, AccountStatusChoices, UserDocument
+from .models import RoleChoices, AccountStatusChoices, UserDocument, User
 from .permissions import IsAdminRole
 
-User = get_user_model()
+# Remove get_user_model call as we import directly for better IDE support
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
@@ -144,7 +144,7 @@ class VerifyOTPView(APIView):
         
         try:
             user = User.objects.get(email=email)
-            otp_record = user.otps.filter(code=code, is_used=False).order_by('-created_at').first()
+            otp_record = user.otps.filter(code=code, is_used=False).order_by('-created_at').first() # type: ignore
             
             if not otp_record:
                 return Response({'error': 'Invalid verification code.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -209,8 +209,11 @@ class AdminUserViewSet(viewsets.ModelViewSet):
         return super().get_serializer_class()
 
     def get_queryset(self):
-        user = self.request.user
-        print(f"[DEBUG AdminUsers] User: {user.email}, Role: {user.role}, Is Superuser: {user.is_superuser}")
+        user = self.request.user # type: ignore
+        # Hint to IDE that this is our custom User model
+        if not hasattr(user, 'email'): return User.objects.none() 
+        
+        print(f"[DEBUG AdminUsers] User: {user.email}, Role: {user.role}, Is Superuser: {user.is_superuser}") # type: ignore
         qs = super().get_queryset()
         status_filter = self.request.query_params.get('status', None)
         role_filter   = self.request.query_params.get('role', None)
@@ -231,10 +234,6 @@ class AdminUserViewSet(viewsets.ModelViewSet):
                 user.is_verified  = True
                 from django.utils import timezone
                 user.verification_date = timezone.now()
-                if user.trust_level == 'new':
-                    user.trust_level = 'bronze'
-                if user.trust_score < 20:
-                    user.trust_score = 20
                 try:
                     from apps.notifications.models import Notification, NotificationType
                     Notification.objects.create(

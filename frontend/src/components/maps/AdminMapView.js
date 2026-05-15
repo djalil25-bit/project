@@ -26,19 +26,20 @@ const farmMarkerIcon = new L.Icon({
   popupAnchor: [0, -36],
 });
 
-// Transporter marker (orange)
-const transporterMarkerIcon = new L.Icon({
+// Pending Farm marker (amber)
+const pendingFarmMarkerIcon = new L.Icon({
   iconUrl: 'data:image/svg+xml;base64,' + btoa(`
     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="36" viewBox="0 0 28 36">
-      <path d="M14 0C6.268 0 0 6.268 0 14c0 10.5 14 22 14 22s14-11.5 14-22C28 6.268 21.732 0 14 0z" fill="#EA580C"/>
+      <path d="M14 0C6.268 0 0 6.268 0 14c0 10.5 14 22 14 22s14-11.5 14-22C28 6.268 21.732 0 14 0z" fill="#D97706"/>
       <circle cx="14" cy="14" r="6" fill="white"/>
-      <circle cx="14" cy="14" r="3.5" fill="#EA580C"/>
+      <circle cx="14" cy="14" r="3.5" fill="#D97706"/>
     </svg>
   `),
   iconSize: [28, 36],
   iconAnchor: [14, 36],
   popupAnchor: [0, -36],
 });
+
 
 // Fit all markers into view
 function FitAllMarkers({ markers }) {
@@ -53,31 +54,29 @@ function FitAllMarkers({ markers }) {
 }
 
 /**
- * AdminMapView — Admin overview map showing farm & transporter locations.
+ * AdminMapView — Admin overview map showing farm locations.
  * Props:
  *   - farms: Array of { id, name, wilaya, commune, lat, lng, owner_name, status }
- *   - transporters: Array of { id, full_name, address, lat, lng }
  *   - height: CSS height (default "500px")
  *   - onFarmClick: callback(farm)
- *   - onTransporterClick: callback(transporter)
  */
 export default function AdminMapView({
   farms = [],
-  transporters = [],
   height = '500px',
   onFarmClick,
-  onTransporterClick,
 }) {
-  const [filter, setFilter] = useState('all'); // 'all', 'farms', 'transporters'
+  const [filter, setFilter] = useState('all'); // 'all', 'active', 'pending'
 
   // Filter valid markers with GPS coordinates
   const validFarms = farms.filter(f => f.latitude && f.longitude);
-  const validTransporters = transporters.filter(t => t.lat && t.lng);
 
-  const allMarkers = [
-    ...(filter !== 'transporters' ? validFarms.map(f => ({ lat: f.latitude, lng: f.longitude })) : []),
-    ...(filter !== 'farms' ? validTransporters.map(t => ({ lat: t.lat, lng: t.lng })) : []),
-  ];
+  const filteredFarms = validFarms.filter(f => {
+    if (filter === 'active') return f.status === 'ACTIVE';
+    if (filter === 'pending') return f.status === 'PENDING';
+    return true;
+  });
+
+  const allMarkers = filteredFarms.map(f => ({ lat: f.latitude, lng: f.longitude }));
 
   // Algeria center
   const defaultCenter = [28.0, 2.5];
@@ -93,7 +92,7 @@ export default function AdminMapView({
           <div>
             <h3 className="font-black text-base text-slate-900 tracking-tight">National Asset Map</h3>
             <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mt-0.5">
-              {validFarms.length} Farms · {validTransporters.length} Transporters
+              {filteredFarms.length} Farms Visible
             </p>
           </div>
         </div>
@@ -102,8 +101,8 @@ export default function AdminMapView({
         <div className="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200 shadow-inner">
           {[
             { key: 'all', label: 'All', icon: <Users size={12} /> },
-            { key: 'farms', label: 'Farms', icon: <Sprout size={12} /> },
-            { key: 'transporters', label: 'Fleet', icon: <Truck size={12} /> },
+            { key: 'active', label: 'Active', icon: <div className="w-2 h-2 rounded-full bg-[#2E6F40]" /> },
+            { key: 'pending', label: 'Pending', icon: <div className="w-2 h-2 rounded-full bg-[#D97706]" /> },
           ].map(tab => (
             <button
               key={tab.key}
@@ -135,21 +134,23 @@ export default function AdminMapView({
           {allMarkers.length > 0 && <FitAllMarkers markers={allMarkers} />}
 
           {/* Farm markers */}
-          {filter !== 'transporters' && validFarms.map(farm => (
+          {filteredFarms.map(farm => (
             <Marker
               key={`farm-${farm.id}`}
               position={[farm.latitude, farm.longitude]}
-              icon={farmMarkerIcon}
+              icon={farm.status === 'PENDING' ? pendingFarmMarkerIcon : farmMarkerIcon}
               eventHandlers={{ click: () => onFarmClick?.(farm) }}
             >
               <Popup>
                 <div className="min-w-[180px]">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-6 h-6 bg-[#2E6F40] rounded-lg flex items-center justify-center">
+                    <div className={`w-6 h-6 rounded-lg flex items-center justify-center ${farm.status === 'PENDING' ? 'bg-[#D97706]' : 'bg-[#2E6F40]'}`}>
                       <Sprout size={12} className="text-white" />
                     </div>
                     <div>
-                      <div className="text-[8px] font-black text-[#2E6F40] uppercase tracking-widest">Farm</div>
+                      <div className={`text-[8px] font-black uppercase tracking-widest ${farm.status === 'PENDING' ? 'text-[#D97706]' : 'text-[#2E6F40]'}`}>
+                        {farm.status === 'PENDING' ? 'Pending Farm' : 'Farm'}
+                      </div>
                       <div className="text-xs font-black text-slate-800">{farm.name}</div>
                     </div>
                   </div>
@@ -175,36 +176,6 @@ export default function AdminMapView({
               </Popup>
             </Marker>
           ))}
-
-          {/* Transporter markers */}
-          {filter !== 'farms' && validTransporters.map(t => (
-            <Marker
-              key={`trans-${t.id}`}
-              position={[t.lat, t.lng]}
-              icon={transporterMarkerIcon}
-              eventHandlers={{ click: () => onTransporterClick?.(t) }}
-            >
-              <Popup>
-                <div className="min-w-[180px]">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-6 h-6 bg-orange-500 rounded-lg flex items-center justify-center">
-                      <Truck size={12} className="text-white" />
-                    </div>
-                    <div>
-                      <div className="text-[8px] font-black text-orange-600 uppercase tracking-widest">Transporter</div>
-                      <div className="text-xs font-black text-slate-800">{t.full_name || '—'}</div>
-                    </div>
-                  </div>
-                  <div className="space-y-1 text-[10px]">
-                    <div className="flex justify-between">
-                      <span className="font-bold text-slate-400">Region</span>
-                      <span className="font-black text-slate-700">{t.address || '—'}</span>
-                    </div>
-                  </div>
-                </div>
-              </Popup>
-            </Marker>
-          ))}
         </MapContainer>
 
         {/* Legend */}
@@ -212,11 +183,11 @@ export default function AdminMapView({
           <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Legend</div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-[#2E6F40]" />
-            <span className="text-[10px] font-bold text-slate-600">Farm ({validFarms.length})</span>
+            <span className="text-[10px] font-bold text-slate-600">Active Farm ({validFarms.filter(f => f.status === 'ACTIVE').length})</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-orange-500" />
-            <span className="text-[10px] font-bold text-slate-600">Transporter ({validTransporters.length})</span>
+            <div className="w-3 h-3 rounded-full bg-[#D97706]" />
+            <span className="text-[10px] font-bold text-slate-600">Pending Farm ({validFarms.filter(f => f.status === 'PENDING').length})</span>
           </div>
         </div>
 

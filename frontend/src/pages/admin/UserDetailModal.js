@@ -234,10 +234,27 @@ const UserDetailModal = ({ userId, onClose, onAction }) => {
                       <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wider mb-4 flex items-center gap-2">
                         <Briefcase size={16} className="text-[#f97316]"/> Transporter Profile
                       </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 mb-6">
                         <div><div className="text-xs text-gray-500 mb-1">Vehicle Type</div><div className="font-medium text-gray-900 capitalize">{user.transporter_profile?.vehicle_type || 'N/A'}</div></div>
                         <div><div className="text-xs text-gray-500 mb-1">Plate Number</div><div className="font-medium text-gray-900">{user.transporter_profile?.plate_number || 'N/A'}</div></div>
                         <div><div className="text-xs text-gray-500 mb-1">Capacity (Tons)</div><div className="font-medium text-gray-900">{user.transporter_profile?.capacity_tons || '0'} T</div></div>
+                      </div>
+                      
+                      <div className="border-t border-gray-100 pt-4 mt-4">
+                        <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Commitment Governance</h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="p-3 bg-gray-50 rounded-xl border border-gray-200">
+                            <div className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Cancellations</div>
+                            <div className="text-xl font-black text-gray-900 mt-1">{user.cancellation_count || 0} / 3</div>
+                          </div>
+                          {user.suspended_until && new Date(user.suspended_until) > new Date() && (
+                            <div className="p-3 bg-red-50 rounded-xl border border-red-200">
+                              <div className="text-[10px] font-black text-red-600 uppercase tracking-widest">Suspended Until</div>
+                              <div className="text-sm font-black text-red-900 mt-1">{new Date(user.suspended_until).toLocaleString()}</div>
+                              <div className="text-xs text-red-700 mt-1 truncate" title={user.suspension_reason}>{user.suspension_reason}</div>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   )}

@@ -160,7 +160,6 @@ function AdminDashboard() {
       {/* ── National Asset Map ──────────────────────────── */}
       <AdminMapView
         farms={mapData.farms}
-        transporters={mapData.transporters}
         height="420px"
       />
 

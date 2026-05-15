@@ -6,6 +6,7 @@ from apps.orders.models import Order
 class DeliveryStatusChoices(models.TextChoices):
     OPEN = 'open', 'Open'
     ASSIGNED = 'assigned', 'Assigned'
+    HIGH_PRIORITY = 'high_priority', 'High Priority'
     PICKED_UP = 'picked_up', 'Picked Up'
     IN_TRANSIT = 'in_transit', 'In Transit'
     REFUSED_DELIVERY = 'refused_delivery', 'Refused Delivery'
@@ -68,6 +69,17 @@ class DeliveryRequest(TimeStampedModel):
     pod_recipient_name = models.CharField(max_length=100, blank=True, default='')
     pod_notes = models.TextField(blank=True, default='')
     pod_completed_at = models.DateTimeField(null=True, blank=True)
+
+    # ── Mission Commitment Enforcement ──────────────────────────────────
+    # Timestamp set when transporter accepts the mission. Starts 2h activation window.
+    accepted_at = models.DateTimeField(null=True, blank=True)
+    # Relinquishment data — set when transporter formally releases the mission
+    relinquished_at = models.DateTimeField(null=True, blank=True)
+    relinquish_reason = models.TextField(blank=True, default='')
+    relinquish_proof = models.ImageField(upload_to='relinquish_proofs/', null=True, blank=True)
+    # Set True automatically when transporter fails to act within 2h window
+    inactivity_flag = models.BooleanField(default=False)
+
     objects = models.Manager()
 
     @property

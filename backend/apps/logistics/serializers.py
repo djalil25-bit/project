@@ -103,6 +103,9 @@ class DeliveryRequestSerializer(TransporterVisibilityMixin, serializers.ModelSer
     farmer_name = serializers.SerializerMethodField()
     farmer_phone = serializers.SerializerMethodField()
 
+    # Mission Commitment fields
+    commitment_status = serializers.SerializerMethodField()
+
     class Meta:
         model = DeliveryRequest
         fields = [
@@ -117,10 +120,34 @@ class DeliveryRequestSerializer(TransporterVisibilityMixin, serializers.ModelSer
             'transporter_name', 'transporter_phone', 'vehicle_type', 'plate_number_masked',
             'estimated_distance_km', 'estimated_fee', 'estimated_duration',
             'is_refrigerated', 'is_fragile', 'farmer_name', 'farmer_phone',
-            'pricing_breakdown'
+            'pricing_breakdown',
+            # Commitment Enforcement Fields
+            'accepted_at', 'relinquished_at', 'relinquish_reason', 'relinquish_proof',
+            'inactivity_flag', 'commitment_status',
         ]
 
-        read_only_fields = ('created_at', 'updated_at', 'transporter', 'pod_completed_at', 'total_quantity')
+        read_only_fields = ('created_at', 'updated_at', 'transporter', 'pod_completed_at',
+                            'total_quantity', 'accepted_at', 'relinquished_at', 'inactivity_flag')
+
+    def get_commitment_status(self, obj):
+        """
+        Returns rich commitment timing data so the frontend can render
+        a live countdown without extra API calls.
+        """
+        if obj.status != 'assigned' or not obj.accepted_at:
+            return None
+        from django.utils import timezone as tz
+        import datetime
+        deadline = obj.accepted_at + datetime.timedelta(hours=2)
+        now = tz.now()
+        remaining_seconds = max(0, int((deadline - now).total_seconds()))
+        return {
+            'accepted_at': obj.accepted_at.isoformat(),
+            'deadline': deadline.isoformat(),
+            'remaining_seconds': remaining_seconds,
+            'is_overdue': remaining_seconds == 0,
+        }
+
 
     def get_farmer_name(self, obj):
         # The farmer is the owner of the products in the order

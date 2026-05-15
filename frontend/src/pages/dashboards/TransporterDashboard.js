@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axiosConfig';
 import { ALGERIAN_WILAYAS } from '../../utils/constants';
@@ -15,7 +15,14 @@ import {
   X,
   Phone,
   CloudSun,
-  Route
+  Route,
+  AlertTriangle,
+  ShieldOff,
+  Flag,
+  Star,
+  Zap,
+  ArrowRightFromLine,
+  Upload
 } from 'lucide-react';
 import ProofOfDeliveryModal from '../../components/logistics/ProofOfDeliveryModal';
 import VehicleSelectionModal from '../../components/logistics/VehicleSelectionModal';
@@ -25,17 +32,201 @@ import MiniWeatherWidget from '../../components/weather/MiniWeatherWidget';
 
 const StatusBadge = ({ status }) => {
   const map = {
-    open:                { label: 'Available',   cls: 'bg-amber-100 text-amber-800 border-amber-200' },
-    assigned:            { label: 'Assigned',    cls: 'bg-[#10B981]/20 text-[#2DA83B] border-[#10B981]/50' },
-    picked_up:           { label: 'Picked Up',   cls: 'bg-[#10B981]/20 text-[#2DA83B] border-[#10B981]/50 shadow-sm' },
-    in_transit:          { label: 'In Transit',  cls: 'bg-blue-100 text-blue-800 border-blue-200 shadow-sm animate-pulse' },
-    refused_delivery:    { label: 'Refused',     cls: 'bg-rose-100 text-rose-800 border-rose-200 font-bold' },
-    return_in_progress:  { label: 'Returning',   cls: 'bg-rose-50 text-rose-700 border-rose-200 border-dashed animate-pulse' },
-    returned:            { label: 'Returned',    cls: 'bg-emerald-600 text-white border-emerald-700 shadow-sm font-black' },
-    delivered:           { label: 'Delivered',   cls: 'bg-slate-900 text-white border-slate-900 shadow-sm font-black' },
+    open:                { label: 'Available',      cls: 'bg-amber-100 text-amber-800 border-amber-200' },
+    high_priority:       { label: '⚡ HIGH PRIORITY', cls: 'bg-red-600 text-white border-red-700 animate-pulse shadow-md' },
+    assigned:            { label: 'Assigned',       cls: 'bg-[#10B981]/20 text-[#2DA83B] border-[#10B981]/50' },
+    picked_up:           { label: 'Picked Up',      cls: 'bg-[#10B981]/20 text-[#2DA83B] border-[#10B981]/50 shadow-sm' },
+    in_transit:          { label: 'In Transit',     cls: 'bg-blue-100 text-blue-800 border-blue-200 shadow-sm animate-pulse' },
+    refused_delivery:    { label: 'Refused',        cls: 'bg-rose-100 text-rose-800 border-rose-200 font-bold' },
+    return_in_progress:  { label: 'Returning',      cls: 'bg-rose-50 text-rose-700 border-rose-200 border-dashed animate-pulse' },
+    returned:            { label: 'Returned',       cls: 'bg-emerald-600 text-white border-emerald-700 shadow-sm font-black' },
+    delivered:           { label: 'Delivered',      cls: 'bg-slate-900 text-white border-slate-900 shadow-sm font-black' },
   };
   const { label, cls } = map[status] || { label: status, cls: 'bg-slate-100 text-slate-600 border-slate-200' };
   return <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${cls}`}>{label}</span>;
+};
+
+// ── Commitment Countdown Timer ──────────────────────────────────────────────
+const CommitmentTimer = ({ commitmentStatus }) => {
+  const [secsLeft, setSecsLeft] = useState(commitmentStatus?.remaining_seconds ?? 0);
+
+  useEffect(() => {
+    if (!commitmentStatus) return;
+    setSecsLeft(commitmentStatus.remaining_seconds);
+    const interval = setInterval(() => {
+      setSecsLeft(prev => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [commitmentStatus]);
+
+  if (!commitmentStatus) return null;
+
+  const h = Math.floor(secsLeft / 3600);
+  const m = Math.floor((secsLeft % 3600) / 60);
+  const s = secsLeft % 60;
+  const isUrgent = secsLeft < 1800; // < 30 min
+  const isOverdue = secsLeft === 0;
+
+  return (
+    <div className={`mt-2 rounded-xl px-3 py-2 border flex items-center gap-2 ${
+      isOverdue ? 'bg-red-50 border-red-200 animate-pulse' :
+      isUrgent  ? 'bg-amber-50 border-amber-200' :
+                  'bg-emerald-50 border-emerald-200'
+    }`}>
+      <Clock size={12} className={isOverdue ? 'text-red-500' : isUrgent ? 'text-amber-600' : 'text-emerald-600'} />
+      <div className="flex flex-col">
+        <span className={`text-[9px] font-black uppercase tracking-widest ${
+          isOverdue ? 'text-red-600' : isUrgent ? 'text-amber-700' : 'text-emerald-700'
+        }`}>
+          {isOverdue ? '⚠ Window Expired — Depart Immediately' : 'Activation Window'}
+        </span>
+        <span className={`font-black text-sm tabular-nums ${
+          isOverdue ? 'text-red-700' : isUrgent ? 'text-amber-800' : 'text-emerald-800'
+        }`}>
+          {isOverdue ? 'OVERDUE' : `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+// ── Suspension Banner ───────────────────────────────────────────────────────
+const SuspensionBanner = ({ suspendedUntil }) => {
+  const [timeLeft, setTimeLeft] = useState('');
+
+  useEffect(() => {
+    const update = () => {
+      const diff = new Date(suspendedUntil) - new Date();
+      if (diff <= 0) { setTimeLeft('Expired'); return; }
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      setTimeLeft(`${h}h ${m}m remaining`);
+    };
+    update();
+    const t = setInterval(update, 60000);
+    return () => clearInterval(t);
+  }, [suspendedUntil]);
+
+  return (
+    <div className="mx-4 mt-4 bg-red-900 border border-red-700 rounded-2xl p-5 flex items-start gap-4 shadow-xl">
+      <div className="w-12 h-12 bg-red-700 rounded-xl flex items-center justify-center shrink-0">
+        <ShieldOff size={24} className="text-white" />
+      </div>
+      <div className="flex-1">
+        <h3 className="text-white font-black text-base tracking-tight">Marketplace Access Suspended</h3>
+        <p className="text-red-200 text-sm mt-1">
+          Your marketplace access has been temporarily suspended due to repeated mission abandonment.
+          You cannot accept new missions until the suspension expires.
+        </p>
+        <div className="flex items-center gap-4 mt-3">
+          <div className="bg-red-800 rounded-xl px-3 py-2 flex items-center gap-2">
+            <Clock size={14} className="text-red-300" />
+            <span className="text-white font-black text-sm">{timeLeft}</span>
+          </div>
+        </div>
+        <p className="text-red-300 text-xs mt-3 font-medium">
+          Complete your missions within the 2-hour activation window and limit your cancellations to avoid future suspensions.
+        </p>
+      </div>
+    </div>
+  );
+};
+
+// ── Relinquish Modal ────────────────────────────────────────────────────────
+const RelinquishModal = ({ mission, onClose, onConfirm, loading }) => {
+  const [reason, setReason] = useState('');
+  const [proofFile, setProofFile] = useState(null);
+  const [error, setError] = useState('');
+
+  const handleSubmit = () => {
+    if (!reason.trim() && !proofFile) {
+      setError('Please provide a written reason or upload proof to relinquish this mission.');
+      return;
+    }
+    onConfirm(mission.id, reason, proofFile);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden">
+        <div className="bg-red-600 px-6 py-5 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Flag size={20} className="text-white" />
+            <div>
+              <h3 className="text-white font-black text-base">Relinquish Mission</h3>
+              <p className="text-red-200 text-xs">Mission MIL-{String(mission.id).padStart(4,'0')}</p>
+            </div>
+          </div>
+          <button onClick={onClose} className="text-white/70 hover:text-white transition-colors">
+            <X size={20} />
+          </button>
+        </div>
+
+        <div className="p-6 space-y-4">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
+            <AlertTriangle size={18} className="text-amber-600 shrink-0 mt-0.5" />
+            <p className="text-amber-800 text-sm font-medium">
+              Relinquishing this mission will consume <strong>1 strike</strong> out of your 3 allowed cancellations.
+              The mission will be returned to the marketplace. Exceeding 3 cancellations will result in an automatic <strong>7-day marketplace suspension</strong>.
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-xs font-black text-slate-700 uppercase tracking-widest mb-2">
+              Reason for Relinquishment
+            </label>
+            <textarea
+              rows={3}
+              placeholder="e.g. Vehicle breakdown, road blockage, medical emergency..."
+              className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+              value={reason}
+              onChange={e => { setReason(e.target.value); setError(''); }}
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-black text-slate-700 uppercase tracking-widest mb-2">
+              Proof Image (Optional but recommended)
+            </label>
+            <label className="flex items-center justify-center gap-3 border-2 border-dashed border-slate-200 rounded-xl p-4 cursor-pointer hover:border-red-400 hover:bg-red-50 transition-all">
+              <Upload size={18} className="text-slate-400" />
+              <span className="text-sm text-slate-500 font-medium">
+                {proofFile ? proofFile.name : 'Upload breakdown photo or document'}
+              </span>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={e => { setProofFile(e.target.files[0]); setError(''); }}
+              />
+            </label>
+          </div>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-red-700 text-sm font-medium">
+              {error}
+            </div>
+          )}
+
+          <div className="flex gap-3 pt-2">
+            <button
+              onClick={onClose}
+              className="flex-1 py-3 rounded-xl border border-slate-200 text-slate-700 font-black text-sm hover:bg-slate-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={loading}
+              className="flex-1 py-3 rounded-xl bg-red-600 text-white font-black text-sm hover:bg-red-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+            >
+              {loading ? 'Processing...' : <><Flag size={14} /> Confirm Relinquishment</>}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 const reactSelectStyles = {
@@ -74,21 +265,27 @@ function TransporterDashboard() {
   const [podTarget, setPodTarget] = useState(null);
   const [acceptanceTarget, setAcceptanceTarget] = useState(null);
   const [refusalTarget, setRefusalTarget] = useState(null);
+  const [relinquishTarget, setRelinquishTarget] = useState(null);
   const [myVehicles, setMyVehicles] = useState([]);
   const [pickupWilaya, setPickupWilaya] = useState('');
   const [deliveryWilaya, setDeliveryWilaya] = useState('');
+  // Commitment enforcement state
+  const [currentUser, setCurrentUser] = useState(null);
+  const isSuspended = currentUser?.suspended_until && new Date(currentUser.suspended_until) > new Date();
 
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [statsRes, delivRes, vehicleRes] = await Promise.all([
+      const [statsRes, delivRes, vehicleRes, userRes] = await Promise.all([
         api.get('/dashboards/transporter-stats/'),
         api.get('/deliveries/', { params: { pickup_wilaya: pickupWilaya, delivery_wilaya: deliveryWilaya } }),
-        api.get('/vehicles/')
+        api.get('/vehicles/'),
+        api.get('/auth/me/')
       ]);
       setStats(statsRes.data);
       setDeliveries(delivRes.data.results || delivRes.data);
       setMyVehicles(vehicleRes.data.results || vehicleRes.data);
+      setCurrentUser(userRes.data);
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
   };
@@ -100,15 +297,51 @@ function TransporterDashboard() {
     try {
       await api.post(`/deliveries/${id}/accept/`, { vehicle_id: vehicleId });
       fetchData();
-      setActiveTab('mine'); // Switch to active missions automatically
+      setActiveTab('mine');
     } catch (err) { 
       console.error('[LOGISTICS] Mission Acceptance Failed:', err);
-      const msg = err.response?.data?.error || err.response?.data?.message || err.message || 'Failed to accept mission';
-      // If backend says we have an active mission, refresh data to sync UI
-      if (msg.includes('current mission is completed')) {
-        fetchData();
+      const errData = err.response?.data;
+      // Handle suspension specifically
+      if (errData?.error === 'marketplace_suspended') {
+        fetchData(); // Refresh to show suspension banner
       }
-      throw new Error(msg); // Let the modal handle error display
+      const msg = errData?.message || errData?.error || err.message || 'Failed to accept mission';
+      if (msg.includes('current mission is completed')) fetchData();
+      throw new Error(msg);
+    } finally { setActionLoading(null); }
+  };
+
+  const handleStartMission = async (id) => {
+    setActionLoading(id + '_start');
+    try {
+      await api.post(`/deliveries/${id}/start_mission/`);
+      fetchData();
+    } catch (err) {
+      const msg = err.response?.data?.error || 'Failed to start mission';
+      alert(msg);
+    } finally { setActionLoading(null); }
+  };
+
+  const handleRelinquish = async (id, reason, proofFile) => {
+    setActionLoading(id + '_relinquish');
+    try {
+      const formData = new FormData();
+      if (reason) formData.append('reason', reason);
+      if (proofFile) formData.append('proof', proofFile);
+      const res = await api.post(`/deliveries/${id}/relinquish/`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      setRelinquishTarget(null);
+      fetchData();
+      setActiveTab('open');
+      if (res.data.suspended) {
+        alert("Mission relinquished. Warning: Your marketplace access is suspended for 7 days due to repeated cancellations.");
+      } else {
+        alert(`Mission relinquished. Strike ${res.data.cancellation_count}/3.`);
+      }
+    } catch (err) {
+      const msg = err.response?.data?.error || 'Failed to relinquish mission';
+      throw new Error(msg);
     } finally { setActionLoading(null); }
   };
 
@@ -144,7 +377,7 @@ function TransporterDashboard() {
     } finally { setActionLoading(null); }
   };
 
-  const openCount = deliveries.filter(d => d.status === 'open').length;
+  const openCount = deliveries.filter(d => ['open', 'high_priority'].includes(d.status)).length;
 
   // Refined active mission check: Priority 1: stats from backend. Priority 2: local data scan.
   const hasActiveMission = stats?.my_active_missions > 0 || deliveries.some(d => 
@@ -175,10 +408,11 @@ function TransporterDashboard() {
   };
 
   const filtered = activeTab === 'open'
-    ? deliveries.filter(d => d.status === 'open')
+    ? deliveries.filter(d => ['open', 'high_priority'].includes(d.status))
     : activeTab === 'mine'
     ? deliveries.filter(d => d.transporter != null && !['delivered', 'returned'].includes(d.status))
     : deliveries.filter(d => ['delivered', 'returned'].includes(d.status));
+
 
   if (loading) return (
     <div className="flex-center py-5" style={{ minHeight: '60vh', gap: '0.75rem' }}>
@@ -217,6 +451,13 @@ function TransporterDashboard() {
         </div>
       </div>
 
+      {/* ── SUSPENSION BANNER ───────────────────────────────────────── */}
+      {isSuspended && (
+        <SuspensionBanner
+          suspendedUntil={currentUser.suspended_until}
+        />
+      )}
+
       {/* ── KPI CARDS ──────────────────────────────── */}
       {stats && (
         <div className="buyer-kpi-grid mb-4 mt-2">
@@ -247,16 +488,16 @@ function TransporterDashboard() {
               <div className="buyer-kpi-label">Completed Deliveries</div>
             </div>
           </div>
-          <div className="buyer-kpi-card stagger-4 animate-fade-up">
-            <div className="buyer-kpi-icon" style={{ background: '#10B9811a', color: '#10B981' }}>
-              <span className="font-black text-sm">DZ</span>
+          <div className={`buyer-kpi-card stagger-4 animate-fade-up ${isSuspended ? 'border-red-200 bg-red-50' : ''}`}>
+            <div className="buyer-kpi-icon" style={{ background: '#fee2e2', color: '#dc2626' }}>
+              <AlertTriangle size={20} />
             </div>
             <div>
-              <div className="buyer-kpi-value">
-                {(stats.my_completed_missions * 1200).toLocaleString()}
-                <small className="very-small ms-1">DZD</small>
+              <div className={`buyer-kpi-value ${isSuspended ? 'text-red-600' : ''}`}>
+                {currentUser?.cancellation_count ?? 0} <span className="text-sm text-slate-400">/ 3</span>
+                {isSuspended && <span className="text-[10px] font-black text-red-500 ml-1 uppercase">Suspended</span>}
               </div>
-              <div className="buyer-kpi-label">Est. Revenue</div>
+              <div className="buyer-kpi-label">Cancellations</div>
             </div>
           </div>
         </div>
@@ -457,12 +698,28 @@ function TransporterDashboard() {
                       );
                     })()}
                     {d.status === 'assigned' && (
-                      <button
-                        className="btn-agr btn-success btn-sm rounded-pill px-3 fw-bold"
-                        onClick={() => handleStatusUpdate(d.id, 'picked_up')}
-                      >
-                        Mark Picked Up
-                      </button>
+                      <div className="flex flex-col items-end gap-2">
+                        {/* Live 2-hour countdown timer */}
+                        <CommitmentTimer commitmentStatus={d.commitment_status} />
+                        {/* Primary CTA: Departing to Farm */}
+                        <button
+                          className="flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black text-[11px] uppercase tracking-widest shadow-md hover:scale-105 active:scale-95 transition-all disabled:opacity-50 w-full justify-center"
+                          onClick={() => handleStartMission(d.id)}
+                          disabled={actionLoading === d.id + '_start'}
+                        >
+                          <ArrowRightFromLine size={14} />
+                          {actionLoading === d.id + '_start' ? 'Confirming...' : 'Departing to Farm'}
+                        </button>
+                        {/* Secondary: Relinquish */}
+                        <button
+                          className="flex items-center gap-2 px-4 py-2 border border-red-200 bg-red-50 hover:bg-red-100 text-red-700 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all w-full justify-center"
+                          onClick={() => setRelinquishTarget(d)}
+                          disabled={actionLoading === d.id + '_relinquish'}
+                        >
+                          <Flag size={12} />
+                          Relinquish Mission
+                        </button>
+                      </div>
                     )}
                     {d.status === 'picked_up' && (
                       <button
@@ -565,6 +822,15 @@ function TransporterDashboard() {
           mission={refusalTarget}
           onClose={() => setRefusalTarget(null)}
           onConfirm={handleRefuse}
+        />
+      )}
+
+      {relinquishTarget && (
+        <RelinquishModal
+          mission={relinquishTarget}
+          onClose={() => setRelinquishTarget(null)}
+          onConfirm={handleRelinquish}
+          loading={actionLoading === relinquishTarget.id + '_relinquish'}
         />
       )}
     </div>

@@ -49,29 +49,14 @@ class AdminMapDataAPIView(APIView):
         from apps.farms.models import Farm, AssetStatusChoices
         from apps.accounts.models import AccountStatusChoices
 
-        # Farms with GPS coordinates that are ACTIVE, and whose owner is APPROVED
+        # Farms that are ACTIVE or PENDING, and whose owner is APPROVED or PENDING
         farms = Farm.objects.filter(
-            latitude__isnull=False, 
-            longitude__isnull=False,
-            status=AssetStatusChoices.ACTIVE,
-            owner__status=AccountStatusChoices.APPROVED
+            status__in=[AssetStatusChoices.ACTIVE, AssetStatusChoices.PENDING],
+            owner__status__in=[AccountStatusChoices.APPROVED, AccountStatusChoices.PENDING]
         ).select_related('owner').values(
             'id', 'name', 'wilaya', 'commune', 'latitude', 'longitude',
-            'status', 'owner__full_name'
+            'status', 'owner__full_name', 'owner__status'
         )
-        farm_list = [
-            {
-                'id': f['id'],
-                'name': f['name'],
-                'wilaya': f['wilaya'],
-                'commune': f['commune'],
-                'latitude': f['latitude'],
-                'longitude': f['longitude'],
-                'status': f['status'],
-                'owner_name': f['owner__full_name'],
-            }
-            for f in farms
-        ]
 
         # Transporters — use their registered wilaya as approximate location
         # Map wilaya codes to approximate center coordinates
@@ -94,26 +79,54 @@ class AdminMapDataAPIView(APIView):
             '46': (35.3, -1.14), '47': (32.49, 3.67), '48': (35.74, 0.56),
         }
 
-        transporters_qs = User.objects.filter(
-            role=RoleChoices.TRANSPORTER,
-            status=AccountStatusChoices.APPROVED,
-        ).values('id', 'full_name', 'address', 'email')
+        # Mapping for city names to codes (fallback)
+        CITY_TO_CODE = {
+            'Adrar': '1', 'Chlef': '2', 'Laghouat': '3', 'Oum El Bouaghi': '4',
+            'Batna': '5', 'Béjaïa': '6', 'Biskra': '7', 'Béchar': '8',
+            'Blida': '9', 'Bouira': '10', 'Tamanrasset': '11', 'Tébessa': '12',
+            'Tlemcen': '13', 'Tiaret': '14', 'Tizi Ouzou': '15', 'Algiers': '16',
+            'Djelfa': '17', 'Jijel': '18', 'Sétif': '19', 'Saïda': '20',
+            'Skikda': '21', 'Sidi Bel Abbès': '22', 'Annaba': '23', 'Guelma': '24',
+            'Constantine': '25', 'Médéa': '26', 'Mostaganem': '27', "M'Sila": '28',
+            'Mascara': '29', 'Ouargla': '30', 'Oran': '31', 'El Bayadh': '32',
+            'Illizi': '33', 'Bordj Bou Arréridj': '34', 'Boumerdès': '35',
+            'El Tarf': '36', 'Tindouf': '37', 'Tissemsilt': '38', 'El Oued': '39',
+            'Khenchela': '40', 'Souk Ahras': '41', 'Tipaza': '42', 'Mila': '43',
+            'Aïn Defla': '44', 'Naâma': '45', 'Aïn Témouchent': '46',
+            'Ghardaïa': '47', 'Relizane': '48'
+        }
 
-        transporter_list = []
-        for t in transporters_qs:
-            coords = WILAYA_COORDS.get(str(t['address']).strip())
-            if coords:
-                transporter_list.append({
-                    'id': t['id'],
-                    'full_name': t['full_name'],
-                    'address': t['address'],
-                    'lat': coords[0],
-                    'lng': coords[1],
+        farm_list = []
+        import random
+        for f in farms:
+            lat, lng = f['latitude'], f['longitude']
+            # Fallback to wilaya coordinates if exact GPS is missing
+            if lat is None or lng is None:
+                wilaya_key = str(f['wilaya']).strip()
+                # If it's a name, get the code
+                if not wilaya_key.isdigit():
+                    wilaya_key = CITY_TO_CODE.get(wilaya_key)
+                
+                coords = WILAYA_COORDS.get(wilaya_key)
+                if coords:
+                    # Add a small jitter (approx 1-2km) so they don't overlap perfectly
+                    lat = coords[0] + (random.uniform(-0.01, 0.01))
+                    lng = coords[1] + (random.uniform(-0.01, 0.01))
+            
+            if lat is not None and lng is not None:
+                farm_list.append({
+                    'id': f['id'],
+                    'name': f['name'],
+                    'wilaya': f['wilaya'],
+                    'commune': f['commune'],
+                    'latitude': lat,
+                    'longitude': lng,
+                    'status': f['status'],
+                    'owner_name': f['owner__full_name'],
                 })
 
         return Response({
             'farms': farm_list,
-            'transporters': transporter_list,
         })
 
 class AdminAnalyticsAPIView(APIView):

@@ -48,7 +48,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             'status': user.status,
             'is_verified': user.is_verified,
             'is_email_verified': user.is_email_verified,
-            'trust_level': user.trust_level,
+            'cancellation_count': user.cancellation_count,
+            'suspended_until': user.suspended_until.isoformat() if user.suspended_until else None,
             'profile_picture': user.profile_picture.url if user.profile_picture else None,
             'dashboard_route': f"/{user.role}-dashboard"
         }
@@ -91,7 +92,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
                 'status': user.status,
                 'is_verified': user.is_verified,
                 'is_email_verified': user.is_email_verified,
-                'trust_level': user.trust_level,
+                'cancellation_count': user.cancellation_count,
+                'suspended_until': user.suspended_until.isoformat() if user.suspended_until else None,
                 'profile_picture': user.profile_picture.url if user.profile_picture else None,
                 'dashboard_route': f"/{user.role}-dashboard"
             }
@@ -329,9 +331,9 @@ class UserSerializer(serializers.ModelSerializer):
         model  = User
         fields = (
             'id', 'email', 'full_name', 'phone', 'role', 'status',
-            'is_verified', 'is_email_verified', 'trust_level', 'trust_score', 'profile_picture', 'created_at', 'address', 'bio'
+            'is_verified', 'is_email_verified', 'cancellation_count', 'suspended_until', 'suspension_reason', 'profile_picture', 'created_at', 'address', 'bio'
         )
-        read_only_fields = ('id', 'status', 'is_verified', 'trust_level', 'trust_score', 'created_at')
+        read_only_fields = ('id', 'status', 'is_verified', 'cancellation_count', 'suspended_until', 'suspension_reason', 'created_at')
 
 
 class FarmerProfileSerializer(serializers.ModelSerializer):
@@ -371,10 +373,10 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = (
             'id', 'email', 'full_name', 'phone', 'role', 'status',
             'profile_picture', 'address', 'bio', 'vehicles', 'service_zones',
-            'is_verified', 'document_status', 'trust_score', 'trust_level',
+            'is_verified', 'document_status', 'cancellation_count', 'suspended_until', 'suspension_reason',
             'verification_date', 'profile_completeness',
         )
-        read_only_fields = ('id', 'email', 'role', 'status', 'is_verified', 'verification_date', 'profile_completeness')
+        read_only_fields = ('id', 'email', 'role', 'status', 'is_verified', 'verification_date', 'profile_completeness', 'cancellation_count', 'suspended_until', 'suspension_reason')
 
     def get_profile_completeness(self, obj):
         fields = ['full_name', 'phone', 'profile_picture', 'address', 'bio']

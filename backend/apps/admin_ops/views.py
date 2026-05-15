@@ -296,6 +296,20 @@ class TransactionDetailAPIView(APIView):
             'created_at': t.created_at,
         } for t in o.timeline.all()]
 
+        delivery_data = None
+        if hasattr(o, 'delivery'):
+            d = o.delivery
+            delivery_data = {
+                'id': d.id,
+                'status': d.status,
+                'transporter': d.transporter.full_name if d.transporter else None,
+                'pickup_wilaya': d.pickup_wilaya,
+                'inactivity_flag': d.inactivity_flag,
+                'relinquished_at': d.relinquished_at,
+                'relinquish_reason': d.relinquish_reason,
+                'relinquish_proof': d.relinquish_proof.url if d.relinquish_proof else None,
+            }
+
         return Response({
             'id': o.id,
             'created_at': o.created_at,
@@ -318,6 +332,7 @@ class TransactionDetailAPIView(APIView):
             'refusal_note': o.refusal_note,
             'notes': o.notes,
             'timeline': timeline_data,
+            'delivery': delivery_data,
         })
 
 

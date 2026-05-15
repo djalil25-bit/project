@@ -24,12 +24,6 @@ class DocumentStatusChoices(models.TextChoices):
     APPROVED = 'approved', _('Approved')
     REJECTED = 'rejected', _('Rejected')
 
-class TrustLevelChoices(models.TextChoices):
-    NEW      = 'new',      _('New')
-    BRONZE   = 'bronze',   _('Bronze')
-    SILVER   = 'silver',   _('Silver')
-    GOLD     = 'gold',     _('Gold')
-    PLATINUM = 'platinum', _('Platinum')
 
 
 # ─── User ──────────────────────────────────────────────────────────────────────
@@ -75,8 +69,6 @@ class User(AbstractUser, TimeStampedModel):
     is_verified       = models.BooleanField(default=False)
     is_email_verified = models.BooleanField(default=True)  # Default True to keep existing accounts valid
     document_status   = models.CharField(max_length=20, choices=DocumentStatusChoices.choices, default=DocumentStatusChoices.NONE)
-    trust_score       = models.IntegerField(default=0)
-    trust_level       = models.CharField(max_length=20, choices=TrustLevelChoices.choices, default=TrustLevelChoices.NEW)
     verification_date = models.DateTimeField(null=True, blank=True)
 
     # Profile fields
@@ -91,10 +83,22 @@ class User(AbstractUser, TimeStampedModel):
     # Platform Awards / Badges
     badges = models.JSONField(default=list, blank=True)
 
+    # ── Marketplace Suspension (Mission Commitment Enforcement) ─────────
+    # Incremented each time transporter voluntarily relinquishes a mission.
+    # After 3 relinquishes, the 4th triggers a 7-day suspension.
+    cancellation_count = models.IntegerField(default=0)
+    suspended_until = models.DateTimeField(null=True, blank=True)
+    suspension_reason = models.TextField(blank=True, default='')
+
     USERNAME_FIELD  = 'email'
     REQUIRED_FIELDS = ['full_name']
 
-    objects = CustomUserManager()
+    objects = CustomUserManager() # type: ignore
+    
+    # Type hints for IDE support (dynamic attributes)
+    if False:
+        from .models import OTPCode
+        otps = models.Manager() # type: ignore
 
     def __str__(self):
         return self.email

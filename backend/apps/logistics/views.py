@@ -104,6 +104,8 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+        # We know user is a User instance because of IsAuthenticated permission, 
+        # but the IDE might need a hint for custom fields like 'role'.
         qs = DeliveryRequest.objects.all().select_related(
             'order', 'order__buyer', 'transporter'
         ).prefetch_related(
@@ -172,6 +174,18 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post'])
     def accept(self, request, pk=None):
+        # ── SUSPENSION GUARD ────────────────────────────────────────────────────
+        user = request.user
+        if user.suspended_until and user.suspended_until > timezone.now():
+            from django.utils.timezone import localtime
+            until_str = localtime(user.suspended_until).strftime('%d %b %Y at %H:%M')
+            return Response({
+                "error": "marketplace_suspended",
+                "message": f"Marketplace access temporarily suspended due to repeated mission abandonment. Access resumes on {until_str}.",
+                "suspended_until": user.suspended_until.isoformat(),
+                "trust_score": user.trust_score,
+            }, status=status.HTTP_403_FORBIDDEN)
+
         with transaction.atomic():
             try:
                 delivery = DeliveryRequest.objects.select_for_update(nowait=True).get(pk=pk)
@@ -179,8 +193,8 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
                 return Response({"error": "Delivery request not found."}, status=status.HTTP_404_NOT_FOUND)
             except Exception: # Handles the OperationalError for Database Lock/Nowait
                 return Response({"error": "This mission is currently being processed by another transporter."}, status=status.HTTP_409_CONFLICT)
-                
-            if delivery.status != DeliveryStatusChoices.OPEN:
+
+            if delivery.status not in [DeliveryStatusChoices.OPEN, DeliveryStatusChoices.HIGH_PRIORITY]:
                 return Response({"error": "This delivery is no longer open. It may have just been accepted by someone else."}, status=status.HTTP_409_CONFLICT)
         
         # 1. NEW: Vehicle Compatibility Validation
@@ -274,13 +288,16 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
             "capacity": selected_vehicle.get('capacity'),
             "type": selected_vehicle.get('type')
         }
+        # ── COMMITMENT ENFORCEMENT: stamp acceptance time ─────────────────
+        delivery.accepted_at = timezone.now()
+        delivery.inactivity_flag = False
         delivery.save()
 
         # Update order status
         order = delivery.order
         order.delivery_status = OrderDeliveryStatus.AWAITING_PICKUP
         if order.status == OrderStatusChoices.PENDING or order.status == OrderStatusChoices.CONFIRMED:
-             order.status = OrderStatusChoices.CONFIRMED # Already confirmed if delivery requested
+             order.status = OrderStatusChoices.CONFIRMED
         delivery.save()
         order.save()
 
@@ -288,10 +305,158 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
         order.add_timeline_entry(
             status=OrderDeliveryStatus.AWAITING_PICKUP,
             actor=request.user,
-            note=f"Transporter confirmed using vehicle: {delivery.assigned_vehicle_info.get('model')} ({delivery.assigned_vehicle_info.get('plate')})"
+            note=f"Transporter confirmed using vehicle: {delivery.assigned_vehicle_info.get('model')} ({delivery.assigned_vehicle_info.get('plate')}). 2-hour activation window started."
         )
 
+        # Notify transporter of activation window
+        try:
+            from apps.notifications.models import create_notification, NotificationType
+            create_notification(
+                user=request.user,
+                message=f"Mission #{delivery.id} accepted. You have 2 hours to depart or relinquish the mission. Inactivity will result in trust score deduction.",
+                notif_type=NotificationType.DELIVERY_COMPLETED,
+                link=f"/transporter-dashboard"
+            )
+        except Exception:
+            pass
+
         return Response(DeliveryRequestSerializer(delivery).data)
+
+    @action(detail=True, methods=['post'])
+    def start_mission(self, request, pk=None):
+        """
+        Transporter clicks "Departing to Farm".
+        Transitions ASSIGNED → PICKED_UP and clears the 2-hour inactivity risk.
+        """
+        delivery = self.get_object()
+        if delivery.transporter != request.user:
+            return Response({"error": "Not your assigned delivery."}, status=status.HTTP_403_FORBIDDEN)
+
+        if delivery.status != DeliveryStatusChoices.ASSIGNED:
+            return Response(
+                {"error": f"Mission cannot be started from status '{delivery.status}'. It must be in 'assigned' state."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        with transaction.atomic():
+            delivery.status = DeliveryStatusChoices.PICKED_UP
+            delivery.inactivity_flag = False  # Mission is active — no penalty
+            delivery.save()
+
+            order = delivery.order
+            order.delivery_status = OrderDeliveryStatus.PICKED_UP
+            order.save()
+
+            order.add_timeline_entry(
+                status=OrderDeliveryStatus.PICKED_UP,
+                actor=request.user,
+                note="Transporter departed to farm. Mission is now active."
+            )
+
+        return Response(DeliveryRequestSerializer(delivery).data)
+
+    @action(detail=True, methods=['post'])
+    def relinquish(self, request, pk=None):
+        """
+        Transporter formally releases the mission before departure.
+        Requires a reason text OR a proof image (or both).
+        Resets mission to OPEN for other transporters.
+        Deducts 15 trust score points. Suspends if below threshold.
+        """
+        delivery = self.get_object()
+        if delivery.transporter != request.user:
+            return Response({"error": "Not your assigned delivery."}, status=status.HTTP_403_FORBIDDEN)
+
+        if delivery.status != DeliveryStatusChoices.ASSIGNED:
+            return Response(
+                {"error": "You can only relinquish a mission while it is in 'assigned' state."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        reason = request.data.get('reason', '').strip()
+        proof_file = request.FILES.get('proof')
+
+        if not reason and not proof_file:
+            return Response(
+                {"error": "You must provide a written reason or upload proof (e.g. vehicle breakdown photo) to relinquish this mission."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        MAX_CANCELLATIONS = 3
+        SUSPENSION_DAYS = 3
+
+        with transaction.atomic():
+            # ── Save relinquishment record ──────────────────────────────────
+            delivery.relinquish_reason = reason
+            delivery.relinquished_at = timezone.now()
+            if proof_file:
+                delivery.relinquish_proof = proof_file
+
+            # ── Reset mission to marketplace ────────────────────────────────
+            delivery.transporter = None
+            delivery.status = DeliveryStatusChoices.OPEN
+            delivery.accepted_at = None
+            delivery.assigned_vehicle_id = None
+            delivery.assigned_vehicle_info = {}
+            delivery.inactivity_flag = False
+            delivery.save()
+
+            # ── Apply cancellation strike ────────────────────────────────────
+            transporter = request.user
+            transporter.cancellation_count += 1
+
+            # ── Auto-suspend if limit exceeded ──────────────────────────────
+            suspension_applied = False
+            if transporter.cancellation_count > MAX_CANCELLATIONS:
+                transporter.suspended_until = timezone.now() + timezone.timedelta(days=SUSPENSION_DAYS)
+                transporter.suspension_reason = (
+                    "Marketplace access temporarily suspended due to repeated mission cancellations."
+                )
+                suspension_applied = True
+
+            transporter.save()
+
+            # ── Order timeline log ──────────────────────────────────────────
+            order = delivery.order
+            order.add_timeline_entry(
+                status="RELINQUISHED",
+                actor=request.user,
+                note=f"Transporter relinquished mission. Reason: {reason or 'See proof image'}. Mission returned to marketplace."
+            )
+
+            # ── Notify admin ────────────────────────────────────────────────
+            try:
+                from apps.notifications.models import create_notification, NotificationType
+                from django.contrib.auth import get_user_model
+                User = get_user_model()
+                admins = User.objects.filter(role='admin')
+                for admin in admins:
+                    create_notification(
+                        user=admin,
+                        message=f"Mission #{delivery.id} was relinquished by {transporter.full_name}. Reason: {reason or 'Proof provided'}. Mission is back in marketplace.",
+                        notif_type=NotificationType.DELIVERY_COMPLETED,
+                        link=f"/admin-dashboard"
+                    )
+                # Notify transporter about penalty
+                penalty_msg = f"Mission #{delivery.id} relinquished. Strike {transporter.cancellation_count}/{MAX_CANCELLATIONS}."
+                if suspension_applied:
+                    penalty_msg = "Marketplace access temporarily suspended due to repeated mission cancellations."
+                create_notification(
+                    user=transporter,
+                    message=penalty_msg,
+                    notif_type=NotificationType.DELIVERY_COMPLETED,
+                    link=f"/transporter-dashboard"
+                )
+            except Exception:
+                pass
+
+        return Response({
+            "message": "Mission successfully relinquished and returned to marketplace.",
+            "cancellation_count": transporter.cancellation_count,
+            "suspended": suspension_applied,
+            "suspended_until": transporter.suspended_until.isoformat() if suspension_applied else None,
+        })
+
 
     @action(detail=True, methods=['post'], serializer_class=DeliveryStatusUpdateSerializer)
     def update_status(self, request, pk=None):
