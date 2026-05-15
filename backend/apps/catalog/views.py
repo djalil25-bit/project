@@ -65,7 +65,7 @@ class CatalogProductViewSet(viewsets.ModelViewSet):
         
         print(f"DEBUG: Price update check for {updated_instance.name}")
         print(f"DEBUG: Old: {old_ref}, {old_min}, {old_max}")
-        print(f"DEBUG: New: {updated_instance.ref_price}, {updated_instance.min_price}, {updated_instance.max_instance if hasattr(updated_instance, 'max_instance') else updated_instance.max_price}")
+        print(f"DEBUG: New: {updated_instance.ref_price}, {updated_instance.min_price}, {updated_instance.max_price}")
 
         # Check for changes
         if (old_ref != updated_instance.ref_price or 

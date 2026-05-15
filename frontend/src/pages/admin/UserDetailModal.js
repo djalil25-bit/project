@@ -258,22 +258,34 @@ const UserDetailModal = ({ userId, onClose, onAction }) => {
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                       {documents.map((doc) => {
-                        const isPdf = doc.file_url.toLowerCase().endsWith('.pdf');
                         return (
-                          <div key={doc.id} className="border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow group flex flex-col bg-gray-50">
+                          <div 
+                            key={doc.id} 
+                            className="border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow group flex flex-col bg-gray-50 cursor-pointer"
+                            onClick={() => handleDocumentClick(doc)}
+                          >
                             {/* Preview Area */}
-                            <div className="h-32 bg-gray-200 relative flex items-center justify-center overflow-hidden">
-                              {isPdf ? (
-                                <FileText size={48} className="text-gray-400" />
+                            <div className="aspect-video relative bg-slate-200 overflow-hidden">
+                              {doc.file_url.toLowerCase().endsWith('.pdf') ? (
+                                <div className="w-full h-full flex flex-col items-center justify-center bg-slate-100 text-slate-400">
+                                  <FileText size={48} strokeWidth={1} />
+                                  <span className="text-[10px] font-black uppercase tracking-widest mt-2">PDF Document</span>
+                                </div>
                               ) : (
                                 <img src={doc.file_url} alt={doc.document_type} className="w-full h-full object-cover" />
                               )}
                               
                               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                                <button onClick={() => handleDocumentClick(doc)} className="bg-white p-2 rounded-full text-gray-900 hover:scale-110 transition-transform shadow-lg" title="Preview">
+                                <button className="bg-white p-2 rounded-full text-gray-900 hover:scale-110 transition-transform shadow-lg" title="Preview">
                                   <Eye size={18} />
                                 </button>
-                                <a href={doc.file_url} download className="bg-white p-2 rounded-full text-gray-900 hover:scale-110 transition-transform shadow-lg" title="Download">
+                                <a 
+                                  href={doc.file_url} 
+                                  download 
+                                  onClick={(e) => e.stopPropagation()} 
+                                  className="bg-white p-2 rounded-full text-gray-900 hover:scale-110 transition-transform shadow-lg" 
+                                  title="Download"
+                                >
                                   <FileDown size={18} />
                                 </a>
                               </div>
@@ -336,7 +348,7 @@ const UserDetailModal = ({ userId, onClose, onAction }) => {
 
       {/* Fullscreen Document Preview Modal */}
       {previewDoc && ReactDOM.createPortal(
-        <div className="fixed inset-0 z-[100] bg-[#022c22]/98 backdrop-blur-xl flex flex-col animate-fade-in" onClick={closePreview}>
+        <div className="fixed inset-0 z-[10000] bg-[#022c22]/98 backdrop-blur-xl flex flex-col animate-fade-in" onClick={closePreview}>
           {/* HIGH VISIBILITY FLOATING CLOSE BUTTON */}
           <button 
             onClick={closePreview} 

@@ -506,13 +506,13 @@ function TransporterDashboard() {
                           <div className="very-small text-muted bg-light-soft px-2 py-1 rounded border">
                             <div className="fw-bold">Signed: {d.pod_recipient_name}</div>
                             {d.pod_photo && (
-                              <button
+                              <a
                                 className="btn-agr btn-link p-0 mt-1 d-flex align-items-center gap-1"
                                 style={{ fontSize: '0.65rem' }}
-                                onClick={() => window.open(d.pod_photo, '_blank')}
+                                href={d.pod_photo} download target="_self"
                               >
-                                <Camera size={10} /> View Proof
-                              </button>
+                                <Camera size={10} /> Download Proof
+                              </a>
                             )}
                           </div>
                         )}

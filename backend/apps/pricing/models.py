@@ -15,6 +15,7 @@ class PricePublication(TimeStampedModel):
     valid_until = models.DateField(null=True, blank=True)
     
     notes = models.TextField(blank=True)
+    objects = models.Manager()
 
     def __str__(self):
         target = self.catalog_product.name if self.catalog_product else "General"

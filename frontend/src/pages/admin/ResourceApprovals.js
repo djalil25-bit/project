@@ -411,7 +411,7 @@ const RejectionModal = ({ isOpen, onClose, onConfirm, reason, setReason, loading
 
 const DocumentPreviewModal = ({ url, onClose }) => {
   const modalContent = (
-    <div className="fixed inset-0 z-[100] bg-[#022c22]/98 backdrop-blur-xl animate-fade-in flex flex-col" onClick={onClose}>
+    <div className="fixed inset-0 z-[10000] bg-[#022c22]/98 backdrop-blur-xl animate-fade-in flex flex-col" onClick={onClose}>
       {/* HIGH VISIBILITY FLOATING CLOSE BUTTON */}
       <button 
         onClick={onClose} 
@@ -433,29 +433,31 @@ const DocumentPreviewModal = ({ url, onClose }) => {
           </div>
         </div>
         <div className="flex items-center gap-3 mr-16">
-          <button 
+          <a 
             className="h-10 px-4 bg-white/10 hover:bg-white/20 text-white text-[10px] font-black uppercase tracking-widest rounded-xl border border-white/10 transition-all active:scale-95 flex items-center gap-2"
-            onClick={() => window.open(url, '_blank')}
+            href={url}
+            download
+            onClick={(e) => e.stopPropagation()}
           >
-            <ExternalLink size={14} /> <span className="hidden xs:inline">Open Original</span>
-          </button>
+            <ExternalLink size={14} /> <span className="hidden xs:inline">Download Original</span>
+          </a>
         </div>
       </div>
       
       <div className="flex-1 p-4 md:p-8 flex items-center justify-center overflow-hidden" onClick={e => e.stopPropagation()}>
-      <div className="max-w-[95vw] max-h-[85vh] bg-slate-900/60 rounded-2xl md:rounded-[2rem] border border-white/10 overflow-hidden relative shadow-[0_0_50px_rgba(0,0,0,0.3)] flex items-center justify-center p-1 md:p-2">
-        {url.toLowerCase().endsWith('.pdf') ? (
-          <iframe src={url} className="w-[90vw] h-[80vh] border-0 bg-white rounded-xl" title="Document Preview" />
-        ) : (
-          <img 
-            src={url} 
-            alt="Document Preview" 
-            className="max-w-full max-h-full object-contain rounded-xl shadow-2xl" 
-            style={{ imageRendering: 'high-quality' }}
-          />
-        )}
+        <div className="max-w-[95vw] max-h-[85vh] bg-slate-900/60 rounded-2xl md:rounded-[2rem] border border-white/10 overflow-hidden relative shadow-[0_0_50px_rgba(0,0,0,0.3)] flex items-center justify-center p-1 md:p-2">
+          {url.toLowerCase().endsWith('.pdf') ? (
+            <iframe src={url} className="w-[90vw] h-[80vh] border-0 bg-white rounded-xl" title="Document Preview" />
+          ) : (
+            <img 
+              src={url} 
+              alt="Document Preview" 
+              className="max-w-full max-h-full object-contain rounded-xl shadow-2xl" 
+              style={{ imageRendering: 'high-quality' }}
+            />
+          )}
+        </div>
       </div>
-    </div>
     </div>
   );
 

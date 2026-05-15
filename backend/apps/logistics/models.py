@@ -68,6 +68,7 @@ class DeliveryRequest(TimeStampedModel):
     pod_recipient_name = models.CharField(max_length=100, blank=True, default='')
     pod_notes = models.TextField(blank=True, default='')
     pod_completed_at = models.DateTimeField(null=True, blank=True)
+    objects = models.Manager()
 
     @property
     def total_quantity(self):
@@ -122,6 +123,7 @@ class Vehicle(TimeStampedModel):
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
         null=True, blank=True, related_name='reviewed_vehicles'
     )
+    objects = models.Manager()
 
 class TransportPricingRule(TimeStampedModel):
     vehicle_type = models.CharField(
@@ -150,6 +152,8 @@ class TransportPricingRule(TimeStampedModel):
     class Meta:
         verbose_name = "Transport Pricing Rule"
         verbose_name_plural = "Transport Pricing Rules"
+    
+    objects = models.Manager()
 
 
 def calculate_transport_fee(distance, weight_kg, vehicle_type):

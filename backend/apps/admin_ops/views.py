@@ -540,7 +540,7 @@ class AnalyticsTopSellersAPIView(APIView):
         # 1. Top Sellers (Farmers)
         sellers = list(
             sellers_qs
-            .values('farmer__id', 'farmer__full_name', 'farmer__badges')
+            .values('farmer__id', 'farmer__full_name', 'farmer__email', 'farmer__phone', 'farmer__badges')
             .annotate(revenue=Sum(F('quantity') * F('price_snapshot')))
             .order_by('-revenue')[:5]
         )
@@ -548,6 +548,8 @@ class AnalyticsTopSellersAPIView(APIView):
             s['rank'] = i + 1
             s['id'] = s.pop('farmer__id', None)
             s['name'] = s.pop('farmer__full_name', None)
+            s['email'] = s.pop('farmer__email', None)
+            s['phone'] = s.pop('farmer__phone', None)
             s['badges'] = s.pop('farmer__badges', [])
             s['metric_label'] = 'Revenue'
             s['metric_value'] = s.pop('revenue', 0)
@@ -555,7 +557,7 @@ class AnalyticsTopSellersAPIView(APIView):
         # 2. Top Buyers
         buyers = list(
             buyers_qs
-            .values('buyer__id', 'buyer__full_name', 'buyer__badges')
+            .values('buyer__id', 'buyer__full_name', 'buyer__email', 'buyer__phone', 'buyer__badges')
             .annotate(spend=Sum('total_price'))
             .order_by('-spend')[:5]
         )
@@ -563,6 +565,8 @@ class AnalyticsTopSellersAPIView(APIView):
             b['rank'] = i + 1
             b['id'] = b.pop('buyer__id', None)
             b['name'] = b.pop('buyer__full_name', None)
+            b['email'] = b.pop('buyer__email', None)
+            b['phone'] = b.pop('buyer__phone', None)
             b['badges'] = b.pop('buyer__badges', [])
             b['metric_label'] = 'Total Spend'
             b['metric_value'] = b.pop('spend', 0)
@@ -570,7 +574,7 @@ class AnalyticsTopSellersAPIView(APIView):
         # 3. Top Transporters
         transporters = list(
             transporters_qs
-            .values('transporter__id', 'transporter__full_name', 'transporter__badges')
+            .values('transporter__id', 'transporter__full_name', 'transporter__email', 'transporter__phone', 'transporter__badges')
             .annotate(deliveries_count=Count('id'))
             .order_by('-deliveries_count')[:5]
         )
@@ -578,6 +582,8 @@ class AnalyticsTopSellersAPIView(APIView):
             t['rank'] = i + 1
             t['id'] = t.pop('transporter__id', None)
             t['name'] = t.pop('transporter__full_name', None)
+            t['email'] = t.pop('transporter__email', None)
+            t['phone'] = t.pop('transporter__phone', None)
             t['badges'] = t.pop('transporter__badges', [])
             t['metric_label'] = 'Deliveries Completed'
             t['metric_value'] = t.pop('deliveries_count', 0)

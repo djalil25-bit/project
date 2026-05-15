@@ -10,17 +10,7 @@ import {
 } from 'lucide-react';
 import LocationPicker from '../components/maps/LocationPicker';
 import AgriGovLogo from '../components/common/AgriGovLogo';
-
-const WILAYAS = [
-  'Adrar','Chlef','Laghouat','Oum El Bouaghi','Batna','Béjaïa','Biskra','Béchar',
-  'Blida','Bouira','Tamanrasset','Tébessa','Tlemcen','Tiaret','Tizi Ouzou','Alger',
-  'Djelfa','Jijel','Sétif','Saïda','Skikda','Sidi Bel Abbès','Annaba','Guelma',
-  'Constantine','Médéa','Mostaganem','M\'Sila','Mascara','Ouargla','Oran','El Bayadh',
-  'Illizi','Bordj Bou Arreridj','Boumerdès','El Tarf','Tindouf','Tissemsilt','El Oued',
-  'Khenchela','Souk Ahras','Tipaza','Mila','Aïn Defla','Naâma','Aïn Témouchent',
-  'Ghardaïa','Relizane','Timimoun','Bordj Badji Mokhtar','Ouled Djellal',
-  'Béni Abbès','In Salah','In Guezzam','Touggourt','Djanet','El M\'Ghair','El Meniaa',
-];
+import { WILAYA_DATA } from '../utils/algeria_locations';
 
 const ROLES = [
   { value: 'farmer', label: 'Farmer', icon: Sprout, desc: 'Sell agricultural products and manage your farm.', color: '#16a34a', bg: '#f0fdf4' },
@@ -165,8 +155,15 @@ const Register = () => {
 
   const activeRoleConfig = ROLES.find(r => r.value === activeRole);
 
+  // Derive available communes based on selected wilaya
+  const availableCommunes = WILAYA_DATA.find(w => w.name === formData.wilaya)?.communes || [];
+
   const setField = (key, val) => {
-    setFormData(f => ({ ...f, [key]: val }));
+    if (key === 'wilaya') {
+      setFormData(f => ({ ...f, [key]: val, commune: '' }));
+    } else {
+      setFormData(f => ({ ...f, [key]: val }));
+    }
     setFieldErrors(e => ({ ...e, [key]: '' }));
   };
 
@@ -198,13 +195,13 @@ const Register = () => {
       else if (!/\S+@\S+\.\S+/.test(formData.email)) errs.email = 'Valid email required.';
       if (!formData.phone.trim()) errs.phone = 'Phone number is required.';
       if (!formData.wilaya) errs.wilaya = 'Please select a wilaya.';
+      if (!formData.commune) errs.commune = 'Please select a commune.';
     }
     if (step === 2) {
       if (activeRole === 'farmer') {
         if (!formData.farm_name.trim()) errs.farm_name = 'Farm name is required.';
         if (!formData.farm_location.trim()) errs.farm_location = 'Farm location is required.';
         if (!formData.production_type) errs.production_type = 'Production type is required.';
-        if (!formData.commune.trim()) errs.commune = 'Commune is required.';
       }
       if (activeRole === 'buyer' && formData.buyer_type === 'business') {
         if (!formData.company_name.trim()) errs.company_name = 'Company name is required.';
@@ -538,13 +535,28 @@ const Register = () => {
                 <input type="email" className={`auth-input ${fieldErrors.email ? 'auth-input-error' : ''}`} placeholder="you@example.com" value={formData.email} onChange={e => setField('email', e.target.value)} />
                 {fieldErrors.email && <span className="auth-field-error">{fieldErrors.email}</span>}
               </div>
-              <div className="auth-field">
-                <label className="auth-label">Wilaya *</label>
-                <select className={`auth-input auth-select ${fieldErrors.wilaya ? 'auth-input-error' : ''}`} value={formData.wilaya} onChange={e => setField('wilaya', e.target.value)}>
-                  <option value="">Select your wilaya</option>
-                  {WILAYAS.map(w => <option key={w} value={w}>{w}</option>)}
-                </select>
-                {fieldErrors.wilaya && <span className="auth-field-error">{fieldErrors.wilaya}</span>}
+              <div className="auth-form-row">
+                <div className="auth-field">
+                  <label className="auth-label">Wilaya *</label>
+                  <select className={`auth-input auth-select ${fieldErrors.wilaya ? 'auth-input-error' : ''}`} value={formData.wilaya} onChange={e => setField('wilaya', e.target.value)}>
+                    <option value="">Select your wilaya</option>
+                    {WILAYA_DATA.map(w => <option key={w.id} value={w.name}>{w.name}</option>)}
+                  </select>
+                  {fieldErrors.wilaya && <span className="auth-field-error">{fieldErrors.wilaya}</span>}
+                </div>
+                <div className="auth-field">
+                  <label className="auth-label">Commune *</label>
+                  <select 
+                    className={`auth-input auth-select ${fieldErrors.commune ? 'auth-input-error' : ''}`} 
+                    value={formData.commune} 
+                    onChange={e => setField('commune', e.target.value)}
+                    disabled={!formData.wilaya}
+                  >
+                    <option value="">{formData.wilaya ? 'Select commune' : 'First select wilaya'}</option>
+                    {availableCommunes.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                  {fieldErrors.commune && <span className="auth-field-error">{fieldErrors.commune}</span>}
+                </div>
               </div>
             </div>
 
@@ -581,21 +593,6 @@ const Register = () => {
                       <label className="auth-label">Farm Size (Hectares)</label>
                       <input type="number" step="0.01" className={`auth-input ${fieldErrors.farm_size?'auth-input-error':''}`} placeholder="e.g. 5.5" value={formData.farm_size} onChange={e=>setField('farm_size',e.target.value)} />
                       {fieldErrors.farm_size && <span className="auth-field-error">{fieldErrors.farm_size}</span>}
-                    </div>
-                  </div>
-                  <div className="auth-form-row">
-                    <div className="auth-field">
-                      <label className="auth-label">Wilaya *</label>
-                      <select className={`auth-input auth-select ${fieldErrors.wilaya ? 'auth-input-error' : ''}`} value={formData.wilaya} onChange={e => setField('wilaya', e.target.value)}>
-                        <option value="">Select wilaya</option>
-                        {WILAYAS.map(w => <option key={w} value={w}>{w}</option>)}
-                      </select>
-                      {fieldErrors.wilaya && <span className="auth-field-error">{fieldErrors.wilaya}</span>}
-                    </div>
-                    <div className="auth-field">
-                      <label className="auth-label">Commune *</label>
-                      <input className={`auth-input ${fieldErrors.commune?'auth-input-error':''}`} placeholder="e.g. Boufarik" value={formData.commune} onChange={e=>setField('commune',e.target.value)} />
-                      {fieldErrors.commune && <span className="auth-field-error">{fieldErrors.commune}</span>}
                     </div>
                   </div>
 

@@ -83,7 +83,9 @@
 }
 .ag-hero h1 span {
   background:linear-gradient(135deg, var(--ag-emerald), var(--ag-lime));
-  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
 }
 .ag-hero-sub {
   font-size:1.1rem; color:rgba(255,255,255,.7); line-height:1.7; max-width:520px;

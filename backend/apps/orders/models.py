@@ -89,6 +89,8 @@ class OrderTimeline(TimeStampedModel):
 
     class Meta:
         ordering = ['created_at']
+    
+    objects = models.Manager()
 
     def __str__(self):
         return f"Timeline for Order #{self.order.id} - {self.status}" # type: ignore

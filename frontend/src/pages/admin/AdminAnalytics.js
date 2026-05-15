@@ -3,9 +3,15 @@ import { Link } from 'react-router-dom';
 import api from '../../api/axiosConfig';
 import adminApi from '../../api/adminApi';
 import { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, Legend, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { TrendingUp, TrendingDown, Activity, Package, Trophy, Medal, Award, Calendar, ChevronRight, MapPin, Eye, Download, Users, Truck } from 'lucide-react';
+import { TrendingUp, TrendingDown, Activity, Package, Trophy, Medal, Award, Calendar, ChevronRight, MapPin, Eye, Download, Users, Truck, Crown, ShieldCheck, Star, Mail, Phone, Zap } from 'lucide-react';
 
 const tooltipStyle = { borderRadius:10, border:'1px solid #E5E7EB', background:'#fff', boxShadow:'0 4px 12px rgba(0,0,0,0.1)', color:'#1F2937' };
+
+const getInitials = (name) => {
+  if (!name) return '??';
+  return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+};
+
 const getRankIcon = i => i===0?<Trophy className="text-yellow-500" size={18}/>:i===1?<Medal className="text-gray-400" size={18}/>:<Award className="text-orange-400" size={18}/>;
 
 const AdminAnalytics = () => {
@@ -433,231 +439,203 @@ const AdminAnalytics = () => {
         </div>
       )}
 
-      {/* Leaderboard */}
-      {activeTab==='leaderboard' && (
-        <div className="space-y-6 animate-fade-in">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2">
+      {/* ── LEADERBOARD SECTION (COMPLETE REDESIGN) ───────────────────────────────── */}
+      {activeTab === 'leaderboard' && (
+        <div className="space-y-10 animate-fade-in pb-20">
+          
+          {/* Header & Global Filters */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-2">
             <div>
-              <h2 className="text-lg font-black text-slate-900 uppercase tracking-tight">Performance Rankings</h2>
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Global Merit & Activity Leaderboard</p>
+              <div className="flex items-center gap-2 text-emerald-600 font-black text-[10px] uppercase tracking-widest mb-2">
+                <Trophy size={14} /> Merit-Based Institutional Rankings
+              </div>
+              <h2 className="text-3xl font-black text-slate-900 tracking-tight">Platform Hall of Fame</h2>
+              <p className="text-slate-500 text-sm mt-1 max-w-xl font-medium">Monitoring top performing actors across the ecosystem based on verified transaction volume, reliability, and trust scores.</p>
             </div>
-            <div className="flex items-center gap-3 bg-white border border-slate-200 p-2 rounded-2xl shadow-sm">
-              <Calendar size={14} className="text-slate-400 ml-2" />
+            
+            <div className="flex items-center gap-2 bg-white border border-slate-200 p-1.5 rounded-xl shadow-sm self-start md:self-auto">
+              <Calendar size={16} className="text-slate-400 ml-2" />
               <select 
                 value={leaderYear}
                 onChange={(e) => setLeaderYear(e.target.value)}
-                className="bg-transparent border-none text-[10px] font-black uppercase tracking-widest py-1 px-2 pr-8 focus:ring-0 outline-none cursor-pointer text-[#064e3b]"
+                className="bg-transparent border-none text-[11px] font-black uppercase tracking-widest py-2 px-3 pr-9 focus:ring-0 outline-none cursor-pointer text-slate-700"
               >
-                <option value="All">Cumulative (All Time)</option>
-                <option value="2026">Fiscal Year 2026</option>
-                <option value="2025">Fiscal Year 2025</option>
-                <option value="2024">Fiscal Year 2024</option>
+                <option value="All">All-Time Cumulative</option>
+                <option value="2026">2026 Fiscal Cycle</option>
+                <option value="2025">2025 Fiscal Cycle</option>
               </select>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             
-            {/* Top Producers */}
-            <div className="bg-white border border-slate-200 rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200/40">
-              <div className="bg-[#064e3b] px-8 py-6 flex items-center justify-between">
-                <div className="flex items-center gap-3 text-white">
-                  <Trophy size={20} className="text-emerald-200" />
-                  <h3 className="font-black text-sm uppercase tracking-widest">Top Producers</h3>
-                </div>
-                <div className="bg-emerald-700/50 px-3 py-1 rounded-full text-[9px] font-black text-emerald-100 uppercase tracking-widest border border-emerald-500/30">
-                  Revenue Index
-                </div>
-              </div>
-              
-              <div className="p-6 space-y-4">
-                {leadersLoading ? <div className="py-20 text-center"><div className="adm-spinner mx-auto mb-4"></div><p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Aggregating Statistics...</p></div> :
-                 leaders.sellers?.length === 0 ? <div className="py-20 text-center text-slate-300"><Package size={40} className="mx-auto mb-3 opacity-20"/><p className="text-[10px] font-black uppercase tracking-widest">No production records found</p></div> : (
-                  leaders.sellers.map((s, i) => (
-                    <div key={i} className={`group flex items-center p-4 rounded-[2rem] border transition-all duration-300 ${i === 0 ? 'bg-emerald-50/50 border-emerald-100 shadow-inner' : 'bg-slate-50/50 border-slate-100 hover:bg-white hover:shadow-lg'}`}>
-                      <div className="flex flex-col gap-3 w-full">
-                        <div className="flex items-center gap-4">
-                          <div className={`w-12 h-12 rounded-2xl shrink-0 flex items-center justify-center font-black text-lg shadow-lg relative ${
-                            i === 0 ? 'bg-gradient-to-br from-yellow-400 to-amber-600 text-white' : 
-                            i === 1 ? 'bg-gradient-to-br from-slate-300 to-slate-500 text-white' : 
-                            i === 2 ? 'bg-gradient-to-br from-orange-400 to-orange-600 text-white' : 
-                            'bg-white border border-slate-200 text-slate-400'
-                          }`}>
-                            {i < 3 ? getRankIcon(i) : i + 1}
-                            {i < 3 && <div className="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center text-[8px] font-black text-slate-900 border border-slate-100 shadow-sm">{i+1}</div>}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="font-black text-sm text-slate-900 truncate leading-tight">{s.name}</div>
-                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
-                              Rank #{i+1}
-                            </div>
-                          </div>
-                        </div>
+            {/* 1. TOP PRODUCERS (EMERALD) */}
+            <LeaderboardCategory 
+              title="Top Producers" 
+              subtitle="Production & Revenue Volume"
+              data={leaders.sellers} 
+              loading={leadersLoading}
+              theme="emerald"
+              icon={Package}
+              metricLabel="Revenue"
+              metricSuffix="DZD"
+              roleName="Farmer"
+              handleAwardBadge={handleAwardBadge}
+            />
 
-                        <div className="flex items-end justify-between bg-white/50 p-3 rounded-2xl border border-slate-100/50">
-                          <div className="flex-1">
-                            <div className="flex flex-wrap gap-1">
-                              {s.badges?.length > 0 ? s.badges.map((b, bi) => (
-                                <span key={bi} className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-700 border border-emerald-200/50">
-                                  {b}
-                                </span>
-                              )) : (
-                                <span className="text-[8px] font-black uppercase tracking-widest text-slate-300 italic">No Badges</span>
-                              )}
-                            </div>
-                            <button onClick={() => handleAwardBadge(s.id)} className="text-[8px] font-black uppercase tracking-widest text-[#064e3b] mt-2 hover:underline opacity-0 group-hover:opacity-100 transition-opacity">
-                              Award Merit
-                            </button>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-[13px] font-black text-slate-900 tracking-tight">
-                              {Number(s.metric_value).toLocaleString()}
-                            </div>
-                            <div className="text-[8px] font-black text-[#064e3b] uppercase tracking-widest mt-0.5">DZD REV</div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
+            {/* 2. TOP BUYERS (INDIGO) */}
+            <LeaderboardCategory 
+              title="Top Buyers" 
+              subtitle="Purchasing & Network Activity"
+              data={leaders.buyers} 
+              loading={leadersLoading}
+              theme="indigo"
+              icon={Users}
+              metricLabel="Spending"
+              metricSuffix="DZD"
+              roleName="Buyer"
+              handleAwardBadge={handleAwardBadge}
+            />
 
-            {/* Top Buyers */}
-            <div className="bg-white border border-slate-200 rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200/40">
-              <div className="bg-[#064e3b] px-8 py-6 flex items-center justify-between">
-                <div className="flex items-center gap-3 text-white">
-                  <TrendingUp size={20} className="text-slate-200" />
-                  <h3 className="font-black text-sm uppercase tracking-widest">Top Buyers</h3>
-                </div>
-                <div className="bg-slate-700/50 px-3 py-1 rounded-full text-[9px] font-black text-slate-100 uppercase tracking-widest border border-slate-500/30">
-                  Expenditure Index
-                </div>
-              </div>
-              
-              <div className="p-6 space-y-4">
-                {leadersLoading ? <div className="py-20 text-center"><div className="adm-spinner mx-auto mb-4"></div><p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Aggregating Statistics...</p></div> :
-                 leaders.buyers?.length === 0 ? <div className="py-20 text-center text-slate-300"><Users size={40} className="mx-auto mb-3 opacity-20"/><p className="text-[10px] font-black uppercase tracking-widest">No purchase records found</p></div> : (
-                  leaders.buyers.map((b, i) => (
-                    <div key={i} className={`group flex items-center p-4 rounded-[2rem] border transition-all duration-300 ${i === 0 ? 'bg-slate-50/50 border-slate-100 shadow-inner' : 'bg-slate-50/50 border-slate-100 hover:bg-white hover:shadow-lg'}`}>
-                      <div className="flex flex-col gap-3 w-full">
-                        <div className="flex items-center gap-4">
-                          <div className={`w-12 h-12 rounded-2xl shrink-0 flex items-center justify-center font-black text-lg shadow-lg relative ${
-                            i === 0 ? 'bg-gradient-to-br from-yellow-400 to-amber-600 text-white' : 
-                            i === 1 ? 'bg-gradient-to-br from-slate-300 to-slate-500 text-white' : 
-                            i === 2 ? 'bg-gradient-to-br from-orange-400 to-orange-600 text-white' : 
-                            'bg-white border border-slate-200 text-slate-400'
-                          }`}>
-                            {i < 3 ? getRankIcon(i) : i + 1}
-                            {i < 3 && <div className="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center text-[8px] font-black text-slate-900 border border-slate-100 shadow-sm">{i+1}</div>}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="font-black text-sm text-slate-900 truncate leading-tight">{b.name}</div>
-                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
-                              Rank #{i+1}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex items-end justify-between bg-white/50 p-3 rounded-2xl border border-slate-100/50">
-                          <div className="flex-1">
-                            <div className="flex flex-wrap gap-1">
-                              {b.badges?.length > 0 ? b.badges.map((bg, bi) => (
-                                <span key={bi} className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200/50">
-                                  {bg}
-                                </span>
-                              )) : (
-                                <span className="text-[8px] font-black uppercase tracking-widest text-slate-300 italic">No Badges</span>
-                              )}
-                            </div>
-                            <button onClick={() => handleAwardBadge(b.id)} className="text-[8px] font-black uppercase tracking-widest text-[#064e3b] mt-2 hover:underline opacity-0 group-hover:opacity-100 transition-opacity">
-                              Award Merit
-                            </button>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-[13px] font-black text-slate-900 tracking-tight">
-                              {Number(b.metric_value).toLocaleString()}
-                            </div>
-                            <div className="text-[8px] font-black text-[#064e3b] uppercase tracking-widest mt-0.5">DZD SPENT</div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-
-            {/* Top Transporters */}
-            <div className="bg-white border border-slate-200 rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200/40">
-              <div className="bg-amber-600 px-8 py-6 flex items-center justify-between">
-                <div className="flex items-center gap-3 text-white">
-                  <Truck size={20} className="text-amber-200" />
-                  <h3 className="font-black text-sm uppercase tracking-widest">Top Transporters</h3>
-                </div>
-                <div className="bg-amber-700/50 px-3 py-1 rounded-full text-[9px] font-black text-amber-100 uppercase tracking-widest border border-amber-500/30">
-                  Mission Index
-                </div>
-              </div>
-              
-              <div className="p-6 space-y-4">
-                {leadersLoading ? <div className="py-20 text-center"><div className="adm-spinner mx-auto mb-4"></div><p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Aggregating Statistics...</p></div> :
-                 leaders.transporters?.length === 0 ? <div className="py-20 text-center text-slate-300"><Truck size={40} className="mx-auto mb-3 opacity-20"/><p className="text-[10px] font-black uppercase tracking-widest">No logistics records found</p></div> : (
-                  leaders.transporters.map((t, i) => (
-                    <div key={i} className={`group flex items-center p-4 rounded-[2rem] border transition-all duration-300 ${i === 0 ? 'bg-amber-50/50 border-amber-100 shadow-inner' : 'bg-slate-50/50 border-slate-100 hover:bg-white hover:shadow-lg'}`}>
-                      <div className="flex flex-col gap-3 w-full">
-                        <div className="flex items-center gap-4">
-                          <div className={`w-12 h-12 rounded-2xl shrink-0 flex items-center justify-center font-black text-lg shadow-lg relative ${
-                            i === 0 ? 'bg-gradient-to-br from-yellow-400 to-amber-600 text-white' : 
-                            i === 1 ? 'bg-gradient-to-br from-slate-300 to-slate-500 text-white' : 
-                            i === 2 ? 'bg-gradient-to-br from-orange-400 to-orange-600 text-white' : 
-                            'bg-white border border-slate-200 text-slate-400'
-                          }`}>
-                            {i < 3 ? getRankIcon(i) : i + 1}
-                            {i < 3 && <div className="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center text-[8px] font-black text-slate-900 border border-slate-100 shadow-sm">{i+1}</div>}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="font-black text-sm text-slate-900 truncate leading-tight">{t.name}</div>
-                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
-                              Rank #{i+1}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex items-end justify-between bg-white/50 p-3 rounded-2xl border border-slate-100/50">
-                          <div className="flex-1">
-                            <div className="flex flex-wrap gap-1">
-                              {t.badges?.length > 0 ? t.badges.map((b, bi) => (
-                                <span key={bi} className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md bg-amber-100 text-amber-700 border border-amber-200/50">
-                                  {b}
-                                </span>
-                              )) : (
-                                <span className="text-[8px] font-black uppercase tracking-widest text-slate-300 italic">No Badges</span>
-                              )}
-                            </div>
-                            <button onClick={() => handleAwardBadge(t.id)} className="text-[8px] font-black uppercase tracking-widest text-amber-600 mt-2 hover:underline opacity-0 group-hover:opacity-100 transition-opacity">
-                              Award Merit
-                            </button>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-[13px] font-black text-slate-900 tracking-tight">
-                              {Number(t.metric_value).toLocaleString()}
-                            </div>
-                            <div className="text-[8px] font-black text-amber-600 uppercase tracking-widest mt-0.5">TRIPS</div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
+            {/* 3. TOP TRANSPORTERS (ORANGE) */}
+            <LeaderboardCategory 
+              title="Top Transporters" 
+              subtitle="Logistics & Delivery Efficiency"
+              data={leaders.transporters} 
+              loading={leadersLoading}
+              theme="orange"
+              icon={Truck}
+              metricLabel="Trips"
+              metricSuffix="Missions"
+              roleName="Transporter"
+              handleAwardBadge={handleAwardBadge}
+            />
 
           </div>
-
-
         </div>
       )}
+    </div>
+  );
+};
+
+/**
+ * ── LEADERBOARD CATEGORY COMPONENT ──────────────────────────────────────────
+ * Encapsulates the clean, grid-based container for each actor type.
+ */
+const LeaderboardCategory = ({ title, subtitle, data, loading, theme, icon: Icon, metricLabel, metricSuffix, roleName, handleAwardBadge }) => {
+  const themeColors = {
+    emerald: { bg: 'bg-emerald-600', text: 'text-emerald-600', border: 'border-emerald-100', light: 'bg-emerald-50/40', accent: 'bg-emerald-600', ring: 'ring-emerald-500/20' },
+    indigo: { bg: 'bg-indigo-600', text: 'text-indigo-600', border: 'border-indigo-100', light: 'bg-indigo-50/40', accent: 'bg-indigo-600', ring: 'ring-indigo-500/20' },
+    orange: { bg: 'bg-orange-600', text: 'text-orange-600', border: 'border-orange-100', light: 'bg-orange-50/40', accent: 'bg-orange-600', ring: 'ring-orange-500/20' },
+  };
+  const colors = themeColors[theme];
+
+  return (
+    <div className="flex flex-col bg-white border border-slate-200 rounded-[2rem] overflow-hidden shadow-xl shadow-slate-200/40 h-full">
+      {/* Category Header */}
+      <div className={`${colors.bg} px-8 py-6 flex items-center justify-between`}>
+        <div>
+          <h3 className="text-white font-black text-base tracking-tight uppercase">{title}</h3>
+          <p className="text-white/70 text-[9px] font-bold uppercase tracking-[0.1em] mt-0.5">{subtitle}</p>
+        </div>
+        <Icon size={20} className="text-white/30" />
+      </div>
+
+      <div className="flex-1 p-3 space-y-2">
+        {loading ? (
+          <div className="py-20 text-center">
+            <div className={`w-8 h-8 border-4 border-slate-100 border-t-${theme}-500 rounded-full animate-spin mx-auto mb-4`}></div>
+            <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Compiling Rankings...</span>
+          </div>
+        ) : !data || data.length === 0 ? (
+          <div className="py-20 text-center text-slate-300">
+            <Icon size={40} className="mx-auto mb-3 opacity-10" />
+            <p className="text-[10px] font-black uppercase tracking-widest">No verified data records</p>
+          </div>
+        ) : (
+          data.slice(0, 4).map((actor, idx) => (
+            <LeaderboardRow 
+              key={actor.id || idx} 
+              actor={actor} 
+              index={idx} 
+              colors={colors} 
+              metricLabel={metricLabel}
+              metricSuffix={metricSuffix}
+              roleName={roleName}
+            />
+          ))
+        )}
+      </div>
+      
+      <div className="px-8 py-4 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between">
+        <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic">Official Platform Data</span>
+      </div>
+    </div>
+  );
+};
+
+/**
+ * ── LEADERBOARD ROW COMPONENT ───────────────────────────────────────────────
+ * The "Enterprise" row with Initials, Name, Trust, and Metric.
+ */
+const LeaderboardRow = ({ actor, index, colors, metricLabel, metricSuffix, roleName }) => {
+  const isTop1 = index === 0;
+
+  return (
+    <div className={`group relative flex items-center gap-4 p-4 rounded-2xl transition-all duration-300 ${
+      isTop1 ? `${colors.light} border border-slate-100` : 'bg-slate-50/30 border-transparent hover:bg-white hover:border-slate-200'
+    }`}>
+      
+      {/* 1. RANK & AVATAR */}
+      <div className="flex items-center gap-3 shrink-0">
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-black text-xs ${
+          isTop1 ? 'bg-yellow-400 text-yellow-950 shadow-md ring-2 ring-yellow-100' : 'bg-slate-100 text-slate-500'
+        }`}>
+          #{index + 1}
+        </div>
+        
+        <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-black text-sm border shadow-sm ${
+          isTop1 ? `${colors.bg} text-white border-transparent` : 'bg-white text-slate-400 border-slate-100'
+        }`}>
+          {getInitials(actor.name)}
+        </div>
+      </div>
+
+      {/* 2. USER INFO COLUMN (Full Name & Role, Email, Phone) */}
+      <div className="flex-1 min-w-0 flex flex-col justify-center px-1">
+        <div className="flex items-center gap-2 mb-1.5">
+          <h4 className="text-[14px] font-black text-slate-900 truncate tracking-tight leading-none">
+            {actor.name}
+          </h4>
+          {roleName && (
+            <span className={`px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-widest leading-none shrink-0 ${
+              isTop1 ? `${colors.bg} text-white` : 'bg-slate-200 text-slate-500'
+            }`}>
+              {roleName}
+            </span>
+          )}
+          {isTop1 && <Crown size={12} className="text-yellow-500 fill-yellow-500 shrink-0" />}
+        </div>
+        <div className="flex flex-col gap-1">
+          <div className="text-[10px] font-bold text-slate-500 truncate leading-none lowercase tracking-tight">
+            {actor.email || 'Email Protected'}
+          </div>
+          <div className="text-[10px] font-bold text-slate-400 truncate leading-none tracking-widest mt-0.5">
+            {actor.phone || '+213 (0) -- -- -- --'}
+          </div>
+        </div>
+      </div>
+
+      {/* 3. MAIN STATISTIC */}
+      <div className="text-right shrink-0 min-w-[100px] flex flex-col justify-center border-l border-slate-100 pl-4">
+        <div className={`text-sm font-black tracking-tight ${isTop1 ? colors.text : 'text-slate-900'}`}>
+          {Number(actor.metric_value).toLocaleString()} <span className="text-[9px] opacity-60 ml-0.5">{metricSuffix}</span>
+        </div>
+        <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mt-1">
+          {metricLabel}
+        </div>
+      </div>
+
     </div>
   );
 };
