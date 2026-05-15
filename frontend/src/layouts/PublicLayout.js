@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Leaf, Phone, Mail, MapPin, ShieldCheck, Building2 } from 'lucide-react';
+import { Phone, Mail, MapPin, ShieldCheck, Building2 } from 'lucide-react';
 import PublicNavbar from '../components/PublicNavbar';
+import AgriGovLogo from '../components/common/AgriGovLogo';
 
 const PublicLayout = ({ children }) => {
   return (
@@ -19,9 +20,8 @@ const PublicLayout = ({ children }) => {
 
               {/* Brand column */}
               <div className="pub-footer-brand-col">
-                <Link to="/" className="pub-footer-brand">
-                  <Leaf size={22} />
-                  <span>AgriGov <strong>Market</strong></span>
+                <Link to="/" className="pub-footer-brand" style={{ textDecoration: 'none' }}>
+                  <AgriGovLogo size={24} variant="full" />
                 </Link>
                 <p className="pub-footer-brand-desc">
                   Official platform for agricultural trade and logistics coordination, 

@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
-  Leaf, BarChart3, ShieldCheck, Truck, Eye, EyeOff,
+  BarChart3, ShieldCheck, Truck, Eye, EyeOff,
   ChevronRight, Building2, CheckCircle, ArrowLeft
 } from 'lucide-react';
+import AgriGovLogo from '../components/common/AgriGovLogo';
 
 const Login = () => {
   const { login } = useAuth();
@@ -34,9 +35,8 @@ const Login = () => {
       <div className="auth-left-panel auth-left-premium">
         <div className="auth-left-overlay"></div>
         <div className="auth-left-content-inner">
-          <Link to="/" className="auth-logo-link">
-            <Leaf size={26} />
-            <span>AgriGov <strong>Market</strong></span>
+          <Link to="/" className="auth-logo-link" style={{ textDecoration: 'none' }}>
+            <AgriGovLogo size={32} variant="full" />
           </Link>
           <div className="auth-left-body">
             <div className="auth-ministry-tag">
@@ -104,7 +104,7 @@ const Login = () => {
             {/* Header */}
             <div className="auth-form-header">
               <div className="auth-form-icon">
-                <Leaf size={22} />
+                <AgriGovLogo size={28} variant="compact" />
               </div>
               <h1 className="auth-form-title">Welcome back</h1>
               <p className="auth-form-subtitle">Sign in to your AgriGov Market account</p>

@@ -8,6 +8,7 @@ import {
   Activity, Eye, TrendingUp, Award, Landmark, BadgeCheck, Satellite,
   MonitorSmartphone, ScanLine, ShoppingBag
 } from 'lucide-react';
+import AgriGovLogo from '../../components/common/AgriGovLogo';
 
 /* ─── Intersection Observer Hook ─── */
 function useInView(options = {}) {
@@ -195,7 +196,9 @@ const LandingPage = () => {
             <img src="/images/hero-farm.png" alt="AgriGov smart farming" />
           </div>
           <div className="ag-about-content">
-            <div className="ag-section-tag"><Leaf size={14} /> About</div>
+            <div className="ag-section-tag" style={{ background: 'none', padding: 0 }}>
+              <AgriGovLogo size={32} variant="compact" />
+            </div>
             <h2>Modernizing Algeria's Agricultural Trade</h2>
             <p>
               AgriGov Market is a government-supervised digital platform that digitizes the entire

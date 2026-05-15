@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { ShieldCheck, Clock, CheckCircle2, Home, HeadphonesIcon, LogOut, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api/axiosConfig';
+import AgriGovLogo from '../components/common/AgriGovLogo';
 
 const AccountPending = () => {
   const { user, logout, updateUser } = useAuth();
@@ -71,6 +72,11 @@ const AccountPending = () => {
 
       <div className="relative w-full max-w-3xl bg-white/80 backdrop-blur-md rounded-2xl shadow-xl border border-white/50 p-8 md:p-12 z-10">
         
+        {/* Logo Section */}
+        <div className="flex justify-center mb-8">
+          <AgriGovLogo size={36} variant="full" />
+        </div>
+
         {/* Header Section */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-24 h-24 bg-[#166534]/10 text-[#166534] rounded-full mb-6 relative">

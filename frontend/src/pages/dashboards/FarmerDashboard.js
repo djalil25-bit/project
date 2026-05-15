@@ -10,7 +10,7 @@ import {
   Plus, Sprout, TrendingUp, Clock,
   Package, ChevronRight, CheckCircle, ExternalLink, ListOrdered,
   BadgeCheck, ShoppingBag, CloudSun, Target,
-  ShieldAlert
+  ShieldAlert, Wheat
 } from 'lucide-react';
 
 function timeAgo(dateStr) {
@@ -29,9 +29,8 @@ export default function FarmerDashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [farmId, setFarmId] = useState(undefined);
-  const [wilaya, setWilaya] = useState(null);
   const [farmName, setFarmName] = useState('');
-
+  const [wilaya, setWilaya] = useState(null);
   const [alertStatus, setAlertStatus] = useState(null); // { alerts_count, has_danger }
   const [showMarketPanel, setShowMarketPanel] = useState(false);
 
@@ -65,6 +64,8 @@ export default function FarmerDashboard() {
         console.error('[IoT] Could not load farms:', err);
         setFarmId(null); // On error — still show weather with default city
       });
+
+
   }, []);
 
   if (loading) return (
@@ -114,7 +115,8 @@ export default function FarmerDashboard() {
       <MarketInsightsBar onOpenPanel={() => setShowMarketPanel(true)} accentColor="#2E6F40" />
 
       <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
-        
+
+
         {/* ── HERO WIDGET ───────────────────────────────────────────────── */}
         <div className="relative overflow-hidden bg-gradient-to-br from-[#2E6F40] via-[#255933] to-slate-900 rounded-2xl shadow-[0_12px_30px_rgba(34,84,61,0.25)] text-white p-5 lg:p-6 border border-white/10">
           <div className="absolute top-0 right-0 -mr-12 -mt-12 w-48 h-48 bg-[#2E6F40]/20 rounded-full blur-3xl pointer-events-none" />
@@ -241,6 +243,10 @@ export default function FarmerDashboard() {
             </div>
           </div>
         )}
+
+
+
+
 
 
 

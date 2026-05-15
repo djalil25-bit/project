@@ -144,10 +144,10 @@ export default function IoTAlertsPage() {
               <Activity size={11} /> IoT Monitoring
             </div>
             <h1 style={{ fontSize: '1.75rem', fontWeight: 900, margin: 0, letterSpacing: '-0.02em' }}>
-              🌡️ IoT Alerts — My Farm
+              📡 Farm Alerts System
             </h1>
             <p style={{ color: '#94a3b8', fontSize: '0.85rem', fontWeight: 500, marginTop: '0.4rem' }}>
-              Real-time monitoring of your farm sensors
+              Real-time monitoring & event history
             </p>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
@@ -242,28 +242,23 @@ export default function IoTAlertsPage() {
               <div style={{ padding: '2rem', textAlign: 'center', color: '#94a3b8', fontSize: '0.85rem', fontWeight: 600 }}>No sensor data available</div>
             ) : (
               <div style={{ padding: '1rem' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem', marginBottom: '0.75rem' }}>
                   {miniKpis.slice(0, 3).map((kpi, i) => (
-                    <div key={i} style={{ textAlign: 'center', padding: '0.75rem 0.5rem', borderRadius: '0.75rem', background: '#f8fafc', border: '1px solid #f1f5f9' }}>
-                      <div style={{ width: 32, height: 32, borderRadius: '0.5rem', background: `${kpi.color}15`, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.4rem' }}>{kpi.icon}</div>
-                      <div style={{ fontSize: '1rem', fontWeight: 900, color: '#0f172a', letterSpacing: '-0.02em' }}>{kpi.value}</div>
-                      <div style={{ fontSize: '0.6rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: 2 }}>{kpi.label}</div>
+                    <div key={i} style={{ textAlign: 'center', padding: '0.85rem 0.5rem', borderRadius: '1rem', background: '#f8fafc', border: '1px solid #f1f5f9' }}>
+                      <div style={{ width: 34, height: 34, borderRadius: '0.65rem', background: `${kpi.color}15`, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.5rem' }}>{kpi.icon}</div>
+                      <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0f172a', letterSpacing: '-0.02em' }}>{kpi.value}</div>
+                      <div style={{ fontSize: '0.6rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 3 }}>{kpi.label}</div>
                     </div>
                   ))}
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
                   {miniKpis.slice(3, 6).map((kpi, i) => (
-                    <div key={i} style={{ textAlign: 'center', padding: '0.75rem 0.5rem', borderRadius: '0.75rem', background: '#f8fafc', border: '1px solid #f1f5f9' }}>
-                      <div style={{ width: 32, height: 32, borderRadius: '0.5rem', background: `${kpi.color}15`, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.4rem' }}>{kpi.icon}</div>
-                      <div style={{ fontSize: '1rem', fontWeight: 900, color: '#0f172a', letterSpacing: '-0.02em' }}>{kpi.value}</div>
-                      <div style={{ fontSize: '0.6rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: 2 }}>{kpi.label}</div>
+                    <div key={i} style={{ textAlign: 'center', padding: '0.85rem 0.5rem', borderRadius: '1rem', background: '#f8fafc', border: '1px solid #f1f5f9' }}>
+                      <div style={{ width: 34, height: 34, borderRadius: '0.65rem', background: `${kpi.color}15`, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.5rem' }}>{kpi.icon}</div>
+                      <div style={{ fontSize: '1.05rem', fontWeight: 900, color: '#0f172a', letterSpacing: '-0.02em' }}>{kpi.value}</div>
+                      <div style={{ fontSize: '0.6rem', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 3 }}>{kpi.label}</div>
                     </div>
                   ))}
-                </div>
-                {/* FIX 4 — pH card shows "No Sensor Connected" */}
-                <div style={{ textAlign: 'center', padding: '0.6rem', borderRadius: '0.75rem', background: '#f8fafc', border: '1px dashed #e2e8f0', opacity: 0.7 }}>
-                  <div style={{ width: 28, height: 28, borderRadius: '0.4rem', background: '#f1f5f915', color: '#cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 0.3rem' }}><FlaskConical size={14} /></div>
-                  <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#cbd5e1' }}>pH — No Sensor Connected</div>
                 </div>
               </div>
             )}

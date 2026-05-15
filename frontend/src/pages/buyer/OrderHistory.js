@@ -81,7 +81,7 @@ const DeliveryTimeline = ({ order }) => {
           const isActive = idx <= currentStepIndex;
           return (
             <div key={step.key} className="flex flex-col items-center gap-1.5">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500 ${isActive ? 'bg-teal-600 text-white shadow-[0_2px_10px_rgba(37,99,235,0.3)] shadow-inner' : 'bg-white text-slate-300 border-2 border-slate-100'}`}>
+              <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500 ${isActive ? 'bg-teal-600 text-white shadow-[0_2px_10px_rgba(37,99,235,0.3)]' : 'bg-white text-slate-300 border-2 border-slate-100'}`}>
                 {step.icon}
               </div>
               <div className={`text-[8px] font-black uppercase tracking-widest ${isActive ? 'text-teal-900 drop-shadow-sm' : 'text-slate-400'}`}>
@@ -348,7 +348,6 @@ function OrderHistory() {
                                         </div>
                                         <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter bg-slate-50 px-2 py-1 rounded">{o.items?.length} items</div>
                                       </div>
-
                                         <div className="space-y-3 mb-6">
                                           {o.items?.map(item => {
                                             const name = item.product_detail?.title || item.product_name || 'Item';
@@ -449,7 +448,6 @@ function OrderHistory() {
                                               })}
                                            </div>
                                          </div>
-
                                     {/* Your Delivery Agent Card */}
                                     {o.transporter ? (
                                       <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
@@ -467,7 +465,6 @@ function OrderHistory() {
                                               <div className="text-sm font-black text-slate-800">{o.transporter.name}</div>
                                             </div>
                                           </div>
-
                                           <div className="grid grid-cols-2 gap-3">
                                             <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
                                               <label className="text-[8px] font-black uppercase tracking-widest text-slate-400 block mb-1">Contact</label>

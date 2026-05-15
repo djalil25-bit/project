@@ -206,10 +206,10 @@ const MainLayout = () => {
       { label: t('nav_dashboard'), path: '/farmer-dashboard', icon: <LayoutDashboard size={18} strokeWidth={2.2} /> },
       { label: t('nav_statistics'), path: '/farmer-dashboard/stats', icon: <BarChart3 size={18} strokeWidth={2.2} /> },
       { label: t('nav_my_farms'), path: '/farmer-dashboard/farms', icon: <Tractor size={18} strokeWidth={2.2} /> },
+      { label: t('nav_harvests'), path: '/farmer-dashboard/harvests', icon: <Wheat size={18} strokeWidth={2.2} /> },
       { label: 'IoT Alerts', path: '/farmer-dashboard/iot-alerts', icon: <Activity size={18} strokeWidth={2.2} />, badge: iotAlertCount, badgeDanger: iotHasDanger },
       { label: t('nav_orders'), path: '/farmer-dashboard/orders', icon: <ListOrdered size={18} strokeWidth={2.2} /> },
       { label: t('nav_my_products'), path: '/farmer-dashboard/products', icon: <Sprout size={18} strokeWidth={2.2} /> },
-      { label: t('nav_harvests'), path: '/farmer-dashboard/harvests', icon: <Wheat size={18} strokeWidth={2.2} /> },
       { label: t('nav_complaints'), path: '/complaints', icon: <ShieldAlert size={18} strokeWidth={2.2} /> },
     ],
     buyer: [

@@ -12,7 +12,7 @@ export default function MarketInsightsBar({ onOpenPanel, accentColor = '#10b981'
         const catalogRes = await api.get('/catalog-products/');
         
         // Map catalog products to ticker format
-        const products = (catalogRes.data.results || catalogRes.data || []).filter(p => p.ref_price);
+        const products = (catalogRes.data.results || catalogRes.data || []).filter(p => p.ref_price || (p.min_price && p.max_price));
         
         const mappedPrices = products.map((p, index) => {
           return {
