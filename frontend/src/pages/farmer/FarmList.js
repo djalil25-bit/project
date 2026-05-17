@@ -36,26 +36,31 @@ export default function FarmList() {
   return (
     <div className="max-w-7xl mx-auto px-4 py-8 animate-fade-in relative z-0">
       
-      {/* ── HEADER ─────────────────────────────────────────────────── */}
+      {/* ── BREADCRUMBS ────────────────────────────────────────────── */}
+      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#2E6F40] mb-5 bg-[#2E6F40]/10 px-3 py-1 rounded-full w-fit border border-[#2E6F40]/20 shadow-sm">
+        <Link to="/farmer-dashboard" className="hover:text-[#255933] transition-colors">Farmer Hub</Link>
+        <ChevronRight size={10} className="text-[#2E6F40]/40" />
+        <span className="text-[#2E6F40] flex items-center gap-1.5">
+          <Tractor size={11} /> Land Management
+        </span>
+      </div>
+
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
         <div>
-          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#2E6F40] mb-3">
-            <Link to="/farmer-dashboard" className="hover:underline hover:text-[#255933] transition-colors">Farmer Hub</Link>
-            <ChevronRight size={12} className="text-slate-400" />
-            <span className="text-slate-400 flex items-center gap-1"><Tractor size={12}/> My Farms</span>
-          </div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-            Land Management
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+            <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-[#2E6F40]">
+              <Tractor size={22} strokeWidth={2.5} />
+            </div>
+            Registry of <span className="text-[#2E6F40]">Farms</span>
           </h1>
-          <p className="text-slate-500 font-medium text-lg mt-2 max-w-xl leading-relaxed">
-            Register and manage your geographical agricultural assets. Update yield expectations and define boundaries.
-          </p>
+          <p className="text-slate-500 font-medium mt-1.5 text-sm max-w-xl">Register and manage your geographical agricultural assets.</p>
         </div>
+        
         <button 
-          className="inline-flex items-center justify-center gap-2 bg-[#2E6F40] hover:bg-[#255933] text-white px-6 py-3.5 rounded-xl text-sm font-extrabold shadow-[0_4px_15px_rgba(34,84,61,0.3)] hover:shadow-[0_8px_25px_rgba(34,84,61,0.4)] transition-all duration-300 transform hover:-translate-y-1 hover:scale-105 active:scale-95"
+          className="inline-flex items-center gap-2 bg-[#2E6F40] hover:bg-[#255933] text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-md active:scale-95 border-0"
           onClick={() => navigate('/farmer-dashboard/farm/new')}
         >
-          <Plus size={18} strokeWidth={3} /> Register New Farm
+          <Plus size={16} strokeWidth={3} /> Register New Farm
         </button>
       </div>
 
@@ -78,12 +83,12 @@ export default function FarmList() {
         </div>
       ) : (
         <>
-          <div className="flex items-center justify-between mb-5 pb-3 border-b border-slate-200">
-            <h3 className="text-base font-black text-slate-900 flex items-center gap-2 tracking-tight">
-              <Sprout size={18} className="text-[#2E6F40]" strokeWidth={2.5}/> Registered Farms
+          <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-100">
+            <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+              <Sprout size={14} className="text-[#2E6F40]" strokeWidth={3}/> Operational Assets
             </h3>
-            <span className="bg-[#2E6F40]/10 text-[#2E6F40] font-black tracking-widest uppercase px-3 py-1 rounded-full text-[10px] shadow-inner border border-[#2E6F40]/20">
-              {farms.length} Farm{farms.length !== 1 ? 's' : ''}
+            <span className="bg-[#f0faf4] text-[#2E6F40] font-black tracking-widest uppercase px-3 py-1 rounded-full text-[9px] border border-[#2E6F40]/20 shadow-sm">
+              {farms.length} Node{farms.length !== 1 ? 's' : ''} Online
             </span>
           </div>
 
@@ -91,57 +96,64 @@ export default function FarmList() {
             {farms.map((farm, idx) => (
               <div 
                 key={farm.id} 
-                className={`group bg-white border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-0.5 flex flex-col ${
-                  farm.status === 'REJECTED' ? 'border-red-200' : farm.status === 'PENDING' ? 'border-amber-200' : 'border-slate-200 hover:border-[#2E6F40]/30'
+                className={`group bg-white border rounded-[2rem] overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.02)] hover:shadow-[0_20px_60px_rgba(0,0,0,0.06)] transition-all duration-500 transform hover:-translate-y-1 flex flex-col ${
+                  farm.status === 'REJECTED' ? 'border-red-100 bg-red-50/10' : farm.status === 'PENDING' ? 'border-amber-100 bg-amber-50/10' : 'border-slate-100 hover:border-[#2E6F40]/20'
                 }`}
-                style={{ animationDelay: `${idx * 0.04}s` }}
+                style={{ animationDelay: `${idx * 0.05}s` }}
               >
                 {/* Image Banner */}
-                <div className="relative h-36 overflow-hidden bg-slate-100 cursor-pointer shrink-0" onClick={() => navigate(`/farmer-dashboard/farms/${farm.id}`)}>
+                <div className="relative h-44 overflow-hidden bg-slate-50 cursor-pointer shrink-0" onClick={() => navigate(`/farmer-dashboard/farms/${farm.id}`)}>
                   {farm.image ? (
-                    <img src={farm.image} alt={farm.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                    <img src={farm.image} alt={farm.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                   ) : (
-                    <div className="absolute inset-0 bg-gradient-to-tr from-[#255933] to-[#2d6a4f] flex items-center justify-center">
-                      <ImageOff size={28} className="text-white/20" strokeWidth={1.5} />
+                    <div className="absolute inset-0 bg-slate-100 flex items-center justify-center">
+                      <ImageOff size={28} className="text-slate-300" strokeWidth={1.5} />
                     </div>
                   )}
-                  <div className="absolute top-2.5 left-2.5 bg-black/60 backdrop-blur-sm text-white border border-white/20 px-2 py-0.5 rounded-full text-[9px] font-black tracking-widest">
-                    #{farm.id.toString().padStart(4, '0')}
+                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm text-slate-900 px-3 py-1 rounded-full text-[9px] font-black tracking-widest shadow-sm border border-slate-100">
+                    ID-{farm.id.toString().padStart(4, '0')}
                   </div>
                 </div>
 
                 {/* Card Body */}
-                <div className="p-4 flex flex-col flex-grow">
-                  <div className="flex justify-between items-start gap-2 mb-1.5">
-                    <h4 className="text-sm font-black text-slate-900 truncate tracking-tight cursor-pointer hover:text-[#2E6F40] transition-colors" title={farm.name} onClick={() => navigate(`/farmer-dashboard/farms/${farm.id}`)}>
+                <div className="p-6 flex flex-col flex-grow">
+                  <div className="flex justify-between items-start gap-4 mb-3">
+                    <h4 className="text-base font-black text-slate-900 truncate tracking-tight cursor-pointer hover:text-[#2E6F40] transition-colors" title={farm.name} onClick={() => navigate(`/farmer-dashboard/farms/${farm.id}`)}>
                       {farm.name}
                     </h4>
                     {/* Dynamic Status Badge */}
                     {farm.status === 'ACTIVE' ? (
-                      <span className="inline-flex items-center gap-1 bg-[#f0faf4] text-[#255933] border border-[#a2d4b5] px-1.5 py-0.5 rounded text-[9px] font-black shrink-0">
-                        <Sprout size={8} strokeWidth={3} /> ACTIVE
+                      <span className="inline-flex items-center gap-1.5 bg-emerald-50 text-[#2E6F40] border border-emerald-100 px-2 py-1 rounded-lg text-[8px] font-black shrink-0 shadow-sm">
+                        <div className="w-1 h-1 rounded-full bg-[#2E6F40] animate-pulse" /> ACTIVE
                       </span>
                     ) : farm.status === 'PENDING' ? (
-                      <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.5 rounded text-[9px] font-black shrink-0 animate-pulse">
-                        <Clock size={8} strokeWidth={3} /> PENDING
+                      <span className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-600 border border-amber-100 px-2 py-1 rounded-lg text-[8px] font-black shrink-0 shadow-sm">
+                        <div className="w-1 h-1 rounded-full bg-amber-600 animate-pulse" /> PENDING
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 bg-red-50 text-red-700 border border-red-200 px-1.5 py-0.5 rounded text-[9px] font-black shrink-0">
-                        <AlertCircle size={8} strokeWidth={3} /> REJECTED
+                      <span className="inline-flex items-center gap-1.5 bg-red-50 text-red-600 border border-red-100 px-2 py-1 rounded-lg text-[8px] font-black shrink-0 shadow-sm">
+                        <div className="w-1 h-1 rounded-full bg-red-600" /> REJECTED
                       </span>
                     )}
                   </div>
 
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <MapPin size={11} className="text-amber-500 shrink-0" strokeWidth={2.5} />
-                    <span className="text-slate-500 font-medium text-xs truncate">{farm.location}</span>
+                  <div className="flex items-center gap-2 mb-4">
+                    <MapPin size={12} className="text-slate-400 shrink-0" strokeWidth={3} />
+                    <span className="text-slate-500 font-bold text-[10px] uppercase tracking-wider truncate">{farm.location}</span>
                   </div>
 
-                  {farm.size_hectares && (
-                    <span className="inline-flex items-center gap-1 bg-slate-50 text-slate-600 border border-slate-200 px-2 py-1 rounded-lg text-[10px] font-black mb-3 w-fit">
-                      <Maximize2 size={10} className="text-[#2E6F40]" strokeWidth={3} /> {farm.size_hectares} HA
-                    </span>
-                  )}
+                  <div className="flex items-center gap-4 mb-6">
+                    {farm.size_hectares && (
+                      <div className="flex items-center gap-1.5 bg-slate-50 px-2 py-1 rounded-md border border-slate-100">
+                        <Maximize2 size={10} className="text-[#2E6F40]" strokeWidth={3} />
+                        <span className="text-[10px] font-black text-slate-700 tabular-nums">{farm.size_hectares} HA</span>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-1.5 text-slate-400">
+                      <Clock size={10} strokeWidth={3} />
+                      <span className="text-[9px] font-black uppercase tracking-widest">2024 Cycle</span>
+                    </div>
+                  </div>
 
                   {/* Rejection Reason Banner */}
                   {farm.status === 'REJECTED' && farm.rejection_reason && (
@@ -167,27 +179,29 @@ export default function FarmList() {
                   )}
 
                   {/* Actions */}
-                  <div className="mt-auto pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                  <div className="mt-auto pt-6 border-t border-slate-50 flex items-center justify-between gap-3">
                     <button 
-                      className="flex-1 flex items-center justify-center gap-1.5 bg-slate-50 hover:bg-[#2E6F40] border border-slate-200 hover:border-[#255933] text-slate-700 hover:text-white px-3 py-1.5 rounded-lg font-bold text-xs uppercase tracking-wide transition-all duration-200"
+                      className="flex-1 flex items-center justify-center gap-2 bg-slate-50 hover:bg-[#2E6F40] border border-slate-200 hover:border-[#255933] text-slate-700 hover:text-white px-4 py-2.5 rounded-xl font-black text-[9px] uppercase tracking-widest transition-all duration-300 shadow-sm"
                       onClick={() => navigate(`/farmer-dashboard/farms/${farm.id}`)}
                     >
-                      <ExternalLink size={11} strokeWidth={3} /> View
+                      <ExternalLink size={12} strokeWidth={3} /> Node Details
                     </button>
-                    <button 
-                      className="w-8 h-8 flex items-center justify-center bg-slate-50 hover:bg-amber-50 border border-slate-200 hover:border-amber-300 text-slate-400 hover:text-amber-600 rounded-lg transition-all duration-200"
-                      title={farm.status === 'REJECTED' ? 'Edit & Resubmit' : 'Edit farm'}
-                      onClick={() => navigate(`/farmer-dashboard/farm/edit/${farm.id}`)}
-                    >
-                      <Edit3 size={13} strokeWidth={2.5} />
-                    </button>
-                    <button 
-                      className="w-8 h-8 flex items-center justify-center bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-300 text-slate-400 hover:text-red-600 rounded-lg transition-all duration-200"
-                      title="Delete farm"
-                      onClick={() => deleteFarm(farm.id)}
-                    >
-                      <Trash2 size={13} strokeWidth={2.5} />
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button 
+                        className="w-10 h-10 flex items-center justify-center bg-white hover:bg-amber-50 border border-slate-200 hover:border-amber-200 text-slate-400 hover:text-amber-600 rounded-xl transition-all duration-300 shadow-sm active:scale-95"
+                        title={farm.status === 'REJECTED' ? 'Edit & Resubmit' : 'Edit asset'}
+                        onClick={() => navigate(`/farmer-dashboard/farm/edit/${farm.id}`)}
+                      >
+                        <Edit3 size={14} strokeWidth={2.5} />
+                      </button>
+                      <button 
+                        className="w-10 h-10 flex items-center justify-center bg-white hover:bg-red-50 border border-slate-200 hover:border-red-200 text-slate-400 hover:text-red-500 rounded-xl transition-all duration-300 shadow-sm active:scale-95"
+                        title="Delete asset"
+                        onClick={() => deleteFarm(farm.id)}
+                      >
+                        <Trash2 size={14} strokeWidth={2.5} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -280,7 +280,7 @@ function BuyerDashboard() {
   );
 
   return (
-    <div className="buyer-page-wrapper" style={{ background: '#f8f9fc', minHeight: '100vh', padding: '0 0 2rem 0' }}>
+    <div className="buyer-page-wrapper bg-slate-50" style={{ minHeight: '100vh', padding: '0 0 2rem 0' }}>
 
       {/* ── MARKET INTELLIGENCE BAR ── */}
       <MarketInsightsBar onOpenPanel={() => setShowMarketPanel(true)} accentColor="#0F766E" />
@@ -338,31 +338,33 @@ function BuyerDashboard() {
         </div>
 
         {/* Filters and Navigation (Sticky Controller) */}
-        <div style={{
+        <div className="bg-slate-50 border-slate-200" style={{
           position: 'sticky',
           top: '72px',
           zIndex: 100,
-          background: '#f8f9fc',
           padding: '1rem 0',
           marginBottom: '1rem',
-          borderBottom: '1px solid #e2e8f0'
+          borderBottomWidth: '1px',
+          borderBottomStyle: 'solid'
         }}>
           <div style={{ display: 'flex', gap: '1.5rem' }}>
             <div style={{ flex: 1, position: 'relative' }}>
               <Search size={20} style={{ position: 'absolute', left: '1.25rem', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
               <input
-                style={{ width: '100%', padding: '1.25rem 1.25rem 1.25rem 3.5rem', borderRadius: '24px', border: '1.5px solid #e2e8f0', fontSize: '1rem', fontWeight: 600, color: '#1e293b', outline: 'none', background: '#fff', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}
+                className="bg-white border-slate-200 text-slate-900"
+                style={{ width: '100%', padding: '1.25rem 1.25rem 1.25rem 3.5rem', borderRadius: '24px', borderWidth: '1.5px', borderStyle: 'solid', fontSize: '1rem', fontWeight: 600, outline: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.03)' }}
                 placeholder="Search by variety, producer, or region..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
               />
             </div>
-            <div style={{ display: 'flex', gap: '0.75rem', padding: '0.4rem', background: '#fff', borderRadius: '24px', border: '1.5px solid #e2e8f0', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', overflowX: 'auto', maxWidth: '700px' }} className="scrollbar-none">
+            <div className="bg-white border-slate-200 scrollbar-none" style={{ display: 'flex', gap: '0.75rem', padding: '0.4rem', borderRadius: '24px', borderWidth: '1.5px', borderStyle: 'solid', boxShadow: '0 10px 30px rgba(0,0,0,0.03)', overflowX: 'auto', maxWidth: '700px' }}>
               {categories.map(c => (
                 <button
                   key={c.id}
                   onClick={() => setActiveCategory(c.name)}
-                  style={{ padding: '0.75rem 1.5rem', borderRadius: '18px', border: 'none', background: activeCategory === c.name ? '#0F766E' : 'transparent', color: activeCategory === c.name ? '#fff' : '#64748b', fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s' }}
+                  className={activeCategory === c.name ? '' : 'text-slate-500'}
+                  style={{ padding: '0.75rem 1.5rem', borderRadius: '18px', border: 'none', background: activeCategory === c.name ? '#0F766E' : 'transparent', color: activeCategory === c.name ? '#fff' : undefined, fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s' }}
                 >
                   {c.name}
                 </button>
@@ -376,11 +378,11 @@ function BuyerDashboard() {
           {filteredProducts.map((p, idx) => (
             <div
               key={p.id}
-              style={{ background: '#fff', borderRadius: '28px', border: '1.5px solid #e2e8f0', overflow: 'hidden', position: 'relative', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.02)', transition: 'all 0.3s ease' }}
-              className="hover-card"
+              style={{ borderRadius: '28px', borderWidth: '1.5px', borderStyle: 'solid', overflow: 'hidden', position: 'relative', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 6px rgba(0,0,0,0.02)', transition: 'all 0.3s ease' }}
+              className="hover-card bg-white border-slate-200"
             >
               {/* Product Visual */}
-              <div style={{ height: '180px', background: '#f8fafc', position: 'relative', overflow: 'hidden', cursor: 'pointer' }} onClick={() => setSelectedProduct(p)}>
+              <div className="bg-slate-50" style={{ height: '180px', position: 'relative', overflow: 'hidden', cursor: 'pointer' }} onClick={() => setSelectedProduct(p)}>
                 {p.image ? (
                   <img src={p.image} alt={p.title} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s ease' }} className="card-img" />
                 ) : (
@@ -389,7 +391,8 @@ function BuyerDashboard() {
                 <QualityBadge quality={p.quality} />
                 <button
                   onClick={(e) => { e.stopPropagation(); toggleFavorite(p); }}
-                  style={{ position: 'absolute', top: '10px', right: '10px', width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(4px)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', color: p.is_favorite ? '#e11d48' : '#94a3b8', cursor: 'pointer', zIndex: 10 }}
+                  className="bg-white"
+                  style={{ position: 'absolute', top: '10px', right: '10px', width: '36px', height: '36px', borderRadius: '10px', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', color: p.is_favorite ? '#e11d48' : '#94a3b8', cursor: 'pointer', zIndex: 10 }}
                 >
                   <Heart size={18} fill={p.is_favorite ? 'currentColor' : 'none'} />
                 </button>
@@ -402,11 +405,11 @@ function BuyerDashboard() {
                   <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#cbd5e1' }}></div>
                   <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#94a3b8' }}>{p.farm_name}</span>
                 </div>
-                <h4 style={{ fontSize: '1.15rem', fontWeight: 900, color: '#1e293b', margin: '0 0 0.5rem', lineHeight: 1.2, cursor: 'pointer' }} onClick={() => setSelectedProduct(p)}>{p.title}</h4>
+                <h4 className="text-slate-900" style={{ fontSize: '1.15rem', fontWeight: 900, margin: '0 0 0.5rem', lineHeight: 1.2, cursor: 'pointer' }} onClick={() => setSelectedProduct(p)}>{p.title}</h4>
 
                 <div style={{ marginTop: 'auto' }}>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.4rem' }}>
-                    <span style={{ fontSize: '1.3rem', fontWeight: 900, color: '#1e293b' }}>{parseFloat(p.price).toLocaleString()}</span>
+                    <span className="text-slate-900" style={{ fontSize: '1.3rem', fontWeight: 900 }}>{parseFloat(p.price).toLocaleString()}</span>
                     <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8' }}>DZD / {p.unit}</span>
                   </div>
                   <BenchmarkDisplay comparison={p.official_price_comparison} />
@@ -414,7 +417,8 @@ function BuyerDashboard() {
                   <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
                     <button
                       onClick={() => setSelectedProduct(p)}
-                      style={{ flex: 1, background: '#f8fafc', color: '#1e293b', border: '1.5px solid #e2e8f0', borderRadius: '14px', padding: '0.75rem', fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer' }}
+                      className="bg-slate-50 text-slate-900 border-slate-200"
+                      style={{ flex: 1, borderWidth: '1.5px', borderStyle: 'solid', borderRadius: '14px', padding: '0.75rem', fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer' }}
                     >
                       Analyze
                     </button>

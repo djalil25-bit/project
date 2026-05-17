@@ -163,7 +163,6 @@ void loop() {
 
     doc["soil_moisture"] = soil;
     doc["rain_status"] = rain;
-    doc["ph"] = nullptr; // Pas de capteur pH
     doc["ir_status"] = ir;
     doc["sound_status"] = sound;
 

@@ -118,42 +118,46 @@ export default function OrderList() {
     <div className="max-w-7xl mx-auto px-4 py-8 animate-fade-in relative z-0">
 
       {/* ── HEADER ─────────────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
-        <div>
-          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-[#2E6F40] mb-2">
-            <Link to="/farmer-dashboard" className="hover:underline">Farmer Hub</Link>
-            <ChevronRight size={12} className="text-slate-400" />
-            <span className="text-slate-400 flex items-center gap-1"><ListOrdered size={12}/> Orders</span>
+      {/* ── BREADCRUMBS ────────────────────────────────────────────── */}
+      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#2E6F40] mb-5 bg-[#2E6F40]/10 px-3 py-1 rounded-full w-fit border border-[#2E6F40]/20 shadow-sm">
+        <Link to="/farmer-dashboard" className="hover:text-[#255933] transition-colors">Farmer Hub</Link>
+        <ChevronRight size={10} className="text-[#2E6F40]/40" />
+        <span className="text-[#2E6F40] flex items-center gap-1.5">
+          <ListOrdered size={11} /> My Orders
+        </span>
+      </div>
+
+      <div className="mb-8">
+        <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+          <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-[#2E6F40]">
+            <ListOrdered size={22} strokeWidth={2.5} />
           </div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-4">
-            <button className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-500 rounded-full transition-colors" onClick={() => navigate('/farmer-dashboard')}>
-              <ChevronLeft size={20} />
-            </button>
-            My Orders
-          </h1>
-        </div>
+          Registry of Orders
+        </h1>
+        <p className="text-slate-500 font-medium mt-1.5 text-sm max-w-xl">Monitor and manage your incoming harvest orders and delivery logistics.</p>
       </div>
 
       {/* ── UNIFIED FLEXBOX FILTER BAR ────────────────────────────── */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-2 shadow-sm mb-6 flex flex-col xl:flex-row gap-2 xl:items-center">
-        <div className="relative flex-1">
-          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+      {/* ── FILTER BAR ────────────────────────────────────────────── */}
+      <div className="bg-white border border-slate-200 rounded-2xl p-2 shadow-[0_8px_30px_rgba(0,0,0,0.04)] mb-6 flex flex-col xl:flex-row gap-2 xl:items-center overflow-hidden">
+        <div className="relative flex-1 group">
+          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-[#2E6F40] transition-colors" />
           <input
             type="text"
-            className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2E6F40] transition-all text-sm font-semibold text-slate-700 placeholder-slate-400"
+            className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2E6F40]/20 transition-all text-xs font-black text-slate-700 placeholder-slate-400 uppercase tracking-wider"
             placeholder="Search by Order ID or Buyer Name..."
             value={searchTerm}
             onChange={e => setSearch(e.target.value)}
           />
         </div>
 
-        <div className="hidden xl:block w-px h-6 bg-slate-200 mx-2" />
+        <div className="hidden xl:block w-px h-6 bg-slate-100 mx-2" />
 
-        <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200 overflow-x-auto hide-scrollbar">
+        <div className="flex bg-slate-50 p-1 rounded-xl border border-slate-100 overflow-x-auto hide-scrollbar">
           {filterTabs.map(t => (
             <button
               key={t.key}
-              className={`whitespace-nowrap px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${filter === t.key ? 'bg-white text-[#2E6F40] shadow-[0_2px_8px_rgba(0,0,0,0.05)] scale-105' : 'text-slate-500 hover:text-slate-700'}`}
+              className={`whitespace-nowrap px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${filter === t.key ? 'bg-white text-[#2E6F40] shadow-[0_4px_12px_rgba(0,0,0,0.08)] scale-105 border border-slate-100' : 'text-slate-400 hover:text-slate-600'}`}
               onClick={() => setFilter(t.key)}
             >
               {t.label}
@@ -163,22 +167,23 @@ export default function OrderList() {
       </div>
 
       {/* ── RESPONSIVE TABLE CONTAINER ─────────────────────────────────── */}
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden relative w-full">
-        <div className="w-full max-w-full overflow-x-auto">
-          <table className="w-full min-w-[860px] text-left border-collapse">
+      {/* ── ORDERS TABLE ────────────────────────────────────────────── */}
+      <div className="bg-white border border-slate-200 rounded-[2rem] shadow-[0_10px_40px_rgba(0,0,0,0.04)] overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[900px] text-left border-collapse">
             <thead>
-              <tr className="bg-[#2E6F40] text-[#cee8d9] uppercase text-[10px] font-black tracking-widest">
-                <th className="px-4 py-3 w-24">Order</th>
-                <th className="px-4 py-3">Buyer</th>
-                <th className="px-4 py-3 w-16 text-center">Items</th>
-                <th className="px-4 py-3 w-32 text-right">Total (DZD)</th>
-                <th className="px-4 py-3 w-32">Status</th>
-                <th className="px-4 py-3 w-32">Delivery</th>
-                <th className="px-4 py-3 w-28 text-center">Date</th>
-                <th className="px-4 py-3 w-24 text-right">Actions</th>
+              <tr className="bg-[#2E6F40] text-[#cee8d9] uppercase text-[9px] font-black tracking-widest">
+                <th className="px-6 py-4">Registry Ref</th>
+                <th className="px-6 py-4">Buyer Identity</th>
+                <th className="px-6 py-4 text-center">Volume</th>
+                <th className="px-6 py-4 text-right">Settlement</th>
+                <th className="px-6 py-4">Lifecycle</th>
+                <th className="px-6 py-4">Logistics</th>
+                <th className="px-6 py-4 text-center">Timestamp</th>
+                <th className="px-6 py-4 text-right">Ops</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-50">
               {filteredOrders.length === 0 ? (
                 <tr>
                   <td colSpan="8">
@@ -193,59 +198,59 @@ export default function OrderList() {
                 </tr>
               ) : filteredOrders.map(o => (
                 <React.Fragment key={o.id}>
-                  <tr className="bg-white hover:bg-[#f0faf4]/40 transition-colors group cursor-pointer border-b border-slate-100 last:border-b-0" onClick={() => setExpanded(expandedRow === o.id ? null : o.id)}>
-                    <td className="px-4 py-3">
-                      <span className="font-black text-[#2E6F40] text-xs">#{fmtNum(o)}</span>
+                  <tr className="bg-white hover:bg-[#f0faf4]/40 transition-colors group cursor-pointer border-b border-slate-50 last:border-b-0" onClick={() => setExpanded(expandedRow === o.id ? null : o.id)}>
+                    <td className="px-6 py-4">
+                      <span className="font-black text-[#2E6F40] text-[11px] tracking-tight">#{fmtNum(o)}</span>
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-6 py-4">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-full bg-[#2E6F40]/10 text-[#2E6F40] flex items-center justify-center font-black text-xs shrink-0 border border-[#2E6F40]/20">
+                        <div className="w-8 h-8 rounded-xl bg-slate-50 text-[#2E6F40] flex items-center justify-center font-black text-[10px] shrink-0 border border-slate-100 shadow-sm group-hover:bg-white">
                           {o.buyer_name?.charAt(0) || 'U'}
                         </div>
-                        <span className="font-semibold text-xs text-slate-700 truncate max-w-[140px]">{o.buyer_name}</span>
+                        <span className="font-black text-[11px] text-slate-700 tracking-tight">{o.buyer_name}</span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-center">
-                      <span className="text-slate-600 text-xs font-bold bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">{o.items?.length || 0}</span>
+                    <td className="px-6 py-4 text-center">
+                      <span className="text-slate-500 text-[10px] font-black bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">{o.items?.length || 0} ITEMS</span>
                     </td>
-                    <td className="px-4 py-3 text-right">
-                      <span className="font-bold text-slate-800 text-xs whitespace-nowrap">{Number(o.farmer_total || o.total_price || 0).toLocaleString()}</span>
+                    <td className="px-6 py-4 text-right">
+                      <span className="font-black text-slate-900 text-xs tabular-nums">{Number(o.farmer_total || o.total_price || 0).toLocaleString()} <span className="text-[10px] text-slate-400">DZD</span></span>
                     </td>
-                    <td className="px-4 py-3"><OrderStatusBadge status={o.status} /></td>
-                    <td className="px-4 py-3"><DeliveryBadge order={o} /></td>
-                    <td className="px-4 py-3 text-[10px] text-center font-semibold text-slate-400 whitespace-nowrap">
+                    <td className="px-6 py-4"><OrderStatusBadge status={o.status} /></td>
+                    <td className="px-6 py-4"><DeliveryBadge order={o} /></td>
+                    <td className="px-6 py-4 text-[10px] text-center font-black text-slate-400 whitespace-nowrap uppercase tracking-widest">
                       {new Date(o.created_at).toLocaleDateString('en-GB')}
                     </td>
-                    <td className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex gap-1.5 justify-end">
+                    <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex gap-2 justify-end">
                         {o.status?.toUpperCase() === 'PENDING' && (
                           <>
                             <button
-                              className="w-7 h-7 flex items-center justify-center bg-[#f0faf4] text-[#2E6F40] hover:bg-[#2E6F40] hover:text-white border border-[#a2d4b5] hover:border-[#2E6F40] rounded-lg transition-all shadow-sm transform hover:scale-110"
+                              className="w-8 h-8 flex items-center justify-center bg-white text-[#2E6F40] hover:bg-[#2E6F40] hover:text-white border border-slate-200 hover:border-[#2E6F40] rounded-xl transition-all shadow-sm active:scale-95"
                               title="Confirm"
                               onClick={() => handleAction(o.id, 'confirm')}
                               disabled={actionLoading === o.id + '_confirm'}
                             >
                               {actionLoading === o.id + '_confirm'
                                 ? <span className="inline-block w-3 h-3 border-2 border-[#2E6F40]/30 border-t-[#2E6F40] rounded-full animate-spin" />
-                                : <CheckCircle size={14} strokeWidth={3} />
+                                : <CheckCircle size={14} strokeWidth={2.5} />
                               }
                             </button>
                             <button
-                              className="w-7 h-7 flex items-center justify-center bg-red-50 text-red-600 hover:bg-red-500 hover:text-white border border-red-200 hover:border-red-500 rounded-lg transition-all shadow-sm transform hover:scale-110"
+                              className="w-8 h-8 flex items-center justify-center bg-white text-red-600 hover:bg-red-600 hover:text-white border border-slate-200 hover:border-red-600 rounded-xl transition-all shadow-sm active:scale-95"
                               title="Reject"
                               onClick={() => handleAction(o.id, 'reject')}
                               disabled={actionLoading === o.id + '_reject'}
                             >
                               {actionLoading === o.id + '_reject'
                                 ? <span className="inline-block w-3 h-3 border-2 border-red-500/30 border-t-red-500 rounded-full animate-spin" />
-                                : <XCircle size={14} strokeWidth={3} />
+                                : <XCircle size={14} strokeWidth={2.5} />
                               }
                             </button>
                           </>
                         )}
                         <button
-                          className={`w-7 h-7 flex items-center justify-center rounded-lg transition-all shadow-sm transform hover:scale-110 ${expandedRow === o.id ? 'bg-[#2E6F40] text-white border border-[#2E6F40]' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'}`}
+                          className={`w-8 h-8 flex items-center justify-center rounded-xl transition-all shadow-sm active:scale-95 ${expandedRow === o.id ? 'bg-[#2E6F40] text-white border border-[#2E6F40]' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'}`}
                           title="View"
                           onClick={() => setExpanded(expandedRow === o.id ? null : o.id)}
                         >

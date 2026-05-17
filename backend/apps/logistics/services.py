@@ -1,5 +1,5 @@
 from decimal import Decimal
-from .models import TransportPricingRule, calculate_transport_fee
+from .models import calculate_transport_fee
 from apps.common.constants import TRANSPORT_CONFIG
 
 class TransportPricingService:

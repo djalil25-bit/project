@@ -95,7 +95,6 @@ class SensorDataView(APIView):
             temperature=request.data.get('temperature'),
             humidity=request.data.get('humidity'),
             soil_moisture=request.data.get('soil_moisture'),
-            ph=request.data.get('ph'),
             rain_status=request.data.get('rain_status'),
             ir_status=request.data.get('ir_status'),
             sound_status=request.data.get('sound_status'),
@@ -125,7 +124,6 @@ class SensorDataView(APIView):
                 'temperature': r.temperature,
                 'humidity': r.humidity,
                 'soil_moisture': r.soil_moisture,
-                'ph': r.ph,
                 'rain_status': r.rain_status,
                 'ir_status': r.ir_status,
                 'sound_status': r.sound_status,
@@ -258,7 +256,6 @@ class AlertsView(APIView):
                 'temperature': reading.temperature,
                 'humidity': reading.humidity,
                 'soil_moisture': reading.soil_moisture,
-                'ph': reading.ph,
                 'rain_status': reading.rain_status,
                 'ir_status': reading.ir_status,
                 'sound_status': reading.sound_status,
@@ -373,7 +370,6 @@ class AdminIoTOverviewView(APIView):
                     "temperature": reading.temperature,
                     "humidity": reading.humidity,
                     "soil_moisture": reading.soil_moisture,
-                    "ph": reading.ph,
                     "rain_status": reading.rain_status,
                     "ir_status": reading.ir_status,
                     "sound_status": reading.sound_status,
@@ -452,9 +448,6 @@ class SensorStatsView(APIView):
             soil_min=Min('soil_moisture'),
             soil_max=Max('soil_moisture'),
             soil_avg=Avg('soil_moisture'),
-            ph_min=Min('ph'),
-            ph_max=Max('ph'),
-            ph_avg=Avg('ph'),
             total_readings=Count('id')
         )
 
@@ -466,7 +459,6 @@ class SensorStatsView(APIView):
             "temperature": {"min": rd(stats['temp_min']), "max": rd(stats['temp_max']), "avg": rd(stats['temp_avg'])},
             "humidity": {"min": rd(stats['hum_min']), "max": rd(stats['hum_max']), "avg": rd(stats['hum_avg'])},
             "soil_moisture": {"min": rd(stats['soil_min']), "max": rd(stats['soil_max']), "avg": rd(stats['soil_avg'])},
-            "ph": {"min": rd(stats['ph_min']), "max": rd(stats['ph_max']), "avg": rd(stats['ph_avg'])}
         })
 
 
@@ -520,19 +512,15 @@ class FarmComparisonView(APIView):
                 avg_temp=Avg('temperature'),
                 avg_hum=Avg('humidity'),
                 avg_soil=Avg('soil_moisture'),
-                avg_ph=Avg('ph'),
                 count=Count('id')
             )
             
             avg_temp = stats['avg_temp'] or 0
             avg_soil = stats['avg_soil'] or 0
-            avg_ph = stats['avg_ph'] or 0
             
             status_level = "normal"
             if avg_soil < 30 or avg_temp > 35:
                 status_level = "danger"
-            elif avg_ph < 6 or avg_ph > 7.5:
-                status_level = "warning"
                 
             data.append({
                 "farm_id": farm.id,
@@ -543,7 +531,6 @@ class FarmComparisonView(APIView):
                     "avg_temperature": round(avg_temp, 1),
                     "avg_humidity": round(stats['avg_hum'] or 0, 1),
                     "avg_soil_moisture": round(avg_soil, 1),
-                    "avg_ph": round(avg_ph, 1),
                     "readings_count": stats['count'],
                     "last_update": readings[0].recorded_at.strftime("%d/%m %H:%M")
                 },
@@ -557,3 +544,45 @@ class FarmComparisonView(APIView):
         return Response(data)
 
 
+class AIRecommendationsView(APIView):
+    """
+    GET /api/v1/iot/ai-recommendations/<farm_id>/
+    
+    Generates AI-powered agricultural recommendations by combining
+    IoT sensor readings with weather forecast data via Gemini AI.
+    
+    This is an ENHANCEMENT LAYER — it never affects the existing
+    IoT alerts system. If AI generation fails, it returns gracefully.
+    """
+    permission_classes = [IsFarmerRole]
+
+    def get(self, request, farm_id):
+        import logging
+        logger = logging.getLogger('agrigov.ai')
+
+        # Verify farm ownership
+        try:
+            farm = Farm.objects.get(pk=farm_id, owner=request.user)
+        except Farm.DoesNotExist:
+            return Response(
+                {'error': 'Farm not found or access denied'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Check for force-refresh parameter
+        force = request.query_params.get('force', '').lower() in ('true', '1')
+
+        try:
+            from .ai_service import generate_recommendations
+            result = generate_recommendations(farm, force=force)
+        except Exception as e:
+            # Never break the dashboard — fail gracefully
+            logger.error(f'[AI] Unexpected error for farm {farm_id}: {e}')
+            result = {
+                'recommendations': [],
+                'generated_at': None,
+                'source': 'error',
+                'error': 'AI service temporarily unavailable',
+            }
+
+        return Response(result, status=status.HTTP_200_OK)

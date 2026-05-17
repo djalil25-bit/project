@@ -229,17 +229,6 @@ class VehicleSerializer(serializers.ModelSerializer):
         )
 
 # ── Pricing Serializer ──────────────────────────────────────────────────
-from .models import TransportPricingRule
 
-class TransportPricingRuleSerializer(serializers.ModelSerializer):
-    vehicle_type_display = serializers.CharField(source='get_vehicle_type_display', read_only=True)
-    
-    class Meta:
-        model = TransportPricingRule
-        fields = [
-            'id', 'vehicle_type', 'vehicle_type_display', 
-            'base_fee', 'price_per_km', 'weight_multiplier', 
-            'is_active', 'created_at', 'updated_at'
-        ]
 
 

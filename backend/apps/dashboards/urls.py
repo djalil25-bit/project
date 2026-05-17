@@ -3,7 +3,7 @@ from .views import (
     AdminDashboardStatsAPIView, AdminAnalyticsAPIView, AdminMapDataAPIView,
     FarmerDashboardStatsAPIView, FarmerAnalyticsAPIView,
     TransporterDashboardStatsAPIView, ActorMessageAPIView,
-    WeatherAPIView,
+    WeatherAPIView, PublicLandingStatsAPIView,
 )
 
 urlpatterns = [
@@ -15,4 +15,5 @@ urlpatterns = [
     path('transporter-stats/', TransporterDashboardStatsAPIView.as_view(), name='transporter_stats'),
     path('actor-messages/', ActorMessageAPIView.as_view(), name='actor_messages'),
     path('weather/', WeatherAPIView.as_view(), name='weather'),
+    path('public-stats/', PublicLandingStatsAPIView.as_view(), name='public_stats'),
 ]

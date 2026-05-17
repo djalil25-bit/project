@@ -89,71 +89,101 @@ export default function FarmDetail() {
   return (
     <div className="farmer-page-wrapper">
 
-      {/* Breadcrumb */}
-      <div className="f-breadcrumb">
-        <Link to="/farmer-dashboard">Farmer Hub</Link>
-        <span className="f-breadcrumb-sep"><ChevronRight size={11} /></span>
-        <Link to="/farmer-dashboard/farms">My Farms</Link>
-        <span className="f-breadcrumb-sep"><ChevronRight size={11} /></span>
-        <span>{farm.name}</span>
+      {/* ── BREADCRUMBS ────────────────────────────────────────────── */}
+      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#2E6F40] mb-5 bg-[#2E6F40]/10 px-3 py-1 rounded-full w-fit border border-[#2E6F40]/20 shadow-sm">
+        <Link to="/farmer-dashboard" className="hover:text-[#255933] transition-colors">Farmer Hub</Link>
+        <ChevronRight size={10} className="text-[#2E6F40]/40" />
+        <Link to="/farmer-dashboard/farms" className="hover:text-[#255933] transition-colors">Farms Registry</Link>
+        <ChevronRight size={10} className="text-[#2E6F40]/40" />
+        <span className="text-[#2E6F40] flex items-center gap-1.5 font-black uppercase">
+          {farm.name}
+        </span>
       </div>
 
-      {/* Farm Hero card */}
-      <div className="f-card" style={{ marginBottom: '1.5rem', overflow: 'visible' }}>
-        {/* Image banner */}
-        <div style={{ height: 220, position: 'relative', borderRadius: 'var(--f-radius) var(--f-radius) 0 0', overflow: 'hidden' }}>
-          {farm.image
-            ? <img src={farm.image} alt={farm.name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-            : <div style={{ width: '100%', height: '100%', background: gradient, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ fontSize: '3.5rem', fontWeight: 900, color: 'rgba(255,255,255,0.75)', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>{initials}</span>
+      {/* ── HERO BANNER ─────────────────────────────────────────────── */}
+      <div className="relative rounded-[2.5rem] overflow-hidden shadow-[0_20px_80px_rgba(0,0,0,0.1)] mb-10 group">
+        <div className="h-[320px] relative">
+          {farm.image ? (
+            <img src={farm.image} alt={farm.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+          ) : (
+            <div style={{ background: gradient }} className="w-full h-full flex items-center justify-center">
+              <span className="text-7xl font-black text-white/30 tracking-tighter">{initials}</span>
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent" />
+          
+          <div className="absolute bottom-10 left-10 right-10 flex flex-col md:flex-row justify-between items-end gap-6">
+            <div className="max-w-2xl">
+              <div className="inline-flex items-center gap-2 bg-[#2E6F40] text-white px-3 py-1 rounded-full text-[9px] font-black tracking-[0.2em] uppercase mb-4 shadow-lg border border-white/20">
+                <Home size={10} strokeWidth={3} /> Certified Node
               </div>
-          }
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 55%)' }} />
-          <div style={{ position: 'absolute', bottom: '1.25rem', left: '1.5rem', right: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '0.75rem' }}>
-            <div>
-              <h1 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#fff', margin: 0, lineHeight: 1.2 }}>{farm.name}</h1>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.4rem', flexWrap: 'wrap' }}>
-                <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                  <MapPin size={13} style={{ color: '#ef4444' }} /> {farm.location}
-                </span>
+              <h1 className="text-4xl lg:text-5xl font-black text-white tracking-tight mb-4 drop-shadow-2xl">
+                {farm.name}
+              </h1>
+              <div className="flex flex-wrap items-center gap-6 text-white/80">
+                <div className="flex items-center gap-2">
+                  <MapPin size={14} className="text-red-400" strokeWidth={3} />
+                  <span className="text-xs font-black uppercase tracking-widest">{farm.location}</span>
+                </div>
                 {farm.size_hectares && (
-                  <span style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                    <Maximize2 size={12} /> {farm.size_hectares} ha
-                  </span>
+                  <div className="flex items-center gap-2 border-l border-white/20 pl-6">
+                    <Maximize2 size={14} className="text-emerald-400" strokeWidth={3} />
+                    <span className="text-xs font-black tracking-widest uppercase">{farm.size_hectares} Hectares</span>
+                  </div>
                 )}
-                <span style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                  <Calendar size={12} /> Added {new Date(farm.created_at).toLocaleDateString()}
-                </span>
+                <div className="flex items-center gap-2 border-l border-white/20 pl-6">
+                  <Calendar size={14} className="text-blue-400" strokeWidth={3} />
+                  <span className="text-xs font-black tracking-widest uppercase">Registry: {new Date(farm.created_at).toLocaleDateString()}</span>
+                </div>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button className="btn-f-hero-ghost btn-f-sm" onClick={() => navigate(`/farmer-dashboard/farm/edit/${farm.id}`)}>
-                <Edit3 size={14} /> Edit Farm
+            
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => navigate(`/farmer-dashboard/farm/edit/${farm.id}`)}
+                className="px-6 py-3 bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-xl"
+              >
+                <Edit3 size={14} className="inline mr-2" strokeWidth={3} /> Edit Asset
               </button>
-              <button className="btn-f-hero btn-f-sm" onClick={() => navigate(`/farmer-dashboard/product/new?farm=${farm.id}`)}>
-                <Plus size={14} /> Add Product
+              <button 
+                onClick={() => navigate(`/farmer-dashboard/product/new?farm=${farm.id}`)}
+                className="px-6 py-3 bg-[#2E6F40] hover:bg-[#255933] text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-[0_10px_30px_rgba(46,111,64,0.4)] border-0"
+              >
+                <Plus size={14} className="inline mr-2" strokeWidth={3} /> Add Product
               </button>
             </div>
           </div>
         </div>
-
-        {/* Description */}
         {farm.description && (
-          <div style={{ padding: '1rem 1.5rem', borderTop: '1px solid rgba(26,74,46,0.07)', color: '#6b7280', fontSize: '0.88rem', lineHeight: 1.6 }}>
-            {farm.description}
+          <div className="bg-white px-10 py-6 border-t border-slate-100">
+            <p className="text-slate-500 font-medium text-sm leading-relaxed italic">
+              "{farm.description}"
+            </p>
           </div>
         )}
       </div>
 
-      {/* Performance header + timeframe control */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.75rem' }}>
-        <div className="f-section-title">
-          <div className="f-section-title-icon"><Trophy size={14} /></div>
-          Farm Performance
+      {/* ── PERFORMANCE HEADER ─────────────────────────────────────── */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 mt-10">
+        <div>
+          <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+            <Trophy size={14} className="text-[#2E6F40]" strokeWidth={3}/> Node Performance
+          </h3>
+          <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1 ml-6">Operational analytics and order volume</p>
         </div>
-        <div className="f-segmented">
-          {[['all','All Time'],['year','This Year'],['month','This Month']].map(([k, l]) => (
-            <button key={k} className={`f-segmented-btn ${timeframe === k ? 'active' : ''}`} onClick={() => setTimeframe(k)}>{l}</button>
+        <div className="flex bg-white p-1 rounded-xl border border-slate-200 shadow-sm shrink-0">
+          {[
+            ['all','ALL TIME'],
+            ['year','THIS YEAR'],
+            ['month','THIS MONTH']
+          ].map(([k, l]) => (
+            <button
+              key={k}
+              className={`px-5 py-2.5 rounded-lg text-[9px] font-black tracking-widest transition-all ${timeframe === k ? 'bg-[#2E6F40] text-white shadow-md' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}
+              onClick={() => setTimeframe(k)}
+            >
+              {l}
+            </button>
           ))}
         </div>
       </div>
@@ -171,65 +201,100 @@ export default function FarmDetail() {
         ))}
       </div>
 
-      {/* Products table */}
-      <div className="f-card" style={{ marginBottom: '1.5rem' }}>
-        <div className="f-card-header">
-          <div className="f-section-title">
-            <div className="f-section-title-icon"><Leaf size={14} /></div>
-            Products on This Farm
+      {/* ── PRODUCTS TABLE ────────────────────────────────────────── */}
+      <div className="bg-white border border-slate-200 rounded-[2.5rem] shadow-[0_10px_40px_rgba(0,0,0,0.04)] overflow-hidden mb-10 mt-10">
+        <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/30">
+          <div>
+            <h3 className="text-base font-black text-slate-900 tracking-tight flex items-center gap-2">
+              <div className="p-1.5 bg-[#f0faf4] rounded-lg text-[#2E6F40] border border-[#cee8d9]">
+                <Leaf size={16} strokeWidth={2.5} />
+              </div>
+              Inventory of <span className="text-[#2E6F40]">This Node</span>
+            </h3>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Marketplace availability protocol</p>
           </div>
-          <span style={{ fontSize: '0.78rem', color: '#9ca3af', fontWeight: 600 }}>
-            {products.length} product{products.length !== 1 ? 's' : ''}
+          <span className="bg-[#2E6F40] text-white font-black tracking-widest uppercase px-3 py-1 rounded-full text-[9px] shadow-sm">
+            {products.length} SKU{products.length !== 1 ? 's' : ''} Listed
           </span>
         </div>
 
         {products.length === 0 ? (
-          <div className="f-empty-state">
-            <div className="f-empty-icon"><Package size={28} /></div>
-            <div className="f-empty-title">No products yet</div>
-            <div className="f-empty-sub">Register your first product for this farm.</div>
-            <button className="btn-f-primary btn-f-sm" onClick={() => navigate(`/farmer-dashboard/product/new?farm=${farm.id}`)}>
-              <Plus size={15} /> Add First Product
+          <div className="p-20 flex flex-col items-center text-center">
+            <div className="w-20 h-20 bg-slate-50 rounded-[2rem] flex items-center justify-center text-slate-200 mb-6 border border-slate-100 shadow-inner">
+              <Package size={32} />
+            </div>
+            <h3 className="text-lg font-black text-slate-800 mb-2">No active listings</h3>
+            <p className="text-xs font-medium text-slate-400 max-w-xs mb-8">Register your first product to begin marketplace operations.</p>
+            <button 
+              className="inline-flex items-center gap-2 bg-[#2E6F40] hover:bg-[#255933] text-white px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg active:scale-95"
+              onClick={() => navigate(`/farmer-dashboard/product/new?farm=${farm.id}`)}
+            >
+              <Plus size={16} strokeWidth={3} /> Initialize Product
             </button>
           </div>
         ) : (
-          <div className="f-table-wrap">
-            <table className="f-table">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
               <thead>
-                <tr>
-                  <th>Product</th>
-                  <th>Category</th>
-                  <th className="right">Price</th>
-                  <th className="right">Stock</th>
-                  <th>Quality</th>
-                  <th>Status</th>
-                  <th className="right">Actions</th>
+                <tr className="bg-[#2E6F40] text-[#cee8d9] uppercase text-[9px] font-black tracking-[0.2em]">
+                  <th className="px-8 py-4">Product Registry</th>
+                  <th className="px-8 py-4">Category</th>
+                  <th className="px-8 py-4 text-right">Market Valuation</th>
+                  <th className="px-8 py-4 text-right">Stock</th>
+                  <th className="px-8 py-4 text-center">Status</th>
+                  <th className="px-8 py-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-slate-50">
                 {products.map(p => (
-                  <tr key={p.id}>
-                    <td style={{ fontWeight: 700, fontSize: '0.875rem' }}>{p.title}</td>
-                    <td><span className="f-category-tag">{p.category_name}</span></td>
-                    <td className="col-right" style={{ fontWeight: 800, fontSize: '0.875rem' }}>
-                      {p.price} <span style={{ color: '#9ca3af', fontSize: '0.72rem' }}>DZD/{p.unit}</span>
+                  <tr key={p.id} className="bg-white hover:bg-[#f0faf4]/40 transition-colors group">
+                    <td className="px-8 py-5">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-100 shadow-sm overflow-hidden">
+                          {p.image ? (
+                            <img src={p.image} className="w-full h-full object-cover" />
+                          ) : (
+                            <Package size={16} className="text-slate-300" />
+                          )}
+                        </div>
+                        <div>
+                          <div className="font-black text-[11px] text-slate-800 tracking-tight uppercase">{p.title}</div>
+                          <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-0.5"><QualityBadge quality={p.quality} /></div>
+                        </div>
+                      </div>
                     </td>
-                    <td className="col-right" style={{ fontWeight: 700, color: p.stock < 10 ? 'var(--f-red)' : '#374151', fontSize: '0.82rem' }}>
-                      {p.stock} {p.unit}
+                    <td className="px-8 py-5">
+                      <span className="px-2.5 py-1 bg-slate-100 rounded-lg text-[9px] font-black text-slate-500 uppercase tracking-widest border border-slate-200">{p.category_name}</span>
                     </td>
-                    <td><QualityBadge quality={p.quality} /></td>
-                    <td>
-                      <span className={`f-badge ${p.is_active ? 'f-badge-active' : 'f-badge-inactive'}`}>
+                    <td className="px-8 py-5 text-right">
+                      <div className="font-black text-[11px] text-slate-900 tabular-nums">
+                        {p.price} <span className="text-[9px] text-slate-400 uppercase ml-1">DZD / {p.unit}</span>
+                      </div>
+                    </td>
+                    <td className="px-8 py-5 text-right">
+                      <div className={`font-black text-[11px] tabular-nums ${p.stock < 10 ? 'text-red-500 animate-pulse' : 'text-slate-900'}`}>
+                        {p.stock} <span className="text-[9px] text-slate-400 uppercase ml-1">{p.unit}S</span>
+                      </div>
+                    </td>
+                    <td className="px-8 py-5 text-center">
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest shadow-sm border ${p.is_active ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-400 border-slate-200'}`}>
+                        <div className={`w-1 h-1 rounded-full ${p.is_active ? 'bg-emerald-600 animate-pulse' : 'bg-slate-400'}`} />
                         {p.is_active ? 'Published' : 'Hidden'}
                       </span>
                     </td>
-                    <td className="col-right">
-                      <div style={{ display: 'flex', gap: '0.3rem', justifyContent: 'flex-end' }}>
-                        <button className="btn-f-icon btn-f-icon-sm" title={p.is_active ? 'Hide' : 'Publish'} onClick={() => toggleProduct(p.id, p.is_active)}>
-                          {p.is_active ? <EyeOff size={14} /> : <Eye size={14} />}
+                    <td className="px-8 py-5 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <button 
+                          onClick={() => toggleProduct(p.id, p.is_active)}
+                          className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all shadow-sm active:scale-90 border ${p.is_active ? 'bg-white text-slate-400 border-slate-200 hover:bg-slate-50' : 'bg-emerald-50 text-emerald-600 border-emerald-100 hover:bg-emerald-100'}`}
+                        >
+                          {p.is_active ? <EyeOff size={14} strokeWidth={2.5} /> : <Eye size={14} strokeWidth={2.5} />}
                         </button>
-                        <button className="btn-f-icon btn-f-icon-sm" title="Edit" onClick={() => navigate(`/farmer-dashboard/product/edit/${p.id}`)}>
-                          <Edit size={14} />
+                        <button 
+                          onClick={() => navigate(`/farmer-dashboard/product/edit/${p.id}`)}
+                          className="w-9 h-9 flex items-center justify-center bg-white text-[#2E6F40] border border-slate-200 rounded-xl hover:bg-emerald-50 hover:border-emerald-200 shadow-sm transition-all active:scale-90"
+                        >
+                          <Edit size={14} strokeWidth={2.5} />
                         </button>
                       </div>
                     </td>

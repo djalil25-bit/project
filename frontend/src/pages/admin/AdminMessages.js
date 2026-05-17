@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import adminApi from '../../api/adminApi';
 import { MessageSquare, ChevronRight, Send, Clock, Mail, Bell, Smartphone, Search, Check, FileText, Plus, X, Inbox, ArrowLeft, RefreshCw, ShieldCheck } from 'lucide-react';
 
 const AdminMessages = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [tab, setTab] = useState('compose');
   const [inbox, setInbox] = useState([]);
   const [inboxGrouped, setInboxGrouped] = useState([]);
@@ -210,29 +211,38 @@ const AdminMessages = () => {
   };
 
   return (
-    <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 space-y-8 animate-fade-in relative z-0 bg-slate-50/30 min-h-screen">
+    <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 animate-fade-in relative z-0 min-h-screen">
       
-      {/* ── HIGH-DENSITY HERO HEADER (GREEN POWER PRO) ─────────────────────────────── */}
-      <div className="bg-[#022c22] rounded-2xl overflow-hidden shadow-lg flex flex-col md:flex-row items-center justify-between px-6 py-4 md:px-10 md:py-5 relative border border-[#064e3b] isolate">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#166534]/30 to-transparent pointer-events-none" />
-        <div className="z-10 flex flex-col">
-          <div className="flex items-center gap-2 text-emerald-400 text-[9px] font-black uppercase tracking-widest mb-1 opacity-80">
-            <MessageSquare size={12} /> Institutional Communications
-          </div>
-          <h1 className="text-xl md:text-2xl font-black text-white tracking-tight leading-none">
-            Messaging Center
+      {/* ── BREADCRUMBS ────────────────────────────────────────────── */}
+      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#064e3b] mb-6 bg-[#064e3b]/10 px-3 py-1 rounded-full w-fit border border-[#064e3b]/20 shadow-sm">
+        <button onClick={() => navigate('/admin-dashboard')} className="hover:text-emerald-700 transition-colors uppercase font-black flex items-center gap-1.5">
+          <MessageSquare size={10} /> Admin Hub
+        </button>
+        <ChevronRight size={10} className="text-[#064e3b]/40" />
+        <span className="text-[#064e3b] flex items-center gap-1.5 font-black uppercase">
+          <Mail size={11} /> Communications
+        </span>
+      </div>
+
+      {/* ── HEADER ─────────────────────────────────────────────────── */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
+        <div>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+            <div className={`p-2 bg-white rounded-2xl shadow-sm border border-slate-100 text-[#064e3b]`}>
+              <MessageSquare size={24} />
+            </div>
+            Messaging <span className="text-[#064e3b]">Center</span>
           </h1>
-          <p className="text-emerald-100/60 text-[10px] font-bold uppercase tracking-widest mt-2">
-            Broadcasting & Internal Chat Matrix
+          <p className="text-slate-500 font-medium mt-1.5 text-sm max-w-xl">
+            Broadcasting and internal communication matrix for agricultural network coordination.
           </p>
         </div>
       </div>
 
-      <div className="flex bg-white rounded-xl shadow-sm border border-slate-200 w-fit overflow-hidden p-1">
-        <button className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-colors flex items-center gap-2 ${tab==='compose'?'bg-[#064e3b] text-white shadow-md':'text-slate-500 hover:bg-slate-50'}`} onClick={()=>setTab('compose')}><Send size={14}/> Dispatch</button>
-        {/* Inbox Tab Button Hidden as per user request "supp le buttons in box" */}
-        {/* <button className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-colors flex items-center gap-2 ${tab==='inbox'?'bg-[#064e3b] text-white shadow-md':'text-slate-500 hover:bg-slate-50'}`} onClick={()=>setTab('inbox')}><Mail size={14}/> Incoming</button> */}
-        <button className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-colors flex items-center gap-2 ${tab==='history'?'bg-[#064e3b] text-white shadow-md':'text-slate-500 hover:bg-slate-50'}`} onClick={()=>setTab('history')}><Clock size={14}/> Logs</button>
+      {/* Tabs */}
+      <div className="flex bg-slate-50 p-1.5 rounded-[1.5rem] border border-slate-200 shadow-inner w-full sm:w-fit mb-10">
+        <button className={`px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${tab==='compose'?'bg-white text-[#064e3b] shadow-md border border-emerald-100':'text-slate-400 hover:text-slate-600'}`} onClick={()=>setTab('compose')}><Send size={14}/> Dispatch</button>
+        <button className={`px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${tab==='history'?'bg-white text-[#064e3b] shadow-md border border-emerald-100':'text-slate-400 hover:text-slate-600'}`} onClick={()=>setTab('history')}><Clock size={14}/> Logs</button>
       </div>
 
       {/* Toast */}
@@ -240,14 +250,14 @@ const AdminMessages = () => {
 
       {/* Compose */}
       {tab==='compose' && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 lg:p-8 max-w-4xl space-y-8 animate-fade-in">
-          <div className="flex items-center gap-3">
-             <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#064e3b] flex items-center justify-center">
-               <Send size={20} />
+        <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm p-8 lg:p-10 max-w-4xl space-y-10 animate-fade-in">
+          <div className="flex items-center gap-4">
+             <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-[#064e3b] flex items-center justify-center shadow-inner">
+               <Send size={22} />
              </div>
              <div>
-               <h3 className="font-black text-slate-800 text-sm uppercase tracking-widest">Compose Transmission</h3>
-               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Select targets and define protocol</p>
+               <h3 className="font-black text-slate-900 text-lg uppercase tracking-tight leading-none">Compose Transmission</h3>
+               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1.5">Select targets and define protocol</p>
              </div>
           </div>
 
@@ -360,10 +370,12 @@ const AdminMessages = () => {
 
       {/* History Table */}
       {tab==='history' && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col animate-fade-in">
-          <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
-            <h3 className="font-black text-[11px] uppercase tracking-widest text-slate-700">Transmission Logs</h3>
-            <span className="text-[9px] font-black px-2 py-0.5 bg-slate-200 text-[#064e3b] rounded-full uppercase tracking-widest">{history.length} Entries</span>
+        <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden flex flex-col animate-fade-in">
+          <div className="px-8 py-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
+            <h3 className="font-black text-[12px] uppercase tracking-widest text-slate-900 flex items-center gap-3">
+              <Clock size={16} className="text-[#064e3b]"/> Transmission Logs
+            </h3>
+            <span className="text-[10px] font-black px-3 py-1 bg-white border border-slate-200 text-[#064e3b] rounded-xl shadow-inner uppercase tracking-widest">{history.length} Entries</span>
           </div>
           {historyLoading ? (
             <div className="flex flex-col items-center justify-center py-20 gap-3">

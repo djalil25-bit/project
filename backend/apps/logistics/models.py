@@ -137,65 +137,22 @@ class Vehicle(TimeStampedModel):
     )
     objects = models.Manager()
 
-class TransportPricingRule(TimeStampedModel):
-    vehicle_type = models.CharField(
-        max_length=50, 
-        choices=VehicleTypeChoices.choices,
-        unique=True,
-        help_text="The vehicle type this rule applies to."
-    )
-    base_fee = models.DecimalField(
-        max_digits=12, decimal_places=2, default=500.00,
-        help_text="Minimum cost just to start the mission."
-    )
-    price_per_km = models.DecimalField(
-        max_digits=10, decimal_places=2, default=15.00,
-        help_text="Cost added for each kilometer of travel."
-    )
-    weight_multiplier = models.FloatField(
-        default=0.01,
-        help_text="Multiplier applied based on total weight/quantity. (e.g. price += weight * multiplier)"
-    )
-    is_active = models.BooleanField(default=True)
-
-    def __str__(self):
-        return f"Pricing Rule: {self.get_vehicle_type_display()}"
-
-    class Meta:
-        verbose_name = "Transport Pricing Rule"
-        verbose_name_plural = "Transport Pricing Rules"
-    
-    objects = models.Manager()
 
 
 def calculate_transport_fee(distance, weight_kg, vehicle_type):
     """
-    Unified pricing engine. Price is based on distance and weight, 
-    but is constant across all vehicle types to ensure consistency.
+    Unified pricing engine using static institutional defaults.
     """
     try:
         safe_distance = float(distance) if distance is not None else 0.0
         safe_weight = float(weight_kg) if weight_kg is not None else 0.0
         
-        # Always use 'standard' rule for universal pricing as requested
-        rule = TransportPricingRule.objects.filter(vehicle_type='standard', is_active=True).first()
-        if not rule:
-            # Fallback to the first active rule if standard is missing
-            rule = TransportPricingRule.objects.filter(is_active=True).first()
-
-        if not rule:
-            # Absolute system fallback if no rules exist in DB
-            base = 500.0
-            dist_cost = safe_distance * 15.0
-            weight_cost = safe_weight * 0.1
-            source = "SYSTEM_DEFAULT"
-            weight_mult = 0.1
-        else:
-            base = float(rule.base_fee)
-            dist_cost = safe_distance * float(rule.price_per_km)
-            weight_cost = safe_weight * float(rule.weight_multiplier)
-            source = f"RULE_{rule.id}"
-            weight_mult = float(rule.weight_multiplier)
+        # Hardcoded Institutional Defaults (Ministry Supervised)
+        base = 500.0
+        dist_cost = safe_distance * 15.0
+        weight_cost = safe_weight * 0.1
+        source = "SYSTEM_DEFAULT"
+        weight_mult = 0.1
 
         total = base + dist_cost + weight_cost
 

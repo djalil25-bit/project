@@ -9,6 +9,7 @@ import {
   MonitorSmartphone, ScanLine, ShoppingBag
 } from 'lucide-react';
 import AgriGovLogo from '../../components/common/AgriGovLogo';
+import api from '../../api/axiosConfig';
 
 /* ─── Intersection Observer Hook ─── */
 function useInView(options = {}) {
@@ -117,6 +118,16 @@ const DASH_FEATURES = [
    LANDING PAGE COMPONENT
    ═══════════════════════════════════════════════════ */
 const LandingPage = () => {
+  const [stats, setStats] = useState({ farmers: 2800, wilayas: 58 });
+
+  useEffect(() => {
+    api.get('/dashboards/public-stats/')
+      .then(res => {
+        if (res.data) setStats(res.data);
+      })
+      .catch(err => console.error("Could not fetch public stats:", err));
+  }, []);
+
   return (
     <div style={{ fontFamily: "'Inter', sans-serif", background: 'var(--ag-cream)' }}>
 
@@ -129,7 +140,7 @@ const LandingPage = () => {
         <div className="ag-hero-inner">
           <div>
             <div className="ag-hero-badge"><BadgeCheck size={16} /> Ministry Certified Platform</div>
-            <h1>The <span>Smart Agriculture</span> Ecosystem of Algeria</h1>
+            <h1>Algeria's <span>Official Agricultural</span> Marketplace</h1>
             <p className="ag-hero-sub">
               AgriGov Market connects producers, buyers, and transporters within a transparent,
               government-supervised digital marketplace. Official pricing, verified users,
@@ -161,11 +172,11 @@ const LandingPage = () => {
             </div>
             <div className="ag-hero-float-card fc2">
               <div className="ag-hero-float-icon" style={{ background: 'rgba(37,99,235,.2)' }}><Users size={20} color="#2563EB" /></div>
-              <div><div className="ag-hero-float-title">2,800+ Farmers</div><div className="ag-hero-float-sub">Verified & Active</div></div>
+              <div><div className="ag-hero-float-title"><AnimCounter target={stats.farmers.toString()} suffix="+" /> Farmers</div><div className="ag-hero-float-sub">Verified & Active</div></div>
             </div>
             <div className="ag-hero-float-card fc3">
               <div className="ag-hero-float-icon" style={{ background: 'rgba(234,88,12,.2)' }}><Truck size={20} color="#EA580C" /></div>
-              <div><div className="ag-hero-float-title">58 Wilayas</div><div className="ag-hero-float-sub">Full coverage</div></div>
+              <div><div className="ag-hero-float-title"><AnimCounter target={stats.wilayas.toString()} /> Wilayas</div><div className="ag-hero-float-sub">Full coverage</div></div>
             </div>
           </div>
         </div>
@@ -215,27 +226,7 @@ const LandingPage = () => {
         </div>
       </Section>
 
-      {/* ════ DASHBOARD PREVIEW ════ */}
-      <Section className="ag-dashboard-section">
-        <div className="ag-section-header">
-          <div className="ag-section-tag"><MonitorSmartphone size={14} /> Analytics Dashboard</div>
-          <h2 className="ag-section-title">Powerful Intelligence at Your Fingertips</h2>
-          <p className="ag-section-sub">Real-time analytics, weather insights, and market data designed for every stakeholder.</p>
-        </div>
-        <div className="ag-dashboard-wrap">
-          <div className="ag-dashboard-glow" />
-          <img src="/images/dashboard-preview.png" alt="AgriGov analytics dashboard" />
-        </div>
-        <div className="ag-dashboard-features">
-          {DASH_FEATURES.map((f, i) => (
-            <div key={i} className="ag-dash-feat">
-              <div className="ag-dash-feat-icon" style={{ background: f.color, color: f.ic }}>{f.icon}</div>
-              <h4>{f.title}</h4>
-              <p>{f.desc}</p>
-            </div>
-          ))}
-        </div>
-      </Section>
+
 
       {/* ════ IoT + GPS ════ */}
       <Section dark>
@@ -270,28 +261,7 @@ const LandingPage = () => {
         </div>
       </Section>
 
-      {/* ════ WEATHER SECTION ════ */}
-      <Section>
-        <div className="ag-section-header">
-          <div className="ag-section-tag"><Sun size={14} /> Weather Intelligence</div>
-          <h2 className="ag-section-title">Agriculture Weather Advisory</h2>
-          <p className="ag-section-sub">Hyperlocal weather data and forecasts optimized for farming decisions.</p>
-        </div>
-        <div className="ag-features-grid">
-          {[
-            { icon: <Sun size={26} />, title: 'Solar Tracking', desc: 'UV index, sunrise/sunset times, and solar radiation data for crop planning.', color: '#FEF3C7', ic: '#D97706' },
-            { icon: <Droplets size={26} />, title: 'Precipitation Alerts', desc: 'Rain probability, humidity levels, and irrigation scheduling recommendations.', color: '#DBEAFE', ic: '#2563EB' },
-            { icon: <Wind size={26} />, title: 'Wind Analytics', desc: 'Wind speed, direction, and dust storm warnings for harvest protection.', color: '#ECFDF5', ic: '#059669' },
-            { icon: <Thermometer size={26} />, title: 'Temperature Maps', desc: 'Min/max temperature tracking with frost warnings and heat stress alerts.', color: '#FEE2E2', ic: '#DC2626' },
-          ].map((f, i) => (
-            <div key={i} className="ag-feature-card">
-              <div className="ag-feature-icon" style={{ background: f.color, color: f.ic }}>{f.icon}</div>
-              <h3>{f.title}</h3>
-              <p>{f.desc}</p>
-            </div>
-          ))}
-        </div>
-      </Section>
+
 
       {/* ════ WORKFLOW ════ */}
       <div id="how" />
@@ -316,61 +286,9 @@ const LandingPage = () => {
         </div>
       </Section>
 
-      {/* ════ STATS ════ */}
-      <Section dark>
-        <div className="ag-section-header">
-          <div className="ag-section-tag"><BarChart3 size={14} /> Platform Impact</div>
-          <h2 className="ag-section-title">AgriGov Market in Numbers</h2>
-        </div>
-        <div className="ag-stats-grid">
-          {STATS.map((s, i) => (
-            <div key={i} className="ag-stat-card">
-              <div className="ag-stat-icon" style={{ background: s.color, color: s.ic }}>{s.icon}</div>
-              <div className="ag-stat-val"><AnimCounter target={s.val} suffix={s.suf} /></div>
-              <div className="ag-stat-label">{s.label}</div>
-            </div>
-          ))}
-        </div>
-      </Section>
 
-      {/* ════ TESTIMONIALS ════ */}
-      <Section>
-        <div className="ag-section-header">
-          <div className="ag-section-tag"><Star size={14} /> Testimonials</div>
-          <h2 className="ag-section-title">Trusted by Thousands</h2>
-          <p className="ag-section-sub">Hear from the farmers, buyers, and transporters using AgriGov Market daily.</p>
-        </div>
-        <div className="ag-testimonials-grid">
-          {TESTIMONIALS.map((t, i) => (
-            <div key={i} className="ag-testimonial-card">
-              <div className="ag-testimonial-stars">{[...Array(5)].map((_, j) => <Star key={j} size={16} fill="#F59E0B" stroke="#F59E0B" />)}</div>
-              <p className="ag-testimonial-quote">"{t.quote}"</p>
-              <div className="ag-testimonial-author">
-                <div className="ag-testimonial-avatar" style={{ background: t.avatar }}>{t.initials}</div>
-                <div><div className="ag-testimonial-name">{t.name}</div><div className="ag-testimonial-role">{t.role}</div></div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </Section>
 
-      {/* ════ PARTNERS ════ */}
-      <Section>
-        <div className="ag-section-header">
-          <div className="ag-section-tag"><Building2 size={14} /> Institutional Trust</div>
-          <h2 className="ag-section-title">Government & Partner Network</h2>
-          <p className="ag-section-sub">Backed by Algeria's leading agricultural institutions and international partners.</p>
-        </div>
-        <div className="ag-partners-grid">
-          {PARTNERS.map((p, i) => (
-            <div key={i} className="ag-partner-card">
-              <div className="ag-partner-icon" style={{ background: p.color, color: p.ic }}>{p.icon}</div>
-              <h4>{p.title}</h4>
-              <p>{p.desc}</p>
-            </div>
-          ))}
-        </div>
-      </Section>
+
 
       {/* ════ CTA ════ */}
       <section className="ag-cta-section">

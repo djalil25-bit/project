@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import adminApi from '../../api/adminApi';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   Tractor, Truck, ChevronRight, Search, Check, X, Clock,
   MapPin, Maximize2, User, Phone, Mail, AlertTriangle,
-  ImageOff, RefreshCw, FileText, Gauge, Zap, ExternalLink
+  ImageOff, RefreshCw, FileText, Gauge, Zap, ExternalLink,
+  ArrowLeft
 } from 'lucide-react';
 
 const RESOURCE_TYPES = [
@@ -20,6 +21,7 @@ const STATUS_TABS = [
 ];
 
 export default function ResourceApprovals() {
+  const navigate = useNavigate();
   const [activeType, setActiveType] = useState('farms');
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -77,36 +79,43 @@ export default function ResourceApprovals() {
   const currentType = RESOURCE_TYPES.find(t => t.key === activeType);
 
   return (
-    <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 space-y-8 animate-fade-in relative z-0">
-      {/* BREADCRUMB & HEADER */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+    <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 animate-fade-in relative z-0">
+      
+      {/* ── BREADCRUMBS ────────────────────────────────────────────── */}
+      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#064e3b] mb-6 bg-[#064e3b]/10 px-3 py-1 rounded-full w-fit border border-[#064e3b]/20 shadow-sm">
+        <button onClick={() => navigate('/admin-dashboard')} className="hover:text-emerald-700 transition-colors uppercase font-black flex items-center gap-1.5">
+          <ArrowLeft size={10} /> Admin Hub
+        </button>
+        <ChevronRight size={10} className="text-[#064e3b]/40" />
+        <span className="text-[#064e3b] flex items-center gap-1.5 font-black uppercase">
+          <Clock size={11} /> Resource Approvals
+        </span>
+      </div>
+
+      {/* ── HEADER ─────────────────────────────────────────────────── */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
         <div>
-          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 bg-slate-100 px-3 py-1.5 rounded-full w-fit border border-slate-200 shadow-sm">
-            <Link to="/admin-dashboard" className="hover:text-slate-800 transition-colors">Admin Hub</Link>
-            <ChevronRight size={10} className="text-slate-300" />
-            <span className="text-slate-900">Resource Approvals</span>
-          </div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-            <div className={`p-3 bg-white rounded-2xl shadow-sm border border-slate-100 text-${currentType.color}-600`}>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+            <div className={`p-2 bg-white rounded-2xl shadow-sm border border-slate-100 text-[#064e3b]`}>
               {currentType.icon}
             </div>
-            Registry Verification
+            Registry <span className="text-[#064e3b]">Verification</span>
           </h1>
-          <p className="text-slate-500 font-medium text-lg mt-2 max-w-xl leading-relaxed">
-            Manage approvals for farms and vehicles within the national agricultural network.
+          <p className="text-slate-500 font-medium mt-1.5 text-sm max-w-xl">
+            Institutional verification framework for farms and logistics assets within the national agricultural registry.
           </p>
         </div>
 
         {/* RESOURCE SELECTOR */}
-        <div className="flex bg-slate-100 p-1.5 rounded-2xl border border-slate-200 shadow-inner w-full sm:w-auto">
+        <div className="flex bg-slate-50 p-1.5 rounded-[1.5rem] border border-slate-200 shadow-inner w-full sm:w-auto">
           {RESOURCE_TYPES.map(type => (
             <button
               key={type.key}
               onClick={() => { setActiveType(type.key); setActiveTab('PENDING'); setResources([]); }}
-              className={`flex-1 sm:flex-none px-6 py-3 rounded-xl text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${
+              className={`flex-1 sm:flex-none px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${
                 activeType === type.key 
-                  ? `bg-white text-${type.color}-600 shadow-md border border-${type.color}-100` 
-                  : 'text-slate-400 hover:text-[#064e3b]'
+                  ? `bg-white text-[#064e3b] shadow-md border border-emerald-100` 
+                  : 'text-slate-400 hover:text-slate-600'
               }`}
             >
               {type.icon} {type.label}
@@ -116,16 +125,16 @@ export default function ResourceApprovals() {
       </div>
 
       {/* SEARCH & FILTERS BAR */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-white p-4 rounded-3xl border border-slate-100 shadow-sm">
-        <div className="flex items-center gap-2 w-full md:w-auto">
+      <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm p-5 mb-10 flex flex-col lg:flex-row items-center justify-between gap-6">
+        <div className="flex items-center gap-2 w-full lg:w-auto bg-slate-50 p-1 rounded-2xl border border-slate-100 shadow-inner">
           {STATUS_TABS.map(tab => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${
+              className={`px-6 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all ${
                 activeTab === tab.key
-                  ? 'bg-[#022c22] text-white border-slate-900 shadow-lg'
-                  : 'bg-slate-50 text-slate-400 border-slate-100 hover:bg-slate-100 hover:text-[#064e3b]'
+                  ? 'bg-[#064e3b] text-white shadow-lg'
+                  : 'text-slate-400 hover:text-slate-600'
               }`}
             >
               {tab.label}
@@ -133,20 +142,22 @@ export default function ResourceApprovals() {
           ))}
         </div>
 
-        <div className="relative w-full md:max-w-md">
-          <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            placeholder={`Search ${activeType}...`}
-            className="w-full h-11 pl-11 pr-4 bg-slate-50 border border-slate-100 rounded-xl text-sm font-medium focus:outline-none focus:bg-white focus:ring-2 focus:ring-slate-900 transition-all shadow-inner"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
+        <div className="flex items-center gap-4 w-full lg:w-auto">
+          <div className="relative flex-1 lg:w-96 group">
+            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-[#064e3b] transition-colors" />
+            <input
+              type="text"
+              placeholder={`Search ${activeType} Registry...`}
+              className="w-full h-12 pl-12 pr-5 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#064e3b]/20 focus:border-[#064e3b] shadow-inner transition-all uppercase"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+          </div>
+          
+          <button onClick={fetchResources} className="w-12 h-12 bg-white border border-slate-200 hover:bg-emerald-50 text-slate-400 hover:text-[#064e3b] rounded-2xl flex items-center justify-center transition-all shadow-sm active:scale-95 group" title="Refresh Registry">
+            <RefreshCw size={18} className={`transition-transform duration-700 ${loading ? 'animate-spin' : 'group-hover:rotate-180'}`} />
+          </button>
         </div>
-        
-        <button onClick={fetchResources} className="hidden md:flex w-11 h-11 bg-white border border-slate-200 hover:bg-slate-50 text-[#064e3b] rounded-xl items-center justify-center transition-all shadow-sm">
-          <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
-        </button>
       </div>
 
       {/* CONTENT */}
@@ -215,72 +226,72 @@ export default function ResourceApprovals() {
 
 // Sub-components for cleaner structure
 const FarmCard = ({ farm, onApprove, onReject, onPreview, actionLoading }) => (
-  <div className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 overflow-hidden flex flex-col h-full group">
-    <div className="relative h-48 bg-slate-100 overflow-hidden">
+  <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm hover:shadow-xl hover:shadow-emerald-900/5 transition-all duration-500 overflow-hidden flex flex-col h-full group">
+    <div className="relative h-56 bg-slate-100 overflow-hidden">
       {farm.image ? (
-        <img src={farm.image.startsWith('http') ? farm.image : `http://localhost:8000${farm.image}`} alt={farm.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+        <img src={farm.image.startsWith('http') ? farm.image : `http://localhost:8000${farm.image}`} alt={farm.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
       ) : (
-        <div className="absolute inset-0 bg-gradient-to-tr from-emerald-800 to-emerald-600 flex items-center justify-center">
-          <ImageOff size={32} className="text-white/20" />
+        <div className="absolute inset-0 bg-gradient-to-tr from-[#064e3b] to-emerald-600 flex items-center justify-center">
+          <Tractor size={48} strokeWidth={1} className="text-white/20" />
         </div>
       )}
-      <div className="absolute top-4 left-4">
-        <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-xl border backdrop-blur-md shadow-sm ${
+      <div className="absolute top-6 left-6">
+        <span className={`text-[9px] font-black uppercase tracking-widest px-4 py-2 rounded-2xl border backdrop-blur-md shadow-lg ${
           farm.status === 'PENDING' ? 'bg-amber-500/90 text-white border-amber-400' :
-          farm.status === 'ACTIVE' ? 'bg-emerald-500/90 text-white border-emerald-400' :
-          'bg-red-500/90 text-white border-red-400'
+          farm.status === 'ACTIVE' ? 'bg-[#064e3b]/90 text-white border-emerald-400' :
+          'bg-rose-500/90 text-white border-rose-400'
         }`}>
-          {farm.status === 'PENDING' ? '⏳ Pending Review' : farm.status === 'ACTIVE' ? '✅ Verified' : '❌ Rejected'}
+          {farm.status === 'PENDING' ? 'Investigation Protocol' : farm.status === 'ACTIVE' ? 'Institutional Verification' : 'Registry Rejection'}
         </span>
       </div>
     </div>
-    <div className="p-6 flex flex-col gap-2">
-      <div className="flex items-center justify-between">
-        <h3 className="text-xl font-black text-slate-900 tracking-tight">{farm.name}</h3>
-        <span className="text-[10px] font-black text-slate-400">ID: {farm.id}</span>
-      </div>
-      <div className="flex items-center gap-4 text-xs text-slate-500 font-medium">
-        <span className="flex items-center gap-1"><MapPin size={12} className="text-amber-500" /> {farm.wilaya || farm.location}</span>
-        {farm.commune && <span className="text-slate-400">• {farm.commune}</span>}
-        {farm.size_hectares && (
-          <span className="flex items-center gap-1"><Maximize2 size={11} className="text-emerald-500" /> {farm.size_hectares} HA</span>
-        )}
+    
+    <div className="p-8 flex flex-col flex-1 gap-6">
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xl font-black text-slate-900 tracking-tight uppercase line-clamp-1">{farm.name}</h3>
+          <span className="text-[10px] font-black text-[#064e3b] bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">ID {farm.id.toString().padStart(4, '0')}</span>
+        </div>
+        <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-slate-400">
+          <span className="flex items-center gap-1.5"><MapPin size={14} className="text-[#064e3b]" /> {farm.wilaya || farm.location}</span>
+          {farm.size_hectares && (
+            <span className="flex items-center gap-1.5"><Maximize2 size={14} className="text-[#064e3b]" /> {farm.size_hectares} HA</span>
+          )}
+        </div>
       </div>
 
-      {/* REPOSITIONED: Document Preview now at the top of content */}
-      <div className="mt-2">
+      <div className="bg-slate-50 rounded-[1.5rem] p-5 border border-slate-100 shadow-inner space-y-4">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-[#064e3b] font-black text-base border border-slate-100 shadow-inner">
+            {farm.owner_name?.charAt(0)?.toUpperCase()}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-black text-slate-900 truncate uppercase">{farm.owner_name}</div>
+            <div className="text-[9px] text-[#064e3b] font-black uppercase tracking-widest mt-0.5 truncate opacity-60">FARM OPERATOR</div>
+          </div>
+        </div>
+        
         {farm.registry_document ? (
           <button 
             onClick={() => onPreview(farm.registry_document.startsWith('http') ? farm.registry_document : `http://localhost:8000${farm.registry_document}`)} 
-            className="w-full flex items-center justify-center gap-2 bg-[#064e3b] hover:bg-[#166534] text-white px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-emerald-600/20 active:scale-95"
+            className="w-full flex items-center justify-center gap-3 bg-white hover:bg-emerald-50 text-[#064e3b] border border-slate-200 hover:border-emerald-200 px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm active:scale-95 group/doc"
           >
-            <FileText size={14}/> View Registry Document
+            <FileText size={16} className="group-hover/doc:scale-110 transition-transform" /> Inspect Registry Evidence
           </button>
         ) : (
-          <div className="w-full flex items-center justify-center gap-2 bg-slate-50 border border-slate-100 text-slate-400 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest italic">
-            <FileText size={14} className="opacity-50"/> Document Not Uploaded
+          <div className="w-full flex items-center justify-center gap-3 bg-slate-100/50 border border-slate-100 text-slate-400 px-4 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest italic opacity-60">
+            <FileText size={16}/> Evidence Registry Empty
           </div>
         )}
       </div>
-    </div>
-    <div className="p-6 flex flex-col flex-1">
-      <div className="bg-slate-50 rounded-2xl p-4 flex items-center gap-4 border border-slate-100 mb-6">
-        <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-[#064e3b] font-black text-sm border border-slate-100">
-          {farm.owner_name?.charAt(0)?.toUpperCase()}
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="text-sm font-black text-slate-900 truncate">{farm.owner_name}</div>
-          <div className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-0.5 truncate">{farm.owner_email}</div>
-        </div>
-      </div>
 
       {farm.status === 'PENDING' && (
-        <div className="grid grid-cols-2 gap-3 mt-auto">
-          <button onClick={() => onApprove(farm.id)} disabled={actionLoading === farm.id} className="bg-[#064e3b] hover:bg-emerald-700 text-white h-11 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 disabled:opacity-50">
-            <Check size={16}/> Approve
+        <div className="grid grid-cols-2 gap-4 mt-auto">
+          <button onClick={() => onApprove(farm.id)} disabled={actionLoading === farm.id} className="bg-[#064e3b] hover:bg-emerald-700 text-white h-12 rounded-2xl font-black text-[10px] uppercase tracking-[0.1em] transition-all shadow-xl shadow-emerald-900/20 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50">
+            {actionLoading === farm.id ? '...' : <><Check size={18}/> Verify</>}
           </button>
-          <button onClick={() => onReject(farm.id)} disabled={actionLoading === farm.id} className="bg-red-600 hover:bg-red-700 text-white h-11 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-red-600/20 flex items-center justify-center gap-2 disabled:opacity-50">
-            <X size={16}/> Reject
+          <button onClick={() => onReject(farm.id)} disabled={actionLoading === farm.id} className="bg-white border border-slate-200 text-rose-600 hover:bg-rose-50 hover:border-rose-200 h-12 rounded-2xl font-black text-[10px] uppercase tracking-[0.1em] transition-all shadow-sm flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50">
+            {actionLoading === farm.id ? '...' : <><X size={18}/> Decline</>}
           </button>
         </div>
       )}
@@ -289,85 +300,82 @@ const FarmCard = ({ farm, onApprove, onReject, onPreview, actionLoading }) => (
 );
 
 const VehicleCard = ({ vehicle, onApprove, onReject, onPreview, actionLoading, getIcon }) => (
-  <div className="bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 overflow-hidden flex flex-col h-full group">
-    <div className="p-6 border-b border-slate-50 flex items-center justify-between">
-      <div className="flex items-center gap-4">
-        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-sm border ${
-          vehicle.status === 'ACTIVE' ? 'bg-emerald-50 text-[#064e3b] border-emerald-100' :
-          'bg-amber-50 text-amber-600 border-amber-100'
+  <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm hover:shadow-xl hover:shadow-emerald-900/5 transition-all duration-500 overflow-hidden flex flex-col h-full group">
+    <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+      <div className="flex items-center gap-5">
+        <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center shadow-lg border-2 transition-all group-hover:scale-105 ${
+          vehicle.status === 'ACTIVE' ? 'bg-[#064e3b] text-white border-emerald-400/30' :
+          'bg-white text-amber-500 border-amber-100'
         }`}>
           {getIcon(vehicle.type)}
         </div>
         <div>
-          <div className="text-base font-black text-slate-900 leading-tight">{vehicle.type}</div>
-          <div className="text-[10px] text-slate-400 font-black uppercase tracking-[0.15em] mt-1">{vehicle.model}</div>
+          <div className="text-lg font-black text-slate-900 leading-tight uppercase">{vehicle.type}</div>
+          <div className="text-[10px] text-[#064e3b] font-black uppercase tracking-[0.2em] mt-1.5 opacity-60">Logistics Asset</div>
         </div>
       </div>
-      <div className="text-right">
-         <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest block mb-1">Plate</span>
-         <span className="text-sm font-black text-slate-900 bg-slate-50 px-2 py-1 rounded-lg border border-slate-200 font-mono tracking-tighter">{vehicle.plate}</span>
+      <div className="text-right min-w-fit">
+         <span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em] block mb-1.5 opacity-60">National Plate Registry</span>
+         <div className="inline-flex h-9 items-center px-4 bg-white rounded-xl border-2 border-slate-900/5 shadow-inner group-hover:border-[#064e3b]/20 transition-colors">
+           <span className="text-xs font-black text-slate-900 font-mono tracking-wider whitespace-nowrap">{vehicle.plate}</span>
+         </div>
       </div>
     </div>
 
-    <div className="p-6 space-y-6 flex-1 flex flex-col">
+    <div className="p-8 space-y-8 flex-1 flex flex-col">
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <h3 className="text-xl font-black text-slate-900 tracking-tight">{vehicle.model}</h3>
-          <span className="text-[10px] font-black text-slate-400">ID: {vehicle.id}</span>
+          <h3 className="text-xl font-black text-slate-900 tracking-tight uppercase">{vehicle.model}</h3>
+          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Protocol ID: {vehicle.id}</span>
         </div>
-        <div className="flex items-center gap-4 text-xs text-slate-500 font-medium">
-          <span className="bg-slate-100 px-2 py-0.5 rounded text-slate-600 uppercase tracking-widest text-[9px] font-black">{vehicle.type}</span>
-          <span className="text-slate-400">•</span>
-          <span className="font-bold text-slate-700">{vehicle.plate_number}</span>
+        
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 shadow-inner">
+             <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Payload Capacity</div>
+             <div className="text-xs font-black text-slate-900 flex items-center gap-1.5 uppercase">
+               <Gauge size={14} className="text-[#064e3b]" /> {parseFloat(vehicle.capacity) >= 1000 ? `${(parseFloat(vehicle.capacity)/1000).toFixed(1)}T` : `${vehicle.capacity}KG`}
+             </div>
+          </div>
+          <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 shadow-inner">
+             <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Fuel Type</div>
+             <div className="text-xs font-black text-slate-900 uppercase">{vehicle.fuelType || 'Diesel'}</div>
+          </div>
         </div>
 
-        {/* REPOSITIONED: Registration Preview now at the top of content */}
-        <div className="mt-2">
+        {/* REPOSITIONED: Registration Preview */}
+        <div className="mt-4">
           {vehicle.carte_grise ? (
             <button 
               onClick={() => onPreview(vehicle.carte_grise.startsWith('http') ? vehicle.carte_grise : `http://localhost:8000${vehicle.carte_grise}`)} 
-              className="w-full flex items-center justify-center gap-2 bg-[#064e3b] hover:bg-[#166534] text-white px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-emerald-600/20 active:scale-95"
+              className="w-full flex items-center justify-center gap-3 bg-white hover:bg-emerald-50 text-[#064e3b] border border-slate-200 hover:border-emerald-200 px-4 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm active:scale-95 group/doc"
             >
-              <FileText size={14}/> View Registration Document
+              <FileText size={18} className="group-hover/doc:scale-110 transition-transform"/> Audit Identity Documents
             </button>
           ) : (
-            <div className="w-full flex items-center justify-center gap-2 bg-slate-50 border border-slate-100 text-slate-400 px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest italic">
-              <FileText size={14} className="opacity-50"/> Registration Missing
+            <div className="w-full flex items-center justify-center gap-3 bg-slate-50 border border-slate-100 text-slate-400 px-4 py-3.5 rounded-2xl text-[10px] font-black uppercase tracking-widest italic opacity-60">
+              <FileText size={18}/> Identity Registry Empty
             </div>
           )}
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
-           <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Fuel Type</div>
-           <div className="text-xs font-black text-slate-800">{vehicle.fuelType}</div>
-        </div>
-        <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
-           <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Max Payload</div>
-           <div className="text-xs font-black text-slate-700 flex items-center gap-1">
-             <Gauge size={12}/> {parseFloat(vehicle.capacity) >= 1000 ? `${(parseFloat(vehicle.capacity)/1000).toFixed(1)}T` : `${vehicle.capacity}KG`}
-           </div>
-        </div>
-      </div>
-
-      <div className="bg-slate-50 rounded-2xl p-4 flex items-center gap-4 border border-slate-100">
-        <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-[#064e3b] font-black text-xs border border-slate-200">
+      <div className="bg-slate-50 rounded-[1.5rem] p-5 flex items-center gap-4 border border-slate-100 shadow-inner mt-auto">
+        <div className="w-12 h-12 bg-white rounded-xl shadow-sm flex items-center justify-center text-[#064e3b] font-black text-base border border-slate-100">
           {vehicle.owner_name?.charAt(0)?.toUpperCase()}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-xs font-black text-slate-900 truncate">{vehicle.owner_name}</div>
-          <div className="text-[10px] text-slate-500 font-bold uppercase tracking-widest truncate">{vehicle.owner_email}</div>
+          <div className="text-sm font-black text-slate-900 truncate uppercase">{vehicle.owner_name}</div>
+          <div className="text-[9px] text-[#064e3b] font-black uppercase tracking-widest mt-0.5 truncate opacity-60">ASSET HOLDER</div>
         </div>
       </div>
 
       {vehicle.status === 'PENDING' && (
-        <div className="grid grid-cols-2 gap-3 mt-auto">
-          <button onClick={() => onApprove(vehicle.id)} disabled={actionLoading === vehicle.id} className="bg-[#064e3b] hover:bg-emerald-700 text-white h-11 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 disabled:opacity-50">
-            <Check size={16}/> Approve
+        <div className="grid grid-cols-2 gap-4">
+          <button onClick={() => onApprove(vehicle.id)} disabled={actionLoading === vehicle.id} className="bg-[#064e3b] hover:bg-emerald-700 text-white h-12 rounded-2xl font-black text-[10px] uppercase tracking-[0.1em] transition-all shadow-xl shadow-emerald-900/20 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50">
+            {actionLoading === vehicle.id ? '...' : <><Check size={18}/> Verify</>}
           </button>
-          <button onClick={() => onReject(vehicle.id)} disabled={actionLoading === vehicle.id} className="bg-red-600 hover:bg-red-700 text-white h-11 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-red-600/20 flex items-center justify-center gap-2 disabled:opacity-50">
-            <X size={16}/> Reject
+          <button onClick={() => onReject(vehicle.id)} disabled={actionLoading === vehicle.id} className="bg-white border border-slate-200 text-rose-600 hover:bg-rose-50 hover:border-rose-200 h-12 rounded-2xl font-black text-[10px] uppercase tracking-[0.1em] transition-all shadow-sm flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50">
+            {actionLoading === vehicle.id ? '...' : <><X size={18}/> Decline</>}
           </button>
         </div>
       )}

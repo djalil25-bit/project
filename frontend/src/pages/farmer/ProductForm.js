@@ -5,7 +5,7 @@ import {
   ArrowLeft, Package, Home, Tag, Image as ImageIcon,
   Save, Info, ShieldCheck, AlertTriangle, ChevronRight, Plus,
   Layers, BadgeCheck, FileText, LayoutGrid, CheckCircle2,
-  AlertCircle, X
+  AlertCircle, X, Edit3
 } from 'lucide-react';
 
 export default function ProductForm() {
@@ -162,65 +162,75 @@ export default function ProductForm() {
   };
 
   return (
-    <div className="farmer-page-wrapper" style={{ paddingBottom: '5rem' }}>
+    <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 animate-fade-in relative z-0 pb-20">
       
-      {/* ── HEADER & BREADCRUMB ───────────────────────── */}
-      <div style={{ marginBottom: '3rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem', fontSize: '0.8rem' }}>
-          <Link to="/farmer-dashboard" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>Farmer Hub</Link>
-          <ChevronRight size={12} style={{ color: '#94a3b8' }} />
-          <Link to="/farmer-dashboard/products" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>Inventory</Link>
-          <ChevronRight size={12} style={{ color: '#94a3b8' }} />
-          <span style={{ color: '#065f46', fontWeight: 800 }}>{isEdit ? 'Modification Protocol' : 'Registration Protocol'}</span>
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-          <div>
-            <h1 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#1e293b', letterSpacing: '-1px', margin: 0 }}>
-              {isEdit ? 'Refine your ' : 'Register New '} <span style={{ color: '#2E6F40' }}>Harvest</span>
-            </h1>
-            <p style={{ color: '#64748b', fontWeight: 500, margin: '0.5rem 0 0' }}>
-              Ensure your product data aligns with official ministry standards for maximum marketplace visibility.
-            </p>
-          </div>
-          <button onClick={() => navigate(-1)} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#fff', color: '#64748b', padding: '0.75rem 1.25rem', borderRadius: '12px', fontWeight: 700, fontSize: '0.85rem', border: '1.5px solid #e2e8f0', cursor: 'pointer' }}>
-             <ArrowLeft size={16} /> Return to Inventory
-          </button>
-        </div>
+      {/* ── BREADCRUMBS ────────────────────────────────────────────── */}
+      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#2E6F40] mb-5 bg-[#2E6F40]/10 px-3 py-1 rounded-full w-fit border border-[#2E6F40]/20 shadow-sm">
+        <Link to="/farmer-dashboard" className="hover:text-[#255933] transition-colors">Farmer Hub</Link>
+        <ChevronRight size={10} className="text-[#2E6F40]/40" />
+        <Link to="/farmer-dashboard/products" className="hover:text-[#255933] transition-colors">Inventory</Link>
+        <ChevronRight size={10} className="text-[#2E6F40]/40" />
+        <span className="text-[#2E6F40] flex items-center gap-1.5">
+          <BadgeCheck size={11} /> Registration Protocol
+        </span>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '2.5rem', alignItems: 'start' }}>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
+        <div>
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+            <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-[#2E6F40]">
+              {isEdit ? <Edit3 size={22} strokeWidth={2.5} /> : <Plus size={22} strokeWidth={2.5} />}
+            </div>
+            {isEdit ? 'Refine your' : 'Register New'} <span className="text-[#2E6F40]">Product</span>
+          </h1>
+          <p className="text-slate-500 font-medium mt-1.5 text-sm max-w-xl">Ensure your product data aligns with official ministry standards for maximum marketplace visibility.</p>
+        </div>
+        
+        <button 
+          onClick={() => navigate(-1)} 
+          className="inline-flex items-center gap-2 bg-white text-slate-500 px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-sm border border-slate-200 hover:bg-slate-50 active:scale-95"
+        >
+          <ArrowLeft size={14} strokeWidth={3} /> Return to Inventory
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8 items-start">
         
         {/* ── MAIN FORM ─────────────────────────────────── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <div className="flex flex-col gap-6">
           
           {error && (
-            <div style={{ background: '#fef2f2', border: '1.5px solid #fecaca', padding: '1.25rem', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '1rem', color: '#991b1b', fontSize: '0.9rem', fontWeight: 700 }}>
-              <AlertCircle size={20} /> {error}
+            <div className="bg-red-50 border border-red-100 p-4 rounded-2xl flex items-center gap-3 text-red-600 text-[10px] font-black uppercase tracking-wider shadow-sm">
+              <AlertCircle size={18} /> {error}
             </div>
           )}
           {success && (
-            <div style={{ background: '#f0fdf4', border: '1.5px solid #bbf7d0', padding: '1.25rem', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '1rem', color: '#166534', fontSize: '0.9rem', fontWeight: 700 }}>
-              <CheckCircle2 size={20} /> {success}
+            <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-2xl flex items-center gap-3 text-emerald-600 text-[10px] font-black uppercase tracking-wider shadow-sm">
+              <CheckCircle2 size={18} /> {success}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-8">
             
             {/* Identity Group */}
-            <div style={{ background: '#fff', borderRadius: '32px', padding: '2.5rem', border: '1.5px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#ecfdf5', color: '#2E6F40', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><BadgeCheck size={24} /></div>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#1e293b' }}>Official Identity</h3>
+            <div className="bg-white border border-slate-200 rounded-[2.5rem] p-8 md:p-12 shadow-[0_10px_40px_rgba(0,0,0,0.03)]">
+              <div className="flex items-center gap-3 mb-10">
+                <div className="p-3 bg-emerald-50 text-[#2E6F40] rounded-2xl border border-emerald-100 shadow-sm">
+                  <BadgeCheck size={24} strokeWidth={2.5} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-slate-900 tracking-tight">Official Identity</h3>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Core Product Recognition</p>
+                </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                <div className="form-group">
-                  <label style={{ fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '0.5rem', display: 'block', letterSpacing: '1px' }}>Registry Product <span style={{ color: '#ef4444' }}>*</span></label>
-                  <div style={{ position: 'relative' }}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Registry Product <span className="text-red-500">*</span></label>
+                  <div className="relative group">
                     <select
                       name="catalog_product"
-                      style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: fieldErrors.catalog_product ? '2px solid #ef4444' : '1.5px solid #e2e8f0', fontSize: '0.9rem', fontWeight: 700, color: '#1e293b', outline: 'none', background: '#f8fafc' }}
+                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-black text-slate-700 uppercase tracking-widest focus:outline-none focus:ring-4 focus:ring-[#2E6F40]/10 focus:border-[#2E6F40] transition-all appearance-none cursor-pointer"
                       onChange={handleChange}
                       required
                       value={formData.catalog_product}
@@ -228,17 +238,17 @@ export default function ProductForm() {
                       <option value="">Choose Catalog Entry…</option>
                       {catalog.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}
                     </select>
-                    <ChevronRight size={16} style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%) rotate(90deg)', color: '#94a3b8' }} />
+                    <ChevronRight size={14} className="absolute right-5 top-1/2 -translate-y-1/2 rotate-90 text-slate-400 pointer-events-none group-focus-within:text-[#2E6F40] transition-colors" strokeWidth={3} />
                   </div>
-                  {fieldErrors.catalog_product && <div style={{ color: '#ef4444', fontSize: '0.75rem', fontWeight: 700, marginTop: '0.4rem' }}>{fieldErrors.catalog_product}</div>}
+                  {fieldErrors.catalog_product && <div className="text-[10px] font-black text-red-500 uppercase tracking-widest mt-1 ml-1">{fieldErrors.catalog_product}</div>}
                 </div>
 
-                <div className="form-group">
-                  <label style={{ fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '0.5rem', display: 'block', letterSpacing: '1px' }}>Producing Farm <span style={{ color: '#ef4444' }}>*</span></label>
-                  <div style={{ position: 'relative' }}>
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Producing Farm <span className="text-red-500">*</span></label>
+                  <div className="relative group">
                     <select
                       name="farm"
-                      style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: fieldErrors.farm ? '2px solid #ef4444' : '1.5px solid #e2e8f0', fontSize: '0.9rem', fontWeight: 700, color: '#1e293b', outline: 'none', background: '#f8fafc' }}
+                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-black text-slate-700 uppercase tracking-widest focus:outline-none focus:ring-4 focus:ring-[#2E6F40]/10 focus:border-[#2E6F40] transition-all appearance-none cursor-pointer"
                       onChange={handleChange}
                       required
                       value={formData.farm}
@@ -246,63 +256,73 @@ export default function ProductForm() {
                       <option value="">Select Origin Farm…</option>
                       {farms.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
                     </select>
-                    <ChevronRight size={16} style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%) rotate(90deg)', color: '#94a3b8' }} />
+                    <ChevronRight size={14} className="absolute right-5 top-1/2 -translate-y-1/2 rotate-90 text-slate-400 pointer-events-none group-focus-within:text-[#2E6F40] transition-colors" strokeWidth={3} />
                   </div>
-                  {fieldErrors.farm && <div style={{ color: '#ef4444', fontSize: '0.75rem', fontWeight: 700, marginTop: '0.4rem' }}>{fieldErrors.farm}</div>}
+                  {fieldErrors.farm && <div className="text-[10px] font-black text-red-500 uppercase tracking-widest mt-1 ml-1">{fieldErrors.farm}</div>}
                 </div>
               </div>
             </div>
 
             {/* Economics Group */}
-            <div style={{ background: '#fff', borderRadius: '32px', padding: '2.5rem', border: '1.5px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#fff1f2', color: '#e11d48', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Tag size={24} /></div>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#1e293b' }}>Valuation & Inventory</h3>
+            <div className="bg-white border border-slate-200 rounded-[2.5rem] p-8 md:p-12 shadow-[0_10px_40px_rgba(0,0,0,0.03)]">
+              <div className="flex items-center gap-3 mb-10">
+                <div className="p-3 bg-rose-50 text-rose-600 rounded-2xl border border-rose-100 shadow-sm">
+                  <Tag size={24} strokeWidth={2.5} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-slate-900 tracking-tight">Valuation & Inventory</h3>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Commercial Benchmarks</p>
+                </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                <div className="form-group">
-                  <label style={{ fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '0.5rem', display: 'block', letterSpacing: '1px' }}>Asking Price (DZD) <span style={{ color: '#ef4444' }}>*</span></label>
-                  <div style={{ position: 'relative' }}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Asking Price (DZD) <span className="text-red-500">*</span></label>
+                  <div className="relative group">
                     <input
                       type="number" step="0.01" name="price"
-                      style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: fieldErrors.price ? '2px solid #ef4444' : '1.5px solid #e2e8f0', fontSize: '1rem', fontWeight: 800, color: '#1e293b', outline: 'none' }}
+                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-black text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-4 focus:ring-[#2E6F40]/10 focus:border-[#2E6F40] transition-all tabular-nums"
                       placeholder="0.00" onChange={handleChange} required value={formData.price}
                     />
-                    <div style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', fontWeight: 900, color: '#cbd5e1', fontSize: '0.8rem' }}>DZD / {selCatalog?.default_unit || 'UNIT'}</div>
+                    <div className="absolute right-5 top-1/2 -translate-y-1/2 font-black text-[9px] text-slate-400 uppercase tracking-widest group-focus-within:text-[#2E6F40] transition-colors">DZD / {selCatalog?.default_unit || 'UNIT'}</div>
                   </div>
-                  {fieldErrors.price && <div style={{ color: '#ef4444', fontSize: '0.75rem', fontWeight: 700, marginTop: '0.4rem' }}>{fieldErrors.price}</div>}
+                  {fieldErrors.price && <div className="text-[10px] font-black text-red-500 uppercase tracking-widest mt-1 ml-1">{fieldErrors.price}</div>}
                 </div>
 
-                <div className="form-group">
-                  <label style={{ fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '0.5rem', display: 'block', letterSpacing: '1px' }}>Available Stock <span style={{ color: '#ef4444' }}>*</span></label>
-                  <div style={{ position: 'relative' }}>
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Available Stock <span className="text-red-500">*</span></label>
+                  <div className="relative group">
                     <input
                       type="number" step="0.01" name="stock"
-                      style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: fieldErrors.stock ? '2px solid #ef4444' : '1.5px solid #e2e8f0', fontSize: '1rem', fontWeight: 800, color: '#1e293b', outline: 'none' }}
+                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-black text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-4 focus:ring-[#2E6F40]/10 focus:border-[#2E6F40] transition-all tabular-nums"
                       placeholder="0.00" onChange={handleChange} required value={formData.stock}
                     />
-                    <div style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', fontWeight: 900, color: '#cbd5e1', fontSize: '0.8rem' }}>{selCatalog?.default_unit || 'UNIT'}</div>
+                    <div className="absolute right-5 top-1/2 -translate-y-1/2 font-black text-[9px] text-slate-400 uppercase tracking-widest group-focus-within:text-[#2E6F40] transition-colors">{selCatalog?.default_unit || 'UNIT'}S</div>
                   </div>
-                  {fieldErrors.stock && <div style={{ color: '#ef4444', fontSize: '0.75rem', fontWeight: 700, marginTop: '0.4rem' }}>{fieldErrors.stock}</div>}
+                  {fieldErrors.stock && <div className="text-[10px] font-black text-red-500 uppercase tracking-widest mt-1 ml-1">{fieldErrors.stock}</div>}
                 </div>
               </div>
             </div>
 
             {/* Quality Group */}
-            <div style={{ background: '#fff', borderRadius: '32px', padding: '2.5rem', border: '1.5px solid #e2e8f0', boxShadow: '0 4px 6px rgba(0,0,0,0.02)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ShieldCheck size={24} /></div>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#1e293b' }}>Quality & Description</h3>
+            <div className="bg-white border border-slate-200 rounded-[2.5rem] p-8 md:p-12 shadow-[0_10px_40px_rgba(0,0,0,0.03)]">
+              <div className="flex items-center gap-3 mb-10">
+                <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl border border-blue-100 shadow-sm">
+                  <ShieldCheck size={24} strokeWidth={2.5} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black text-slate-900 tracking-tight">Quality & Description</h3>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Institutional Specifications</p>
+                </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
-                <div className="form-group">
-                  <label style={{ fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '0.5rem', display: 'block', letterSpacing: '1px' }}>Quality Grade <span style={{ color: '#ef4444' }}>*</span></label>
-                  <div style={{ position: 'relative' }}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Quality Grade <span className="text-red-500">*</span></label>
+                  <div className="relative group">
                     <select
                       name="quality"
-                      style={{ width: '100%', padding: '1rem', borderRadius: '16px', border: '1.5px solid #e2e8f0', fontSize: '0.9rem', fontWeight: 700, color: '#1e293b', outline: 'none', background: '#f8fafc' }}
+                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-black text-slate-700 uppercase tracking-widest focus:outline-none focus:ring-4 focus:ring-[#2E6F40]/10 focus:border-[#2E6F40] transition-all appearance-none cursor-pointer"
                       onChange={handleChange} required value={formData.quality}
                     >
                       <option value="PREMIUM">Premium (High End)</option>
@@ -310,45 +330,43 @@ export default function ProductForm() {
                       <option value="ECONOMY">Economy (Low Cost)</option>
                       <option value="ORGANIC">Organic (Certified)</option>
                     </select>
-                    <ChevronRight size={16} style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%) rotate(90deg)', color: '#94a3b8' }} />
+                    <ChevronRight size={14} className="absolute right-5 top-1/2 -translate-y-1/2 rotate-90 text-slate-400 pointer-events-none group-focus-within:text-[#2E6F40] transition-colors" strokeWidth={3} />
                   </div>
                 </div>
 
-                <div className="form-group">
-                  <label style={{ fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '0.5rem', display: 'block', letterSpacing: '1px' }}>Harvest Imagery</label>
-                  <div style={{ position: 'relative' }}>
-                    <input
-                      type="file" name="image"
-                      style={{ width: '100%', padding: '0.8rem', borderRadius: '16px', border: '1.5px solid #e2e8f0', fontSize: '0.8rem', fontWeight: 600, color: '#64748b', outline: 'none' }}
-                      accept="image/*" onChange={handleChange}
-                    />
-                  </div>
+                <div className="flex flex-col gap-2">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Product Imagery</label>
+                  <input
+                    type="file" name="image"
+                    className="w-full px-5 py-[0.85rem] bg-slate-50 border border-slate-200 rounded-2xl text-[10px] font-black text-slate-500 uppercase tracking-widest file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[9px] file:font-black file:bg-[#2E6F40] file:text-white hover:file:bg-[#255933] cursor-pointer transition-all"
+                    accept="image/*" onChange={handleChange}
+                  />
                 </div>
               </div>
 
-              <div className="form-group">
-                <label style={{ fontSize: '0.7rem', fontWeight: 900, textTransform: 'uppercase', color: '#94a3b8', marginBottom: '0.5rem', display: 'block', letterSpacing: '1px' }}>Detailed Manifest & Harvest Notes</label>
+              <div className="flex flex-col gap-2">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Detailed Manifest & Product Notes</label>
                 <textarea
                   name="description"
-                  style={{ width: '100%', padding: '1.25rem', borderRadius: '20px', border: '1.5px solid #e2e8f0', fontSize: '0.9rem', fontWeight: 600, color: '#1e293b', outline: 'none', resize: 'none', minHeight: '120px', lineHeight: 1.6 }}
-                  placeholder="Elaborate on the harvest conditions, specific variety, or any unique quality markers..."
+                  className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-3xl text-xs font-semibold text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-[#2E6F40]/10 focus:border-[#2E6F40] transition-all resize-none min-h-[140px] leading-relaxed"
+                  placeholder="Elaborate on the product conditions, specific variety, or any unique quality markers..."
                   onChange={handleChange} value={formData.description}
                 />
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '1.5rem', paddingTop: '1rem' }}>
+            <div className="flex flex-col md:flex-row gap-4 pt-4">
                <button
                  type="submit"
                  disabled={loading || farms.length === 0}
-                 style={{ flex: 1, background: '#2E6F40', color: '#fff', padding: '1.25rem', borderRadius: '18px', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', boxShadow: '0 10px 30px rgba(5,150,105,0.2)' }}
+                 className="flex-1 bg-[#2E6F40] hover:bg-[#255933] text-white py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all shadow-[0_10px_30px_rgba(46,111,64,0.2)] active:scale-[0.98] flex items-center justify-center gap-3 disabled:opacity-50"
                >
-                 {loading ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <><Save size={20} /> {isEdit ? 'Update Requisition' : 'Authorize Listing'}</>}
+                 {loading ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <><Save size={18} strokeWidth={3} /> {isEdit ? 'Update Requisition' : 'Authorize Listing'}</>}
                </button>
                <button
                  type="button"
                  onClick={() => navigate('/farmer-dashboard/products')}
-                 style={{ padding: '1.25rem 2.5rem', borderRadius: '18px', border: '1.5px solid #e2e8f0', background: '#fff', color: '#64748b', fontWeight: 800, fontSize: '1rem', cursor: 'pointer' }}
+                 className="px-10 py-4 bg-white text-slate-400 hover:text-slate-600 border border-slate-200 rounded-2xl font-black text-xs uppercase tracking-[0.2em] transition-all active:scale-[0.98]"
                >
                  Discard
                </button>
@@ -357,64 +375,60 @@ export default function ProductForm() {
         </div>
 
         {/* ── SIDEBAR: OFFICIAL DATA ──────────────────── */}
-        <div style={{ position: 'sticky', top: '2rem' }}>
+        <div className="sticky top-8 flex flex-col gap-4">
           {selCatalog ? (
-            <div style={{ background: 'linear-gradient(135deg, #065f46 0%, #064e3b 100%)', borderRadius: '32px', padding: '2.5rem', color: '#fff', boxShadow: '0 20px 40px rgba(6,95,70,0.15)', position: 'relative', overflow: 'hidden' }}>
-              <div style={{ position: 'absolute', top: '-50px', right: '-50px', opacity: 0.1 }}><Info size={250} /></div>
+            <div className="bg-slate-900 rounded-[2.5rem] p-8 text-white shadow-2xl relative overflow-hidden group">
+              <div className="absolute -top-10 -right-10 opacity-10 group-hover:scale-110 transition-transform"><Info size={200} /></div>
               
-              <div style={{ position: 'relative', zIndex: 10 }}>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.15)', padding: '0.5rem 1rem', borderRadius: '30px', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '2.5rem' }}>
-                  <Building2 size={16} /> Ministry Reference
+              <div className="relative z-10">
+                <div className="inline-flex items-center gap-2 bg-white/10 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest mb-10 border border-white/10">
+                  <Building2 size={14} /> Ministry Reference
                 </div>
 
-                <div style={{ marginBottom: '3rem' }}>
-                   <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#10b981', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.5rem' }}>Market Stabilization Range</div>
-                   <div style={{ fontSize: '2rem', fontWeight: 900, letterSpacing: '-1px' }}>
-                      {selCatalog.min_price} – {selCatalog.max_price} <small style={{ fontSize: '1rem', opacity: 0.6 }}>DZD</small>
+                <div className="mb-10">
+                   <div className="text-[10px] font-black text-[#2E6F40] uppercase tracking-widest mb-2">Market Stabilization Range</div>
+                   <div className="text-3xl font-black tracking-tight tabular-nums">
+                      {selCatalog.min_price} – {selCatalog.max_price} <span className="text-sm opacity-40 font-bold uppercase ml-1">DZD</span>
                    </div>
-                   <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.6)', marginTop: '0.5rem', fontWeight: 600 }}>Per {selCatalog.default_unit} • Updated Daily</div>
+                   <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-2">Per {selCatalog.default_unit} • Updated Daily</div>
                 </div>
 
-                <div style={{ marginBottom: '3rem' }}>
-                   <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#10b981', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '1rem' }}>Quality Specifications</div>
-                   <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '20px', padding: '1.5rem', border: '1px solid rgba(255,255,255,0.1)', fontSize: '0.9rem', lineHeight: 1.6, color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>
+                <div className="mb-10">
+                   <div className="text-[10px] font-black text-[#2E6F40] uppercase tracking-widest mb-4">Quality Specifications</div>
+                   <div className="bg-white/5 rounded-2xl p-5 border border-white/5 text-xs font-medium leading-relaxed text-slate-300">
                       {selCatalog.description || 'Standard Ministry quality guidelines apply to this category.'}
                    </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', background: 'rgba(16,185,129,0.2)', padding: '1.25rem', borderRadius: '20px', border: '1px solid rgba(16,185,129,0.3)' }}>
-                   <ShieldCheck size={20} style={{ color: '#10b981', marginTop: '0.2rem' }} />
-                   <p style={{ fontSize: '0.8rem', color: '#fff', fontWeight: 600, margin: 0, lineHeight: 1.5 }}>
+                <div className="flex items-start gap-3 bg-[#2E6F40]/20 p-5 rounded-2xl border border-[#2E6F40]/30 shadow-inner">
+                   <ShieldCheck size={20} className="text-[#2E6F40] shrink-0 mt-0.5" />
+                   <p className="text-[10px] text-emerald-100 font-bold leading-relaxed m-0">
                       Products listed within reference price ranges receive priority indexing in the buyer marketplace.
                    </p>
                 </div>
               </div>
             </div>
           ) : (
-            <div style={{ background: '#fff', borderRadius: '32px', padding: '4rem 2rem', border: '1.5px dashed #e2e8f0', textAlign: 'center' }}>
-               <div style={{ width: '64px', height: '64px', borderRadius: '20px', background: '#f8fafc', color: '#cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem' }}><LayoutGrid size={32} /></div>
-               <h4 style={{ fontSize: '1rem', fontWeight: 900, color: '#1e293b', marginBottom: '1rem' }}>Registry Guidance</h4>
-               <p style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: 500, lineHeight: 1.6 }}>
+            <div className="bg-white border-2 border-dashed border-slate-200 rounded-[2.5rem] p-10 text-center shadow-inner">
+               <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-300 border border-slate-100 mx-auto mb-6"><LayoutGrid size={32} /></div>
+               <h4 className="text-sm font-black text-slate-900 uppercase tracking-widest mb-3">Registry Guidance</h4>
+               <p className="text-[11px] text-slate-400 font-medium leading-relaxed px-4">
                   Select a product from the official catalog to synchronize your listing with ministry-grade data benchmarks.
                </p>
             </div>
           )}
 
-          <div style={{ marginTop: '1.5rem', background: '#f0fdf4', padding: '1.5rem', borderRadius: '24px', border: '1.5px solid #bbf7d0', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-             <div style={{ color: '#2E6F40' }}><Info size={24} /></div>
+          <div className="bg-emerald-50 p-6 rounded-[2rem] border border-emerald-100 flex items-center gap-4 shadow-sm">
+             <div className="p-3 bg-white text-[#2E6F40] rounded-2xl shadow-sm"><Info size={20} strokeWidth={3} /></div>
              <div>
-                <div style={{ fontWeight: 800, fontSize: '0.85rem', color: '#166534' }}>Digital Traceability</div>
-                <div style={{ fontSize: '0.75rem', color: '#15803d', fontWeight: 500 }}>Every listing is tagged with a unique batch ID for national tracking.</div>
+                <div className="text-[10px] font-black text-emerald-900 uppercase tracking-widest">Digital Traceability</div>
+                <div className="text-[10px] text-emerald-700 font-bold mt-0.5 leading-tight">Unique batch ID assigned for national tracking.</div>
              </div>
           </div>
         </div>
       </div>
 
       <style>{`
-        .form-group {
-          display: flex;
-          flex-direction: column;
-        }
         @keyframes spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }

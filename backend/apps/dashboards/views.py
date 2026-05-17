@@ -639,3 +639,12 @@ class WeatherAPIView(APIView):
             'hourly': hourly,
         })
 
+class PublicLandingStatsAPIView(APIView):
+    from rest_framework.permissions import AllowAny
+    permission_classes = [AllowAny]
+    def get(self, request):
+        farmers = User.objects.filter(role=RoleChoices.FARMER).count()
+        wilayas = len(set(User.objects.exclude(address__isnull=True).values_list('address', flat=True)))
+        if wilayas == 0:
+            wilayas = 58
+        return Response({'farmers': farmers, 'wilayas': wilayas})

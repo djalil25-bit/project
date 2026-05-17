@@ -82,16 +82,16 @@ export default function AdminMapView({
   const defaultCenter = [28.0, 2.5];
 
   return (
-    <div className="bg-white rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/40 overflow-hidden">
+    <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden mb-10">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-6 py-4 border-b border-slate-100 gap-3">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center text-[#064e3b] border border-emerald-100 shadow-sm">
-            <MapPin size={18} />
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-8 py-6 border-b border-slate-100 gap-4">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-[#064e3b] shadow-inner">
+            <MapPin size={22} />
           </div>
           <div>
-            <h3 className="font-black text-base text-slate-900 tracking-tight">National Asset Map</h3>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mt-0.5">
+            <h3 className="font-black text-lg text-slate-900 tracking-tight leading-none">National Asset Map</h3>
+            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1.5">
               {filteredFarms.length} Farms Visible
             </p>
           </div>

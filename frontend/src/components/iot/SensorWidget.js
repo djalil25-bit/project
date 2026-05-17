@@ -1,150 +1,49 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import api from '../../api/axiosConfig';
-import { Eye, Volume2, Wifi, RefreshCw } from 'lucide-react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 
-const CARD_STYLES = {
-  container: {
-    display: 'grid',
-    gap: '1rem',
-    marginBottom: '1.5rem',
-  },
-  row4: {
-    gridTemplateColumns: 'repeat(4, 1fr)',
-  },
-  row3: {
-    gridTemplateColumns: 'repeat(3, 1fr)',
-  },
-  card: {
-    background: '#ffffff',
-    borderRadius: '1.5rem',
-    padding: '0.85rem 1rem',
-    border: '1px solid #e2e8f0',
-    boxShadow: '0 4px 15px rgba(0,0,0,0.03)',
-    transition: 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)',
-    cursor: 'default',
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  cardHover: {
-    transform: 'translateY(-3px)',
-    boxShadow: '0 12px 30px rgba(34,84,61,0.08)',
-    borderColor: 'rgba(34,84,61,0.3)',
-  },
-  emoji: {
-    fontSize: '1.2rem',
-    marginBottom: '0.5rem',
-    display: 'inline-flex',
-    width: '2.2rem',
-    height: '2.2rem',
-    background: '#f8fafc',
-    borderRadius: '0.75rem',
-    alignItems: 'center',
-    justifyContent: 'center',
-    boxShadow: '0 2px 4px -1px rgb(0 0 0 / 0.06)',
-  },
-  iconBox: {
-    marginBottom: '0.5rem',
-    width: '2.2rem',
-    height: '2.2rem',
-    borderRadius: '0.75rem',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    boxShadow: '0 2px 4px -1px rgb(0 0 0 / 0.06)',
-  },
-  value: {
-    fontSize: '1.3rem',
-    fontWeight: 900,
-    color: '#0f172a',
-    lineHeight: 1,
-    letterSpacing: '-0.02em',
-  },
-  label: {
-    fontSize: '0.6rem',
-    fontWeight: 900,
-    color: '#64748b',
-    textTransform: 'uppercase',
-    letterSpacing: '0.08em',
-    marginTop: '0.25rem',
-  },
-  alert: {
-    fontSize: '0.58rem',
-    fontWeight: 900,
-    marginTop: '0.5rem',
-    padding: '0.2rem 0.45rem',
-    borderRadius: '0.5rem',
-    display: 'inline-block',
-    border: '1px solid transparent',
-  },
-  badge: {
-    fontSize: '0.6rem',
-    fontWeight: 800,
-    padding: '0.15rem 0.5rem',
-    borderRadius: '0.4rem',
-    display: 'inline-block',
-    marginTop: '0.35rem',
-  },
-  noteText: {
-    fontSize: '0.65rem',
-    fontWeight: 600,
-    color: '#94a3b8',
-    marginTop: '0.3rem',
-  },
+import {
+  Eye, Volume2, Wifi, RefreshCw, Thermometer, 
+  Droplets, Sprout, CloudRain, ShieldAlert, Activity, Clock
+} from 'lucide-react';
+
+const translateMessage = (msg) => {
+  if (!msg) return msg;
+  const translations = {
+    'MOUVEMENT DÉTECTÉ SUR LA FERME': 'MOVEMENT DETECTED ON FARM',
+    'VIBRATION DÉTECTÉE SUR LA FERME': 'VIBRATION DETECTED ON FARM',
+    'SOL TROP HUMIDE': 'SOIL TOO WET',
+    'PLUIE DÉTECTÉE': 'RAIN DETECTED',
+    'NIVEAU DE SON ÉLEVÉ': 'HIGH SOUND LEVEL',
+    'MOUVEMENT INTRUS DÉTECTÉ': 'INTRUDER MOVEMENT DETECTED',
+    'HUMIDITÉ ÉLEVÉE': 'HIGH HUMIDITY',
+    'TEMPÉRATURE ÉLEVÉE': 'HIGH TEMPERATURE'
+  };
+  const upperMsg = msg.toUpperCase();
+  return translations[upperMsg] || msg;
 };
 
-function KpiCard({ emoji, icon, value, label, alert, alertColor, borderColor, badge, badgeColor, noteText }) {
-  const [hovered, setHovered] = useState(false);
-
+function KpiCard({ icon, value, label, color, bg, text, border, alert, note }) {
   return (
-    <div
-      style={{
-        ...CARD_STYLES.card,
-        ...(hovered ? CARD_STYLES.cardHover : {}),
-        borderLeft: `4px solid ${borderColor || '#e2e8f0'}`,
-      }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      {icon ? (
-        <div style={{ ...CARD_STYLES.iconBox, background: `${borderColor}15`, color: borderColor }}>
-          {React.cloneElement(icon, { size: 18 })}
+    <div className={`relative overflow-hidden group ${bg} ${border} border rounded-[1.5rem] p-4 transition-all duration-300 hover:shadow-xl hover:bg-white`}>
+      <div className="relative z-10">
+        <div className="flex items-center justify-between mb-4">
+          <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-500 group-hover:scale-110 bg-white shadow-sm ${text}`}>
+            {icon}
+          </div>
+          {note && <div className="text-[8px] font-black text-slate-300 uppercase tracking-[0.2em]">{note}</div>}
         </div>
-      ) : (
-        <div style={CARD_STYLES.emoji}>{emoji}</div>
-      )}
-      <div style={CARD_STYLES.value}>{value}</div>
-      <div style={CARD_STYLES.label}>{label}</div>
-      {alert && (
-        <div
-          style={{
-            ...CARD_STYLES.alert,
-            color: alertColor === 'red' ? '#dc2626' : alertColor === 'purple' ? '#7c3aed' : '#ea580c',
-            backgroundColor: alertColor === 'red' ? '#fef2f2' : alertColor === 'purple' ? '#f5f3ff' : '#fff7ed',
-            border: `1px solid ${alertColor === 'red' ? '#fecaca' : alertColor === 'purple' ? '#ddd6fe' : '#fed7aa'}`,
-          }}
-        >
-          {alert}
-        </div>
-      )}
-      {badge && (
-        <div
-          style={{
-            ...CARD_STYLES.badge,
-            color: badgeColor === 'gray' ? '#94a3b8' : '#fff',
-            backgroundColor: badgeColor === 'gray' ? '#f1f5f9' : badgeColor,
-            border: `1px solid ${badgeColor === 'gray' ? '#e2e8f0' : badgeColor}`,
-          }}
-        >
-          {badge}
-        </div>
-      )}
-      {noteText && (
-        <div style={CARD_STYLES.noteText}>{noteText}</div>
-      )}
+        <div className="text-lg font-black text-slate-900 tracking-tighter mb-0.5">{value}</div>
+        <div className={`text-[9px] font-black uppercase tracking-[0.15em] ${text}`}>{label}</div>
+        {alert && (
+          <div className="mt-3 inline-flex items-center gap-1.5 px-2 py-0.5 bg-white/60 border border-current rounded-lg text-[8px] font-black uppercase tracking-widest animate-pulse">
+            <ShieldAlert size={10} /> {alert}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -264,120 +163,107 @@ export default function SensorWidget({ farmId }) {
 
   // Rain
   const rainStatus = latest?.rain_status;
-  const rainValue = rainStatus === 'sec' ? 'Dry' : rainStatus === 'pluie' ? 'Raining' : '—';
-  const rainEmoji = rainStatus === 'sec' ? '☀️' : rainStatus === 'pluie' ? '🌧️' : '—';
-  const rainBorder = rainStatus === 'pluie' ? '#3b82f6' : rainStatus === 'sec' ? '#f59e0b' : '#94a3b8';
-
-  // IR
-  const irStatus = latest?.ir_status;
-  const irValue = irStatus === 'detected' ? 'Detected!' : irStatus === 'clear' ? 'Clear' : '—';
-  const irBorder = irStatus === 'detected' ? '#ef4444' : '#22c55e';
-  const irAlert = irStatus === 'detected' ? '⚠️ Movement!' : null;
-
-  // Sound
-  const soundStatus = latest?.sound_status;
-  const soundValue = soundStatus === 'detected' ? 'Detected!' : soundStatus === 'silent' ? 'Silent' : '—';
-  const soundBorder = soundStatus === 'detected' ? '#f59e0b' : '#94a3b8';
+  const rainText = rainStatus === 'sec' ? 'Dry' : rainStatus === 'pluie' ? 'Raining' : '—';
+  
+  const miniKpis = [
+    { icon: <Thermometer size={18} />, label: 'Temperature', value: latest?.temperature != null ? `${latest.temperature}°C` : '—', text: 'text-orange-700', bg: 'bg-orange-50', border: 'border-orange-100', alert: latest?.temperature > 35 ? 'HEAT RISK' : null },
+    { icon: <Droplets size={18} />, label: 'Air Humidity', value: latest?.humidity != null ? `${latest.humidity}%` : '—', text: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-100' },
+    { icon: <Sprout size={18} />, label: 'Soil Health', value: latest?.soil_moisture != null ? `${latest.soil_moisture}%` : '—', text: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-100', alert: latest?.soil_moisture < 30 ? 'DRY SOIL' : null },
+    { icon: <CloudRain size={18} />, label: 'Rain Status', value: rainText, text: 'text-cyan-700', bg: 'bg-cyan-50', border: 'border-cyan-100' },
+    { icon: <ShieldAlert size={18} />, label: 'IR Security', value: latest?.ir_status === 'detected' ? 'ALERT' : 'CLEAR', text: latest?.ir_status === 'detected' ? 'text-red-700' : 'text-slate-700', bg: latest?.ir_status === 'detected' ? 'bg-red-50' : 'bg-slate-50', border: latest?.ir_status === 'detected' ? 'border-red-100' : 'border-slate-100', alert: latest?.ir_status === 'detected' ? 'MOVEMENT' : null },
+    { icon: <Volume2 size={18} />, label: 'Acoustics', value: latest?.sound_status === 'detected' ? 'NOISE' : 'SILENT', text: latest?.sound_status === 'detected' ? 'text-amber-700' : 'text-slate-700', bg: latest?.sound_status === 'detected' ? 'bg-amber-50' : 'bg-slate-50', border: latest?.sound_status === 'detected' ? 'border-amber-100' : 'border-slate-100' },
+  ];
 
   return (
-    <div style={{
-      background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 50%, #f0f9ff 100%)',
-      borderRadius: '1.25rem',
-      padding: '1.25rem',
-      border: '1px solid #bbf7d0',
-      boxShadow: '0 8px 30px rgba(34, 84, 61, 0.06)',
-    }}>
+    <div className="bg-[#f8fafc] rounded-[2.5rem] border border-slate-200 shadow-[0_10px_40px_rgba(0,0,0,0.02)] overflow-hidden">
+      
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
-        <div style={{
-          width: 40, height: 40, borderRadius: '0.75rem',
-          background: 'linear-gradient(135deg, #22543d, #1a402e)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 4px 12px rgba(34, 84, 61, 0.3)',
-        }}>
-          <span style={{ fontSize: '1.2rem' }}>📡</span>
+      <div className="px-8 py-6 border-b border-slate-200/60 flex items-center justify-between bg-white/50 backdrop-blur-md">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-[#2E6F40] text-white flex items-center justify-center shadow-lg shadow-[#2E6F40]/20">
+            <Activity size={20} strokeWidth={2.5} />
+          </div>
+          <div>
+            <h3 className="text-[11px] font-black text-slate-800 uppercase tracking-[0.2em]">IoT Sensor Monitor</h3>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Downlink Real-time Data</p>
+          </div>
         </div>
-        <div>
-          <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 900, color: '#0f172a', letterSpacing: '-0.01em' }}>
-            IoT Sensor Monitor
-          </h3>
-          <span style={{ fontSize: '0.68rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-            Farm ID: {farmId} — Last {readings.length} readings
-          </span>
-        </div>
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', gap: '0.4rem',
-            padding: '0.3rem 0.7rem',
-            background: '#dcfce7', border: '1px solid #86efac',
-            borderRadius: '2rem', fontSize: '0.65rem', fontWeight: 800,
-            color: '#166534', textTransform: 'uppercase', letterSpacing: '0.05em',
-          }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e', display: 'inline-block', animation: 'pulse 2s infinite' }} />
-            LIVE
+        <div className="flex items-center gap-4">
+          <div className="hidden md:flex flex-col items-end mr-2">
+            <div className="text-[10px] font-black text-slate-900 uppercase tracking-widest mb-0.5">Farm #{farmId}</div>
+            <div className="flex items-center justify-end gap-1.5 text-[8px] font-black text-[#2E6F40] uppercase tracking-widest">
+              <div className="w-1.5 h-1.5 bg-[#2E6F40] rounded-full animate-ping" /> Synchronized
+            </div>
           </div>
           <button
             onClick={fetchData}
-            style={{
-              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-              width: 32, height: 32, borderRadius: '0.5rem',
-              background: '#ffffff', border: '1px solid #e2e8f0',
-              cursor: 'pointer', color: '#64748b',
-              transition: 'all 0.2s',
-            }}
+            className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-400 flex items-center justify-center hover:text-[#2E6F40] hover:border-[#2E6F40] transition-all shadow-sm active:scale-95"
             title="Refresh data"
           >
-            <RefreshCw size={14} />
+            <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
           </button>
         </div>
       </div>
 
-      {/* ROW 1 — 3 cards */}
-      <div style={{ ...CARD_STYLES.container, ...CARD_STYLES.row3 }}>
-        <KpiCard emoji="🌡️" value={tempValue} label="Temperature" borderColor={tempBorder} alert={tempAlert} alertColor={tempAlertColor} />
-        <KpiCard emoji="💧" value={humValue} label="Air Humidity" borderColor="#3b82f6" />
-        <KpiCard emoji="🌱" value={soilValue} label="Soil Moisture" alert={soilAlert} alertColor="red" borderColor={soilBorder} />
-      </div>
+      <div className="p-8">
+        {/* KPI Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+          {miniKpis.map((kpi, i) => (
+            <KpiCard key={i} {...kpi} note={`0${i + 1}`} />
+          ))}
+        </div>
 
-      {/* ROW 2 — 3 cards */}
-      <div style={{ ...CARD_STYLES.container, ...CARD_STYLES.row3 }}>
-        <KpiCard emoji={rainEmoji} value={rainValue} label="Rain Status" borderColor={rainBorder} />
-        <KpiCard icon={<Eye size={24} />} value={irValue} label="IR Detection" borderColor={irBorder} alert={irAlert} alertColor="red" />
-        <KpiCard icon={<Volume2 size={24} />} value={soundValue} label="Sound / Vibration" borderColor={soundBorder} />
+        {/* Chart */}
+        <div className="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-inner">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <Clock size={14} className="text-[#2E6F40]" />
+              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                Historical Telemetry (Last 50)
+              </h4>
+            </div>
+          </div>
+          <div className="h-[240px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={readings} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f8fafc" vertical={false} />
+                <XAxis 
+                  dataKey="recorded_at" 
+                  hide={true}
+                />
+                <YAxis 
+                  tick={{ fontSize: 9, fontWeight: 900, fill: '#cbd5e1' }} 
+                  axisLine={false} 
+                  tickLine={false} 
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    borderRadius: '1rem', 
+                    border: 'none', 
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.1)', 
+                    fontSize: '10px', 
+                    fontWeight: 900,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.1em'
+                  }} 
+                />
+                <Legend 
+                  wrapperStyle={{ 
+                    fontSize: '9px', 
+                    fontWeight: 900, 
+                    textTransform: 'uppercase', 
+                    letterSpacing: '0.1em',
+                    paddingTop: '20px'
+                  }} 
+                />
+                <Line type="monotone" dataKey="temperature" stroke="#f97316" strokeWidth={3} dot={false} name="Temp" />
+                <Line type="monotone" dataKey="humidity" stroke="#3b82f6" strokeWidth={3} dot={false} name="Hum" />
+                <Line type="monotone" dataKey="soil_moisture" stroke="#10b981" strokeWidth={3} dot={false} name="Soil" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
       </div>
-
-      {/* Chart */}
-      <div style={{
-        background: '#ffffff', borderRadius: '1rem', padding: '1.25rem',
-        border: '1px solid #e2e8f0', boxShadow: '0 2px 12px rgba(0,0,0,0.03)',
-      }}>
-        <h4 style={{ margin: '0 0 1rem', fontSize: '0.75rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-          📈 Sensor Trends
-        </h4>
-        <ResponsiveContainer width="100%" height={220}>
-          <LineChart data={readings} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-            <XAxis dataKey="recorded_at" tick={{ fontSize: 11, fontWeight: 600, fill: '#94a3b8' }} axisLine={{ stroke: '#e2e8f0' }} tickLine={false} />
-            <YAxis tick={{ fontSize: 11, fontWeight: 600, fill: '#94a3b8' }} axisLine={{ stroke: '#e2e8f0' }} tickLine={false} />
-            <Tooltip contentStyle={{ borderRadius: '0.75rem', border: '1px solid #e2e8f0', boxShadow: '0 8px 24px rgba(0,0,0,0.1)', fontSize: '0.82rem', fontWeight: 600 }} />
-            <Legend wrapperStyle={{ fontSize: '0.75rem', fontWeight: 700 }} />
-            <Line type="monotone" dataKey="temperature" stroke="#ff7300" strokeWidth={2.5} dot={false} activeDot={{ r: 5, strokeWidth: 2 }} name="Temperature (°C)" />
-            <Line type="monotone" dataKey="humidity" stroke="#0088fe" strokeWidth={2.5} dot={false} activeDot={{ r: 5, strokeWidth: 2 }} name="Humidity (%)" />
-            <Line type="monotone" dataKey="soil_moisture" stroke="#00C49F" strokeWidth={2.5} dot={false} activeDot={{ r: 5, strokeWidth: 2 }} name="Soil (%)" />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.4; }
-        }
-        @media (max-width: 768px) {
-          div[style*="repeat(4, 1fr)"] { grid-template-columns: repeat(2, 1fr) !important; }
-          div[style*="repeat(3, 1fr)"] { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
     </div>
   );
 }

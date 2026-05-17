@@ -123,7 +123,7 @@ const RequestDelivery = () => {
              });
           } else {
             // Re-calculate if destination changed
-            const pricingRes = await api.post('/transport-pricing-rules/calculate_fee/', {
+            const pricingRes = await api.post('/deliveries/calculate_fee/', {
               distance: logData.distance_km,
               weight: totalWeight,
               vehicle_type: 'standard'

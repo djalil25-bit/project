@@ -67,32 +67,38 @@ export default function FarmerStats() {
     <div className="min-h-screen bg-slate-50 pt-8 pb-20 animate-fade-in relative z-0 selection:bg-[#a2d4b5]">
       <div className="max-w-7xl mx-auto px-4 lg:px-8">
 
-        {/* ── BREADCRUMBS & HEADER ───────────────────────── */}
-        <div className="bg-white border border-slate-200 rounded-3xl p-6 lg:p-8 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-10">
+        {/* ── BREADCRUMBS ────────────────────────────────────────────── */}
+        <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#2E6F40] mb-5 bg-[#2E6F40]/10 px-3 py-1 rounded-full w-fit border border-[#2E6F40]/20 shadow-sm">
+          <Link to="/farmer-dashboard" className="hover:text-[#255933] transition-colors">Farmer Hub</Link>
+          <ChevronRight size={10} className="text-[#2E6F40]/40" />
+          <span className="text-[#2E6F40] flex items-center gap-1.5">
+            <BarChart2 size={11} /> Yield Analytics
+          </span>
+        </div>
+
+        {/* ── HEADER ────────────────────────────────────────────────── */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
           <div>
-            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#2E6F40] mb-4">
-              <button onClick={() => navigate('/farmer-dashboard')} className="hover:text-[#255933] flex items-center gap-1 transition-colors"><ArrowLeft size={12}/> Back to Dashboard</button>
-              <ChevronRight size={12} className="text-slate-300" />
-              <span className="flex items-center gap-1 text-slate-500"><BarChart2 size={12}/> Yield Analytics</span>
-            </div>
-            <h1 className="text-3xl lg:text-4xl font-black text-slate-900 tracking-tight flex items-center gap-3 mb-2">
-              Sales &amp; Revenue Analytics
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+              <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-[#2E6F40]">
+                <TrendingUp size={22} strokeWidth={2.5} />
+              </div>
+              Sales & <span className="text-[#2E6F40]">Revenue Analytics</span>
             </h1>
-            <p className="text-slate-500 font-medium text-sm leading-relaxed max-w-xl">
+            <p className="text-slate-500 font-medium mt-1.5 text-sm max-w-xl">
               Track farm performance, review localized revenue trends, and identify high-yield products across specified periods.
             </p>
           </div>
           
-          {/* Timeframe Toggles */}
-          <div className="flex bg-slate-50 p-1.5 rounded-2xl border border-slate-200 shadow-sm shrink-0">
+          <div className="flex bg-white p-1 rounded-xl border border-slate-200 shadow-sm shrink-0">
             {[
-              { key: 'all',   label: 'All Time'   },
-              { key: 'year',  label: 'This Year'  },
-              { key: 'month', label: 'This Month' },
+              { key: 'all',   label: 'ALL TIME'   },
+              { key: 'year',  label: 'THIS YEAR'  },
+              { key: 'month', label: 'THIS MONTH' },
             ].map(t => (
               <button
                 key={t.key}
-                className={`whitespace-nowrap px-6 py-2.5 rounded-xl text-xs font-black transition-all duration-300 ${timeframe === t.key ? 'bg-[#2E6F40] text-white shadow-md border border-[#255933]' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100 border border-transparent'}`}
+                className={`px-5 py-2.5 rounded-lg text-[9px] font-black tracking-widest transition-all ${timeframe === t.key ? 'bg-[#2E6F40] text-white shadow-md' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'}`}
                 onClick={() => setTimeframe(t.key)}
               >
                 {t.label}
@@ -136,13 +142,13 @@ export default function FarmerStats() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
           
           {/* Revenue Trend Area */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 lg:p-8 shadow-sm hover:shadow-md transition-shadow duration-300">
+          <div className="bg-white border border-slate-200 rounded-[2rem] p-8 shadow-[0_10px_40px_rgba(0,0,0,0.02)] hover:border-[#2E6F40]/20 transition-all group">
             <div className="flex justify-between items-center mb-8">
               <div>
                 <h3 className="text-xl font-black text-slate-900 tracking-tight">Revenue Trend</h3>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Periodic Growth</p>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Periodic Growth Performance</p>
               </div>
-              <div className="w-12 h-12 rounded-xl bg-[#f0faf4] flex items-center justify-center text-[#2E6F40] border border-[#cee8d9]">
+              <div className="w-12 h-12 rounded-xl bg-[#f0faf4] flex items-center justify-center text-[#2E6F40] border border-[#cee8d9] shadow-sm">
                 <TrendingUp size={20} strokeWidth={2.5} />
               </div>
             </div>
@@ -177,13 +183,13 @@ export default function FarmerStats() {
           </div>
 
           {/* Orders Bar */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 lg:p-8 shadow-sm hover:shadow-md transition-shadow duration-300">
+          <div className="bg-white border border-slate-200 rounded-[2rem] p-8 shadow-[0_10px_40px_rgba(0,0,0,0.02)] hover:border-[#2E6F40]/20 transition-all group">
             <div className="flex justify-between items-center mb-8">
               <div>
                 <h3 className="text-xl font-black text-slate-900 tracking-tight">Transaction Volume</h3>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Order Fulfillment</p>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Order Fulfillment Analytics</p>
               </div>
-              <div className="w-12 h-12 rounded-xl bg-[#f0faf4] flex items-center justify-center text-[#2E6F40] border border-[#cee8d9]">
+              <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 border border-slate-100 shadow-sm">
                 <ListOrdered size={20} strokeWidth={2.5} />
               </div>
             </div>
@@ -219,13 +225,13 @@ export default function FarmerStats() {
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           
           {/* Top Farms */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 lg:p-8 shadow-sm hover:shadow-md transition-shadow duration-300">
+          <div className="bg-white border border-slate-200 rounded-[2rem] p-8 shadow-[0_10px_40px_rgba(0,0,0,0.02)] hover:border-[#2E6F40]/20 transition-all group">
             <div className="flex justify-between items-center mb-8">
               <div>
                 <h3 className="text-xl font-black text-slate-900 tracking-tight">Top Yielding Nodes</h3>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Ranked by Gross Value</p>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Ranked by Gross Operational Value</p>
               </div>
-              <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-amber-500 border border-slate-200">
+              <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-amber-500 border border-amber-100 shadow-sm">
                 <Award size={20} strokeWidth={2.5} />
               </div>
             </div>
@@ -256,13 +262,13 @@ export default function FarmerStats() {
           </div>
 
           {/* Best Products */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 lg:p-8 shadow-sm hover:shadow-md transition-shadow duration-300">
+          <div className="bg-white border border-slate-200 rounded-[2rem] p-8 shadow-[0_10px_40px_rgba(0,0,0,0.02)] hover:border-[#2E6F40]/20 transition-all group">
             <div className="flex justify-between items-center mb-8">
               <div>
                 <h3 className="text-xl font-black text-slate-900 tracking-tight">High-Velocity Products</h3>
-                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Ranked by Liquid Volume</p>
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Ranked by Liquid Market Volume</p>
               </div>
-              <div className="w-12 h-12 rounded-xl bg-[#f0faf4] flex items-center justify-center text-[#2E6F40] border border-[#cee8d9]">
+              <div className="w-12 h-12 rounded-xl bg-[#f0faf4] flex items-center justify-center text-[#2E6F40] border border-[#cee8d9] shadow-sm">
                 <Leaf size={20} strokeWidth={2.5} />
               </div>
             </div>

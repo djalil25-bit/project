@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axiosConfig';
 import { useAuth } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
 import { 
   User, 
   Mail, 
@@ -21,7 +22,8 @@ import {
   Trophy,
   Target,
   ShieldCheck,
-  Award
+  Award,
+  ChevronRight
 } from 'lucide-react';
 import { useToast } from '../context/ToastContext';
 import VerifiedBadge from '../components/common/VerifiedBadge';
@@ -103,243 +105,263 @@ const Profile = () => {
     }
   };
 
-  if (loading) return <div className="flex-center py-5"><div className="spinner-agr" /></div>;
+  if (loading) return <div className="flex items-center justify-center py-20"><div className="w-10 h-10 border-4 border-slate-200 border-t-teal-600 rounded-full animate-spin" /></div>;
 
   return (
-    <div className="profile-page">
-      <div className="page-header mb-4">
-        <div>
-          <h1 className="page-title d-flex align-items-center">
-            <User className="text-primary me-3" size={32} /> Account Management
-          </h1>
-          <p className="page-subtitle text-muted">Manage your personal credentials and platform identity.</p>
-        </div>
+    <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 animate-fade-in relative z-0">
+      
+      {/* ── BREADCRUMBS ────────────────────────────────────────────── */}
+      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#2E6F40] mb-5 bg-[#2E6F40]/10 px-3 py-1 rounded-full w-fit border border-[#2E6F40]/20 shadow-sm">
+        <Link to="/farmer-dashboard" className="hover:text-[#255933] transition-colors">Farmer Hub</Link>
+        <ChevronRight size={10} className="text-[#2E6F40]/40" />
+        <span className="text-[#2E6F40] flex items-center gap-1.5 font-black uppercase">
+          <User size={11} /> Profile Registry
+        </span>
+      </div>
+
+      <div className="mb-10">
+        <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+          <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-[#2E6F40]">
+            <User size={22} strokeWidth={2.5} />
+          </div>
+          Account <span className="text-[#2E6F40]">Management</span>
+        </h1>
+        <p className="text-slate-500 font-medium mt-1.5 text-sm max-w-xl">Manage your personal credentials and platform identity.</p>
       </div>
 
       <div className="row g-4">
         <div className="col-lg-8">
-          <div className="agr-card p-4 p-md-5">
-            <div className="profile-hero-section mb-5">
-              <div className="d-flex align-items-center gap-4">
-                <div className="profile-avatar-wrapper">
-                  <div className="profile-avatar-large">
+          <div className="bg-white border border-slate-200 rounded-[2rem] p-6 md:p-10 shadow-[0_10px_40px_rgba(0,0,0,0.03)] mb-8">
+            <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-10 pb-8 border-b border-slate-50">
+                <div className="relative group">
+                  <div className="w-24 h-24 rounded-3xl flex items-center justify-center border-4 border-white shadow-xl overflow-hidden bg-white">
                     {imagePreview || profile.profile_picture ? (
                       <img 
                         src={imagePreview || `${profile.profile_picture.startsWith('http') ? profile.profile_picture : `http://localhost:8000${profile.profile_picture}`}?t=${new Date().getTime()}`} 
                         alt="Profile" 
+                        className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className={`avatar-placeholder-large avatar-role-${profile.role}`}>
+                      <div className={`w-full h-full flex items-center justify-center text-3xl font-black text-white ${profile.role === 'farmer' ? 'bg-[#2E6F40]' : profile.role === 'admin' ? 'bg-[#064e3b]' : 'bg-teal-600'}`}>
                         {profile.full_name?.charAt(0).toUpperCase()}
                       </div>
                     )}
-                    <label className="avatar-edit-badge" title="Change Photo">
-                      <Camera size={16} />
-                      <input type="file" hidden accept="image/*" onChange={handleImageChange} />
-                    </label>
                   </div>
+                  <label className="absolute -bottom-1 -right-1 w-8 h-8 bg-[#2E6F40] hover:bg-[#255933] text-white rounded-xl shadow-lg flex items-center justify-center cursor-pointer transition-all active:scale-90 border-2 border-white" title="Change Photo">
+                    <Camera size={14} />
+                    <input type="file" hidden accept="image/*" onChange={handleImageChange} />
+                  </label>
                 </div>
-                <div>
-                  <div className="d-flex align-items-center gap-3 mb-1 flex-wrap">
-                    <h2 className="h4 fw-bold mb-0">{profile.full_name}</h2>
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-1.5 flex-wrap">
+                    <h2 className="text-xl font-black text-slate-900 tracking-tight">{profile.full_name}</h2>
                     <VerifiedBadge role={profile.role} isVerified={profile.is_verified} trustLevel={profile.trust_level} />
                   </div>
-                  <div className="d-flex align-items-center gap-2">
-                    <span className={`role-badge role-${profile.role}`}>{profile.role}</span>
-                    <span className="text-muted small">ID: #{profile.id}</span>
+                  <div className="flex items-center gap-2">
+                    <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${profile.role === 'farmer' ? 'bg-[#2E6F40]/10 text-[#2E6F40]' : profile.role === 'admin' ? 'bg-[#064e3b]/10 text-[#064e3b]' : 'bg-teal-100 text-teal-700'}`}>{profile.role}</span>
+                    <span className="text-slate-400 text-[10px] font-bold">REGISTRY ID: #{profile.id}</span>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div className="d-flex align-items-center mb-4">
-              <FileText size={20} className="text-primary me-2" />
-              <h3 className="h5 fw-bold mb-0">Identity & Contact</h3>
+            <div className="flex items-center gap-2 mb-6 font-black text-[10px] uppercase tracking-[0.2em] text-[#2E6F40] border-b border-slate-100 pb-3">
+              <FileText size={14} /> Identity & Contact Registry
             </div>
             
-            <form onSubmit={handleProfileUpdate} className="agr-form">
-              <div className="row g-3">
-                <div className="col-md-6">
-                  <div className="form-group mb-3">
-                    <label className="form-label d-flex align-items-center">
-                      <User size={14} className="me-2 text-muted" /> Public Name
-                    </label>
-                    <input type="text" className="form-input" value={profile.full_name} onChange={e => setProfile({...profile, full_name: e.target.value})} />
+            <form onSubmit={handleProfileUpdate}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                    <User size={12} className="text-[#2E6F40]" /> Public Name
+                  </label>
+                  <input 
+                    type="text" 
+                    className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2E6F40] focus:border-transparent transition-all font-black uppercase tracking-widest text-slate-800 text-[11px]" 
+                    value={profile.full_name} 
+                    onChange={e => setProfile({...profile, full_name: e.target.value})} 
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                    <Mail size={12} className="text-[#2E6F40]" /> Email Address
+                  </label>
+                  <input 
+                    type="text" 
+                    className="w-full px-4 py-3 bg-slate-100 border border-slate-100 rounded-xl font-bold text-slate-400 text-sm cursor-not-allowed" 
+                    value={profile.email} 
+                    disabled 
+                  />
+                  <p className="text-[9px] text-slate-400 mt-2 italic font-medium tracking-wide uppercase">Contact admin to change registry email.</p>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                    <Phone size={12} className="text-[#2E6F40]" /> Phone Link
+                  </label>
+                  <input 
+                    type="text" 
+                    className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2E6F40] focus:border-transparent transition-all font-black text-slate-800 text-[11px]" 
+                    value={profile.phone} 
+                    onChange={e => setProfile({...profile, phone: e.target.value})} 
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                    <Shield size={12} className="text-[#2E6F40]" /> Platform Identity
+                  </label>
+                  <div className="pt-1">
+                    <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${profile.role === 'farmer' ? 'bg-[#2E6F40]/10 text-[#2E6F40]' : profile.role === 'admin' ? 'bg-[#064e3b]/10 text-[#064e3b]' : 'bg-teal-100 text-teal-700'}`}>
+                      {profile.role} Account
+                    </span>
                   </div>
                 </div>
-                <div className="col-md-6">
-                  <div className="form-group mb-3">
-                    <label className="form-label d-flex align-items-center">
-                      <Mail size={14} className="me-2 text-muted" /> Email Address
-                    </label>
-                    <input type="text" className="form-input bg-light border-0" value={profile.email} disabled />
-                    <p className="very-small text-muted mt-1 italic">Contact admin to change email.</p>
-                  </div>
+                <div className="md:col-span-2">
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Professional Summary</label>
+                  <textarea 
+                    className="w-full px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2E6F40] focus:border-transparent transition-all font-medium text-slate-700 text-sm resize-none" 
+                    rows="3" 
+                    placeholder="Tell us about yourself or your business..."
+                    value={profile.bio || ''} 
+                    onChange={e => setProfile({...profile, bio: e.target.value})} 
+                  />
                 </div>
-                <div className="col-md-6">
-                  <div className="form-group mb-3">
-                    <label className="form-label d-flex align-items-center">
-                      <Phone size={14} className="me-2 text-muted" /> Phone Link
-                    </label>
-                    <input type="text" className="form-input" value={profile.phone} onChange={e => setProfile({...profile, phone: e.target.value})} />
-                  </div>
-                </div>
-                <div className="col-md-6">
-                  <div className="form-group mb-3">
-                    <label className="form-label d-flex align-items-center">
-                      <Shield size={14} className="me-2 text-muted" /> Platform Identity
-                    </label>
-                    <div className="pt-2"><span className={`role-badge role-${profile.role}`}>{profile.role}</span></div>
-                  </div>
-                </div>
-                <div className="col-12">
-                  <div className="form-group mb-3">
-                    <label className="form-label">Professional Summary</label>
-                    <textarea 
-                      className="form-input" 
-                      rows="3" 
-                      placeholder="Tell us about yourself or your business..."
-                      value={profile.bio || ''} 
-                      onChange={e => setProfile({...profile, bio: e.target.value})} 
-                    />
-                  </div>
-                </div>
-                <div className="col-12">
-                  <div className="form-group mb-2">
-                    <label className="form-label d-flex align-items-center">
-                      <MapPin size={14} className="me-2 text-muted" /> Primary Registry Address
-                    </label>
-                    <textarea 
-                      className="form-input" 
-                      rows="2" 
-                      placeholder="Enter your full business or residential address"
-                      value={profile.address || ''} 
-                      onChange={e => setProfile({...profile, address: e.target.value})} 
-                    />
-                  </div>
+                <div className="md:col-span-2">
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1.5 ml-1">
+                    <MapPin size={12} className="text-[#2E6F40]" /> Primary Registry Address
+                  </label>
+                  <textarea 
+                    className="w-full px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2E6F40] focus:border-transparent transition-all font-medium text-slate-700 text-sm resize-none" 
+                    rows="2" 
+                    placeholder="Enter your full business or residential address"
+                    value={profile.address || ''} 
+                    onChange={e => setProfile({...profile, address: e.target.value})} 
+                  />
                 </div>
               </div>
-              <button type="submit" className="btn-agr btn-primary mt-4 px-5 d-flex align-items-center" disabled={updating}>
-                {updating ? 'Processing...' : <><Save size={18} className="me-2" /> Sync Changes</>}
+              <button type="submit" className="mt-10 inline-flex items-center justify-center gap-2 bg-[#2E6F40] hover:bg-[#255933] text-white px-10 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all shadow-xl active:scale-95 border-0 disabled:opacity-50" disabled={updating}>
+                {updating ? 'Processing Protocol...' : <><Save size={16} strokeWidth={2.5} /> Sync Changes</>}
               </button>
             </form>
           </div>
         </div>
 
         <div className="col-lg-4">
-          <div className="d-flex flex-column gap-4">
+          <div className="flex flex-col gap-6">
             {/* Trust Foundation Card */}
-            <div className="agr-card p-4 trust-card overflow-hidden">
-              <div className="d-flex align-items-center justify-content-between mb-4">
-                <div className="d-flex align-items-center">
-                  <ShieldCheck size={22} className="text-primary me-2" />
-                  <h3 className="h5 fw-bold mb-0">Trust Index</h3>
+            <div className="bg-white border border-slate-200 rounded-[2rem] p-6 shadow-[0_10px_40px_rgba(0,0,0,0.03)] overflow-hidden">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2.5">
+                  <div className="p-1.5 bg-[#2E6F40]/10 text-[#2E6F40] rounded-lg border border-[#2E6F40]/20">
+                    <ShieldCheck size={18} strokeWidth={2.5} />
+                  </div>
+                  <h3 className="text-[11px] font-black text-slate-800 uppercase tracking-[0.2em]">Trust Index</h3>
                 </div>
-                <div className={`trust-level-badge level-${profile.trust_level}`}>
+                <div className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest ${profile.trust_level === 'High' ? 'bg-emerald-100 text-emerald-700' : profile.trust_level === 'Medium' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-700'}`}>
                   {profile.trust_level}
                 </div>
               </div>
 
-              <div className="mb-4">
-                <div className="d-flex justify-content-between mb-2">
-                  <span className="very-small text-muted fw-bold text-uppercase tracking-wider">Profile Accuracy</span>
-                  <span className="very-small fw-bold text-primary">{profile.profile_completeness}%</span>
+              <div className="mb-6">
+                <div className="flex justify-between mb-2">
+                  <span className="text-[9px] font-black text-[#2E6F40] uppercase tracking-widest">Accuracy</span>
+                  <span className="text-[10px] font-black text-[#2E6F40]">{profile.profile_completeness}%</span>
                 </div>
-                <div className="trust-meter-container">
-                  <div className="trust-meter-fill trust-high" style={{ width: `${profile.profile_completeness}%` }}></div>
+                <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-[#2E6F40] rounded-full" style={{ width: `${profile.profile_completeness}%` }}></div>
                 </div>
               </div>
 
-              <div className="mb-4">
-                <div className="d-flex justify-content-between mb-2">
-                  <span className="very-small text-muted fw-bold text-uppercase tracking-wider">Reliability Score</span>
-                  <span className="very-small fw-bold text-success">{profile.trust_score}/100</span>
+              <div className="mb-6">
+                <div className="flex justify-between mb-2">
+                  <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Reliability Score</span>
+                  <span className="text-[10px] font-black text-emerald-600">{profile.trust_score}/100</span>
                 </div>
-                <div className="trust-meter-container">
+                <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
                   <div 
-                    className={`trust-meter-fill ${profile.trust_score > 70 ? 'trust-high' : profile.trust_score > 30 ? 'trust-medium' : 'trust-low'}`} 
+                    className={`h-full rounded-full ${profile.trust_score > 70 ? 'bg-emerald-500' : profile.trust_score > 30 ? 'bg-amber-500' : 'bg-red-500'}`} 
                     style={{ width: `${profile.trust_score}%` }}
                   ></div>
                 </div>
               </div>
 
-              <div className="d-flex align-items-center gap-3 p-3 bg-light-soft rounded-lg mt-2">
-                <div className="completeness-circle-container">
-                  <svg className="completeness-circle-svg">
-                    <circle className="completeness-circle-bg" cx="30" cy="30" r="26"></circle>
+              <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <div className="relative w-12 h-12 flex items-center justify-center">
+                  <svg className="w-full h-full -rotate-90">
+                    <circle className="text-slate-200" strokeWidth="4" stroke="currentColor" fill="transparent" r="20" cx="24" cy="24" />
                     <circle 
-                      className="completeness-circle-bar" 
-                      cx="30" cy="30" r="26" 
-                      style={{ 
-                        strokeDasharray: 163.36, 
-                        strokeDashoffset: 163.36 - (163.36 * (profile.profile_completeness || 0)) / 100 
-                      }}
-                    ></circle>
+                      className="text-[#2E6F40]" strokeWidth="4" strokeDasharray={125.6} strokeDashoffset={125.6 - (125.6 * (profile.profile_completeness || 0)) / 100} strokeLinecap="round" stroke="currentColor" fill="transparent" r="20" cx="24" cy="24" 
+                    />
                   </svg>
-                  <div className="completeness-text">{profile.profile_completeness}%</div>
+                  <div className="absolute text-[10px] font-black text-slate-700">{profile.profile_completeness}%</div>
                 </div>
-                <div className="small">
-                  <div className="fw-bold text-dark">Data Integrity</div>
-                  <div className="text-muted very-small mt-1" style={{lineHeight: '1.3'}}>
+                <div className="flex-1">
+                  <div className="text-[10px] font-black text-slate-800 uppercase tracking-widest">Data Integrity</div>
+                  <p className="text-[9px] text-slate-500 font-medium leading-relaxed mt-1">
                     {profile.profile_completeness === 100 
-                      ? 'Your platform identity is fully verified and optimized.' 
-                      : 'Complete your profile to unlock premium verification badges.'}
+                      ? 'Your platform identity is fully verified.' 
+                      : 'Complete your profile for premium verification.'}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white border border-slate-200 rounded-[2rem] p-6 shadow-[0_10px_40px_rgba(0,0,0,0.03)]">
+              <div className="flex items-center gap-2.5 mb-6">
+                <div className="p-1.5 bg-red-50 text-red-600 rounded-lg">
+                  <Lock size={18} strokeWidth={2.5} />
+                </div>
+                <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">Security Gate</h3>
+              </div>
+            
+              <form onSubmit={handlePasswordChange}>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Legacy Password</label>
+                    <input 
+                      type="password" name="old_password" 
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all font-bold text-slate-800 text-sm" 
+                      value={passwordData.old_password} onChange={e => setPasswordData({...passwordData, old_password: e.target.value})} 
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">New Secret Key</label>
+                    <input 
+                      type="password" name="new_password" 
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all font-bold text-slate-800 text-sm" 
+                      value={passwordData.new_password} onChange={e => setPasswordData({...passwordData, new_password: e.target.value})} 
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Confirm New Secret</label>
+                    <input 
+                      type="password" name="confirm_password" 
+                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all font-bold text-slate-800 text-sm" 
+                      value={passwordData.confirm_password} onChange={e => setPasswordData({...passwordData, confirm_password: e.target.value})} 
+                      required
+                    />
                   </div>
                 </div>
-              </div>
-            </div>
+                <button type="submit" className="w-full mt-6 flex items-center justify-center gap-2 bg-slate-900 hover:bg-black text-white py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-md active:scale-95">
+                  <Shield size={16} /> Rotate Password
+                </button>
+              </form>
 
-            <div className="agr-card p-4">
-            <div className="d-flex align-items-center mb-4">
-              <Lock size={20} className="text-primary me-2" />
-              <h3 className="h5 fw-bold mb-0">Security Gate</h3>
-            </div>
-            
-            <form onSubmit={handlePasswordChange} className="agr-form">
-              <div className="form-group mb-3">
-                <label className="form-label small">Legacy Password</label>
-                <input 
-                  type="password" name="old_password" className="form-input" 
-                  value={passwordData.old_password} onChange={e => setPasswordData({...passwordData, old_password: e.target.value})} 
-                  required
-                />
-              </div>
-              <div className="form-group mb-3">
-                <label className="form-label small">New Secret Key</label>
-                <input 
-                  type="password" name="new_password" className="form-input" 
-                  value={passwordData.new_password} onChange={e => setPasswordData({...passwordData, new_password: e.target.value})} 
-                  required
-                />
-              </div>
-              <div className="form-group mb-4">
-                <label className="form-label small">Confirm New Secret</label>
-                <input 
-                  type="password" name="confirm_password" className="form-input" 
-                  value={passwordData.confirm_password} onChange={e => setPasswordData({...passwordData, confirm_password: e.target.value})} 
-                  required
-                />
-              </div>
-              <button type="submit" className="btn-agr btn-outline w-100 d-flex align-items-center justify-content-center">
-                <Shield size={16} className="me-2" /> Rotate Password
-              </button>
-            </form>
-
-            <div className="mt-5 pt-4 border-top">
-              <h5 className="very-small fw-bold text-muted text-uppercase mb-3 tracking-wider">Access Monitoring</h5>
-              <div className="d-flex align-items-center gap-3 p-3 bg-light-soft rounded-lg">
-                <Smartphone size={24} className="text-muted opacity-50" />
-                <div className="small">
-                  <div className="fw-bold text-dark">Currently Active Session</div>
-                  <div className="text-muted very-small mt-1">
-                    <span className="text-success fw-bold">Live</span> • Algiers, Algeria • Desktop Platform
+              <div className="mt-8 pt-6 border-t border-slate-100">
+                <h5 className="text-[9px] font-black text-slate-400 text-uppercase mb-4 tracking-widest">Access Monitoring</h5>
+                <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                  <Smartphone size={20} className="text-slate-300" />
+                  <div className="flex-1">
+                    <div className="text-[10px] font-black text-slate-800">Active Session</div>
+                    <div className="text-[9px] text-slate-500 font-medium mt-0.5">
+                      <span className="text-emerald-600 font-black uppercase">Live</span> • Algiers, Algeria • Desktop Platform
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
       </div>
     </div>
   );

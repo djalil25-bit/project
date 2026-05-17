@@ -70,24 +70,39 @@ const AdminAccounts = () => {
   };
 
   return (
-    <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 space-y-8 animate-fade-in relative z-0 bg-slate-50/30 min-h-screen">
+    <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 animate-fade-in relative z-0 min-h-screen">
       
-      {/* ── HIGH-DENSITY HERO HEADER (GREEN POWER PRO) ─────────────────────────────── */}
-      <div className="bg-[#022c22] rounded-2xl overflow-hidden shadow-lg flex flex-col md:flex-row items-center justify-between px-6 py-4 md:px-10 md:py-5 relative border border-[#064e3b] isolate">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#166534]/30 to-transparent pointer-events-none" />
-        <div className="z-10 flex flex-col">
-          <div className="flex items-center gap-2 text-emerald-400 text-[9px] font-black uppercase tracking-widest mb-1 opacity-80">
-            <Users size={12} /> Registry Management
-          </div>
-          <h1 className="text-xl md:text-2xl font-black text-white tracking-tight leading-none">
-            Platform Accounts
+      {/* ── BREADCRUMBS ────────────────────────────────────────────── */}
+      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#064e3b] mb-6 bg-[#064e3b]/10 px-3 py-1 rounded-full w-fit border border-[#064e3b]/20 shadow-sm">
+        <button onClick={() => navigate('/admin-dashboard')} className="hover:text-emerald-700 transition-colors uppercase font-black flex items-center gap-1.5">
+          <Users size={10} /> Admin Hub
+        </button>
+        <ChevronRight size={10} className="text-[#064e3b]/40" />
+        <span className="text-[#064e3b] flex items-center gap-1.5 font-black uppercase">
+          <ShieldCheck size={11} /> Registry Management
+        </span>
+      </div>
+
+      {/* ── HEADER ─────────────────────────────────────────────────── */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
+        <div>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+            <div className={`p-2 bg-white rounded-2xl shadow-sm border border-slate-100 text-[#064e3b]`}>
+              <Users size={24} />
+            </div>
+            Platform <span className="text-[#064e3b]">Accounts</span>
           </h1>
-          <p className="text-emerald-100/60 text-[10px] font-bold uppercase tracking-widest mt-2">{accounts.length} TOTAL REGISTERED ENTITIES</p>
+          <p className="text-slate-500 font-medium mt-1.5 text-sm max-w-xl flex items-center gap-2">
+            {accounts.length} TOTAL REGISTERED ENTITIES
+          </p>
         </div>
-        <div className="z-10 mt-3 md:mt-0 flex gap-2">
-           <div className="bg-[#064e3b] rounded-xl px-4 py-2 border border-emerald-500/30">
-              <div className="text-[8px] font-black text-emerald-400 uppercase tracking-widest">Active nodes</div>
-              <div className="text-white font-black text-lg leading-none">{accounts.filter(a => a.is_verified).length}</div>
+        
+        <div className="flex items-center gap-4 bg-white p-2 rounded-[1.5rem] border border-slate-200 shadow-sm">
+           <div className="px-4 py-1.5 flex flex-col items-end">
+             <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Active nodes</span>
+             <span className="text-[11px] font-black text-[#064e3b] uppercase tracking-widest flex items-center gap-1.5">
+               <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" /> {accounts.filter(a => a.is_verified).length} Entities
+             </span>
            </div>
         </div>
       </div>
@@ -100,10 +115,10 @@ const AdminAccounts = () => {
       )}
 
       {/* Filters */}
-      <div className="bg-white rounded-[2rem] border border-slate-100 shadow-xl shadow-slate-200/30 p-6 flex flex-col md:flex-row gap-6 items-center justify-between mt-8 relative z-10">
+      <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm p-6 flex flex-col md:flex-row gap-6 items-center justify-between mb-8 relative z-10">
           <div className="flex items-center gap-3">
-             <div className="w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-500 border border-slate-200 shadow-inner">
-                <Users size={16} />
+             <div className="p-2 rounded-xl bg-slate-50 flex items-center justify-center text-[#064e3b] border border-slate-100 shadow-inner">
+                <Users size={18} />
              </div>
              <div>
                <div className="text-[11px] font-black uppercase tracking-[0.15em] text-slate-800">Registry Filters</div>
@@ -111,13 +126,13 @@ const AdminAccounts = () => {
              </div>
           </div>
           <div className="flex gap-3 w-full md:w-auto">
-            <select className="flex-1 md:w-48 h-12 bg-slate-50 border border-slate-200 rounded-2xl px-5 text-[10px] font-black uppercase tracking-widest text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner cursor-pointer hover:bg-slate-100 transition-colors" value={roleFilter} onChange={e=>setRoleFilter(e.target.value)}>
+            <select className="flex-1 md:w-48 h-12 bg-slate-50 border border-slate-200 rounded-xl px-5 text-[10px] font-black uppercase tracking-widest text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#064e3b]/20 focus:border-[#064e3b] shadow-inner cursor-pointer hover:bg-slate-100 transition-colors" value={roleFilter} onChange={e=>setRoleFilter(e.target.value)}>
               <option value="all">Global Roles</option>
               <option value="farmer">Producers</option>
               <option value="buyer">Buyers</option>
               <option value="transporter">Logistics</option>
             </select>
-            <select className="flex-1 md:w-48 h-12 bg-slate-50 border border-slate-200 rounded-2xl px-5 text-[10px] font-black uppercase tracking-widest text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner cursor-pointer hover:bg-slate-100 transition-colors" value={statusFilter} onChange={e=>setStatusFilter(e.target.value)}>
+            <select className="flex-1 md:w-48 h-12 bg-slate-50 border border-slate-200 rounded-xl px-5 text-[10px] font-black uppercase tracking-widest text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#064e3b]/20 focus:border-[#064e3b] shadow-inner cursor-pointer hover:bg-slate-100 transition-colors" value={statusFilter} onChange={e=>setStatusFilter(e.target.value)}>
               <option value="all">All Statuses</option>
               <option value="approved">Verified</option>
               <option value="suspended">Suspended</option>
@@ -153,7 +168,7 @@ const AdminAccounts = () => {
 
             {/* List Rows */}
             {accounts.map(a => (
-              <div key={a.id} className="bg-white border border-slate-100 rounded-2xl p-4 md:p-5 hover:shadow-lg hover:border-emerald-200 hover:-translate-y-0.5 transition-all flex flex-col md:flex-row items-center justify-between gap-5 group">
+              <div key={a.id} className="bg-white border border-slate-200 rounded-[2.5rem] p-4 md:p-6 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 hover:border-[#064e3b]/20 hover:-translate-y-0.5 transition-all flex flex-col md:flex-row items-center justify-between gap-5 group">
                 
                 {/* 1. Avatar & Info */}
                 <div className="flex items-center gap-4 flex-1 min-w-0 w-full md:w-[300px] shrink-0">

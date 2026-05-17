@@ -68,20 +68,20 @@ const ComplaintFormPage = () => {
   if (success) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-20 animate-fade-in relative z-0">
-        <div className="bg-white p-12 text-center rounded-[2.5rem] shadow-[0_20px_60px_rgba(79,70,229,0.08)] border border-slate-100 flex flex-col items-center">
-          <div className={`w-24 h-24 rounded-[2rem] flex items-center justify-center mb-8 border shadow-sm animate-scale-in ${user?.role === 'farmer' ? 'bg-[#2E6F40]/10 text-[#2E6F40] border-[#2E6F40]/20' : user?.role === 'admin' ? 'bg-[#0f5c44]/10 text-[#0f5c44] border-[#0f5c44]/20' : 'bg-teal-50 text-teal-500 border-teal-100'}`}>
+        <div className="bg-white p-12 text-center rounded-[2.5rem] shadow-[0_20px_60px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col items-center">
+          <div className="w-24 h-24 rounded-[2rem] flex items-center justify-center mb-8 border shadow-sm animate-scale-in bg-[#2E6F40]/10 text-[#2E6F40] border-[#2E6F40]/20">
             <CheckCircle size={48} strokeWidth={2.5} />
           </div>
-          <h2 className="font-black text-3xl text-slate-900 mb-4 tracking-tight">Complaint Submitted</h2>
+          <h2 className="font-black text-3xl text-slate-900 mb-4 tracking-tight uppercase">Complaint Logged</h2>
           <p className="text-slate-500 text-lg font-medium mb-10 max-w-lg mx-auto leading-relaxed">
-            Your complaint has been successfully submitted. Our team will review the details and update you soon.
+            Your incident report has been successfully submitted to the AgriGov network. Our team will review the parameters and update you soon.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4 w-full sm:w-auto">
-            <button onClick={() => navigate(-1)} className="px-8 py-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-sm uppercase tracking-widest rounded-2xl transition-all duration-300 shadow-sm hover:-translate-y-1 active:scale-95">
-              Go Back
+            <button onClick={() => navigate(-1)} className="px-8 py-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-[10px] uppercase tracking-widest rounded-2xl transition-all duration-300 shadow-sm active:scale-95 border border-slate-200">
+              Return
             </button>
-            <Link to="/complaints" className={`px-8 py-4 text-white font-black text-sm uppercase tracking-widest rounded-2xl transition-all duration-300 hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2 ${user?.role === 'farmer' ? 'bg-[#2E6F40] hover:bg-[#255933] shadow-[#2E6F40]/20' : user?.role === 'admin' ? 'bg-[#0f5c44] hover:bg-[#0a3d2e] shadow-[#0f5c44]/20' : 'bg-teal-600 hover:bg-teal-700 shadow-teal-600/20'}`}>
-              <ShieldAlert size={18} /> View Complaints
+            <Link to="/complaints" className="px-8 py-4 bg-[#2E6F40] hover:bg-[#255933] text-white font-black text-[10px] uppercase tracking-widest rounded-2xl transition-all duration-300 shadow-[0_10px_30px_rgba(46,111,64,0.3)] active:scale-95 flex items-center justify-center gap-2">
+              <ShieldAlert size={16} /> View All Reports
             </Link>
           </div>
         </div>
@@ -93,19 +93,26 @@ const ComplaintFormPage = () => {
     <div className="max-w-4xl mx-auto px-4 py-8 pb-20 animate-fade-in relative z-0">
       
       {/* ── BREADCRUMBS ────────────────────────────────────────────── */}
-      <div className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest mb-8 ${user?.role === 'farmer' ? 'text-[#2E6F40]' : user?.role === 'admin' ? 'text-[#0f5c44]' : 'text-teal-600'}`}>
+      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#2E6F40] mb-5 bg-[#2E6F40]/10 px-3 py-1 rounded-full w-fit border border-[#2E6F40]/20 shadow-sm">
         {orderId ? (
-          <button onClick={() => navigate(-1)} className={`hover:underline transition-colors flex items-center gap-1 ${user?.role === 'farmer' ? 'hover:text-[#255933]' : user?.role === 'admin' ? 'hover:text-[#0a3d2e]' : 'hover:text-teal-800'}`}><ArrowLeft size={12}/> Go Back</button>
+          <button onClick={() => navigate(-1)} className="hover:text-[#255933] transition-colors flex items-center gap-1.5 font-black uppercase"><ArrowLeft size={10} strokeWidth={3}/> Return</button>
         ) : (
-          <button onClick={() => navigate('/profile')} className={`hover:underline transition-colors flex items-center gap-1 cursor-pointer ${user?.role === 'farmer' ? 'hover:text-[#255933]' : user?.role === 'admin' ? 'hover:text-[#0a3d2e]' : 'hover:text-teal-800'}`}><ArrowLeft size={12}/> Dashboard</button>
+          <button onClick={() => navigate('/complaints')} className="hover:text-[#255933] transition-colors flex items-center gap-1.5 cursor-pointer font-black uppercase"><ArrowLeft size={10} strokeWidth={3}/> Complaints</button>
         )}
-        <ChevronRight size={12} className="text-slate-400 mx-1" />
-        <span className="text-slate-400 flex items-center gap-1"><ShieldAlert size={12}/> New Complaint</span>
+        <ChevronRight size={10} className="text-[#2E6F40]/40" />
+        <span className="text-[#2E6F40] flex items-center gap-1.5 font-black uppercase">
+          <ShieldAlert size={11} /> New Report
+        </span>
       </div>
 
       <div className="mb-8">
-        <h1 className="text-xl font-black text-slate-900 tracking-tight">File a Complaint</h1>
-        <p className="text-sm font-medium text-slate-500 mt-1 max-w-xl">Submit your complaint for review by our support team.</p>
+        <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+          <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-[#2E6F40]">
+            <ShieldAlert size={22} strokeWidth={2.5} />
+          </div>
+          File <span className="text-[#2E6F40]">Incident Report</span>
+        </h1>
+        <p className="text-slate-500 font-medium mt-1.5 text-sm max-w-xl">Initialize a new dispute resolution protocol for your network transactions.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -114,118 +121,118 @@ const ComplaintFormPage = () => {
           <form onSubmit={handleSubmit} className="flex flex-col gap-8">
             
             {/* Context Section */}
-            <div className="bg-white border border-slate-200 shadow-sm rounded-2xl p-5 sm:p-6 relative overflow-hidden">
-              <div className={`absolute top-0 left-0 w-full h-1 bg-gradient-to-r ${user?.role === 'farmer' ? 'from-[#2E6F40] to-[#4a8c5f]' : user?.role === 'admin' ? 'from-[#0f5c44] to-[#166534]' : 'from-teal-600 to-teal-400'}`} />
-              <div className={`flex items-center gap-2 mb-5 font-black text-[10px] uppercase tracking-widest border-b border-slate-100 pb-3 ${user?.role === 'farmer' ? 'text-[#2E6F40]' : user?.role === 'admin' ? 'text-[#0f5c44]' : 'text-teal-600'}`}>
-                <Target size={14} /> Report Context
+            <div className="bg-white border border-slate-200 shadow-sm rounded-[2rem] p-8 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#2E6F40] to-[#4a8c5f]" />
+              <div className="flex items-center gap-2 mb-6 font-black text-[10px] uppercase tracking-[0.2em] border-b border-slate-100 pb-4 text-[#2E6F40]">
+                <Target size={14} /> Protocol Context
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xs font-black text-slate-600 uppercase tracking-widest mb-2">Report Type <span className="text-red-500">*</span></label>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Incident Type <span className="text-red-500">*</span></label>
                   <div className="relative">
                     <select 
-                      className={`w-full appearance-none pl-4 pr-10 py-3.5 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-600 transition-all text-sm font-bold text-slate-800 ${errors.complaint_type ? 'border-red-400 ring-2 ring-red-400/20' : 'border-slate-200'}`}
+                      className={`w-full appearance-none pl-4 pr-10 py-4 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2E6F40] focus:border-transparent transition-all text-[11px] font-black uppercase tracking-widest text-slate-800 ${errors.complaint_type ? 'border-red-400 ring-2 ring-red-400/20' : 'border-slate-200'}`}
                       value={formData.complaint_type} 
                       onChange={e => setFormData({...formData, complaint_type: e.target.value})}
                     >
-                      <option value="ORDER">Order Issue</option>
-                      <option value="DELIVERY">Delivery Problem</option>
-                      <option value="PRODUCT">Product Quality</option>
-                      <option value="PAYMENT">Payment/Transaction</option>
+                      <option value="ORDER">Order Discrepancy</option>
+                      <option value="DELIVERY">Logistics Failure</option>
+                      <option value="PRODUCT">Quality Non-Compliance</option>
+                      <option value="PAYMENT">Transactional Issue</option>
                       <option value="OTHER">Other Institutional Matter</option>
                     </select>
-                    <ChevronRight size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 rotate-90 pointer-events-none" />
+                    <ChevronRight size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#2E6F40] rotate-90 pointer-events-none" />
                   </div>
-                  {errors.complaint_type && <div className="text-red-500 text-xs font-bold mt-2">{errors.complaint_type[0]}</div>}
+                  {errors.complaint_type && <div className="text-red-500 text-[10px] font-black uppercase mt-2 ml-1">{errors.complaint_type[0]}</div>}
                 </div>
                 <div>
-                  <label className="block text-xs font-black text-slate-600 uppercase tracking-widest mb-2">Order Reference</label>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Order Reference</label>
                   <div className="relative">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">#AG-</div>
+                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#2E6F40] font-black text-[11px]">#REF-</div>
                     <input 
                       type="text" 
-                      className={`w-full pl-14 pr-4 py-3.5 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-600 transition-all text-sm font-bold text-slate-800 placeholder-slate-300 ${errors.order ? 'border-red-400 ring-2 ring-red-400/20' : 'border-slate-200'}`}
-                      placeholder="000XX"
+                      className={`w-full pl-14 pr-4 py-4 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2E6F40] focus:border-transparent transition-all text-[11px] font-black text-slate-800 placeholder-slate-300 uppercase tracking-widest ${errors.order ? 'border-red-400 ring-2 ring-red-400/20' : 'border-slate-200'}`}
+                      placeholder="XXXXX"
                       value={formData.order}
                       onChange={e => setFormData({...formData, order: e.target.value})}
                     />
                   </div>
-                  {errors.order && <div className="text-red-500 text-xs font-bold mt-2">{errors.order[0]}</div>}
+                  {errors.order && <div className="text-red-500 text-[10px] font-black uppercase mt-2 ml-1">{errors.order[0]}</div>}
                 </div>
               </div>
             </div>
 
             {/* Details Section */}
-            <div className="bg-white border border-slate-200 shadow-sm rounded-2xl p-5 sm:p-6">
-              <div className={`flex items-center gap-2 mb-5 font-black text-[10px] uppercase tracking-widest border-b border-slate-100 pb-3 ${user?.role === 'farmer' ? 'text-[#2E6F40]' : user?.role === 'admin' ? 'text-[#0f5c44]' : 'text-teal-600'}`}>
-                <FileText size={14} /> Complaint Details
+            <div className="bg-white border border-slate-200 shadow-sm rounded-[2rem] p-8">
+              <div className="flex items-center gap-2 mb-6 font-black text-[10px] uppercase tracking-[0.2em] border-b border-slate-100 pb-4 text-[#2E6F40]">
+                <FileText size={14} /> Description protocol
               </div>
 
               <div className="mb-6">
-                <label className="block text-xs font-black text-slate-600 uppercase tracking-widest mb-2">Brief Subject <span className="text-red-500">*</span></label>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Subject Header <span className="text-red-500">*</span></label>
                 <input 
                   type="text" 
-                  className={`w-full px-4 py-3.5 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-600 transition-all text-sm font-bold text-slate-800 placeholder-slate-300 ${errors.title ? 'border-red-400 ring-2 ring-red-400/20' : 'border-slate-200'}`}
+                  className={`w-full px-4 py-4 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2E6F40] focus:border-transparent transition-all text-[11px] font-black text-slate-800 placeholder-slate-300 uppercase tracking-widest ${errors.title ? 'border-red-400 ring-2 ring-red-400/20' : 'border-slate-200'}`}
                   required 
-                  placeholder="e.g., Incomplete shipment received"
+                  placeholder="e.g., SHIPMENT INVENTORY MISMATCH"
                   value={formData.title} 
                   onChange={e => setFormData({...formData, title: e.target.value})} 
                 />
-                {errors.title && <div className="text-red-500 text-xs font-bold mt-2">{errors.title[0]}</div>}
+                {errors.title && <div className="text-red-500 text-[10px] font-black uppercase mt-2 ml-1">{errors.title[0]}</div>}
               </div>
 
               <div>
-                <label className="block text-xs font-black text-slate-600 uppercase tracking-widest mb-2">Detailed Incident Description <span className="text-red-500">*</span></label>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Incident Parameters <span className="text-red-500">*</span></label>
                 <textarea 
-                  className={`w-full px-4 py-3.5 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-600 transition-all text-sm font-bold text-slate-800 placeholder-slate-300 resize-y ${errors.description ? 'border-red-400 ring-2 ring-red-400/20' : 'border-slate-200'}`}
+                  className={`w-full px-4 py-4 bg-slate-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-[#2E6F40] focus:border-transparent transition-all text-sm font-medium text-slate-700 placeholder-slate-300 resize-y min-h-[160px] ${errors.description ? 'border-red-400 ring-2 ring-red-400/20' : 'border-slate-200'}`}
                   rows="5" 
                   required
-                  placeholder="Please describe exactly what happened, when it happened, and what resolution you are seeking..."
+                  placeholder="Describe the technical parameters and seeked resolution..."
                   value={formData.description}
                   onChange={e => setFormData({...formData, description: e.target.value})}
                 ></textarea>
-                {errors.description && <div className="text-red-500 text-xs font-bold mt-2">{errors.description[0]}</div>}
+                {errors.description && <div className="text-red-500 text-[10px] font-black uppercase mt-2 ml-1">{errors.description[0]}</div>}
               </div>
             </div>
 
             {/* Evidence Section */}
-            <div className="bg-white border border-slate-200 shadow-sm rounded-2xl p-5 sm:p-6">
-              <div className={`flex items-center gap-2 mb-5 font-black text-[10px] uppercase tracking-widest border-b border-slate-100 pb-3 ${user?.role === 'farmer' ? 'text-[#2E6F40]' : user?.role === 'admin' ? 'text-[#0f5c44]' : 'text-teal-600'}`}>
-                <ImageIcon size={14} /> Supporting Evidence
+            <div className="bg-white border border-slate-200 shadow-sm rounded-[2rem] p-8">
+              <div className="flex items-center gap-2 mb-6 font-black text-[10px] uppercase tracking-[0.2em] border-b border-slate-100 pb-4 text-[#2E6F40]">
+                <ImageIcon size={14} /> Supporting documentation
               </div>
-              <div className="relative border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors group">
+              <div className="relative border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 hover:bg-[#f0faf4]/40 transition-colors group p-8">
                 <input type="file" id="evidence-upload" hidden accept="image/*" onChange={e => setAttachment(e.target.files[0])} />
-                <label htmlFor="evidence-upload" className="flex flex-col items-center justify-center w-full py-8 cursor-pointer">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-3 transition-all ${attachment ? 'bg-teal-100 text-teal-600' : 'bg-white border border-slate-200 text-slate-400 shadow-sm'}`}>
-                    <ImageIcon size={24} />
+                <label htmlFor="evidence-upload" className="flex flex-col items-center justify-center w-full cursor-pointer">
+                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-4 transition-all shadow-sm ${attachment ? 'bg-[#2E6F40] text-white' : 'bg-white border border-slate-200 text-slate-300 hover:text-[#2E6F40] hover:border-[#2E6F40]'}`}>
+                    <ImageIcon size={28} />
                   </div>
-                  <h4 className="text-sm font-black text-slate-800 mb-1">{attachment ? attachment.name : 'Click to upload evidence'}</h4>
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">PDF, JPG, PNG — max 5 MB</p>
+                  <h4 className="text-[11px] font-black text-slate-800 mb-1 uppercase tracking-widest">{attachment ? attachment.name : 'Initialize File Upload'}</h4>
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">MAX SIZE: 05 MB (PDF/JPG/PNG)</p>
                   {attachment && (
-                    <div className="mt-4 text-teal-600 bg-teal-50 px-3 py-1.5 rounded-lg text-xs font-black tracking-widest uppercase flex items-center gap-2 border border-teal-100">
-                      <CheckCircle size={14} strokeWidth={3} /> Uploaded
+                    <div className="mt-6 text-[#2E6F40] bg-[#2E6F40]/10 px-4 py-2 rounded-full text-[9px] font-black tracking-[0.2em] uppercase flex items-center gap-2 border border-[#2E6F40]/20 shadow-sm animate-bounce">
+                      <CheckCircle size={12} strokeWidth={3} /> Registered
                     </div>
                   )}
                 </label>
               </div>
-              {errors.attachment && <div className="text-red-500 text-xs font-bold mt-2">{errors.attachment[0]}</div>}
+              {errors.attachment && <div className="text-red-500 text-[10px] font-black uppercase mt-3 ml-1">{errors.attachment[0]}</div>}
             </div>
 
-            <div className="flex flex-col-reverse sm:flex-row gap-3 mt-4">
+            <div className="flex flex-col-reverse sm:flex-row gap-4 mt-8">
               <button 
                 type="button" 
-                className="w-full sm:w-auto px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-sm uppercase tracking-wide rounded-xl transition-all active:scale-95"
+                className="px-8 py-4 bg-white hover:bg-slate-50 text-slate-600 font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl transition-all active:scale-95 border border-slate-200 shadow-sm"
                 onClick={() => navigate(-1)}
               >
-                Cancel
+                Terminate
               </button>
               <button 
                 type="submit" 
-                className={`flex-1 text-white py-2.5 rounded-xl font-black text-sm uppercase tracking-wide transition-all shadow-md active:scale-95 flex items-center justify-center gap-2 disabled:opacity-70 ${user?.role === 'farmer' ? 'bg-[#2E6F40] hover:bg-[#255933]' : user?.role === 'admin' ? 'bg-[#0f5c44] hover:bg-[#0a3d2e]' : user?.role === 'transporter' ? 'bg-[#2E7D32] hover:bg-[#1B5E20]' : 'bg-teal-600 hover:bg-teal-700'}`}
+                className="flex-1 bg-[#2E6F40] hover:bg-[#255933] text-white py-4 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-xl active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
                 disabled={loading}
               >
-                {loading ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span> Submitting...</> : <><Send size={16} strokeWidth={2.5} /> Submit Report</>}
+                {loading ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span> Transmitting Protocol...</> : <><Send size={16} strokeWidth={2.5} /> Log Incident Report</>}
               </button>
             </div>
           </form>
@@ -233,15 +240,15 @@ const ComplaintFormPage = () => {
 
         {/* Sidebar Info */}
         <div className="lg:col-span-4 lg:sticky lg:top-6">
-          <div className={`border rounded-2xl p-5 shadow-sm ${user?.role === 'farmer' ? 'bg-[#2E6F40]/10 border-[#2E6F40]/20' : user?.role === 'admin' ? 'bg-[#0f5c44]/10 border-[#0f5c44]/20' : 'bg-teal-50 border-teal-100'}`}>
-            <div className="flex items-center gap-3 mb-3">
-              <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${user?.role === 'farmer' ? 'bg-[#2E6F40]/20 text-[#2E6F40]' : user?.role === 'admin' ? 'bg-[#0f5c44]/20 text-[#0f5c44]' : 'bg-teal-100 text-teal-600'}`}>
-                <AlertCircle size={18} strokeWidth={2.5} />
+          <div className="bg-[#2E6F40]/10 border border-[#2E6F40]/20 rounded-[2rem] p-8 shadow-sm">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-2xl bg-[#2E6F40]/20 text-[#2E6F40] flex items-center justify-center shrink-0">
+                <AlertCircle size={20} strokeWidth={2.5} />
               </div>
-              <h5 className={`font-black text-sm ${user?.role === 'farmer' ? 'text-[#2E6F40]' : user?.role === 'admin' ? 'text-[#0f5c44]' : 'text-teal-900'}`}>Complaint Policy</h5>
+              <h5 className="font-black text-[11px] text-[#2E6F40] uppercase tracking-widest">Incident Policy</h5>
             </div>
-            <p className={`text-xs font-medium leading-relaxed ${user?.role === 'farmer' ? 'text-[#2E6F40]/80' : user?.role === 'admin' ? 'text-[#0f5c44]/80' : 'text-teal-800/80'}`}>
-              All complaints are reviewed within 24–48 hours by our support team. Please provide accurate details to ensure a quick resolution. Inaccurate information may delay your case.
+            <p className="text-[11px] font-bold leading-relaxed text-[#2E6F40]/80 uppercase tracking-widest">
+              All incident reports are processed within the governance parameters (24–48h). Please ensure parameters are calibrated correctly to avoid dispute latency.
             </p>
           </div>
         </div>

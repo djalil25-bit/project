@@ -201,29 +201,35 @@ function CartPage() {
   );
 
   return (
-    <div className="buyer-page-wrapper" style={{ padding: '2rem 0', background: 'linear-gradient(135deg, #f8f9fc 0%, #f1f4f9 100%)', minHeight: '100vh' }}>
+    <div className="min-h-screen bg-slate-50 animate-fade-in relative z-0">
       
-      <div className="container" style={{ maxWidth: '1200px' }}>
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-8">
         
         {/* Breadcrumb */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem', fontSize: '0.8rem' }}>
-          <Link to="/buyer-dashboard" style={{ color: '#64748b', textDecoration: 'none', fontWeight: 600 }}>Marketplace</Link>
-          <ChevronRight size={12} style={{ color: '#94a3b8' }} />
-          <span style={{ color: '#0F766E', fontWeight: 800 }}>Cart Procurement</span>
+        <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-teal-600 mb-5 bg-teal-50 px-3 py-1 rounded-full w-fit border border-teal-100 shadow-sm">
+          <Link to="/buyer-dashboard" className="hover:text-teal-800 transition-colors">Marketplace</Link>
+          <ChevronRight size={10} className="text-teal-300" />
+          <span className="text-teal-900 flex items-center gap-1.5">
+            <ShoppingCart size={11} /> Cart Procurement
+          </span>
         </div>
 
         {/* Header Section */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2.5rem' }}>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
           <div>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#f0fdfa', color: '#0F766E', padding: '0.4rem 1rem', borderRadius: '30px', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '1rem', border: '1px solid #99f6e4' }}>
-              <ShoppingCart size={14} /> Acquisition Basket
-            </div>
-            <h1 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#1e293b', letterSpacing: '-1px', margin: 0 }}>Review Your <span style={{ color: '#0F766E' }}>Selection</span></h1>
-            <p style={{ color: '#64748b', fontWeight: 500, margin: '0.5rem 0 0' }}>Validate your requisition assets and initialize the procurement protocol.</p>
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+              <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-teal-600">
+                <ShoppingCart size={22} strokeWidth={2.5} />
+              </div>
+              My Cart
+            </h1>
+            <p className="text-slate-500 font-medium mt-1.5 text-sm max-w-xl">
+              Validate your requisition assets and initialize the procurement protocol.
+            </p>
           </div>
-          <div style={{ textAlign: 'right' }}>
-             <div style={{ fontSize: '0.7rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.25rem' }}>Active Payload</div>
-             <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#1e293b' }}>{cartItemCount} Items</div>
+          <div className="text-right bg-white px-5 py-2.5 rounded-xl shadow-sm border border-slate-100">
+             <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Active Payload</div>
+             <div className="text-xl font-black text-slate-900">{cartItemCount} Items</div>
           </div>
         </div>
 

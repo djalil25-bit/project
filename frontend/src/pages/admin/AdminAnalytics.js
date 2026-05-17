@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../../api/axiosConfig';
 import adminApi from '../../api/adminApi';
 import { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, Legend, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -15,6 +15,7 @@ const getInitials = (name) => {
 const getRankIcon = i => i===0?<Trophy className="text-yellow-500" size={18}/>:i===1?<Medal className="text-gray-400" size={18}/>:<Award className="text-orange-400" size={18}/>;
 
 const AdminAnalytics = () => {
+  const navigate = useNavigate();
   const [apiData, setApiData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('product');
@@ -125,32 +126,48 @@ const AdminAnalytics = () => {
   ];
 
   return (
-    <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 space-y-8 animate-fade-in relative z-0 bg-slate-50/30 min-h-screen">
+    <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 animate-fade-in relative z-0 min-h-screen">
       
-      {/* ── HIGH-DENSITY HERO HEADER (GREEN POWER PRO) ─────────────────────────────── */}
-      <div className="bg-[#022c22] rounded-2xl overflow-hidden shadow-lg flex flex-col md:flex-row items-center justify-between px-6 py-4 md:px-10 md:py-5 relative border border-[#064e3b] isolate">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#166534]/30 to-transparent pointer-events-none" />
-        <div className="z-10 flex flex-col">
-          <div className="flex items-center gap-2 text-emerald-400 text-[9px] font-black uppercase tracking-widest mb-1 opacity-80">
-            <TrendingUp size={12} /> Insights & Reports
-          </div>
-          <h1 className="text-xl md:text-2xl font-black text-white tracking-tight leading-none">
-            Platform Analytics
+      {/* ── BREADCRUMBS ────────────────────────────────────────────── */}
+      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#064e3b] mb-6 bg-[#064e3b]/10 px-3 py-1 rounded-full w-fit border border-[#064e3b]/20 shadow-sm">
+        <button onClick={() => navigate('/admin-dashboard')} className="hover:text-emerald-700 transition-colors uppercase font-black flex items-center gap-1.5">
+          <TrendingUp size={10} /> Admin Hub
+        </button>
+        <ChevronRight size={10} className="text-[#064e3b]/40" />
+        <span className="text-[#064e3b] flex items-center gap-1.5 font-black uppercase">
+          <Activity size={11} /> Insights & Reports
+        </span>
+      </div>
+
+      {/* ── HEADER ─────────────────────────────────────────────────── */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
+        <div>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+            <div className={`p-2 bg-white rounded-2xl shadow-sm border border-slate-100 text-[#064e3b]`}>
+              <TrendingUp size={24} />
+            </div>
+            Platform <span className="text-[#064e3b]">Analytics</span>
           </h1>
+          <p className="text-slate-500 font-medium mt-1.5 text-sm max-w-xl">
+            Ecosystem metrics, product performance, and institutional data reporting.
+          </p>
         </div>
-        <div className="z-10 mt-3 md:mt-0 flex items-center gap-2 bg-[#064e3b] border border-[#166534] rounded-xl px-3 py-1.5 shadow-inner">
-          <Calendar className="text-emerald-400" size={14}/>
-          <select className="bg-transparent text-emerald-50 text-[10px] font-black uppercase tracking-widest outline-none cursor-pointer appearance-none pl-1 pr-2" value={timeframe} onChange={e=>setTimeframe(e.target.value)}>
-            <option value="all" className="text-slate-900">ALL TIME</option>
-            <option value="year" className="text-slate-900">THIS YEAR</option>
-            <option value="month" className="text-slate-900">THIS MONTH</option>
-          </select>
+        
+        <div className="flex items-center gap-4 bg-white p-2 rounded-[1.5rem] border border-slate-200 shadow-sm">
+          <div className="flex items-center gap-2 bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 shadow-inner">
+            <Calendar className="text-[#064e3b]" size={16}/>
+            <select className="bg-transparent text-[#064e3b] text-[11px] font-black uppercase tracking-widest outline-none cursor-pointer appearance-none pl-1 pr-2" value={timeframe} onChange={e=>setTimeframe(e.target.value)}>
+              <option value="all">ALL TIME</option>
+              <option value="year">THIS YEAR</option>
+              <option value="month">THIS MONTH</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      <div className="flex bg-white rounded-xl shadow-sm border border-slate-200 w-fit overflow-hidden p-1">
+      <div className="flex bg-slate-50 p-1.5 rounded-[1.5rem] border border-slate-200 shadow-inner w-full sm:w-fit mb-10">
         {tabs.map(t=>(
-          <button key={t.key} className={`px-5 py-2 rounded-lg text-xs font-black uppercase tracking-widest transition-colors flex items-center gap-2 ${activeTab===t.key?'bg-[#064e3b] text-white shadow-md':'text-slate-500 hover:bg-slate-50'}`} onClick={()=>setActiveTab(t.key)}>
+          <button key={t.key} className={`px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${activeTab===t.key?'bg-white text-[#064e3b] shadow-md border border-emerald-100':'text-slate-400 hover:text-slate-600'}`} onClick={()=>setActiveTab(t.key)}>
             {t.icon} {t.label}
           </button>
         ))}

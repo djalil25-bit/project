@@ -55,45 +55,50 @@ export default function UserComplaints() {
     <div className="max-w-7xl mx-auto px-4 py-8 relative z-0 animate-fade-in">
       
       {/* ── HEADER ─────────────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
-        <div>
-          <div className={`flex items-center gap-2 text-[10px] font-black uppercase tracking-widest mb-3 ${user?.role === 'farmer' ? 'text-[#2E6F40]' : user?.role === 'admin' ? 'text-[#0f5c44]' : 'text-teal-600'}`}>
-            <Link to="/profile" className={`hover:underline transition-colors ${user?.role === 'farmer' ? 'hover:text-[#2E6F40]' : user?.role === 'admin' ? 'hover:text-[#0f5c44]' : 'hover:text-teal-600'}`}>Dashboard</Link>
-            <ChevronRight size={12} className="text-slate-400" />
-            <span className="text-slate-400 flex items-center gap-1"><ShieldAlert size={12}/> Complaints</span>
+    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+      <div>
+        <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#2E6F40] mb-5 bg-[#2E6F40]/10 px-3 py-1 rounded-full w-fit border border-[#2E6F40]/20 shadow-sm">
+          <Link to="/farmer-dashboard" className="hover:text-[#255933] transition-colors">Farmer Hub</Link>
+          <ChevronRight size={10} className="text-[#2E6F40]/40" />
+          <span className="text-[#2E6F40] flex items-center gap-1.5 font-black uppercase">
+            <ShieldAlert size={11} /> Complaints Registry
+          </span>
+        </div>
+        <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+          <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-[#2E6F40]">
+            <ShieldAlert size={22} strokeWidth={2.5} />
           </div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-            My Complaints
-          </h1>
-          <p className="text-slate-500 font-medium text-lg mt-2 max-w-xl leading-relaxed">
-            Track and manage your complaints regarding orders, deliveries, or system issues.
-          </p>
-        </div>
+          My <span className="text-[#2E6F40]">Complaints</span>
+        </h1>
+        <p className="text-slate-500 font-medium mt-1.5 text-sm max-w-xl">
+          Track and manage your complaints regarding orders, deliveries, or system issues.
+        </p>
+      </div>
+      <button 
+        className="inline-flex items-center justify-center gap-2 bg-[#2E6F40] hover:bg-[#255933] text-white px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-[0_10px_30px_rgba(46,111,64,0.3)] active:scale-95"
+        onClick={() => navigate('/complaints/new?type=OTHER')}
+      >
+        <Plus size={16} strokeWidth={3} /> New Complaint
+      </button>
+    </div>
+
+    <div className="flex items-center gap-1.5 bg-white p-1.5 rounded-xl border border-slate-200 shadow-sm w-fit mb-8 overflow-x-auto hide-scrollbar">
+      {['ALL', 'OPEN', 'IN_REVIEW', 'RESOLVED', 'REJECTED'].map(f => (
         <button 
-          className={`inline-flex items-center justify-center gap-2 text-white px-5 py-2.5 rounded-xl text-sm font-black shadow-md active:scale-95 transition-all ${user?.role === 'farmer' ? 'bg-[#2E6F40] hover:bg-[#255933]' : user?.role === 'admin' ? 'bg-[#0f5c44] hover:bg-[#0a3d2e]' : user?.role === 'transporter' ? 'bg-[#2E7D32] hover:bg-[#1B5E20]' : 'bg-teal-600 hover:bg-teal-700'}`}
-          onClick={() => navigate('/complaints/new?type=OTHER')}
+          key={f} 
+          className={`px-5 py-2.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all duration-300 ${activeFilter === f ? 'bg-[#2E6F40] text-white shadow-md' : 'bg-transparent text-slate-400 hover:bg-slate-50 hover:text-slate-600'}`}
+          onClick={() => setActiveFilter(f)}
         >
-          <Plus size={18} strokeWidth={3} /> New Complaint
+          {f.replace('_', ' ')}
         </button>
-      </div>
+      ))}
+    </div>
 
-      <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200 overflow-x-auto hide-scrollbar mb-6 max-w-fit">
-        {['ALL', 'OPEN', 'IN_REVIEW', 'RESOLVED', 'REJECTED'].map(f => (
-          <button 
-            key={f} 
-            className={`whitespace-nowrap px-4 py-2 rounded-lg text-xs font-black transition-all ${activeFilter === f ? (user?.role === 'farmer' ? 'bg-white text-[#2E6F40] shadow-sm' : user?.role === 'admin' ? 'bg-white text-[#0f5c44] shadow-sm' : user?.role === 'transporter' ? 'bg-white text-[#2E7D32] shadow-sm' : 'bg-white text-teal-600 shadow-sm') : 'text-slate-500 hover:text-slate-700'}`}
-            onClick={() => setActiveFilter(f)}
-          >
-            {f.replace('_', ' ')}
-          </button>
-        ))}
+    {loading ? (
+      <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
+        <div className="w-10 h-10 rounded-full border-4 border-slate-100 border-t-[#2E6F40] animate-spin" />
+        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Synchronizing Data...</span>
       </div>
-
-      {loading ? (
-        <div className="flex flex-col items-center justify-center min-h-[40vh] gap-4">
-          <div className="w-10 h-10 rounded-full border-4 border-slate-200 border-t-teal-600 animate-spin" />
-          <span className="text-sm font-bold text-slate-500 uppercase tracking-widest animate-pulse">Loading complaints...</span>
-        </div>
       ) : (
         <div className="grid grid-cols-1 gap-6">
           {filtered.length === 0 ? (

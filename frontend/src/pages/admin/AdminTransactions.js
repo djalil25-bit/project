@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ChevronRight, ShoppingBag, Download, Search, ChevronUp, ChevronDown, Eye, ArrowUpDown, Package, MapPin, CheckCircle, Clock, XCircle, RefreshCw } from 'lucide-react';
 import html2pdf from 'html2pdf.js';
 import adminApi from '../../api/adminApi';
@@ -15,6 +15,7 @@ const StatusBadge = ({ s }) => {
 };
 
 const AdminTransactions = () => {
+  const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -233,43 +234,56 @@ const AdminTransactions = () => {
   };
 
   return (
-    <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 space-y-8 animate-fade-in relative z-0 bg-slate-50/30 min-h-screen">
+    <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 animate-fade-in relative z-0 min-h-screen">
       
-      {/* ── HIGH-DENSITY HERO HEADER (GREEN POWER PRO) ─────────────────────────────── */}
-      <div className="bg-[#022c22] rounded-2xl overflow-hidden shadow-lg flex flex-col md:flex-row items-center justify-between px-6 py-4 md:px-10 md:py-5 relative border border-[#064e3b] isolate">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#166534]/30 to-transparent pointer-events-none" />
-        <div className="z-10 flex flex-col">
-          <div className="flex items-center gap-2 text-emerald-400 text-[9px] font-black uppercase tracking-widest mb-1 opacity-80">
-            <ShoppingBag size={12} /> Transaction Operations
-          </div>
-          <h1 className="text-xl md:text-2xl font-black text-white tracking-tight leading-none">
-            Active Order Pipeline
+      {/* ── BREADCRUMBS ────────────────────────────────────────────── */}
+      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#064e3b] mb-6 bg-[#064e3b]/10 px-3 py-1 rounded-full w-fit border border-[#064e3b]/20 shadow-sm">
+        <button onClick={() => navigate('/admin-dashboard')} className="hover:text-emerald-700 transition-colors uppercase font-black flex items-center gap-1.5">
+          <ShoppingBag size={10} /> Admin Hub
+        </button>
+        <ChevronRight size={10} className="text-[#064e3b]/40" />
+        <span className="text-[#064e3b] flex items-center gap-1.5 font-black uppercase">
+          <ShoppingBag size={11} /> Transaction Operations
+        </span>
+      </div>
+
+      {/* ── HEADER ─────────────────────────────────────────────────── */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
+        <div>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+            <div className={`p-2 bg-white rounded-2xl shadow-sm border border-slate-100 text-[#064e3b]`}>
+              <ShoppingBag size={24} />
+            </div>
+            Active Order <span className="text-[#064e3b]">Pipeline</span>
           </h1>
-          <p className="text-emerald-100/70 text-[10px] font-bold uppercase tracking-widest mt-2">{data.length} ACTIVE MISSIONS DETECTED</p>
+          <p className="text-slate-500 font-medium mt-1.5 text-sm max-w-xl flex items-center gap-2">
+            {data.length} ACTIVE MISSIONS DETECTED
+          </p>
         </div>
-        <div className="z-10 mt-3 md:mt-0 flex items-center gap-2 w-full md:w-auto">
+        
+        <div className="flex items-center gap-4 bg-white p-2 rounded-[1.5rem] border border-slate-200 shadow-sm">
           <button 
-            className="flex-1 md:flex-none bg-[#064e3b] hover:bg-[#166534] text-white rounded-xl px-5 py-2.5 font-black text-[10px] uppercase tracking-widest transition shadow-lg shadow-emerald-900/40 flex items-center justify-center gap-2 border border-emerald-500/30" 
-            onClick={downloadAllPDF}
-          >
-             <Download size={14} className="text-emerald-400" /> Download Registry (PDF)
-          </button>
-          <button 
-            className="flex-1 md:flex-none bg-emerald-100/10 hover:bg-emerald-100/20 text-emerald-400 rounded-xl px-5 py-2.5 font-black text-[10px] uppercase tracking-widest transition flex items-center justify-center gap-2 border border-emerald-500/30" 
+            className="flex-1 md:flex-none bg-white hover:bg-slate-50 text-slate-700 rounded-2xl px-6 py-3 font-black text-[10px] uppercase tracking-widest transition shadow-inner flex items-center justify-center gap-2 border border-slate-200 active:scale-95" 
             onClick={exportCSV}
           >
              CSV Export
+          </button>
+          <button 
+            className="flex-1 md:flex-none bg-[#064e3b] hover:bg-[#022c22] text-white rounded-2xl px-6 py-3 font-black text-[10px] uppercase tracking-widest transition shadow-xl shadow-emerald-900/20 flex items-center justify-center gap-2 border border-[#064e3b] active:scale-95" 
+            onClick={downloadAllPDF}
+          >
+             <Download size={14} className="text-emerald-400" /> Download Registry (PDF)
           </button>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+      <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm p-4 mb-8">
         <div className="flex flex-col md:flex-row gap-3 items-stretch">
           <div className="relative flex-1">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"/>
+            <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"/>
             <input 
-              className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 text-sm font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all shadow-inner" 
+              className="w-full h-12 bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-4 text-sm font-bold text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#064e3b]/20 focus:border-[#064e3b] transition-all shadow-inner" 
               placeholder="Search ID, farmer, buyer, product..." 
               value={search} 
               onChange={e=>{setSearch(e.target.value);setPage(1);}}
@@ -290,7 +304,7 @@ const AdminTransactions = () => {
       </div>
 
       {/* Table Section */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col animate-fade-in">
+      <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden flex flex-col animate-fade-in">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <div className="w-10 h-10 rounded-full border-4 border-slate-100 border-t-emerald-600 animate-spin" />

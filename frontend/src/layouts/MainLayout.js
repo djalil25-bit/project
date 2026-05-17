@@ -195,11 +195,10 @@ const MainLayout = () => {
       { label: t('nav_accounts'), path: '/admin-dashboard/accounts', icon: <Users size={18} /> },
       { label: t('nav_messages'), path: '/admin-dashboard/messages', icon: <MessageSquare size={18} /> },
       { label: 'IoT Overview', path: '/admin-dashboard/iot', icon: <Wifi size={18} />, adminIotBadge: true },
-      { label: 'Products', path: '/admin-dashboard/catalog', icon: <ClipboardList size={18} /> },
+      { label: 'Catalog', path: '/admin-dashboard/catalog', icon: <ClipboardList size={18} /> },
       { label: t('nav_categories'), path: '/admin-dashboard/categories', icon: <FolderTree size={18} /> },
       { label: t('nav_complaint_center'), path: '/admin-dashboard/complaints', icon: <ShieldAlert size={18} /> },
       { label: 'Approvals Registry', path: '/admin-dashboard/resource-approvals', icon: <ShieldCheck size={18} /> },
-      { label: 'Pricing Protocol', path: '/admin-dashboard/logistics-pricing', icon: <Zap size={18} /> },
     ],
 
     farmer: [
@@ -234,7 +233,7 @@ const MainLayout = () => {
     buyer: '#0F766E',
     farmer: '#22543d',
     transporter: '#10B981',
-    admin: '#059669',
+    admin: '#064e3b',
   };
   const accent = roleAccents[user?.role] || 'var(--primary)';
 
@@ -267,7 +266,7 @@ const MainLayout = () => {
           </div>
         )}
 
-        <nav className="sidebar-nav">
+        <nav className="sidebar-nav no-scrollbar">
           <div className="nav-section-label">{t('main_menu')}</div>
           {currentLinks.map((link) => (
             <Link
@@ -492,7 +491,7 @@ const MainLayout = () => {
                       style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
                     />
                   ) : (
-                    <div className={`avatar-placeholder avatar-role-${user?.role}`} style={{ borderColor: accent, background: user?.role === 'admin' ? '#10b981' : accent, color: 'white' }}>
+                    <div className={`avatar-placeholder avatar-role-${user?.role}`} style={{ borderColor: accent, background: user?.role === 'admin' ? '#064e3b' : accent, color: 'white' }}>
                       {user?.full_name?.charAt(0).toUpperCase() || 'U'}
                     </div>
                   )}

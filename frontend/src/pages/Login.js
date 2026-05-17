@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -15,13 +15,56 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
+  const [attempts, setAttempts] = useState(() => parseInt(localStorage.getItem('loginAttempts') || '0', 10));
+  const [lockoutUntil, setLockoutUntil] = useState(() => parseInt(localStorage.getItem('lockoutUntil') || '0', 10));
+  const [timeLeft, setTimeLeft] = useState(0);
+
+  useEffect(() => {
+    if (lockoutUntil > Date.now()) {
+      const remaining = Math.ceil((lockoutUntil - Date.now()) / 1000);
+      setTimeLeft(remaining);
+      const interval = setInterval(() => {
+        const remaining = Math.ceil((lockoutUntil - Date.now()) / 1000);
+        if (remaining <= 0) {
+          setLockoutUntil(0);
+          setAttempts(0);
+          localStorage.removeItem('lockoutUntil');
+          localStorage.removeItem('loginAttempts');
+          setTimeLeft(0);
+          setError('');
+        } else {
+          setTimeLeft(remaining);
+        }
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [lockoutUntil]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (lockoutUntil > Date.now()) return;
+
     setError('');
     setLoading(true);
     try {
       const result = await login(formData.email, formData.password);
-      if (!result.success) setError(result.message);
+      if (!result.success) {
+        const newAttempts = attempts + 1;
+        setAttempts(newAttempts);
+        localStorage.setItem('loginAttempts', newAttempts.toString());
+        
+        if (newAttempts >= 3) {
+          const lockoutTime = Date.now() + 5 * 60 * 1000; // 5 mins
+          setLockoutUntil(lockoutTime);
+          localStorage.setItem('lockoutUntil', lockoutTime.toString());
+          setError('Too many failed attempts. Try again later.');
+        } else {
+          setError(result.message);
+        }
+      } else {
+        setAttempts(0);
+        localStorage.removeItem('loginAttempts');
+      }
     } catch {
       setError('An unexpected error occurred. Please try again.');
     } finally {
@@ -116,13 +159,18 @@ const Login = () => {
               <Link to="/register" className="auth-tab">Create Account</Link>
             </div>
 
-            {/* Error */}
-            {error && (
+            {/* Error / Lockout */}
+            {lockoutUntil > Date.now() ? (
+              <div className="auth-alert-error" style={{ background: '#FEE2E2', color: '#DC2626' }}>
+                <ShieldCheck size={16} />
+                Try again later. Blocked for {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}.
+              </div>
+            ) : error ? (
               <div className="auth-alert-error">
                 <ShieldCheck size={16} />
                 {error}
               </div>
-            )}
+            ) : null}
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="auth-form-body">
@@ -177,7 +225,7 @@ const Login = () => {
               <button
                 type="submit"
                 className="auth-submit-btn"
-                disabled={loading}
+                disabled={loading || lockoutUntil > Date.now()}
               >
                 {loading ? (
                   <><span className="auth-spinner"></span> Signing in…</>

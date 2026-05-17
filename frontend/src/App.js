@@ -44,7 +44,6 @@ import CatalogManager from './pages/admin/CatalogManager';
 import CatalogPriceHistory from './pages/admin/CatalogPriceHistory';
 import VehicleSettings from './pages/transporter/VehicleSettings';
 import ZoneSettings from './pages/transporter/ZoneSettings';
-import TransportPricingManager from './pages/admin/TransportPricingManager';
 
 import Profile from './pages/Profile';
 import UserComplaints from './pages/complaints/UserComplaints';
@@ -136,11 +135,6 @@ function App() {
           <Route path="/admin-dashboard/resource-approvals" element={
             <ProtectedRoute allowedRoles={['admin']}>
               <ResourceApprovals />
-            </ProtectedRoute>
-          } />
-          <Route path="/admin-dashboard/logistics-pricing" element={
-            <ProtectedRoute allowedRoles={['admin']}>
-              <TransportPricingManager />
             </ProtectedRoute>
           } />
 

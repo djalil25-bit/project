@@ -12,29 +12,12 @@ from .serializers import (
     DeliveryRequestSerializer, 
     DeliveryStatusUpdateSerializer,
     ProofOfDeliverySerializer,
-    VehicleSerializer,
-    TransportPricingRuleSerializer
+    VehicleSerializer
 )
 from apps.accounts.permissions import IsTransporterRole, IsFarmerRole
 from apps.orders.models import OrderStatusChoices, DeliveryStatusChoices as OrderDeliveryStatus
 from apps.common.constants import get_wilaya_name
-from .models import DeliveryRequest, DeliveryStatusChoices, Vehicle, TransportPricingRule
-
-class TransportPricingRuleViewSet(viewsets.ModelViewSet):
-    queryset = TransportPricingRule.objects.all().order_by('vehicle_type')
-    serializer_class = TransportPricingRuleSerializer
-    permission_classes = [permissions.IsAuthenticated, permissions.IsAdminUser]
-
-    @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated])
-    def calculate_fee(self, request):
-        distance = request.data.get('distance')
-        weight = request.data.get('weight', 0)
-        v_type = request.data.get('vehicle_type', 'truck')
-        
-        from .models import calculate_transport_fee
-        res = calculate_transport_fee(distance, weight, v_type)
-        return Response(res)
-
+from .models import DeliveryRequest, DeliveryStatusChoices, Vehicle
 
 logger = logging.getLogger(__name__)
 
@@ -629,6 +612,17 @@ class DeliveryRequestViewSet(viewsets.ModelViewSet):
                     )
             
         return Response(DeliveryRequestSerializer(delivery).data)
+
+
+    @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    def calculate_fee(self, request):
+        distance = request.data.get('distance')
+        weight = request.data.get('weight', 0)
+        v_type = request.data.get('vehicle_type', 'truck')
+        
+        from .models import calculate_transport_fee
+        res = calculate_transport_fee(distance, weight, v_type)
+        return Response(res)
 
 
 # ── Vehicle CRUD ViewSet ──────────────────────────────────────────────────

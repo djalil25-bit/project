@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PremiumWeatherView from '../../components/weather/PremiumWeatherView';
-import { ArrowLeft, CloudSun } from 'lucide-react';
+import { ChevronRight, CloudSun } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axiosConfig';
 
@@ -35,31 +35,38 @@ export default function FarmerWeatherPage() {
   }, []);
 
   return (
-    <div className="animate-fade-in p-4 md:p-8 min-h-screen bg-[#f1f5f9]">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
+    <div className="animate-fade-in p-4 md:p-8 min-h-screen">
+      <div className="max-w-7xl mx-auto">
+        
+        {/* ── BREADCRUMBS ────────────────────────────────────────────── */}
+        <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#2E6F40] mb-6 bg-[#2E6F40]/10 px-3 py-1 rounded-full w-fit border border-[#2E6F40]/20 shadow-sm">
+          <button onClick={() => navigate('/farmer-dashboard')} className="hover:text-[#255933] transition-colors uppercase">Farmer Hub</button>
+          <ChevronRight size={10} className="text-[#2E6F40]/40" />
+          <span className="text-[#2E6F40] flex items-center gap-1.5 font-black uppercase">
+            <CloudSun size={11} /> Weather Intelligence
+          </span>
+        </div>
+
+        {/* ── HEADER ─────────────────────────────────────────────────── */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
           <div>
-            <button 
-              onClick={() => navigate(-1)}
-              className="flex items-center gap-2 text-slate-400 hover:text-slate-800 transition-colors mb-4 font-bold text-sm"
-            >
-              <ArrowLeft size={16} /> Retour au Dashboard
-            </button>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-              <CloudSun size={32} className="text-[#2E6F40]" />
-              Intelligence Météorologique
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+              <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-[#2E6F40]">
+                <CloudSun size={22} strokeWidth={2.5} />
+              </div>
+              Weather <span className="text-[#2E6F40]">Intelligence</span>
             </h1>
-            <p className="text-slate-500 font-medium mt-1">
-              Surveillance atmosphérique en temps réel pour l'optimisation des cultures.
+            <p className="text-slate-500 font-medium mt-1.5 text-sm max-w-xl">
+              Real-time atmospheric monitoring and agro-climatic optimization protocols.
             </p>
           </div>
         </div>
 
         <div className="w-full">
           {loading ? (
-            <div className="flex flex-col items-center justify-center min-h-[600px] w-full bg-white rounded-[3rem] shadow-sm border border-slate-100">
-              <div className="w-12 h-12 rounded-full border-4 border-slate-100 border-t-[#2E6F40] animate-spin mb-4" />
-              <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">Initialisation...</span>
+            <div className="flex flex-col items-center justify-center min-h-[400px] w-full bg-white rounded-[2.5rem] shadow-sm border border-slate-100">
+              <div className="w-10 h-10 rounded-full border-4 border-slate-100 border-t-[#2E6F40] animate-spin mb-4" />
+              <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Synchronizing Atmosphere...</span>
             </div>
           ) : (
             <PremiumWeatherView farmId={farmId} wilaya={wilaya} />

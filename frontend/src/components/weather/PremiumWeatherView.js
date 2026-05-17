@@ -46,14 +46,14 @@ const getWeatherTheme = (iconCode) => {
   return { bg: 'from-sky-500 to-blue-700', accent: 'sky' };
 };
 
-const StatCard = ({ icon, label, value, unit }) => (
-  <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 flex items-center gap-4 hover:bg-white/15 transition-all">
-    <div className="p-3 bg-white/10 rounded-xl text-white">
+const WeatherStat = ({ icon, label, value, unit, colorClass, bgClass }) => (
+  <div className={`bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex items-center gap-4 hover:shadow-xl hover:-translate-y-1 transition-all group`}>
+    <div className={`p-3 rounded-2xl transition-transform group-hover:scale-110 ${bgClass} ${colorClass}`}>
       {icon}
     </div>
     <div>
-      <p className="text-white/60 text-[10px] font-bold uppercase tracking-widest">{label}</p>
-      <p className="text-white text-lg font-black">{value}<span className="text-xs ml-1 opacity-70">{unit}</span></p>
+      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</p>
+      <p className="text-lg font-black text-slate-800">{value}<span className="text-xs ml-1 opacity-50 uppercase tracking-tighter">{unit}</span></p>
     </div>
   </div>
 );
@@ -110,35 +110,12 @@ export default function PremiumWeatherView({ farmId, wilaya }) {
     <div className="w-full flex flex-col gap-6 animate-fade-in">
       
       {/* Insights Grid (Now at the top) */}
+      {/* Insights Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-         <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
-            <div className="p-3 bg-amber-50 text-amber-500 rounded-2xl"><Sunrise size={24} /></div>
-            <div>
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sunrise</p>
-               <p className="text-lg font-black text-slate-800">05:42</p>
-            </div>
-         </div>
-         <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
-            <div className="p-3 bg-rose-50 text-rose-500 rounded-2xl"><Sunset size={24} /></div>
-            <div>
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sunset</p>
-               <p className="text-lg font-black text-slate-800">19:26</p>
-            </div>
-         </div>
-         <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
-            <div className="p-3 bg-emerald-50 text-emerald-500 rounded-2xl"><CloudRain size={24} /></div>
-            <div>
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Precipitation</p>
-               <p className="text-lg font-black text-slate-800">1.2<span className="text-xs ml-1 opacity-50">mm</span></p>
-            </div>
-         </div>
-         <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm flex items-center gap-4 hover:shadow-md transition-all">
-            <div className="p-3 bg-purple-50 text-purple-500 rounded-2xl"><CloudLightning size={24} /></div>
-            <div>
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">UV Index</p>
-               <p className="text-lg font-black text-slate-800">4<span className="text-xs ml-1 opacity-50">Medium</span></p>
-            </div>
-         </div>
+        <WeatherStat icon={<Sunrise size={22} />} label="Sunrise" value={current?.sunrise || '05:42'} colorClass="text-amber-500" bgClass="bg-amber-50" />
+        <WeatherStat icon={<Sunset size={22} />} label="Sunset" value={current?.sunset || '19:26'} colorClass="text-rose-500" bgClass="bg-rose-50" />
+        <WeatherStat icon={<CloudRain size={22} />} label="Precipitation" value={current?.precip || '1.2'} unit="mm" colorClass="text-emerald-500" bgClass="bg-emerald-50" />
+        <WeatherStat icon={<CloudLightning size={22} />} label="UV Index" value={current?.uv || '4'} unit="MED" colorClass="text-purple-500" bgClass="bg-purple-50" />
       </div>
 
       {/* Hero Header Section */}
@@ -185,11 +162,24 @@ export default function PremiumWeatherView({ farmId, wilaya }) {
           </div>
 
           {/* Right: Quick Stats Sidebar */}
+          {/* Right: Quick Stats Sidebar */}
           <div className="grid grid-cols-2 md:grid-cols-1 gap-4 w-full md:w-auto">
-            <StatCard icon={<Droplets size={20} />} label="Humidity" value={current?.humidity} unit="%" />
-            <StatCard icon={<Wind size={20} />} label="Wind" value={current?.wind_speed} unit="km/h" />
-            <StatCard icon={<Eye size={20} />} label="Visibility" value={current?.visibility || '10'} unit="km" />
-            <StatCard icon={<Compass size={20} />} label="Pressure" value={current?.pressure || '1013'} unit="hPa" />
+            {[
+              { icon: <Droplets size={18} />, label: 'Humidity', value: current?.humidity, unit: '%' },
+              { icon: <Wind size={18} />, label: 'Wind Speed', value: current?.wind_speed, unit: 'km/h' },
+              { icon: <Eye size={18} />, label: 'Visibility', value: current?.visibility || '10', unit: 'km' },
+              { icon: <Compass size={18} />, label: 'Pressure', value: current?.pressure || '1013', unit: 'hPa' }
+            ].map((stat, idx) => (
+              <div key={idx} className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 flex items-center gap-4 hover:bg-white/20 transition-all">
+                <div className="p-2 bg-white/10 rounded-xl text-white">
+                  {stat.icon}
+                </div>
+                <div>
+                  <p className="text-white/60 text-[9px] font-black uppercase tracking-widest">{stat.label}</p>
+                  <p className="text-white text-lg font-black">{stat.value}<span className="text-xs ml-1 opacity-70 uppercase">{stat.unit}</span></p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>

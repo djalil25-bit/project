@@ -4,7 +4,8 @@ import { useNavigate, Link, useParams } from 'react-router-dom';
 import { ALGERIAN_WILAYAS } from '../../utils/constants';
 import {
   Home, MapPin, Maximize2, Save, FileText,
-  ChevronRight, ArrowLeft, Info, Upload, X, AlertTriangle
+  ChevronRight, ArrowLeft, Info, Upload, X, AlertTriangle,
+  Edit3, Plus
 } from 'lucide-react';
 import LocationPicker from '../../components/maps/LocationPicker';
 
@@ -119,36 +120,42 @@ export default function FarmForm() {
   return (
     <div className="farmer-page-wrapper">
 
-      {/* Breadcrumb */}
-      <div className="f-breadcrumb">
-        <Link to="/farmer-dashboard">Farmer Hub</Link>
-        <span className="f-breadcrumb-sep"><ChevronRight size={11} /></span>
-        <Link to="/farmer-dashboard/farms">My Farms</Link>
-        <span className="f-breadcrumb-sep"><ChevronRight size={11} /></span>
-        <span>{isEditMode ? 'Edit' : 'Add'} Farm</span>
+      {/* ── BREADCRUMBS ────────────────────────────────────────────── */}
+      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#2E6F40] mb-5 bg-[#2E6F40]/10 px-3 py-1 rounded-full w-fit border border-[#2E6F40]/20 shadow-sm">
+        <Link to="/farmer-dashboard" className="hover:text-[#255933] transition-colors">Farmer Hub</Link>
+        <ChevronRight size={10} className="text-[#2E6F40]/40" />
+        <Link to="/farmer-dashboard/farms" className="hover:text-[#255933] transition-colors">Farms Registry</Link>
+        <ChevronRight size={10} className="text-[#2E6F40]/40" />
+        <span className="text-[#2E6F40] flex items-center gap-1.5 font-black uppercase">
+          {isEditMode ? 'Edit Unit' : 'New Unit'}
+        </span>
       </div>
 
-      <div className="flex justify-between items-start flex-wrap gap-4 mb-8">
+      {/* ── HEADER ────────────────────────────────────────────────── */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-black text-slate-900 tracking-tight">
-            {isEditMode ? 'Edit Farm Unit' : 'Add New Farm Unit'}
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+            <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-[#2E6F40]">
+              {isEditMode ? <Edit3 size={22} strokeWidth={2.5} /> : <Plus size={22} strokeWidth={2.5} />}
+            </div>
+            {isEditMode ? 'Edit' : 'Register New'} <span className="text-[#2E6F40]">Farm Unit</span>
           </h1>
-          <p className="text-sm font-medium text-slate-500 mt-2">
-            {isEditMode ? 'Update your farm details.' : 'Register your agricultural land on AgriGov Market.'}
+          <p className="text-slate-500 font-medium mt-1.5 text-sm max-w-xl">
+            {isEditMode ? 'Update your agricultural asset parameters and topography.' : 'Initialize a new agricultural node on the AgriGov network.'}
           </p>
         </div>
-        <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-600 transition-colors shadow-sm">
-          <ArrowLeft size={16} /> Back
+        <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 px-6 py-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-600 transition-all shadow-sm active:scale-95">
+          <ArrowLeft size={14} strokeWidth={3} /> Return to Assets
         </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 items-start">
-        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-          <div className="px-5 py-3.5 bg-slate-50 border-b border-slate-100 flex items-center gap-2">
-            <div className="w-1 h-4 bg-[#2E6F40] rounded-full" />
-            <h3 className="text-xs font-black text-slate-700 uppercase tracking-widest flex items-center gap-2">
-              <Home size={14} className="text-[#2E6F40]" /> Farm Details
+        <div className="bg-white rounded-[2rem] shadow-[0_10px_40px_rgba(0,0,0,0.02)] border border-slate-200 overflow-hidden">
+          <div className="px-8 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/30">
+            <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+              <Home size={14} className="text-[#2E6F40]" strokeWidth={3}/> Asset Documentation
             </h3>
+            <span className="text-[9px] font-black text-[#2E6F40] bg-[#f0faf4] px-2 py-1 rounded border border-[#cee8d9] shadow-sm uppercase tracking-widest">Protocol 4.0</span>
           </div>
           
           <div className="p-5 sm:p-6">
@@ -162,8 +169,8 @@ export default function FarmForm() {
 
               {/* Farm Details */}
               <div className="space-y-4">
-                <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black text-slate-400 pb-1.5 border-b border-slate-100">
-                  <div className="w-1 h-3 bg-[#2E6F40] rounded-full" /> Location & Identity
+                <div className="flex items-center gap-2 text-[9px] uppercase tracking-widest font-black text-[#2E6F40] bg-[#f0faf4] px-3 py-1.5 rounded-lg border border-[#cee8d9] w-fit">
+                  01. Location & Identity
                 </div>
 
                 <div className="space-y-2">
@@ -199,9 +206,9 @@ export default function FarmForm() {
               </div>
 
               {/* Geographical Details */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black text-slate-400 pb-1.5 border-b border-slate-100">
-                  <div className="w-1 h-3 bg-[#2E6F40] rounded-full" /> Geographical Details
+              <div className="space-y-4 pt-4">
+                <div className="flex items-center gap-2 text-[9px] uppercase tracking-widest font-black text-[#2E6F40] bg-[#f0faf4] px-3 py-1.5 rounded-lg border border-[#cee8d9] w-fit">
+                  02. Geographical Details
                 </div>
 
                 <div className="space-y-2">
@@ -299,9 +306,9 @@ export default function FarmForm() {
               </div>
 
               {/* Registry Document Upload */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black text-slate-400 pb-1.5 border-b border-slate-100">
-                  <div className="w-1 h-3 bg-emerald-500 rounded-full" /> Verification Document
+              <div className="space-y-4 pt-4">
+                <div className="flex items-center gap-2 text-[9px] uppercase tracking-widest font-black text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-100 w-fit">
+                  03. Verification Document
                 </div>
                 
                 <div className="space-y-2">
@@ -359,9 +366,9 @@ export default function FarmForm() {
               </div>
 
               {/* Description */}
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-black text-slate-400 pb-1.5 border-b border-slate-100">
-                  <div className="w-1 h-3 bg-[#2E6F40] rounded-full" /> About This Farm
+              <div className="space-y-4 pt-4">
+                <div className="flex items-center gap-2 text-[9px] uppercase tracking-widest font-black text-slate-400 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100 w-fit">
+                  04. About This Farm
                 </div>
                 <div className="space-y-2">
                   <label className="text-[11px] font-black uppercase tracking-widest text-[#2E6F40] flex items-center gap-2">
@@ -401,12 +408,13 @@ export default function FarmForm() {
         </div>
 
         {/* ── Right sidebar: Image upload ── */}
-        <div className="sticky top-6 space-y-4">
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-            <div className="px-5 py-3.5 bg-slate-50 border-b border-slate-100 flex items-center gap-2">
-              <div className="w-1 h-4 bg-[#2E6F40] rounded-full" />
-              <h3 className="text-xs font-black text-slate-700 uppercase tracking-widest">Farm Photo</h3>
-              <span className="ml-auto text-[9px] text-slate-400 font-medium">(optional)</span>
+        <div className="sticky top-6 space-y-6">
+          <div className="bg-white rounded-[2rem] shadow-[0_10px_40px_rgba(0,0,0,0.02)] border border-slate-200 overflow-hidden">
+            <div className="px-6 py-4 bg-slate-50/30 border-b border-slate-100">
+              <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center justify-between">
+                <span>Farm Photo</span>
+                <span className="text-[8px] font-bold text-slate-300">OPTIONAL</span>
+              </h3>
             </div>
             <div className="p-4">
               <div className="space-y-3">

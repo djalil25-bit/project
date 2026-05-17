@@ -503,18 +503,51 @@ function TransporterDashboard() {
         </div>
       )}
 
-      {/* ── MISSION TABLE ──────────────────────────── */}
-      <div className="transporter-table-card">
-        <div className="farmer-table-header">
-          <h3 className="agr-card-title mb-0">Mission Board</h3>
-          <div className="text-muted very-small fw-medium">
-            Updated: {new Date().toLocaleTimeString('en-GB')}
+      <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden mb-8">
+        <div className="px-8 py-6 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-50/30">
+          <div>
+            <h3 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
+              <div className="p-1.5 bg-white rounded-lg shadow-sm border border-slate-100 text-[#10B981]">
+                <ClipboardList size={18} strokeWidth={2.5} />
+              </div>
+              Mission <span className="text-[#10B981]">Board</span>
+            </h3>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+              Synchronized: {new Date().toLocaleTimeString('en-GB')}
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-2 bg-white p-1 rounded-2xl border border-slate-200 shadow-sm">
+            {[
+              { key: 'open', label: `Open Market`, count: openCount },
+              { key: 'mine', label: 'My Missions' },
+              { key: 'done', label: 'History' },
+            ].map(t => (
+              <button
+                key={t.key}
+                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${
+                  activeTab === t.key 
+                    ? 'bg-[#10B981] text-white shadow-md' 
+                    : 'text-slate-400 hover:text-slate-600'
+                }`}
+                onClick={() => setActiveTab(t.key)}
+              >
+                {t.label}
+                {t.count !== undefined && (
+                  <span className={`px-1.5 py-0.5 rounded-md text-[8px] ${
+                    activeTab === t.key ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-400'
+                  }`}>
+                    {t.count}
+                  </span>
+                )}
+              </button>
+            ))}
           </div>
         </div>
 
-        <div className="px-3 py-3 bg-slate-50 border-bottom d-flex flex-wrap gap-3 align-items-end">
-          <div className="flex-grow-1" style={{ maxWidth: 220 }}>
-            <label className="very-small text-muted fw-bold mb-1 uppercase tracking-wider text-[9px]">Pickup Wilaya</label>
+        <div className="px-8 py-4 bg-white border-b border-slate-100 flex flex-wrap gap-4 items-end">
+          <div className="flex-1 min-w-[200px]">
+            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block ml-1">Pickup Wilaya</label>
             <Select
               className="react-select-container"
               classNamePrefix="react-select"
@@ -535,8 +568,8 @@ function TransporterDashboard() {
               styles={reactSelectStyles}
             />
           </div>
-          <div className="flex-grow-1" style={{ maxWidth: 220 }}>
-            <label className="very-small text-muted fw-bold mb-1 uppercase tracking-wider text-[9px]">Destination Wilaya (Optional)</label>
+          <div className="flex-1 min-w-[200px]">
+            <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 block ml-1">Destination Wilaya (Optional)</label>
             <Select
               className="react-select-container"
               classNamePrefix="react-select"
@@ -550,38 +583,23 @@ function TransporterDashboard() {
               styles={reactSelectStyles}
             />
           </div>
-          <button className="btn-agr btn-primary btn-sm rounded shadow-sm px-4 fw-bold h-[38px]" onClick={fetchData}>
+          <button 
+            className="h-[38px] px-6 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-slate-900/10 active:scale-95 flex items-center gap-2"
+            onClick={fetchData}
+          >
              Apply Filters
           </button>
         </div>
 
-        <div className="px-3 py-2 bg-light-soft border-bottom">
-          <div className="segmented-tabs-wrapper">
-            {[
-              { key: 'open', label: `Open Market (${openCount})` },
-              { key: 'mine', label: 'My Missions' },
-              { key: 'done', label: 'History' },
-            ].map(t => (
-              <button
-                key={t.key}
-                className={`segmented-tab ${activeTab === t.key ? 'active' : ''}`}
-                onClick={() => setActiveTab(t.key)}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="table-responsive">
-          <table className="agr-table">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
             <thead>
-              <tr>
-                <th>Mission Ref.</th>
-                <th>Route</th>
-                <th>Mission Details</th>
-                <th>Status</th>
-                <th style={{ textAlign: 'right' }}>Actions</th>
+              <tr className="bg-slate-50/50">
+                <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Mission Ref.</th>
+                <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Route</th>
+                <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Mission Details</th>
+                <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Status</th>
+                <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -595,103 +613,113 @@ function TransporterDashboard() {
                   </td>
                 </tr>
               ) : filtered.map(d => (
-                <tr key={d.id}>
-                  <td>
-                    <div className="d-flex flex-column gap-1">
-                      <span className="fw-bold text-primary">MIL-{d.id.toString().padStart(4, '0')}</span>
-                      <div className="very-small text-muted d-flex align-items-center gap-1">
-                        <Clock size={10} />
+                <tr key={d.id} className="group hover:bg-slate-50/50 transition-colors border-b border-slate-50 last:border-0">
+                  <td className="px-8 py-6">
+                    <div className="flex flex-col gap-1.5">
+                      <span className="text-sm font-black text-[#10B981] tracking-tight">MIL-{d.id.toString().padStart(4, '0')}</span>
+                      <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        <Clock size={11} className="text-slate-300" />
                         {new Date(d.created_at).toLocaleDateString('en-GB')}
                       </div>
-                      <div className="mt-2 flex items-center gap-2">
-                         <div className="px-2 py-0.5 bg-emerald-50 border border-emerald-100 rounded text-[9px] font-black text-emerald-600 uppercase">
-                            {parseFloat(d.estimated_fee || 0).toLocaleString()} DZD
-                         </div>
+                      <div className="mt-2">
+                        <div className="inline-flex px-2 py-1 bg-emerald-50 border border-emerald-100 rounded-lg text-[10px] font-black text-emerald-700 uppercase tracking-wider">
+                          {parseFloat(d.estimated_fee || 0).toLocaleString()} DZD
+                        </div>
                       </div>
                     </div>
                   </td>
-                  <td>
-                    <div className="d-flex flex-column gap-1">
-                      <div className="mission-origin">
-                        <MapPin size={11} />
-                        {(d.pickup_location || `Farm #${d.order_detail?.items?.[0]?.farmer}`)}
-                      </div>
-                      <div className="mission-dest">
-                        <Navigation size={11} />
-                        {(d.delivery_location || d.order_detail?.delivery_address)}
-                      </div>
-                      <div className="mt-1 d-flex align-items-center gap-3">
-                        <div className="very-small text-muted d-flex align-items-center gap-1">
-                          <Route size={10} className="text-slate-400" />
-                          <span className="fw-bold">{d.estimated_distance_km || '0'} KM</span>
+                  <td className="px-8 py-6">
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
+                        <div className="w-5 h-5 bg-emerald-50 rounded flex items-center justify-center text-emerald-600">
+                          <MapPin size={11} />
                         </div>
-                        <div className="very-small text-muted d-flex align-items-center gap-1">
-                          <Clock size={10} className="text-slate-400" />
-                          <span className="fw-bold">{d.estimated_duration || 'N/A'}</span>
+                        <span className="truncate max-w-[180px]">{(d.pickup_location || `Farm #${d.order_detail?.items?.[0]?.farmer}`)}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
+                        <div className="w-5 h-5 bg-indigo-50 rounded flex items-center justify-center text-indigo-600">
+                          <Navigation size={11} />
+                        </div>
+                        <span className="truncate max-w-[180px]">{(d.delivery_location || d.order_detail?.delivery_address)}</span>
+                      </div>
+                      
+                      <div className="mt-1 flex items-center gap-4">
+                        <div className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                          <Route size={11} className="text-slate-300" />
+                          <span>{d.estimated_distance_km || '0'} KM</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                          <Clock size={11} className="text-slate-300" />
+                          <span>{d.estimated_duration || 'N/A'}</span>
                         </div>
                       </div>
-                      {d.vehicle_size && !d.assigned_vehicle_info && (
-                        <span className="status-badge status-assigned very-small" style={{ fontSize: '0.62rem', alignSelf: 'flex-start', marginTop: 2 }}>
-                          {d.vehicle_size} vehicle req.
-                        </span>
-                      )}
+                      
                       {d.assigned_vehicle_info && (
-                        <div className="mt-2 p-1.5 bg-[#10B981]/20 border border-indigo-100 rounded-lg flex items-center gap-2 w-fit">
-                           <Truck size={10} className="text-[#10B981]" />
-                           <span className="text-[9px] font-black text-[#2DA83B] uppercase tracking-tight">
+                        <div className="mt-2 px-2 py-1.5 bg-[#10B981]/10 border border-[#10B981]/20 rounded-xl flex items-center gap-2 w-fit">
+                           <Truck size={11} className="text-[#10B981]" />
+                           <span className="text-[10px] font-black text-[#059669] uppercase tracking-tight">
                               {d.assigned_vehicle_info.plate} — {d.assigned_vehicle_info.model}
                            </span>
                         </div>
                       )}
                     </div>
                   </td>
-                  <td>
-                    <div className="small fw-bold">Mission #{d.order}</div>
-                    <div className="text-muted very-small d-flex align-items-center mt-1 gap-1">
-                      <Package size={10} />
-                      {d.order_detail?.items?.length || 0} items
-                    </div>
-                    {d.order_detail?.buyer_phone && (
-                      <div className="mt-2 pt-2 border-top border-slate-100">
-                        <div className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-1">Buyer Contact</div>
-                        <a 
-                          href={`https://wa.me/${d.order_detail.buyer_phone}?text=${encodeURIComponent('Hello, I am the transporter assigned to your mission #' + d.order + '. I will contact you shortly.')}`}
-                          target="_blank" rel="noopener noreferrer"
-                          className="d-inline-flex align-items-center gap-1.5 px-2 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-[11px] font-black hover:bg-emerald-100 hover:border-emerald-300 transition-all shadow-sm"
-                        >
-                          <Phone size={11} className="fill-emerald-700" /> {d.order_detail.buyer_phone}
-                        </a>
+                  <td className="px-8 py-6">
+                    <div className="flex flex-col gap-1.5">
+                      <h4 className="text-sm font-black text-slate-900 tracking-tight uppercase">Mission #{d.order}</h4>
+                      <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        <Package size={11} />
+                        {d.order_detail?.items?.length || 0} items
                       </div>
-                    )}
-                    <button
-                      className="btn-agr btn-primary btn-sm rounded-pill px-3 mt-2 d-flex align-items-center gap-1.5 font-black text-[10px] uppercase tracking-widest shadow-sm hover:scale-105 transition-all"
-                      onClick={() => setViewingCargo(d)}
-                    >
-                      <ClipboardList size={11} /> Mission Manifest
-                    </button>
+                      
+                      {d.order_detail?.buyer_phone && (
+                        <div className="mt-2 pt-2 border-t border-slate-50">
+                          <a 
+                            href={`https://wa.me/${d.order_detail.buyer_phone}?text=${encodeURIComponent('Hello, I am the transporter assigned to your mission #' + d.order + '. I will contact you shortly.')}`}
+                            target="_blank" rel="noopener noreferrer"
+                            className="inline-flex items-center gap-2 px-2.5 py-1.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-xl text-[10px] font-black hover:bg-emerald-100 transition-all shadow-sm"
+                          >
+                            <Phone size={12} className="fill-emerald-700" /> {d.order_detail.buyer_phone}
+                          </a>
+                        </div>
+                      )}
+                      
+                      <button
+                        className="mt-3 flex items-center justify-center gap-2 px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[9px] font-black uppercase tracking-[0.15em] transition-all shadow-lg shadow-slate-900/10 active:scale-95"
+                        onClick={() => setViewingCargo(d)}
+                      >
+                        <ClipboardList size={12} /> Mission Manifest
+                      </button>
+                    </div>
                   </td>
-                  <td><StatusBadge status={d.status} /></td>
-                  <td style={{ textAlign: 'right' }}>
+                  <td className="px-8 py-6">
+                    <StatusBadge status={d.status} />
+                  </td>
+                  <td className="px-8 py-6 text-right">
                     {d.status === 'open' && (() => {
                       const { compatible, reason } = checkCompatibility(d);
                       const disabled = !compatible || hasActiveMission || actionLoading === d.id + '_accept';
                       
                       return (
-                        <div className="d-flex flex-column align-items-end gap-1">
+                        <div className="flex flex-col items-end gap-2">
                           <button
-                            className={`btn-agr btn-sm rounded-pill px-4 py-2 fw-black text-[10px] uppercase tracking-widest shadow-md transition-all ${disabled ? 'bg-slate-200 text-slate-400 cursor-not-allowed border-0' : 'btn-primary hover:scale-105 active:scale-95'}`}
+                            className={`px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-md ${
+                              disabled 
+                                ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200' 
+                                : 'bg-[#10B981] hover:bg-[#059669] text-white hover:scale-105 active:scale-95'
+                            }`}
                             onClick={() => setAcceptanceTarget(d)}
                             disabled={disabled}
                           >
                             {actionLoading === d.id + '_accept' ? 'Authorizing...' : 'Accept Mission'}
                           </button>
                           {hasActiveMission ? (
-                            <div className="text-muted text-[9px] font-bold italic mt-1">
-                              Complete active mission first.
+                            <div className="text-slate-400 text-[9px] font-black uppercase tracking-widest">
+                              Complete active mission
                             </div>
                           ) : !compatible && (
-                            <div className="text-rose-500 text-[9px] font-black uppercase tracking-tighter mt-1 bg-rose-50 px-2 py-0.5 rounded border border-rose-100 flex items-center gap-1">
-                               <X size={8} strokeWidth={3} /> {reason}
+                            <div className="text-rose-600 text-[8px] font-black uppercase tracking-widest bg-rose-50 px-2 py-1 rounded-lg border border-rose-100 flex items-center gap-1.5">
+                               <X size={10} strokeWidth={3} /> {reason}
                             </div>
                           )}
                         </div>

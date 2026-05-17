@@ -18,6 +18,7 @@ const VehicleSettings = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [filter, setFilter] = useState('ALL');
 
   useEffect(() => { fetchVehicles(); }, []);
 
@@ -81,74 +82,108 @@ const VehicleSettings = () => {
   };
 
   const statusConfig = {
-    ACTIVE:   { bar: 'bg-emerald-500', dot: 'bg-emerald-500', text: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200', label: 'Active' },
-    PENDING:  { bar: 'bg-amber-400',   dot: 'bg-amber-400',   text: 'text-amber-600',   bg: 'bg-amber-50',   border: 'border-amber-200',   label: 'Pending' },
-    REJECTED: { bar: 'bg-red-500',     dot: 'bg-red-500',     text: 'text-red-600',     bg: 'bg-red-50',     border: 'border-red-200',     label: 'Rejected' },
+    ACTIVE:   { dot: 'bg-emerald-500', text: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-100', label: 'Active' },
+    PENDING:  { dot: 'bg-amber-500',   text: 'text-amber-700',   bg: 'bg-amber-50',   border: 'border-amber-100',   label: 'Pending' },
+    REJECTED: { dot: 'bg-red-500',     text: 'text-red-700',     bg: 'bg-red-50',     border: 'border-red-100',     label: 'Rejected' },
+  };
+
+  const filteredVehicles = vehicles.filter(v => {
+    if (filter === 'ALL') return true;
+    return v.status === filter;
+  });
+
+  const counts = {
+    ALL: vehicles.length,
+    PENDING: vehicles.filter(v => v.status === 'PENDING').length,
+    ACTIVE: vehicles.filter(v => v.status === 'ACTIVE').length,
+    REJECTED: vehicles.filter(v => v.status === 'REJECTED').length,
   };
 
   return (
-    <div className="max-w-[1100px] mx-auto px-4 md:px-8 py-8 space-y-6 animate-fade-in">
+    <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 animate-fade-in relative z-0">
+      
+      {/* ── BREADCRUMBS ────────────────────────────────────────────── */}
+      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#10B981] mb-5 bg-[#10B981]/10 px-3 py-1 rounded-full w-fit border border-[#10B981]/20 shadow-sm">
+        <Link to="/transporter-dashboard" className="hover:text-[#059669] transition-colors uppercase font-black">Logistics Hub</Link>
+        <ChevronRight size={10} className="text-[#10B981]/40" />
+        <span className="text-[#10B981] flex items-center gap-1.5 font-black uppercase">
+          <Truck size={11} /> Fleet Assets
+        </span>
+      </div>
 
-      {/* HEADER */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+      {/* ── HEADER ─────────────────────────────────────────────────── */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
         <div>
-          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#10B981] mb-3 bg-[#10B981]/20 px-3 py-1.5 rounded-full w-fit border border-indigo-100">
-            <Link to="/transporter-dashboard" className="hover:text-[#2DA83B] transition-colors">Logistics Hub</Link>
-            <ChevronRight size={10} />
-            <span className="text-[#2DA83B]">Fleet Assets</span>
-          </div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#10B981] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#10B981]/30">
-              <Truck size={20} strokeWidth={2.5} />
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+            <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-[#10B981]">
+              <Truck size={22} strokeWidth={2.5} />
             </div>
-            Managed Fleet
+            Managed <span className="text-[#10B981]">Fleet</span>
           </h1>
-          <p className="text-slate-500 text-sm font-medium mt-2">
-            {vehicles.length > 0 ? `${vehicles.length} asset${vehicles.length > 1 ? 's' : ''} registered in registry` : 'Monitor asset availability across the national logistics grid.'}
+          <p className="text-slate-500 font-medium mt-1.5 text-sm max-w-xl leading-relaxed">
+            Monitor and manage your logistics assets across the national transport infrastructure.
           </p>
         </div>
 
         {!showForm && (
           <button
             onClick={() => setShowForm(true)}
-            className="group relative overflow-hidden bg-gradient-to-br from-[#10B981] to-[#10B981] hover:from-[#10B981] hover:to-[#10B981] text-white px-6 py-3.5 rounded-2xl font-black text-xs uppercase tracking-[0.15em] transition-all duration-200 shadow-lg shadow-[#10B981]/30 hover:shadow-xl hover:shadow-[#10B981]/40 active:scale-95 flex items-center gap-3"
+            className="inline-flex items-center justify-center gap-2 bg-[#10B981] hover:bg-[#059669] text-white px-5 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-[0_10px_30px_rgba(16,185,129,0.3)] active:scale-95"
           >
-            <div className="w-7 h-7 bg-white/20 rounded-xl flex items-center justify-center group-hover:bg-white/30 transition-colors">
-              <Plus size={16} className="group-hover:rotate-90 transition-transform duration-300" />
-            </div>
-            Register New Asset
-            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl" />
+            <Plus size={14} strokeWidth={3} /> Register New Asset
           </button>
         )}
+      </div>
+
+      {/* ── FILTER TABS ────────────────────────────────────────────── */}
+      <div className="flex items-center gap-2 mb-8 bg-slate-50/50 p-1.5 rounded-2xl border border-slate-100 w-fit overflow-x-auto hide-scrollbar max-w-full">
+        {['ALL', 'PENDING', 'ACTIVE', 'REJECTED'].map((t) => (
+          <button
+            key={t}
+            onClick={() => setFilter(t)}
+            className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${
+              filter === t 
+                ? 'bg-white text-[#10B981] shadow-sm border border-slate-200' 
+                : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            {t}
+            <span className={`px-1.5 py-0.5 rounded-md text-[8px] ${
+              filter === t ? 'bg-[#10B981]/10 text-[#10B981]' : 'bg-slate-100 text-slate-400'
+            }`}>
+              {counts[t]}
+            </span>
+          </button>
+        ))}
       </div>
 
       {/* FLEET LIST */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-24 gap-4 bg-white rounded-2xl border border-slate-100">
-            <div className="w-8 h-8 rounded-full border-4 border-slate-100 border-t-[#10B981] animate-spin" />
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest animate-pulse">Scanning Registry...</span>
+          <div className="col-span-full flex flex-col items-center justify-center py-24 gap-4 bg-white rounded-[2.5rem] border border-slate-100 shadow-sm">
+            <div className="w-10 h-10 rounded-full border-4 border-slate-100 border-t-[#10B981] animate-spin" />
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] animate-pulse">Scanning Registry Assets...</span>
           </div>
-        ) : vehicles.length === 0 ? (
-          <div className="py-20 text-center bg-white rounded-2xl border-2 border-dashed border-slate-200 flex flex-col items-center">
-            <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-4 text-slate-300 border border-slate-100">
+        ) : filteredVehicles.length === 0 ? (
+          <div className="col-span-full py-20 text-center bg-white rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col items-center">
+            <div className="w-16 h-16 bg-slate-50 rounded-3xl flex items-center justify-center mb-5 text-slate-200 shadow-inner">
               <Truck size={32} />
             </div>
-            <h4 className="text-xl font-black text-slate-800 mb-1">Registry Empty</h4>
-            <p className="text-slate-400 font-medium mb-6 max-w-xs text-sm">No vehicles found. Register your first asset to begin operations.</p>
-            <button onClick={() => setShowForm(true)} className="bg-[#10B981] hover:bg-[#10B981] text-white px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-[#10B981]/20 active:scale-95 flex items-center gap-2">
-              <Plus size={14} /> Initialize Fleet
-            </button>
+            <h4 className="text-sm font-black text-slate-800 mb-1 uppercase tracking-widest">No assets found</h4>
+            <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-8 max-w-xs leading-relaxed">No vehicles matching your current filter criteria were identified in the registry.</p>
+            {filter !== 'ALL' && (
+              <button onClick={() => setFilter('ALL')} className="text-[10px] font-black text-[#10B981] uppercase tracking-widest hover:underline">Reset Filters</button>
+            )}
           </div>
         ) : (
-          vehicles.map(v => {
+          filteredVehicles.map(v => {
             const sc = statusConfig[v.status] || statusConfig.PENDING;
             const typeName = VEHICLE_TYPES.find(vt => vt.id === v.type)?.name || v.type;
             return (
-              <div key={v.id} className="group bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-[#10B981]/25 transition-all duration-300 overflow-hidden flex flex-col">
+              <div key={v.id} className="group bg-white rounded-[2.5rem] border border-slate-200 shadow-sm hover:shadow-xl hover:border-[#10B981]/30 transition-all duration-500 overflow-hidden flex flex-col">
                 
                 {/* Image (top) */}
-                <div className="h-36 relative overflow-hidden shrink-0">
+                <div className="h-44 relative overflow-hidden shrink-0">
                   <img 
                     src={v.car_photo 
                       ? (v.car_photo.startsWith('http') ? v.car_photo : `http://localhost:8000${v.car_photo}`)
@@ -156,60 +191,60 @@ const VehicleSettings = () => {
                         ? "https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=400&q=80" 
                         : "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=400&q=80")}
                     alt={v.model} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                  <div className="absolute top-2.5 left-2.5">
-                    <div className="bg-[#10B981] text-white px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider shadow flex items-center gap-1">
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent" />
+                  <div className="absolute top-4 left-4">
+                    <div className="bg-[#10B981] text-white px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-lg flex items-center gap-2 backdrop-blur-md">
                       {getVehicleIcon(v.type)} {typeName}
                     </div>
                   </div>
-                  <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-end justify-between">
-                    <span className="bg-slate-900/90 backdrop-blur-sm text-white px-2.5 py-1 rounded-lg text-[10px] font-mono font-black tracking-wider">{v.plate}</span>
-                    <div className={`px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider border backdrop-blur-sm flex items-center gap-1 ${
-                      v.status === 'ACTIVE' ? 'bg-emerald-500/90 text-white border-emerald-400/50' :
-                      v.status === 'REJECTED' ? 'bg-red-500/90 text-white border-red-400/50' :
-                      'bg-amber-500/90 text-white border-amber-400/50'
+                  <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
+                    <div className="bg-slate-900/80 backdrop-blur-md text-white px-3 py-1.5 rounded-xl text-[10px] font-mono font-black tracking-[0.2em] border border-white/10">{v.plate}</div>
+                    <div className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border backdrop-blur-md flex items-center gap-2 ${
+                      v.status === 'ACTIVE' ? 'bg-emerald-500 text-white border-emerald-400' :
+                      v.status === 'REJECTED' ? 'bg-red-500 text-white border-red-400' :
+                      'bg-amber-500 text-white border-amber-400'
                     }`}>
-                      <span className={`w-1.5 h-1.5 rounded-full bg-white ${v.status === 'ACTIVE' ? 'animate-pulse' : ''}`} />
-                      {v.status === 'ACTIVE' && v.is_active === false ? 'Offline' : sc.label}
+                      <span className={`w-2 h-2 rounded-full bg-white ${v.status === 'ACTIVE' ? 'animate-pulse' : ''}`} />
+                      {v.status === 'ACTIVE' && v.is_active === false ? 'OFFLINE' : sc.label}
                     </div>
                   </div>
                 </div>
 
                 {/* Content (bottom) */}
-                <div className="p-4 flex flex-col flex-1">
+                <div className="p-6 flex flex-col flex-1">
                   {/* Header row */}
-                  <div className="flex items-start justify-between gap-2 mb-2">
+                  <div className="flex items-start justify-between gap-4 mb-4">
                     <div className="min-w-0">
-                      <h3 className="text-sm font-black text-slate-900 tracking-tight leading-tight truncate">{v.model}</h3>
-                      <span className="text-[10px] text-slate-400 font-bold">REG-{v.id.toString().padStart(4, '0')}</span>
+                      <h3 className="text-sm font-black text-slate-900 tracking-tight leading-tight uppercase truncate">{v.model}</h3>
+                      <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest mt-1 block">REG-{v.id.toString().padStart(4, '0')}</span>
                     </div>
-                    <div className="flex items-center gap-1 shrink-0">
+                    <div className="flex items-center gap-2 shrink-0">
                       {v.carte_grise && (
                         <button 
                           onClick={(e) => { 
                             e.stopPropagation(); 
                             setPreviewUrl(v.carte_grise.startsWith('http') ? v.carte_grise : `http://localhost:8000${v.carte_grise}`);
                           }} 
-                          className="w-7 h-7 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center text-slate-400 hover:text-[#10B981] hover:border-[#10B981]/30 transition-all" 
+                          className="w-8 h-8 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-center text-slate-400 hover:text-[#10B981] hover:border-[#10B981]/30 transition-all shadow-sm" 
                           title="Carte Grise"
                         >
-                          <FileText size={13} />
+                          <FileText size={14} />
                         </button>
                       )}
                       {v.status === 'REJECTED' && (
-                        <button onClick={(e) => { e.stopPropagation(); startEdit(v); }} className="w-7 h-7 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center text-slate-500 hover:text-[#10B981] hover:border-[#10B981]/30 transition-all" title="Edit">
-                          <Edit2 size={13} />
+                        <button onClick={(e) => { e.stopPropagation(); startEdit(v); }} className="w-8 h-8 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-center text-slate-500 hover:text-[#10B981] hover:border-[#10B981]/30 transition-all shadow-sm" title="Edit">
+                          <Edit2 size={14} />
                         </button>
                       )}
                       {v.status === 'ACTIVE' && (
-                        <button onClick={(e) => { e.stopPropagation(); toggleVehicleStatus(v.id, v.is_active); }} className="w-7 h-7 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-center text-slate-500 hover:text-[#10B981] hover:border-[#10B981]/30 transition-all" title={v.is_active === false ? "Activate" : "Deactivate"}>
-                          <Power size={13} />
+                        <button onClick={(e) => { e.stopPropagation(); toggleVehicleStatus(v.id, v.is_active); }} className="w-8 h-8 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-center text-slate-500 hover:text-[#10B981] hover:border-[#10B981]/30 transition-all shadow-sm" title={v.is_active === false ? "Activate" : "Deactivate"}>
+                          <Power size={14} />
                         </button>
                       )}
-                      <button onClick={(e) => { e.stopPropagation(); removeVehicle(v.id); }} className="w-7 h-7 bg-red-50 border border-red-100 rounded-lg flex items-center justify-center text-red-400 hover:text-red-600 hover:border-red-300 transition-all" title="Delete">
-                        <Trash2 size={13} />
+                      <button onClick={(e) => { e.stopPropagation(); removeVehicle(v.id); }} className="w-8 h-8 bg-red-50 border border-red-100 rounded-xl flex items-center justify-center text-red-400 hover:text-red-600 hover:border-red-300 transition-all shadow-sm" title="Delete">
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </div>

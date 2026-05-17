@@ -137,20 +137,20 @@ function AdminDashboard() {
 
       {/* ── Stats Grid ──────────────────────────────────── */}
       {stats && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-10">
           {STAT_CARDS.map((card, i) => (
             <div 
               key={i} 
-              className="group bg-white border border-slate-100 rounded-[2rem] p-6 shadow-sm hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-500 hover:-translate-y-1 relative overflow-hidden flex flex-col"
+              className="group bg-white border border-slate-200 rounded-[2.5rem] p-6 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 hover:border-[#064e3b]/20 transition-all duration-500 hover:-translate-y-1 relative overflow-hidden flex flex-col"
             >
               <div className={`absolute -top-10 -right-10 w-32 h-32 ${card.iconBg} opacity-30 rounded-full blur-2xl transition-transform group-hover:scale-150 duration-700 pointer-events-none`} />
               
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 shadow-sm border ${card.iconBg.replace('bg-', 'border-').replace('50', '100')} ${card.iconBg} ${card.color} transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 shadow-inner border border-slate-100 ${card.iconBg} ${card.color} transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
                 {card.icon}
               </div>
               <div className="mt-auto">
-                <div className="text-3xl font-black text-slate-900 tracking-tight mb-1">{card.value}</div>
-                <div className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 leading-snug">{card.label}</div>
+                <div className="text-3xl font-black text-slate-900 tracking-tight mb-1 relative z-10">{card.value}</div>
+                <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-snug relative z-10">{card.label}</div>
               </div>
             </div>
           ))}
@@ -164,19 +164,19 @@ function AdminDashboard() {
       />
 
       {/* ── Pending Accounts Registry ─────────────────────── */}
-      <div className="bg-white rounded-[2.5rem] border border-slate-100 shadow-xl shadow-slate-200/40 overflow-hidden flex flex-col animate-fade-in relative z-10">
+      <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-sm overflow-hidden flex flex-col animate-fade-in relative z-10">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-8 py-6 border-b border-slate-100 bg-white gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-[#064e3b] border border-emerald-100 shadow-sm">
-              <UserCheck size={20} />
+            <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-[#064e3b] shadow-inner">
+              <UserCheck size={22} />
             </div>
             <div>
-              <h3 className="font-black text-lg text-slate-900 tracking-tight">Pending Verifications</h3>
-              <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mt-1">Manual review required for security</p>
+              <h3 className="font-black text-lg text-slate-900 tracking-tight leading-none">Pending Verifications</h3>
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-1.5">Manual review required for security</p>
             </div>
           </div>
-          <div className="bg-slate-50 border border-slate-200 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest text-slate-500 flex items-center gap-2 shadow-inner">
-            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+          <div className="bg-white border border-slate-200 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-500 flex items-center gap-2 shadow-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
             {users.length} Awaiting Review
           </div>
         </div>

@@ -3,7 +3,7 @@ import api from '../../api/axiosConfig';
 import { Link } from 'react-router-dom';
 import {
   FileText, XCircle, AlertCircle, RefreshCw, User, ShieldAlert,
-  ShieldCheck, ChevronRight, ClipboardList, Clock, CheckCircle, Package, Truck, MapPin, ChevronDown, ChevronUp, ShoppingBag, Phone, Wheat, X
+  ShieldCheck, ChevronRight, ClipboardList, Clock, CheckCircle, Package, Truck, MapPin, ChevronDown, ChevronUp, ShoppingBag, Phone, Wheat, X, Calendar
 } from 'lucide-react';
 
 /* ─── Premium E-commerce Timeline Stepper ─────────────────────────────── */
@@ -203,18 +203,24 @@ function OrderHistory() {
     <div className="w-full px-4 sm:px-6 xl:px-8 py-6 space-y-6 animate-fade-in relative z-0 text-slate-900 bg-slate-50 min-h-screen">
 
       {/* ── BREADCRUMBS & HEADER ───────────────────────── */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
-          <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-teal-600 mb-2">
-            <Link to="/buyer-dashboard" className="hover:underline hover:text-teal-800 transition-colors">Marketplace</Link>
-            <ChevronRight size={10} className="text-slate-400" />
-            <span className="text-slate-400 flex items-center gap-1"><ClipboardList size={10} /> Orders</span>
+          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-teal-600 mb-5 bg-teal-50 px-3 py-1 rounded-full w-fit border border-teal-100 shadow-sm">
+            <Link to="/buyer-dashboard" className="hover:text-teal-800 transition-colors">Marketplace</Link>
+            <ChevronRight size={10} className="text-teal-300" />
+            <span className="text-teal-900 flex items-center gap-1.5">
+              <ClipboardList size={11} /> Orders
+            </span>
           </div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-            <ClipboardList size={20} className="text-teal-600" strokeWidth={2.5} /> My Orders
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+            <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-teal-600">
+              <ClipboardList size={22} strokeWidth={2.5} />
+            </div>
+            My Orders
           </h1>
+          <p className="text-slate-500 font-medium mt-1.5 text-sm">Track your purchases and view delivery progress.</p>
         </div>
-        <Link to="/buyer-dashboard/invoices" className="flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg font-black text-[10px] uppercase tracking-widest transition-all shadow-[0_4px_10px_rgba(0,0,0,0.1)] active:scale-95">
+        <Link to="/buyer-dashboard/invoices" className="flex items-center justify-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all shadow-md active:scale-95">
           <FileText size={14} /> View Invoices
         </Link>
       </div>
@@ -266,14 +272,14 @@ function OrderHistory() {
               <div className="w-full overflow-x-auto">
                 <table className="w-full text-left border-collapse table-auto">
                   <thead>
-                    <tr className="bg-teal-700 text-teal-100 uppercase text-[8px] font-black tracking-widest">
-                      <th className="px-3 py-2 w-28 border-b border-slate-800">Order</th>
-                      <th className="px-3 py-2 w-24 border-b border-slate-800 hidden sm:table-cell">Date</th>
-                      <th className="px-3 py-2 w-48 border-b border-slate-800 hidden md:table-cell">Payload</th>
-                      <th className="px-3 py-2 border-b border-slate-800 text-right">Value (DZD)</th>
-                      <th className="px-3 py-2 border-b border-slate-800 text-center">Status</th>
-                      <th className="px-3 py-2 border-b border-slate-800 text-center">Logistics</th>
-                      <th className="px-3 py-2 w-12 border-b border-slate-800 text-right">Ext</th>
+                    <tr className="bg-teal-700 text-teal-100 uppercase text-[10px] font-black tracking-widest">
+                      <th className="px-4 py-3 w-32 border-b border-teal-800">Order</th>
+                      <th className="px-4 py-3 w-32 border-b border-teal-800 hidden sm:table-cell">Date</th>
+                      <th className="px-4 py-3 w-48 border-b border-teal-800 hidden md:table-cell">Payload</th>
+                      <th className="px-4 py-3 border-b border-teal-800 text-right">Value</th>
+                      <th className="px-4 py-3 border-b border-teal-800 text-center">Status</th>
+                      <th className="px-4 py-3 border-b border-teal-800 text-center">Logistics</th>
+                      <th className="px-4 py-3 w-12 border-b border-teal-800 text-right">Action</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -286,10 +292,11 @@ function OrderHistory() {
                               {o.payment_method?.replace(/_/g, ' ') || 'Cash'}
                             </div>
                           </td>
-                          <td className="px-3 py-3 hidden sm:table-cell">
-                            <span className="text-[10px] font-bold text-slate-600 bg-white border border-slate-200 px-2 py-0.5 rounded shadow-sm whitespace-nowrap">
+                          <td className="px-4 py-3 hidden sm:table-cell">
+                            <div className="flex items-center gap-1.5 text-xs text-slate-600 font-semibold">
+                              <Calendar size={12} className="text-slate-400" />
                               {new Date(o.created_at).toLocaleDateString('en-GB')}
-                            </span>
+                            </div>
                           </td>
                           <td className="px-3 py-3 hidden md:table-cell">
                             <div className="font-black text-slate-800 text-[10px] whitespace-nowrap leading-tight">{o.items?.length} Element{o.items?.length !== 1 ? 's' : ''}</div>
@@ -297,8 +304,8 @@ function OrderHistory() {
                               {o.items?.[0]?.product_detail?.title || o.items?.[0]?.product_name}
                             </div>
                           </td>
-                          <td className="px-3 py-3 text-right">
-                            <span className="font-black text-slate-900 text-xs whitespace-nowrap">{parseFloat(o.total_price).toLocaleString()}</span>
+                          <td className="px-4 py-3 text-right font-black text-slate-800 text-xs">
+                            {parseFloat(o.total_price).toLocaleString()} DZD
                           </td>
                           <td className="px-3 py-3 text-center">
                             <FarmerStatusBadge status={o.status} />

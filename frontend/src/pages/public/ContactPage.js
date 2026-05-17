@@ -39,7 +39,7 @@ const ContactPage = () => {
                 </div>
                 <div>
                   <h4 className="h6 fw-bold mb-1 text-dark">Platform Headquarters</h4>
-                  <p className="text-muted small mb-0">AgriGov Hub, Innovations District<br/>Algiers, Algeria</p>
+                  <p className="text-muted small mb-0">AgriGov Hub, Innovations District<br/>Constantine, Algeria</p>
                 </div>
               </div>
               
@@ -49,7 +49,7 @@ const ContactPage = () => {
                 </div>
                 <div>
                   <h4 className="h6 fw-bold mb-1 text-dark">Digital Support</h4>
-                  <p className="text-muted small mb-0 font-monospace">support@agrigov.com</p>
+                  <p className="text-muted small mb-0 font-monospace">merouane.houasnia@univ-constantine2.dz</p>
                 </div>
               </div>
               
@@ -59,7 +59,7 @@ const ContactPage = () => {
                 </div>
                 <div>
                   <h4 className="h6 fw-bold mb-1 text-dark">Logistics Hotline</h4>
-                  <p className="text-muted small mb-0">+213 123 456 789</p>
+                  <p className="text-muted small mb-0">0665786658</p>
                 </div>
               </div>
             </div>

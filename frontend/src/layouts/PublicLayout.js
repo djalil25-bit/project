@@ -73,15 +73,15 @@ const PublicLayout = ({ children }) => {
                 <ul className="pub-footer-contact-list">
                   <li>
                     <Phone size={15} />
-                    <span>+213 21 XX XX XX</span>
+                    <span>0665786658</span>
                   </li>
                   <li>
                     <Mail size={15} />
-                    <span>support@agrigov.dz</span>
+                    <span>merouane.houasnia@univ-constantine2.dz</span>
                   </li>
                   <li>
                     <MapPin size={15} />
-                    <span>Algiers, Algeria</span>
+                    <span>Constantine, Algeria</span>
                   </li>
                 </ul>
               </div>

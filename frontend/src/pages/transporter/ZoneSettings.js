@@ -57,44 +57,48 @@ const ZoneSettings = () => {
   );
 
   return (
-    <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-8 space-y-8 animate-fade-in min-h-screen">
+    <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 animate-fade-in relative z-0">
+      
+      {/* ── BREADCRUMBS ────────────────────────────────────────────── */}
+      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#10B981] mb-5 bg-[#10B981]/10 px-3 py-1 rounded-full w-fit border border-[#10B981]/20 shadow-sm">
+        <Link to="/transporter-dashboard" className="hover:text-[#059669] transition-colors">Logistics Hub</Link>
+        <ChevronRight size={10} className="text-[#10B981]/40" />
+        <span className="text-[#10B981] flex items-center gap-1.5 font-black uppercase">
+          <Navigation size={11} /> Service Zones
+        </span>
+      </div>
 
-      {/* HEADER */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+      {/* ── HEADER ─────────────────────────────────────────────────── */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
         <div>
-          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#10B981] mb-3 bg-[#10B981]/20 px-3 py-1.5 rounded-full w-fit border border-indigo-100">
-            <Link to="/transporter-dashboard" className="hover:text-[#2DA83B] transition-colors">Logistics Hub</Link>
-            <ChevronRight size={10} />
-            <span className="text-[#2DA83B]">Service Zones</span>
-          </div>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-[#10B981] to-[#10B981] rounded-2xl flex items-center justify-center text-white shadow-lg shadow-[#10B981]/30">
-              <Navigation size={20} strokeWidth={2.5} />
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+            <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-[#10B981]">
+              <Navigation size={22} strokeWidth={2.5} />
             </div>
-            Service Coverage Grid
+            Service <span className="text-[#10B981]">Coverage</span> Grid
           </h1>
-          <p className="text-slate-500 text-sm font-medium mt-2">
+          <p className="text-slate-500 font-medium mt-1.5 text-sm max-w-xl">
             Define your operational territory across Algeria's 58 official wilayas.
           </p>
         </div>
 
         {/* Stats */}
         <div className="flex items-center gap-3">
-          <div className="bg-white border border-slate-200 rounded-2xl px-5 py-3 flex items-center gap-3 shadow-sm">
-            <div className="w-8 h-8 bg-[#10B981]/20 rounded-xl flex items-center justify-center text-[#10B981]">
-              <Signal size={16} />
+          <div className="bg-white border border-slate-100 rounded-2xl px-5 py-3 flex items-center gap-4 shadow-sm">
+            <div className="w-10 h-10 bg-[#10B981]/10 rounded-xl flex items-center justify-center text-[#10B981] border border-[#10B981]/20">
+              <Signal size={18} />
             </div>
             <div>
-              <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Active Nodes</div>
+              <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Active Nodes</div>
               <div className="text-xl font-black text-slate-900 leading-none">{zones.length}</div>
             </div>
           </div>
-          <div className="bg-white border border-slate-200 rounded-2xl px-5 py-3 flex items-center gap-3 shadow-sm">
-            <div className="w-8 h-8 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600">
-              <TrendingUp size={16} />
+          <div className="bg-white border border-slate-100 rounded-2xl px-5 py-3 flex items-center gap-4 shadow-sm">
+            <div className="w-10 h-10 bg-[#10B981]/10 rounded-xl flex items-center justify-center text-[#10B981] border border-[#10B981]/20">
+              <TrendingUp size={18} />
             </div>
             <div>
-              <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Coverage</div>
+              <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Coverage</div>
               <div className="text-xl font-black text-slate-900 leading-none">{coveragePct}%</div>
             </div>
           </div>

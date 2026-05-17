@@ -14,7 +14,6 @@ import {
   Droplets,
   Thermometer,
   Sprout,
-  FlaskConical,
   CloudRain,
   History,
   BarChart3,
@@ -121,44 +120,48 @@ const AdminIoTPage = () => {
     return (
       <div className="space-y-6 anim-fade-up">
         {/* KPI Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-3 bg-[#3b82f6] text-white"><Home size={20} /></div>
-            <div className="text-2xl font-extrabold text-gray-900">{oData.summary?.farms_danger + oData.summary?.farms_warning + oData.summary?.farms_normal || 0}</div>
-            <div className="text-xs text-gray-500 font-bold tracking-wider uppercase">Active Nodes</div>
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+          <div className="bg-white border border-slate-200 rounded-[2rem] p-6 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all group">
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4 bg-slate-50 text-slate-400 group-hover:bg-[#064e3b] group-hover:text-white transition-all shadow-inner"><Home size={20} /></div>
+            <div className="text-3xl font-black text-slate-900 tracking-tight">{oData.summary?.farms_danger + oData.summary?.farms_warning + oData.summary?.farms_normal || 0}</div>
+            <div className="text-[9px] text-slate-400 font-black tracking-[0.2em] uppercase mt-1">Active Nodes</div>
           </div>
-          <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-3 bg-[#dc2626] text-white"><AlertTriangle size={20} /></div>
-            <div className="text-2xl font-extrabold text-gray-900">{oData.summary?.farms_danger || 0}</div>
-            <div className="text-xs text-red-500 font-bold tracking-wider uppercase">Critical</div>
+          <div className="bg-white border border-slate-200 rounded-[2rem] p-6 shadow-sm hover:shadow-xl hover:shadow-red-900/5 transition-all group">
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4 bg-rose-50 text-rose-600 group-hover:bg-rose-600 group-hover:text-white transition-all shadow-inner"><AlertTriangle size={20} /></div>
+            <div className="text-3xl font-black text-slate-900 tracking-tight">{oData.summary?.farms_danger || 0}</div>
+            <div className="text-[9px] text-rose-600/60 font-black tracking-[0.2em] uppercase mt-1">Critical Faults</div>
           </div>
-          <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-3 bg-[#f59e0b] text-white"><AlertCircle size={20} /></div>
-            <div className="text-2xl font-extrabold text-gray-900">{oData.summary?.farms_warning || 0}</div>
-            <div className="text-xs text-orange-500 font-bold tracking-wider uppercase">Warnings</div>
+          <div className="bg-white border border-slate-200 rounded-[2rem] p-6 shadow-sm hover:shadow-xl hover:shadow-amber-900/5 transition-all group">
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4 bg-amber-50 text-amber-600 group-hover:bg-amber-500 group-hover:text-white transition-all shadow-inner"><AlertCircle size={20} /></div>
+            <div className="text-3xl font-black text-slate-900 tracking-tight">{oData.summary?.farms_warning || 0}</div>
+            <div className="text-[9px] text-amber-600/60 font-black tracking-[0.2em] uppercase mt-1">Telemetry Warnings</div>
           </div>
-          <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-3 bg-[#16a34a] text-white"><CheckCircle size={20} /></div>
-            <div className="text-2xl font-extrabold text-gray-900">{oData.summary?.farms_normal || 0}</div>
-            <div className="text-xs text-green-500 font-bold tracking-wider uppercase">Normal</div>
+          <div className="bg-white border border-slate-200 rounded-[2rem] p-6 shadow-sm hover:shadow-xl hover:shadow-emerald-900/5 transition-all group">
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4 bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-inner"><CheckCircle size={20} /></div>
+            <div className="text-3xl font-black text-slate-900 tracking-tight">{oData.summary?.farms_normal || 0}</div>
+            <div className="text-[9px] text-emerald-600/60 font-black tracking-[0.2em] uppercase mt-1">Operational Nodes</div>
           </div>
-          <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-3 bg-[#8b5cf6] text-white"><Wifi size={20} /></div>
-            <div className="text-2xl font-extrabold text-gray-900">{oData.summary?.total_readings?.toLocaleString() || 0}</div>
-            <div className="text-xs text-gray-500 font-bold tracking-wider uppercase">Total Readings</div>
+          <div className="bg-white border border-slate-200 rounded-[2rem] p-6 shadow-sm hover:shadow-xl hover:shadow-violet-900/5 transition-all group">
+            <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4 bg-violet-50 text-violet-600 group-hover:bg-violet-600 group-hover:text-white transition-all shadow-inner"><Wifi size={20} /></div>
+            <div className="text-3xl font-black text-slate-900 tracking-tight">{oData.summary?.total_readings?.toLocaleString() || 0}</div>
+            <div className="text-[9px] text-violet-600/60 font-black tracking-[0.2em] uppercase mt-1">Total Payload</div>
           </div>
         </div>
 
         {/* Filter Section */}
-        <div className="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-          <Filter size={18} className="text-gray-400" />
-          <span className="text-sm font-bold text-gray-700">Filter by Wilaya:</span>
+        <div className="flex items-center gap-6 bg-white p-6 rounded-[2rem] shadow-sm border border-slate-200">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-slate-50 rounded-xl text-[#064e3b] border border-slate-100 shadow-inner">
+              <Filter size={18} />
+            </div>
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Regional Architecture Filter:</span>
+          </div>
           <select
-            className="adm-input py-1 px-3 w-48"
+            className="w-64 h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-xs font-black text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#064e3b]/20 focus:border-[#064e3b] shadow-inner transition-all uppercase appearance-none cursor-pointer"
             value={wilayaFilter}
             onChange={(e) => setWilayaFilter(e.target.value)}
           >
-            <option value="All">All Wilayas</option>
+            <option value="All">All Territorial Wilayas</option>
             {wilayas.map(w => <option key={w} value={w}>{w}</option>)}
           </select>
         </div>
@@ -226,7 +229,6 @@ const AdminIoTPage = () => {
                   <div className="flex items-center gap-1"><Thermometer size={12} className="text-red-400" /> {farm.last_reading?.temperature ?? '--'}°C</div>
                   <div className="flex items-center gap-1"><Droplets size={12} className="text-slate-400" /> {farm.last_reading?.humidity ?? '--'}%</div>
                   <div className="flex items-center gap-1"><Sprout size={12} className="text-green-400" /> {farm.last_reading?.soil_moisture ?? '--'}%</div>
-                  <div className="flex items-center gap-1"><FlaskConical size={12} className="text-yellow-400" /> {farm.last_reading?.ph ?? '--'}</div>
                 </div>
               </div>
             ))}
@@ -286,12 +288,11 @@ const AdminIoTPage = () => {
                   {expandedRows[farm.farm_id] && (
                     <tr className="bg-gray-50">
                       <td colSpan="6" className="p-4">
-                        <div className="grid grid-cols-6 gap-4">
+                        <div className="grid grid-cols-5 gap-4">
                           {[
                             { label: 'Temp', val: farm.last_reading?.temperature, unit: '°C', icon: <Thermometer size={14} />, color: 'text-red-600' },
                             { label: 'Humidity', val: farm.last_reading?.humidity, unit: '%', icon: <Droplets size={14} />, color: 'text-[#064e3b]' },
                             { label: 'Soil', val: farm.last_reading?.soil_moisture, unit: '%', icon: <Sprout size={14} />, color: 'text-green-600' },
-                            { label: 'pH', val: farm.last_reading?.ph, unit: '', icon: <FlaskConical size={14} />, color: 'text-orange-600' },
                             { label: 'IR Status', val: farm.last_reading?.ir_status === 'detected' ? 'Detected' : farm.last_reading?.ir_status === 'clear' ? 'Clear' : '--', unit: '', icon: <Eye size={14} />, color: farm.last_reading?.ir_status === 'detected' ? 'text-red-600' : 'text-green-600' },
                             { label: 'Sound', val: farm.last_reading?.sound_status === 'detected' ? 'Detected' : farm.last_reading?.sound_status === 'silent' ? 'Silent' : '--', unit: '', icon: <Volume2 size={14} />, color: farm.last_reading?.sound_status === 'detected' ? 'text-amber-600' : 'text-gray-500' },
                           ].map(s => (
@@ -383,8 +384,7 @@ const AdminIoTPage = () => {
     const cards = [
       { id: 'temperature', label: 'Temperature', unit: '°C', icon: <Thermometer size={20} />, data: sData.temperature, color: '#ef4444', max: 50 },
       { id: 'humidity', label: 'Air Humidity', unit: '%', icon: <Droplets size={20} />, data: sData.humidity, color: '#3b82f6', max: 100 },
-      { id: 'soil', label: 'Soil Moisture', unit: '%', icon: <Sprout size={20} />, data: sData.soil_moisture, color: '#22c55e', max: 100 },
-      { id: 'ph', label: 'Soil pH', unit: 'pH', icon: <FlaskConical size={20} />, data: sData.ph, color: '#f97316', max: 14 }
+      { id: 'soil', label: 'Soil Moisture', unit: '%', icon: <Sprout size={20} />, data: sData.soil_moisture, color: '#22c55e', max: 100 }
     ];
 
     return (
@@ -394,7 +394,6 @@ const AdminIoTPage = () => {
           let progressColor = card.color;
           // Conditional colors for progress bar
           if (card.id === 'soil' && card.data.avg < 30) progressColor = '#ef4444';
-          if (card.id === 'ph' && (card.data.avg < 6 || card.data.avg > 7.5)) progressColor = '#f97316';
 
           return (
             <div key={card.id} className="glass-card p-6">
@@ -559,7 +558,6 @@ const AdminIoTPage = () => {
                 <th className="cursor-pointer" onClick={() => handleSort('avg_temperature')}>Avg Temp <ArrowUpDown size={12} className="inline ml-1" /></th>
                 <th>Avg Hum</th>
                 <th className="cursor-pointer" onClick={() => handleSort('avg_soil_moisture')}>Avg Soil <ArrowUpDown size={12} className="inline ml-1" /></th>
-                <th>Avg pH</th>
                 <th>Readings</th>
                 <th className="cursor-pointer" onClick={() => handleSort('status')}>Status <ArrowUpDown size={12} className="inline ml-1" /></th>
                 <th>Last Ping</th>
@@ -573,7 +571,6 @@ const AdminIoTPage = () => {
                   <td className={`font-bold ${f.stats.avg_temperature > 35 ? 'text-red-600' : ''}`}>{f.stats.avg_temperature}°C</td>
                   <td>{f.stats.avg_humidity}%</td>
                   <td className={`font-bold ${f.stats.avg_soil_moisture < 30 ? 'text-red-600' : ''}`}>{f.stats.avg_soil_moisture}%</td>
-                  <td className={`${(f.stats.avg_ph < 6 || f.stats.avg_ph > 7.5) ? 'text-orange-500' : ''}`}>{f.stats.avg_ph}</td>
                   <td className="text-xs text-gray-500">{f.stats.readings_count}</td>
                   <td>
                     <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase ${f.status === 'danger' ? 'bg-red-600 text-white shadow-sm' :
@@ -595,49 +592,62 @@ const AdminIoTPage = () => {
   // ── MAIN RENDER ──────────────────────────────────────────────────────────
 
   return (
-    <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 space-y-8 animate-fade-in relative z-0 bg-slate-50/30 min-h-screen">
+    <div className="max-w-[1600px] mx-auto px-4 md:px-8 py-8 animate-fade-in relative z-0 min-h-screen">
 
-      {/* ── HIGH-DENSITY HERO HEADER (GREEN POWER PRO) ─────────────────────────────── */}
-      <div className="bg-[#022c22] rounded-2xl overflow-hidden shadow-lg flex flex-col md:flex-row items-center justify-between px-6 py-4 md:px-10 md:py-5 relative border border-[#064e3b] isolate">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#166534]/30 to-transparent pointer-events-none" />
-        <div className="z-10 flex flex-col">
-          <div className="flex items-center gap-2 text-emerald-400 text-[9px] font-black uppercase tracking-widest mb-1 opacity-80">
-            <Wifi size={12} /> Precision Agriculture IoT Infrastructure
-          </div>
-          <h1 className="text-xl md:text-2xl font-black text-white tracking-tight leading-none">
-            IoT Sensor Network
+      {/* ── BREADCRUMBS ────────────────────────────────────────────── */}
+      <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-[#064e3b] mb-6 bg-[#064e3b]/10 px-3 py-1 rounded-full w-fit border border-[#064e3b]/20 shadow-sm">
+        <button onClick={() => fetchData('overview')} className="hover:text-emerald-700 transition-colors uppercase font-black flex items-center gap-1.5">
+          <Activity size={10} /> Admin Hub
+        </button>
+        <ChevronRight size={10} className="text-[#064e3b]/40" />
+        <span className="text-[#064e3b] flex items-center gap-1.5 font-black uppercase">
+          <Wifi size={11} /> IoT Infrastructure
+        </span>
+      </div>
+
+      {/* ── HEADER ─────────────────────────────────────────────────── */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
+        <div>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+            <div className={`p-2 bg-white rounded-2xl shadow-sm border border-slate-100 text-[#064e3b]`}>
+              <Activity size={24} />
+            </div>
+            IoT <span className="text-[#064e3b]">Sensor Network</span>
           </h1>
-          <p className="text-emerald-100/60 text-[10px] font-bold uppercase tracking-widest mt-2">
-            Real-time telemetry & Node status: <span className="text-emerald-400">Sync Active</span>
+          <p className="text-slate-500 font-medium mt-1.5 text-sm max-w-xl">
+            Real-time telemetry and node architecture monitoring across the national agricultural sensor grid.
           </p>
         </div>
-        <div className="z-10 mt-3 md:mt-0 flex gap-2">
-          <div className="flex flex-col items-end mr-4">
-            <span className="text-[8px] font-black text-emerald-400 uppercase tracking-widest">Last Sync</span>
-            <span className="text-white font-black text-xs">{lastUpdated}</span>
-          </div>
-          <button
-            onClick={refreshCurrentTab}
-            className="bg-[#064e3b] hover:bg-[#166534] text-white text-[10px] font-black uppercase tracking-widest px-5 py-2.5 rounded-xl transition-all border border-emerald-500/30 shadow-lg shadow-emerald-900/40 flex items-center gap-2"
-          >
-            <RefreshCw size={14} className={Object.values(loading).some(v => v) ? 'animate-spin' : ''} /> Force Refresh
-          </button>
+
+        <div className="flex items-center gap-4 bg-white p-2 rounded-[1.5rem] border border-slate-200 shadow-sm">
+           <div className="px-4 py-1.5 border-r border-slate-100 flex flex-col items-end">
+             <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Global Sync</span>
+             <span className="text-[11px] font-black text-[#064e3b] uppercase tracking-widest flex items-center gap-1.5">
+               <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" /> {lastUpdated}
+             </span>
+           </div>
+           <button
+             onClick={refreshCurrentTab}
+             className="bg-[#064e3b] hover:bg-[#022c22] text-white text-[10px] font-black uppercase tracking-widest px-6 py-3 rounded-2xl transition-all shadow-xl shadow-emerald-900/20 flex items-center gap-2 active:scale-95"
+           >
+             <RefreshCw size={14} className={Object.values(loading).some(v => v) ? 'animate-spin' : ''} /> Force Refresh
+           </button>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex bg-white rounded-xl shadow-sm border border-slate-200 w-fit overflow-hidden p-1">
+      <div className="flex bg-slate-50 p-1.5 rounded-[1.5rem] border border-slate-200 shadow-inner w-full sm:w-fit mb-10">
         {[
-          { id: 'overview', label: 'Nodes Overview', icon: <Activity size={14} /> },
-          { id: 'stats', label: 'Sensor Statistics', icon: <BarChart3 size={14} /> },
+          { id: 'overview', label: 'Nodes', icon: <Activity size={14} /> },
+          { id: 'stats', label: 'Statistics', icon: <BarChart3 size={14} /> },
           { id: 'soil', label: 'Soil Analysis', icon: <Droplets size={14} /> },
-          { id: 'compare', label: 'Cross-Node Comparison', icon: <ArrowUpDown size={14} /> },
-          { id: 'history', label: 'Alert History', icon: <History size={14} /> },
+          { id: 'compare', label: 'Matrix', icon: <ArrowUpDown size={14} /> },
+          { id: 'history', label: 'Log Registry', icon: <History size={14} /> },
         ].map(t => (
           <button
             key={t.id}
             onClick={() => setActiveTab(t.id)}
-            className={`px-5 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${activeTab === t.id ? 'bg-[#064e3b] text-white shadow-md' : 'text-slate-500 hover:bg-slate-50'}`}
+            className={`px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 ${activeTab === t.id ? 'bg-white text-[#064e3b] shadow-md border border-emerald-100' : 'text-slate-400 hover:text-slate-600'}`}
           >
             {t.icon} {t.label}
           </button>
