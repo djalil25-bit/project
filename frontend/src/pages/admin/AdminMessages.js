@@ -277,7 +277,7 @@ const AdminMessages = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-in">
                 <div>
                   <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Sector Allocation</label>
-                  <select className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner" value={bulkRole} onChange={e=>setBulkRole(e.target.value)}><option value="all">Global Matrix</option><option value="farmer">Agricultural Sector</option><option value="buyer">Commercial Sector</option><option value="transporter">Logistics Sector</option></select>
+                  <select className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner" value={bulkRole} onChange={e=>setBulkRole(e.target.value)}><option value="all">Global Matrix</option><option value="farmer">Farmers Sector</option><option value="buyer">Buyers Sector</option><option value="transporter">Transporters Sector</option></select>
                 </div>
               </div>
             ) : (
@@ -313,35 +313,6 @@ const AdminMessages = () => {
             </div>
 
             <div className="space-y-4">
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                 <div>
-                   <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Load Template</label>
-                   <select 
-                     className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner"
-                     value={selectedTemplate}
-                     onChange={(e) => {
-                       const tId = e.target.value;
-                       setSelectedTemplate(tId);
-                       if (tId) {
-                         const t = templates.find(temp => temp.id === parseInt(tId));
-                         if (t) { setSubject(t.subject); setBody(t.body); }
-                       }
-                     }}
-                   >
-                     <option value="">Custom Message</option>
-                     {templates.map(t => (
-                       <option key={t.id} value={t.id}>{t.name}</option>
-                     ))}
-                   </select>
-                 </div>
-                 <div className="flex items-center gap-4 pt-6">
-                    <label className="flex items-center gap-3 cursor-pointer group">
-                      <input type="checkbox" checked={isReplyAllowed} onChange={e=>setIsReplyAllowed(e.target.checked)} className="rounded border-slate-300 text-[#064e3b] focus:ring-emerald-500 w-4 h-4"/> 
-                      <span className="text-[10px] font-black text-slate-700 uppercase tracking-widest group-hover:text-[#064e3b] transition-colors">Reply Protocol</span>
-                    </label>
-                 </div>
-               </div>
-
                <div>
                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Subject Header</label>
                  <input className="w-full h-11 bg-slate-50 border border-slate-200 rounded-xl px-4 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-inner" placeholder="Enter transmission subject..." value={subject} onChange={e=>setSubject(e.target.value)}/>
@@ -430,7 +401,7 @@ const AdminMessages = () => {
                   <option value="all">All</option>
                   <option value="farmer">Farmers</option>
                   <option value="buyer">Buyers</option>
-                  <option value="transporter">Logistics</option>
+                  <option value="transporter">Transporters</option>
                 </select>
                 <button onClick={fetchInbox} className="text-slate-400 hover:text-[#064e3b] p-1 transition-colors"><RefreshCw size={14} className={inboxLoading ? 'animate-spin' : ''}/></button>
               </div>

@@ -70,7 +70,7 @@ const AdminTransactions = () => {
   };
 
   const SortH = ({ k, children }) => (
-    <th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-slate-400 cursor-pointer select-none hover:bg-slate-100 transition-colors" onClick={() => toggleSort(k)}>
+    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-emerald-100 cursor-pointer select-none hover:bg-[#022c22] transition-colors" onClick={() => toggleSort(k)}>
       <div className="flex items-center gap-1">{children} {sortKey === k ? (sortDir === 'asc' ? <ChevronUp size={12}/> : <ChevronDown size={12}/>) : <ArrowUpDown size={10} className="opacity-30"/>}</div>
     </th>
   );
@@ -314,15 +314,15 @@ const AdminTransactions = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-slate-50/80 border-b border-slate-100">
+              <tr className="bg-[#064e3b] border-b border-[#064e3b]">
                 <SortH k="id">Batch ID</SortH>
                 <SortH k="date">Initiated</SortH>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Merchant / Farmer</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Destination / Buyer</th>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Product Manifest</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-emerald-100">Merchant / Farmer</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-emerald-100">Destination / Buyer</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-emerald-100">Product Manifest</th>
                 <SortH k="value">Appraisal</SortH>
                 <SortH k="status">Status</SortH>
-                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 text-right">Ops</th>
+                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-emerald-100 text-right">Ops</th>
               </tr>
             </thead>
             <tbody>

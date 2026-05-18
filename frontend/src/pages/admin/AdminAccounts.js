@@ -128,9 +128,9 @@ const AdminAccounts = () => {
           <div className="flex gap-3 w-full md:w-auto">
             <select className="flex-1 md:w-48 h-12 bg-slate-50 border border-slate-200 rounded-xl px-5 text-[10px] font-black uppercase tracking-widest text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#064e3b]/20 focus:border-[#064e3b] shadow-inner cursor-pointer hover:bg-slate-100 transition-colors" value={roleFilter} onChange={e=>setRoleFilter(e.target.value)}>
               <option value="all">Global Roles</option>
-              <option value="farmer">Producers</option>
+              <option value="farmer">Farmers</option>
               <option value="buyer">Buyers</option>
-              <option value="transporter">Logistics</option>
+              <option value="transporter">Transporters</option>
             </select>
             <select className="flex-1 md:w-48 h-12 bg-slate-50 border border-slate-200 rounded-xl px-5 text-[10px] font-black uppercase tracking-widest text-slate-700 focus:outline-none focus:ring-2 focus:ring-[#064e3b]/20 focus:border-[#064e3b] shadow-inner cursor-pointer hover:bg-slate-100 transition-colors" value={statusFilter} onChange={e=>setStatusFilter(e.target.value)}>
               <option value="all">All Statuses</option>

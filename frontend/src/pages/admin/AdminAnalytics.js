@@ -12,7 +12,8 @@ const getInitials = (name) => {
   return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 };
 
-const getRankIcon = i => i===0?<Trophy className="text-yellow-500" size={18}/>:i===1?<Medal className="text-gray-400" size={18}/>:<Award className="text-orange-400" size={18}/>;
+const getRankIcon = i => i===0?<Trophy size={18}/>:i===1?<Medal size={18}/>:<Award size={18}/>;
+const getRankColors = i => i===0?'bg-yellow-50 text-yellow-600 border-yellow-200':i===1?'bg-slate-100 text-slate-500 border-slate-200':'bg-amber-50 text-amber-600 border-amber-200';
 
 const AdminAnalytics = () => {
   const navigate = useNavigate();
@@ -156,7 +157,7 @@ const AdminAnalytics = () => {
         <div className="flex items-center gap-4 bg-white p-2 rounded-[1.5rem] border border-slate-200 shadow-sm">
           <div className="flex items-center gap-2 bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 shadow-inner">
             <Calendar className="text-[#064e3b]" size={16}/>
-            <select className="bg-transparent text-[#064e3b] text-[11px] font-black uppercase tracking-widest outline-none cursor-pointer appearance-none pl-1 pr-2" value={timeframe} onChange={e=>setTimeframe(e.target.value)}>
+            <select className="bg-transparent text-[#064e3b] text-[11px] font-black uppercase tracking-widest outline-none focus:outline-none focus:ring-0 cursor-pointer appearance-none pl-1 pr-2" value={timeframe} onChange={e=>setTimeframe(e.target.value)}>
               <option value="all">ALL TIME</option>
               <option value="year">THIS YEAR</option>
               <option value="month">THIS MONTH</option>
@@ -197,14 +198,14 @@ const AdminAnalytics = () => {
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
-                {l:'Total Units Sold', v: prodData.total_units, i: <Package size={20}/>, c: 'emerald'},
-                {l:'Total Revenue', v: `${Number(prodData.total_revenue).toLocaleString()}`, s:'DZD', i: <span className="font-black text-sm">DZ</span>, c: 'teal'},
-                {l:'Unique Sellers', v: prodData.unique_sellers, i: <MapPin size={20}/>, c: 'amber'},
-                {l:'Unique Buyers', v: prodData.unique_buyers, i: <Eye size={20}/>, c: 'blue'},
+                {l:'Total Units Sold', v: prodData.total_units, i: <Package size={18}/>, c: 'emerald'},
+                {l:'Total Revenue', v: `${Number(prodData.total_revenue).toLocaleString()}`, s:'DZD', i: <span className="font-black text-xs">DZ</span>, c: 'teal'},
+                {l:'Unique Sellers', v: prodData.unique_sellers, i: <MapPin size={18}/>, c: 'amber'},
+                {l:'Unique Buyers', v: prodData.unique_buyers, i: <Eye size={18}/>, c: 'blue'},
               ].map((c,i)=>(
                 <div key={i} className="group bg-white border border-slate-100 rounded-[2rem] p-6 shadow-sm hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-500 hover:-translate-y-1 relative overflow-hidden flex flex-col">
                   <div className={`absolute -top-10 -right-10 w-32 h-32 bg-${c.c}-50 opacity-40 rounded-full blur-2xl transition-transform group-hover:scale-150 duration-700 pointer-events-none`} />
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 shadow-inner border border-${c.c}-100 bg-${c.c}-50 text-${c.c}-600 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-6 shadow-inner border border-emerald-100 bg-emerald-50 text-[#064e3b] transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
                     {c.i}
                   </div>
                   <div className="mt-auto">
@@ -223,7 +224,7 @@ const AdminAnalytics = () => {
                 <div className="flex items-center justify-between mb-8">
                   <h3 className="font-black text-sm uppercase tracking-[0.15em] text-slate-900 flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-yellow-50 flex items-center justify-center"><Trophy size={16} className="text-yellow-500"/></div>
-                    Top Performing Producers
+                    Top Performing Farmers
                   </h3>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -232,7 +233,7 @@ const AdminAnalytics = () => {
                       <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-50 opacity-0 group-hover:opacity-100 rounded-full blur-2xl transition-opacity duration-700 pointer-events-none" />
                       
                       <div className="flex items-center justify-between mb-6 relative z-10">
-                        <div className="w-12 h-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center shadow-sm text-xl font-black group-hover:scale-110 transition-transform">
+                        <div className={`w-10 h-10 rounded-xl border flex items-center justify-center shadow-inner font-black group-hover:scale-110 transition-transform group-hover:rotate-3 ${getRankColors(i)}`}>
                           {getRankIcon(i)}
                         </div>
                         <span className="text-[9px] text-slate-500 font-black uppercase tracking-[0.2em] bg-white border border-slate-200 px-3 py-1 rounded-full shadow-sm">Rank #{s.rank}</span>
@@ -336,15 +337,15 @@ const AdminAnalytics = () => {
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               {[
-                {l:'Gross Merchandise Value', v:`${(zoneData.gmv/1e6).toFixed(2)}M`, s:'DZD', i: <span className="font-black text-sm">DZ</span>, c: 'emerald'},
-                {l:'Total Orders Completed', v:zoneData.order_count, i: <Package size={20}/>, c: 'blue'},
-                {l:'Average Order Value', v:Number(zoneData.avg_order).toLocaleString(), s:'DZD', i: <Activity size={20}/>, c: 'amber'},
-                {l:'Active Production Units', v:zoneData.actors.online_farms, i: <MapPin size={20}/>, c: 'green', live: true},
-                {l:'Fleet Readiness', v:zoneData.actors.online_vehicles, i: <Truck size={20}/>, c: 'indigo', live: true},
+                {l:'Gross Merchandise Value', v:`${(zoneData.gmv/1e6).toFixed(2)}M`, s:'DZD', i: <span className="font-black text-xs">DZ</span>, c: 'emerald'},
+                {l:'Total Orders Completed', v:zoneData.order_count, i: <Package size={18}/>, c: 'blue'},
+                {l:'Average Order Value', v:Number(zoneData.avg_order).toLocaleString(), s:'DZD', i: <Activity size={18}/>, c: 'amber'},
+                {l:'Active Production Units', v:zoneData.actors.online_farms, i: <MapPin size={18}/>, c: 'green', live: true},
+                {l:'Fleet Readiness', v:zoneData.actors.online_vehicles, i: <Truck size={18}/>, c: 'indigo', live: true},
               ].map((c,i)=>(
                 <div key={i} className="group bg-white border border-slate-100 rounded-[2rem] p-6 shadow-sm hover:shadow-2xl hover:shadow-slate-200/50 transition-all duration-500 hover:-translate-y-1 relative overflow-hidden flex flex-col">
                   <div className={`absolute -top-10 -right-10 w-32 h-32 bg-${c.c}-50 opacity-40 rounded-full blur-2xl transition-transform group-hover:scale-150 duration-700 pointer-events-none`} />
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 shadow-inner border border-${c.c}-100 bg-${c.c}-50 text-${c.c}-600 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center mb-6 shadow-inner border border-emerald-100 bg-emerald-50 text-[#064e3b] transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3">
                     {c.i}
                   </div>
                   <div className="mt-auto">
@@ -396,7 +397,7 @@ const AdminAnalytics = () => {
                     </div>
                     <div className="flex-1 space-y-4 w-full">
                       <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100 hover:border-emerald-200 transition-colors">
-                        <div className="flex items-center gap-3"><div className="w-3 h-3 rounded-full bg-emerald-500"/><span className="text-xs font-black uppercase tracking-widest text-[#064e3b]">Producers</span></div>
+                        <div className="flex items-center gap-3"><div className="w-3 h-3 rounded-full bg-emerald-500"/><span className="text-xs font-black uppercase tracking-widest text-[#064e3b]">Farmers</span></div>
                         <span className="text-lg font-black text-slate-900">{zoneData.actors.farmers}</span>
                       </div>
                       <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100 hover:border-slate-200 transition-colors">
@@ -489,9 +490,9 @@ const AdminAnalytics = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             
-            {/* 1. TOP PRODUCERS (EMERALD) */}
+            {/* 1. TOP FARMERS (EMERALD) */}
             <LeaderboardCategory 
-              title="Top Producers" 
+              title="Top Farmers" 
               subtitle="Production & Revenue Volume"
               data={leaders.sellers} 
               loading={leadersLoading}
@@ -503,13 +504,13 @@ const AdminAnalytics = () => {
               handleAwardBadge={handleAwardBadge}
             />
 
-            {/* 2. TOP BUYERS (INDIGO) */}
+            {/* 2. TOP BUYERS (EMERALD) */}
             <LeaderboardCategory 
               title="Top Buyers" 
               subtitle="Purchasing & Network Activity"
               data={leaders.buyers} 
               loading={leadersLoading}
-              theme="indigo"
+              theme="emerald"
               icon={Users}
               metricLabel="Spending"
               metricSuffix="DZD"
@@ -517,13 +518,13 @@ const AdminAnalytics = () => {
               handleAwardBadge={handleAwardBadge}
             />
 
-            {/* 3. TOP TRANSPORTERS (ORANGE) */}
+            {/* 3. TOP TRANSPORTERS (EMERALD) */}
             <LeaderboardCategory 
               title="Top Transporters" 
               subtitle="Logistics & Delivery Efficiency"
               data={leaders.transporters} 
               loading={leadersLoading}
-              theme="orange"
+              theme="emerald"
               icon={Truck}
               metricLabel="Trips"
               metricSuffix="Missions"
