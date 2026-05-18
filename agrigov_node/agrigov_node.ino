@@ -5,28 +5,35 @@
 #include <WiFiClient.h>
 
 // ======================================================
-// CONFIGURATION (À MODIFIER SELON VOTRE RÉSEAU)
+// CONFIGURATION (MODIFY TO MATCH YOUR NETWORK)
 // ======================================================
-const char *WIFI_SSID = "ZTE_2.4G_7kCSXj"; // Remplacer par votre SSID
-const char *WIFI_PASSWORD = "57hHRFHT";    // Remplacer par votre mot de passe
-const char *SERVER_URL = "http://192.168.1.104:8000/api/v1/iot/data/"; // Remplacer 192.168.1.X par
-                                                  // l'IP de votre serveur
-const char *JWT_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc4MzYzMDc4LCJpYXQiOjE3NzgyNzY2NzgsImp0aSI6ImJkODZkMWVjZTE5NjRiYTNiNTM3NTg4MDdhMDIwMTc1IiwidXNlcl9pZCI6NCwidXNlciI6eyJpZCI6NCwiZnVsbF9uYW1lIjoibWVyb3VhbmUuZmFybWVyIiwiZW1haWwiOiJtZXJvdWFuZS5mYXJtZXJAZ21haWwuY29tIiwicm9sZSI6ImZhcm1lciIsInN0YXR1cyI6ImFwcHJvdmVkIiwiaXNfdmVyaWZpZWQiOmZhbHNlLCJpc19lbWFpbF92ZXJpZmllZCI6dHJ1ZSwidHJ1c3RfbGV2ZWwiOiJuZXciLCJwcm9maWxlX3BpY3R1cmUiOm51bGwsImRhc2hib2FyZF9yb3V0ZSI6Ii9mYXJtZXItZGFzaGJvYXJkIn19.3DvmEKrARhQ_7yFscCXjGugDl762-VpL2VqH1gXUQp8"; // Token JWT obtenu lors
-                                                   // de la connexion
-const int FARM_ID = 1;           // ID de la ferme dans la base de données
-const int SEND_INTERVAL = 60000; // 10 minutes (600,000 ms)
+const char *WIFI_SSID = "iPhone de merouane"; // Replace with your SSID
+const char *WIFI_PASSWORD = "12345677";    // Replace with your password
+const char *SERVER_URL = "http://172.20.10.13:8000/api/v1/iot/data/"; // Replace 192.168.1.X with
+                                                  // your server IP
+const char *JWT_TOKEN = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc5MjAzMjQ4LCJpYXQiOjE3NzkxMTY4NDgsImp0aSI6ImY5OWQ1ZjJhY2M2NjRjOTBhYmVlZWJiNDY5Zjk1ZDY1IiwidXNlcl9pZCI6NCwidXNlciI6eyJpZCI6NCwiZnVsbF9uYW1lIjoibWVyb3VhbmUuZmFybWVyIiwiZW1haWwiOiJtZXJvdWFuZS5mYXJtZXJAZ21haWwuY29tIiwicm9sZSI6ImZhcm1lciIsInN0YXR1cyI6ImFwcHJvdmVkIiwiaXNfdmVyaWZpZWQiOmZhbHNlLCJpc19lbWFpbF92ZXJpZmllZCI6dHJ1ZSwiY2FuY2VsbGF0aW9uX2NvdW50IjowLCJzdXNwZW5kZWRfdW50aWwiOm51bGwsInByb2ZpbGVfcGljdHVyZSI6bnVsbCwiZGFzaGJvYXJkX3JvdXRlIjoiL2Zhcm1lci1kYXNoYm9hcmQifX0.xOCPst4R-XADHoYkOFXLUhc8ANlh5yc6QYvTNmotln4"; // JWT token obtained
+                                                   // at login
+const int FARM_ID = 1;           // Farm ID in the database
+const int SEND_INTERVAL = 60000; // 1 minute (60,000 ms)
 
 // ======================================================
 // PIN DEFINITIONS (NodeMCU Labels)
-
 // ======================================================
-// On utilise D2 (GPIO4) car D4 a souvent des interférences avec la LED intégrée
+// Using D2 (GPIO4) because D4 often has interference with the onboard LED
 #define DHT_PIN D2
 #define DHT_TYPE DHT11
-#define SOIL_PIN A0  // Seule broche analogique
+#define SOIL_PIN A0  // Only analog pin
 #define RAIN_PIN D0  // GPIO16
 #define IR_PIN D5    // GPIO14
 #define SOUND_PIN D7 // GPIO13
+
+// ======================================================
+// SENSOR CONNECTION FLAGS
+// Set to false if the sensor is NOT physically connected.
+// This prevents floating pin noise from generating false data.
+// ======================================================
+#define IR_SENSOR_CONNECTED false
+#define SOUND_SENSOR_CONNECTED false
 
 DHT dht(DHT_PIN, DHT_TYPE);
 
@@ -56,24 +63,26 @@ float readHumidity() {
 
 float readSoilMoisture() {
   int raw = analogRead(SOIL_PIN); // 0 - 1023
-  // Calibration: 1023 (sec) -> 0%, 300 (immersion) -> 100%
+  // Calibration: 1023 (dry) -> 0%, 300 (submerged) -> 100%
   float percentage = map(raw, 1023, 300, 0, 100);
   return (float)constrain(percentage, 0, 100);
 }
 
 String readRainStatus() {
-  // HIGH = Sec (pas de pluie), LOW = Pluie détectée
-  // Note: D0 (GPIO16) a un pull-down interne, ce qui inverse la logique
-  return (digitalRead(RAIN_PIN) == HIGH) ? "pluie" : "sec";
+  // HIGH = Dry (no rain), LOW = Rain detected
+  // Note: D0 (GPIO16) has an internal pull-down, which inverts the logic
+  return (digitalRead(RAIN_PIN) == HIGH) ? "dry" : "rain";
 }
 
 String readIRStatus() {
-  // HIGH = Objet détecté, LOW = Libre
-  return (digitalRead(IR_PIN) == HIGH) ? "detected" : "clear";
+  if (!IR_SENSOR_CONNECTED) return "disconnected";
+  // LOW = Object detected, HIGH = Clear
+  return (digitalRead(IR_PIN) == LOW) ? "detected" : "clear";
 }
 
 String readSoundStatus() {
-  // HIGH = Son/Vibration détecté, LOW = Silencieux
+  if (!SOUND_SENSOR_CONNECTED) return "disconnected";
+  // HIGH = Sound/Vibration detected, LOW = Silent
   return (digitalRead(SOUND_PIN) == HIGH) ? "detected" : "silent";
 }
 
@@ -82,9 +91,9 @@ void setup() {
   delay(2000);
 
   pinMode(RAIN_PIN, INPUT);
-  pinMode(IR_PIN, INPUT);
-  pinMode(SOUND_PIN, INPUT);
-  pinMode(DHT_PIN, INPUT_PULLUP);  // DHT11 needs pull-up on data line
+  pinMode(IR_PIN, INPUT_PULLUP);    // Pull-up: unconnected pin reads HIGH (clear)
+  pinMode(SOUND_PIN, INPUT_PULLUP); // Pull-up: unconnected pin reads HIGH (silent)
+  pinMode(DHT_PIN, INPUT_PULLUP);   // DHT11 needs pull-up on data line
 
   dht.begin();
   delay(3000);  // DHT11 needs 2-3s warm-up
@@ -117,7 +126,7 @@ void setup() {
 }
 
 void loop() {
-  // 1. Lire les capteurs
+  // 1. Read sensors
   float temp = readTemperature();
   float hum = readHumidity();
   float soil = readSoilMoisture();
@@ -125,7 +134,7 @@ void loop() {
   String ir = readIRStatus();
   String sound = readSoundStatus();
 
-  // 2. Affichage sur le Moniteur Série
+  // 2. Display on Serial Monitor
   Serial.println("\n--- [ Sensor Data ] ---");
   if (temp == -99.0) {
     Serial.println("DHT11: Error reading sensor!");
@@ -139,7 +148,7 @@ void loop() {
   Serial.printf("Sound Stat.: %s\n", sound.c_str());
   Serial.println("-----------------------");
 
-  // 3. Envoyer vers l'API
+  // 3. Send to API
   if (WiFi.status() == WL_CONNECTED) {
     WiFiClient client;
     HTTPClient http;
@@ -149,7 +158,7 @@ void loop() {
     http.addHeader("Content-Type", "application/json");
     http.addHeader("Authorization", JWT_TOKEN);
 
-    // DynamicJsonDocument pour plus de flexibilité avec ArduinoJson 6/7
+    // StaticJsonDocument for ArduinoJson 6/7 compatibility
     StaticJsonDocument<512> doc;
     doc["farm_id"] = FARM_ID;
 
@@ -163,8 +172,19 @@ void loop() {
 
     doc["soil_moisture"] = soil;
     doc["rain_status"] = rain;
-    doc["ir_status"] = ir;
-    doc["sound_status"] = sound;
+
+    // Only send IR/Sound data if sensors are connected
+    if (IR_SENSOR_CONNECTED) {
+      doc["ir_status"] = ir;
+    } else {
+      doc["ir_status"] = nullptr;
+    }
+
+    if (SOUND_SENSOR_CONNECTED) {
+      doc["sound_status"] = sound;
+    } else {
+      doc["sound_status"] = nullptr;
+    }
 
     String jsonStr;
     serializeJson(doc, jsonStr);

@@ -90,7 +90,7 @@ class SensorDataView(APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        SensorReading.objects.create(
+        reading = SensorReading.objects.create(
             farm=farm,
             temperature=request.data.get('temperature'),
             humidity=request.data.get('humidity'),
@@ -99,6 +99,16 @@ class SensorDataView(APIView):
             ir_status=request.data.get('ir_status'),
             sound_status=request.data.get('sound_status'),
         )
+
+        # Automatically evaluate and record active alerts in history
+        alerts = evaluate_alerts(reading)
+        for alert in alerts:
+            AlertHistory.objects.create(
+                farm=farm,
+                sensor=alert['sensor'],
+                message=alert['message'],
+                level=alert['level'],
+            )
 
         return Response({'status': 'ok'}, status=status.HTTP_201_CREATED)
 
@@ -191,7 +201,7 @@ def evaluate_alerts(reading):
 
     # pH Logic Removed per user request
 
-    if reading.rain_status == 'pluie':
+    if reading.rain_status in ('pluie', 'rain'):
         alerts.append({
             'level': 'info',
             'sensor': 'Rain',
@@ -203,15 +213,15 @@ def evaluate_alerts(reading):
         alerts.append({
             'level': 'danger',
             'sensor': 'Intrusion',
-            'message': "Mouvement détecté sur la ferme",
+            'message': "Movement detected on farm",
             'icon': ICON_MAP['ir'],
         })
 
     if reading.sound_status == 'detected':
         alerts.append({
             'level': 'warning',
-            'sensor': 'Son',
-            'message': "Bruit suspect détecté",
+            'sensor': 'Sound',
+            'message': "Suspicious noise detected",
             'icon': ICON_MAP['sound'],
         })
 
@@ -320,7 +330,7 @@ class AlertHistoryView(APIView):
             'Temperature': '🟠',
             'Rain': '🔵',
             'Intrusion': '👁️',
-            'Son': '🔊',
+            'Sound': '🔊',
         }
 
         data = [

@@ -29,8 +29,10 @@ const LEVEL_STYLES = {
 
 function getRainDisplay(status) {
   switch (status) {
+    case 'dry':
     case 'sec': return { emoji: '☀️', text: 'Dry' };
     case 'humide': return { emoji: '🌦️', text: 'Wet' };
+    case 'rain':
     case 'pluie': return { emoji: '🌧️', text: 'Raining' };
     default: return { emoji: '—', text: '—' };
   }
@@ -40,17 +42,25 @@ const translateMessage = (msg) => {
   if (!msg) return msg;
   const translations = {
     'MOUVEMENT DÉTECTÉ SUR LA FERME': 'MOVEMENT DETECTED ON FARM',
+    'MOVEMENT DETECTED ON FARM': 'MOVEMENT DETECTED ON FARM',
     'VIBRATION DÉTECTÉE SUR LA FERME': 'VIBRATION DETECTED ON FARM',
     'SOL TROP HUMIDE': 'SOIL TOO WET',
     'PLUIE DÉTECTÉE': 'RAIN DETECTED',
     'NIVEAU DE SON ÉLEVÉ': 'HIGH SOUND LEVEL',
     'MOUVEMENT INTRUS DÉTECTÉ': 'INTRUDER MOVEMENT DETECTED',
     'HUMIDITÉ ÉLEVÉE': 'HIGH HUMIDITY',
-    'TEMPÉRATURE ÉLEVÉE': 'HIGH TEMPERATURE'
+    'TEMPÉRATURE ÉLEVÉE': 'HIGH TEMPERATURE',
+    'BRUIT SUSPECT DÉTECTÉ': 'SUSPICIOUS NOISE DETECTED',
+    'SUSPICIOUS NOISE DETECTED': 'SUSPICIOUS NOISE DETECTED',
   };
   const upperMsg = msg.toUpperCase();
   return translations[upperMsg] || msg;
 };
+
+// Helper: check if a sensor value is actually connected (not null/disconnected)
+function isSensorConnected(val) {
+  return val != null && val !== 'disconnected';
+}
 
 export default function IoTAlertsPage() {
   const navigate = useNavigate();
@@ -155,19 +165,26 @@ export default function IoTAlertsPage() {
   const lastReading = alertData?.last_reading;
   const rain = lastReading ? getRainDisplay(lastReading.rain_status) : { emoji: '—', text: '—' };
 
+  // Check if IR/Sound sensors are connected
+  const irConnected = lastReading ? isSensorConnected(lastReading.ir_status) : false;
+  const soundConnected = lastReading ? isSensorConnected(lastReading.sound_status) : false;
+
+  // Build sensor KPI cards — show rain emoji inline with text
+  const rainValue = rain.text !== '—' ? `${rain.emoji} ${rain.text}` : '—';
+
   // 6 real sensors
   const miniKpis = lastReading ? [
     { icon: <Thermometer size={18} />, label: 'Temperature', value: lastReading.temperature != null ? `${lastReading.temperature}°C` : '—', color: '#f97316', bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-100' },
     { icon: <Droplets size={18} />, label: 'Humidity', value: lastReading.humidity != null ? `${lastReading.humidity}%` : '—', color: '#3b82f6', bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-100' },
     { icon: <Sprout size={18} />, label: 'Soil Health', value: lastReading.soil_moisture != null ? `${lastReading.soil_moisture}%` : '—', color: '#22c55e', bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-100' },
-    { icon: <CloudRain size={18} />, label: 'Rain Status', value: `${rain.text}`, color: '#06b6d4', bg: 'bg-cyan-50', text: 'text-cyan-700', border: 'border-cyan-100' },
-    { icon: <ShieldAlert size={18} />, label: 'IR Security', value: lastReading.ir_status === 'detected' ? 'ALERT' : 'CLEAR', color: lastReading.ir_status === 'detected' ? '#ef4444' : '#22c55e', bg: lastReading.ir_status === 'detected' ? 'bg-red-50' : 'bg-slate-50', text: lastReading.ir_status === 'detected' ? 'text-red-700' : 'text-slate-700', border: lastReading.ir_status === 'detected' ? 'border-red-100' : 'border-slate-100' },
-    { icon: <Volume2 size={18} />, label: 'Acoustics', value: lastReading.sound_status === 'detected' ? 'NOISE' : 'SILENT', color: lastReading.sound_status === 'detected' ? '#f59e0b' : '#64748b', bg: lastReading.sound_status === 'detected' ? 'bg-amber-50' : 'bg-slate-50', text: lastReading.sound_status === 'detected' ? 'text-amber-700' : 'text-slate-700', border: lastReading.sound_status === 'detected' ? 'border-amber-100' : 'border-slate-100' },
+    { icon: <CloudRain size={18} />, label: 'Rain Status', value: rainValue, color: '#06b6d4', bg: 'bg-cyan-50', text: 'text-cyan-700', border: 'border-cyan-100' },
+    { icon: <ShieldAlert size={18} />, label: 'IR Security', value: !irConnected ? 'N/A' : lastReading.ir_status === 'detected' ? 'ALERT' : 'CLEAR', color: !irConnected ? '#94a3b8' : lastReading.ir_status === 'detected' ? '#ef4444' : '#22c55e', bg: !irConnected ? 'bg-slate-50' : lastReading.ir_status === 'detected' ? 'bg-red-50' : 'bg-slate-50', text: !irConnected ? 'text-slate-400' : lastReading.ir_status === 'detected' ? 'text-red-700' : 'text-slate-700', border: !irConnected ? 'border-slate-100' : lastReading.ir_status === 'detected' ? 'border-red-100' : 'border-slate-100' },
+    { icon: <Volume2 size={18} />, label: 'Acoustics', value: !soundConnected ? 'N/A' : lastReading.sound_status === 'detected' ? 'NOISE' : 'SILENT', color: !soundConnected ? '#94a3b8' : lastReading.sound_status === 'detected' ? '#f59e0b' : '#64748b', bg: !soundConnected ? 'bg-slate-50' : lastReading.sound_status === 'detected' ? 'bg-amber-50' : 'bg-slate-50', text: !soundConnected ? 'text-slate-400' : lastReading.sound_status === 'detected' ? 'text-amber-700' : 'text-slate-700', border: !soundConnected ? 'border-slate-100' : lastReading.sound_status === 'detected' ? 'border-amber-100' : 'border-slate-100' },
   ] : [];
 
-  // FIX 3 — IR and Sound info cards
-  const irDetected = lastReading?.ir_status === 'detected';
-  const soundDetected = lastReading?.sound_status === 'detected';
+  // IR and Sound info cards — only show when sensors are connected AND triggered
+  const irDetected = irConnected && lastReading?.ir_status === 'detected';
+  const soundDetected = soundConnected && lastReading?.sound_status === 'detected';
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-8 py-8 animate-fade-in relative z-0">
