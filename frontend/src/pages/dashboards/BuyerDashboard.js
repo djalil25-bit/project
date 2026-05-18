@@ -92,42 +92,63 @@ const BenchmarkDisplay = ({ comparison, type = 'card' }) => {
 
 /* ─── Product Detail Modal ─────────────────────── */
 function ProductSplitModal({ product, onClose, onAddToCart, cartLoading }) {
-  const [qty, setQty] = useState(1);
-  if (!product) return null;
   const p = product;
+  const [qty, setQty] = useState(p ? Math.max(parseFloat(p.min_order_quantity || 1), 1) : 1);
+  
+  useEffect(() => {
+    if (p) setQty(Math.max(parseFloat(p.min_order_quantity || 1), 1));
+  }, [p]);
+
+  if (!product) return null;
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(8px)', padding: '1.5rem', animation: 'fadeIn 0.3s ease' }} onClick={onClose}>
-      <div style={{ background: '#fff', borderRadius: '32px', width: '100%', maxWidth: '900px', display: 'grid', gridTemplateColumns: '400px 1fr', overflow: 'hidden', boxShadow: '0 40px 80px rgba(0,0,0,0.4)', animation: 'scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)' }} onClick={e => e.stopPropagation()}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(8px)', padding: '1rem', animation: 'fadeIn 0.3s ease' }} onClick={onClose}>
+      <div style={{ background: '#fff', borderRadius: '24px', width: '100%', maxWidth: '850px', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'row', boxShadow: '0 40px 80px rgba(0,0,0,0.4)', animation: 'scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)' }} onClick={e => e.stopPropagation()}>
 
         {/* Visual Pane */}
-        <div style={{ background: '#f8fafc', padding: '3rem', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', borderRight: '1.5px solid #f1f5f9' }}>
-          <QualityBadge quality={p.quality} />
-          <div style={{ width: '100%', height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: '350px', flexShrink: 0, background: '#f8fafc', padding: '2rem', position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', borderRight: '1.5px solid #f1f5f9' }}>
+          <div style={{ marginBottom: '1rem' }}><QualityBadge quality={p.quality} /></div>
+          <div style={{ width: '100%', height: '220px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             {p.image ? (
               <img src={p.image} alt={p.title} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.1))' }} />
             ) : (
               <Package size={120} style={{ color: '#e2e8f0' }} />
             )}
           </div>
-          <div style={{ width: '100%', marginTop: '2rem' }}>
-            <BenchmarkDisplay comparison={p.official_price_comparison} type="modal" />
+          <div style={{ width: '100%', marginTop: 'auto', paddingTop: '1.5rem' }}>
+            <div style={{ background: '#f0fdfa', border: '1px solid #ccfbf1', padding: '1rem', borderRadius: '16px' }}>
+               <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#0F766E', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.5rem' }}>Wholesale Terms</div>
+               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', fontWeight: 800, color: '#1e293b', marginBottom: '0.5rem' }}>
+                  <Package size={14} className="text-[#0F766E]" /> Minimum Order: {p.min_order_quantity || 1} {p.unit}s
+               </div>
+               {p.bulk_discount_rules && p.bulk_discount_rules.length > 0 && (
+                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginTop: '0.5rem' }}>
+                    <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase' }}>Available Volume Discounts:</div>
+                    {p.bulk_discount_rules.map((rule, idx) => (
+                      <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.75rem', fontWeight: 800, color: '#1e293b' }}>
+                        <span style={{ background: '#0F766E', color: 'white', padding: '0.1rem 0.4rem', borderRadius: '4px' }}>-{rule.discount_pct}%</span>
+                        <span>Orders ≥ {rule.min_qty} {p.unit}s</span>
+                      </div>
+                    ))}
+                 </div>
+               )}
+            </div>
           </div>
         </div>
 
         {/* Content Pane */}
-        <div style={{ padding: '3rem', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
+        <div style={{ flex: 1, padding: '2rem', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
             <div>
               <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#0F766E', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.5rem' }}>{p.category_name}</div>
-              <h2 style={{ fontSize: '2rem', fontWeight: 900, color: '#1e293b', letterSpacing: '-1px', margin: 0, lineHeight: 1.1 }}>{p.title}</h2>
+              <h2 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#1e293b', letterSpacing: '-1px', margin: 0, lineHeight: 1.1 }}>{p.title}</h2>
             </div>
             <button onClick={onClose} style={{ border: 'none', background: '#f1f5f9', color: '#94a3b8', width: '40px', height: '40px', borderRadius: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={20} /></button>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '2rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', marginBottom: '1.5rem' }}>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
-              <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#1e293b' }}>{parseFloat(p.price).toLocaleString()}</span>
+              <span style={{ fontSize: '2rem', fontWeight: 900, color: '#1e293b' }}>{parseFloat(p.price).toLocaleString()}</span>
               <span style={{ fontSize: '1rem', fontWeight: 800, color: '#94a3b8' }}>DZD / {p.unit}</span>
             </div>
             {p.official_price_comparison && p.official_price_comparison.min_price && (
@@ -139,6 +160,8 @@ function ProductSplitModal({ product, onClose, onAddToCart, cartLoading }) {
               </div>
             )}
           </div>
+
+
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
             <div style={{ background: '#f8fafc', padding: '1rem', borderRadius: '16px', border: '1px solid #f1f5f9' }}>
@@ -175,18 +198,32 @@ function ProductSplitModal({ product, onClose, onAddToCart, cartLoading }) {
             </div>
           )}
 
-          <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', gap: '1.5rem', paddingTop: '2rem', borderTop: '1.5px solid #f1f5f9' }}>
-            <div style={{ display: 'flex', alignItems: 'center', background: '#f1f5f9', borderRadius: '16px', padding: '0.5rem' }}>
-              <button onClick={() => setQty(Math.max(1, qty - 1))} style={{ width: '36px', height: '36px', borderRadius: '12px', border: 'none', background: '#fff', color: '#1e293b', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}><Minus size={16} /></button>
-              <span style={{ width: '50px', textAlign: 'center', fontWeight: 900, fontSize: '1.1rem' }}>{qty}</span>
-              <button onClick={() => setQty(Math.min(p.stock, qty + 1))} style={{ width: '36px', height: '36px', borderRadius: '12px', border: 'none', background: '#fff', color: '#1e293b', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }} disabled={qty >= p.stock}><Plus size={16} /></button>
+          <div style={{ marginTop: 'auto', display: 'flex', alignItems: 'center', gap: '1rem', paddingTop: '1.5rem', borderTop: '1.5px solid #f1f5f9' }}>
+            <div style={{ display: 'flex', alignItems: 'center', background: '#f1f5f9', borderRadius: '14px', padding: '0.4rem' }}>
+              <button onClick={() => setQty(Math.max(parseFloat(p.min_order_quantity || 1), qty - 1))} style={{ width: '32px', height: '32px', borderRadius: '10px', border: 'none', background: '#fff', color: '#1e293b', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}><Minus size={14} /></button>
+              <span style={{ width: '45px', textAlign: 'center', fontWeight: 900, fontSize: '1rem' }}>{qty}</span>
+              <button onClick={() => setQty(Math.min(p.stock, qty + 1))} style={{ width: '32px', height: '32px', borderRadius: '10px', border: 'none', background: '#fff', color: '#1e293b', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }} disabled={qty >= p.stock}><Plus size={14} /></button>
             </div>
             <button
               onClick={() => { onAddToCart(p.id, qty); onClose(); }}
               disabled={cartLoading || p.stock === 0}
-              style={{ flex: 1, background: p.stock === 0 ? '#94a3b8' : '#0F766E', color: '#fff', padding: '1.25rem', borderRadius: '20px', border: 'none', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', boxShadow: p.stock === 0 ? 'none' : '0 10px 30px rgba(15,118,110,0.3)' }}
+              style={{ flex: 1, background: p.stock === 0 ? '#94a3b8' : '#0F766E', color: '#fff', padding: '1rem', borderRadius: '16px', border: 'none', fontWeight: 800, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', boxShadow: p.stock === 0 ? 'none' : '0 10px 30px rgba(15,118,110,0.3)' }}
             >
-              {p.stock === 0 ? 'Sold Out' : <><ShoppingCart size={20} /> Add to Requisition • {(parseFloat(p.price) * qty).toLocaleString()} DZD</>}
+              {(() => {
+                let discountPct = 0;
+                if (p.bulk_discount_rules) {
+                  const rules = [...p.bulk_discount_rules].sort((a, b) => parseFloat(b.min_qty) - parseFloat(a.min_qty));
+                  for (let rule of rules) {
+                    if (parseFloat(qty) >= parseFloat(rule.min_qty)) {
+                      discountPct = parseFloat(rule.discount_pct);
+                      break;
+                    }
+                  }
+                }
+                const finalPrice = parseFloat(p.price) * (1 - (discountPct / 100));
+                const total = finalPrice * qty;
+                return p.stock === 0 ? 'Sold Out' : <><ShoppingCart size={20} /> Add to Requisition • {total.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} DZD {discountPct > 0 && <span style={{fontSize: '0.7rem', background: '#064e3b', padding: '0.1rem 0.3rem', borderRadius: '4px'}}>(-{discountPct}%)</span>}</>;
+              })()}
             </button>
           </div>
         </div>
@@ -412,6 +449,9 @@ function BuyerDashboard() {
                     <span className="text-slate-900" style={{ fontSize: '1.3rem', fontWeight: 900 }}>{parseFloat(p.price).toLocaleString()}</span>
                     <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#94a3b8' }}>DZD / {p.unit}</span>
                   </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.2rem' }}>
+                    <span style={{ fontSize: '0.65rem', fontWeight: 900, background: '#f0fdfa', color: '#0F766E', padding: '0.1rem 0.4rem', borderRadius: '4px', textTransform: 'uppercase' }}>MOQ: {p.min_order_quantity || 1} {p.unit}S</span>
+                  </div>
                   <BenchmarkDisplay comparison={p.official_price_comparison} />
 
                   <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.5rem' }}>
@@ -423,7 +463,7 @@ function BuyerDashboard() {
                       Analyze
                     </button>
                     <button
-                      onClick={() => addToCart(p.id)}
+                      onClick={() => addToCart(p.id, Math.max(parseFloat(p.min_order_quantity || 1), 1))}
                       disabled={cartLoading || p.stock === 0}
                       style={{ flex: 1, background: p.stock === 0 ? '#f1f5f9' : '#0F766E', color: p.stock === 0 ? '#94a3b8' : '#fff', border: 'none', borderRadius: '14px', padding: '0.75rem', fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
                     >

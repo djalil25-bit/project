@@ -23,8 +23,11 @@ class CartItemSerializer(serializers.ModelSerializer):
             attrs['quantity'] = qty
             if qty <= 0:
                 raise serializers.ValidationError({'quantity': 'Quantity must be greater than zero.'})
-            if product is not None and qty > product.stock:
-                raise serializers.ValidationError({'quantity': f'Only {product.stock} in stock.'})
+            if product is not None:
+                if qty > product.stock:
+                    raise serializers.ValidationError({'quantity': f'Only {product.stock} in stock.'})
+                if qty < product.min_order_quantity:
+                    raise serializers.ValidationError({'quantity': f'Minimum order quantity is {product.min_order_quantity} {product.unit}.'})
 
         # Validate product activity only if product is known
         if product is not None and not product.is_active:
@@ -43,4 +46,19 @@ class CartSerializer(serializers.ModelSerializer):
         read_only_fields = ('buyer',)
 
     def get_total_price(self, obj):
-        return sum(item.product.price * item.quantity for item in obj.items.all())
+        total = 0
+        for item in obj.items.all():
+            qty = item.quantity
+            price = item.product.price
+            discount_pct = 0
+            if item.product.bulk_discount_rules:
+                # Sort descending by min_qty to find the highest applicable tier
+                rules = sorted(item.product.bulk_discount_rules, key=lambda x: float(x.get('min_qty', 0)), reverse=True)
+                for rule in rules:
+                    if float(qty) >= float(rule.get('min_qty', 0)):
+                        discount_pct = float(rule.get('discount_pct', 0))
+                        break
+            
+            final_price = float(price) * (1 - (discount_pct / 100))
+            total += final_price * float(qty)
+        return round(total, 2)

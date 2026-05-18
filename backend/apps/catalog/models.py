@@ -52,6 +52,8 @@ class Product(TimeStampedModel):
     )
     image = models.ImageField(upload_to='products/', null=True, blank=True)
     is_active = models.BooleanField(default=True)
+    min_order_quantity = models.DecimalField(max_digits=12, decimal_places=2, default=1.0)
+    bulk_discount_rules = models.JSONField(default=list, blank=True, help_text="[{'min_qty': 50, 'discount_pct': 5}, ...]")
     objects = models.Manager()
 
     def __str__(self):

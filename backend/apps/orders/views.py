@@ -60,7 +60,19 @@ class OrderViewSet(viewsets.ModelViewSet):
             origin_commune = farm.commune if farm and farm.commune else ""
             
             total_qty = sum(item.quantity for item in items)
-            subtotal = sum(item.product.price * item.quantity for item in items)
+            subtotal = 0
+            for item in items:
+                qty = item.quantity
+                price = item.product.price
+                discount_pct = 0
+                if item.product.bulk_discount_rules:
+                    rules = sorted(item.product.bulk_discount_rules, key=lambda x: float(x.get('min_qty', 0)), reverse=True)
+                    for rule in rules:
+                        if float(qty) >= float(rule.get('min_qty', 0)):
+                            discount_pct = float(rule.get('discount_pct', 0))
+                            break
+                final_price = float(price) * (1 - (discount_pct / 100))
+                subtotal += Decimal(str(final_price)) * qty
             
             # Get real distance if provided by frontend (OSRM)
             provided_dist = distances_map.get(str(fid))
@@ -145,8 +157,20 @@ class OrderViewSet(viewsets.ModelViewSet):
 
                 for fid, items in items_by_farmer_id.items():
                     farmer = farmer_map[fid]
-                    # Calculate total for this farmer's items only
-                    farmer_subtotal = sum(item.product.price * item.quantity for item in items)
+                    farmer_subtotal = 0
+                    for item in items:
+                        qty = item.quantity
+                        price = item.product.price
+                        discount_pct = 0
+                        if item.product.bulk_discount_rules:
+                            rules = sorted(item.product.bulk_discount_rules, key=lambda x: float(x.get('min_qty', 0)), reverse=True)
+                            for rule in rules:
+                                if float(qty) >= float(rule.get('min_qty', 0)):
+                                    discount_pct = float(rule.get('discount_pct', 0))
+                                    break
+                        final_price = float(price) * (1 - (discount_pct / 100))
+                        farmer_subtotal += Decimal(str(final_price)) * qty
+                    
                     total_qty = sum(item.quantity for item in items)
                     
                     # Calculate transport fee
@@ -192,11 +216,22 @@ class OrderViewSet(viewsets.ModelViewSet):
                         product.stock -= item.quantity
                         product.save()
 
+                        qty = item.quantity
+                        price = product.price
+                        discount_pct = 0
+                        if product.bulk_discount_rules:
+                            rules = sorted(product.bulk_discount_rules, key=lambda x: float(x.get('min_qty', 0)), reverse=True)
+                            for rule in rules:
+                                if float(qty) >= float(rule.get('min_qty', 0)):
+                                    discount_pct = float(rule.get('discount_pct', 0))
+                                    break
+                        final_price = float(price) * (1 - (discount_pct / 100))
+
                         OrderItem.objects.create(
                             order=order,
                             product=product,
                             quantity=item.quantity,
-                            price_snapshot=product.price,
+                            price_snapshot=Decimal(str(final_price)),
                             farmer=farmer
                         )
 

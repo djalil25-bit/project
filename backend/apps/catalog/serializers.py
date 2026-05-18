@@ -185,6 +185,14 @@ class ProductSerializer(serializers.ModelSerializer):
             except InvalidOperation:
                 raise serializers.ValidationError({"stock": "Invalid stock value."})
 
+        min_qty = attrs.get('min_order_quantity', getattr(self.instance, 'min_order_quantity', 1.0))
+        if min_qty is not None:
+            try:
+                if Decimal(str(min_qty)) <= 0:
+                    raise serializers.ValidationError({"min_order_quantity": "MOQ must be greater than 0."})
+            except InvalidOperation:
+                raise serializers.ValidationError({"min_order_quantity": "Invalid MOQ value."})
+
         # --- Category requirement ---
         # Allow instance.category (object) or instance.category_id (int) as fallback.
         category = attrs.get('category') or getattr(self.instance, 'category', None)

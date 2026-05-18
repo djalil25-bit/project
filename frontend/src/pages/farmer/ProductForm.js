@@ -5,14 +5,16 @@ import {
   ArrowLeft, Package, Home, Tag, Image as ImageIcon,
   Save, Info, ShieldCheck, AlertTriangle, ChevronRight, Plus,
   Layers, BadgeCheck, FileText, LayoutGrid, CheckCircle2,
-  AlertCircle, X, Edit3
+  AlertCircle, X, Edit3, ChevronDown
 } from 'lucide-react';
 
 export default function ProductForm() {
   const [formData, setFormData] = useState({
     catalog_product: '', description: '', price: '', stock: '',
     farm: '', title: '', category: '', unit: '', quality: 'STANDARD', image: null,
+    min_order_quantity: 1,
   });
+  const [discountRules, setDiscountRules] = useState([]);
   const [farms, setFarms]           = useState([]);
   const [catalog, setCatalog]       = useState([]);
   const [selCatalog, setSelCatalog] = useState(null);
@@ -55,8 +57,10 @@ export default function ProductForm() {
             category: p.category || '',
             unit: p.unit || '',
             quality: p.quality || 'STANDARD',
+            min_order_quantity: p.min_order_quantity || 1,
             image: null,
           });
+          setDiscountRules(p.bulk_discount_rules || []);
           if (p.catalog_product) {
             const item = fetchedCatalog.find(i => i.id === Number(p.catalog_product));
             if (item) setSelCatalog(item);
@@ -128,6 +132,14 @@ export default function ProductForm() {
         data.append(key, formData[key]);
       }
     });
+    
+    // Add discount rules
+    const validRules = discountRules.filter(r => r.min_qty && r.discount_pct).map(r => ({
+      min_qty: parseFloat(r.min_qty),
+      discount_pct: parseFloat(r.discount_pct)
+    }));
+    data.append('bulk_discount_rules', JSON.stringify(validRules));
+
     if (!formData.title && selCatalog) data.set('title', selCatalog.name);
 
     try {
@@ -226,11 +238,11 @@ export default function ProductForm() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Registry Product <span className="text-red-500">*</span></label>
+                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Registry Product <span className="text-red-500">*</span></label>
                   <div className="relative group">
                     <select
                       name="catalog_product"
-                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-black text-slate-700 uppercase tracking-widest focus:outline-none focus:ring-4 focus:ring-[#2E6F40]/10 focus:border-[#2E6F40] transition-all appearance-none cursor-pointer"
+                      className="w-full pl-5 pr-12 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold text-slate-700 focus:outline-none focus:ring-4 focus:ring-[#2E6F40]/10 focus:border-[#2E6F40] transition-all appearance-none cursor-pointer"
                       onChange={handleChange}
                       required
                       value={formData.catalog_product}
@@ -238,17 +250,17 @@ export default function ProductForm() {
                       <option value="">Choose Catalog Entry…</option>
                       {catalog.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}
                     </select>
-                    <ChevronRight size={14} className="absolute right-5 top-1/2 -translate-y-1/2 rotate-90 text-slate-400 pointer-events-none group-focus-within:text-[#2E6F40] transition-colors" strokeWidth={3} />
+                    <ChevronDown size={18} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-[#2E6F40] transition-colors" strokeWidth={2.5} />
                   </div>
                   {fieldErrors.catalog_product && <div className="text-[10px] font-black text-red-500 uppercase tracking-widest mt-1 ml-1">{fieldErrors.catalog_product}</div>}
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Producing Farm <span className="text-red-500">*</span></label>
+                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Producing Farm <span className="text-red-500">*</span></label>
                   <div className="relative group">
                     <select
                       name="farm"
-                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-black text-slate-700 uppercase tracking-widest focus:outline-none focus:ring-4 focus:ring-[#2E6F40]/10 focus:border-[#2E6F40] transition-all appearance-none cursor-pointer"
+                      className="w-full pl-5 pr-12 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold text-slate-700 focus:outline-none focus:ring-4 focus:ring-[#2E6F40]/10 focus:border-[#2E6F40] transition-all appearance-none cursor-pointer"
                       onChange={handleChange}
                       required
                       value={formData.farm}
@@ -256,7 +268,7 @@ export default function ProductForm() {
                       <option value="">Select Origin Farm…</option>
                       {farms.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
                     </select>
-                    <ChevronRight size={14} className="absolute right-5 top-1/2 -translate-y-1/2 rotate-90 text-slate-400 pointer-events-none group-focus-within:text-[#2E6F40] transition-colors" strokeWidth={3} />
+                    <ChevronDown size={18} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-[#2E6F40] transition-colors" strokeWidth={2.5} />
                   </div>
                   {fieldErrors.farm && <div className="text-[10px] font-black text-red-500 uppercase tracking-widest mt-1 ml-1">{fieldErrors.farm}</div>}
                 </div>
@@ -277,11 +289,11 @@ export default function ProductForm() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Asking Price (DZD) <span className="text-red-500">*</span></label>
+                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Asking Price (DZD) <span className="text-red-500">*</span></label>
                   <div className="relative group">
                     <input
                       type="number" step="0.01" name="price"
-                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-black text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-4 focus:ring-[#2E6F40]/10 focus:border-[#2E6F40] transition-all tabular-nums"
+                      className="w-full pl-5 pr-24 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-4 focus:ring-[#2E6F40]/10 focus:border-[#2E6F40] transition-all tabular-nums"
                       placeholder="0.00" onChange={handleChange} required value={formData.price}
                     />
                     <div className="absolute right-5 top-1/2 -translate-y-1/2 font-black text-[9px] text-slate-400 uppercase tracking-widest group-focus-within:text-[#2E6F40] transition-colors">DZD / {selCatalog?.default_unit || 'UNIT'}</div>
@@ -290,16 +302,92 @@ export default function ProductForm() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Available Stock <span className="text-red-500">*</span></label>
+                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Available Stock <span className="text-red-500">*</span></label>
                   <div className="relative group">
                     <input
                       type="number" step="0.01" name="stock"
-                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-black text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-4 focus:ring-[#2E6F40]/10 focus:border-[#2E6F40] transition-all tabular-nums"
+                      className="w-full pl-5 pr-20 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-4 focus:ring-[#2E6F40]/10 focus:border-[#2E6F40] transition-all tabular-nums"
                       placeholder="0.00" onChange={handleChange} required value={formData.stock}
                     />
                     <div className="absolute right-5 top-1/2 -translate-y-1/2 font-black text-[9px] text-slate-400 uppercase tracking-widest group-focus-within:text-[#2E6F40] transition-colors">{selCatalog?.default_unit || 'UNIT'}S</div>
                   </div>
                   {fieldErrors.stock && <div className="text-[10px] font-black text-red-500 uppercase tracking-widest mt-1 ml-1">{fieldErrors.stock}</div>}
+                </div>
+              </div>
+
+              <div className="mt-8 pt-8 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="flex flex-col gap-2">
+                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Minimum Order Qty (MOQ) <span className="text-red-500">*</span></label>
+                  <div className="relative group">
+                    <input
+                      type="number" step="0.01" min="0.01" name="min_order_quantity"
+                      className="w-full pl-5 pr-20 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-4 focus:ring-[#2E6F40]/10 focus:border-[#2E6F40] transition-all tabular-nums"
+                      placeholder="1" onChange={handleChange} required value={formData.min_order_quantity}
+                    />
+                    <div className="absolute right-5 top-1/2 -translate-y-1/2 font-black text-[9px] text-slate-400 uppercase tracking-widest group-focus-within:text-[#2E6F40] transition-colors">{selCatalog?.default_unit || 'UNIT'}S</div>
+                  </div>
+                  {fieldErrors.min_order_quantity && <div className="text-[10px] font-black text-red-500 uppercase tracking-widest mt-1 ml-1">{fieldErrors.min_order_quantity}</div>}
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Bulk Discounts (Optional)</label>
+                    <button
+                      type="button"
+                      onClick={() => setDiscountRules([...discountRules, { min_qty: '', discount_pct: '' }])}
+                      className="px-3 py-1.5 bg-[#2E6F40]/10 hover:bg-[#2E6F40]/20 text-[#2E6F40] rounded-xl font-black text-[9px] uppercase tracking-widest transition-all flex items-center gap-1.5 border border-[#2E6F40]/20 shadow-sm active:scale-95"
+                    >
+                      <Plus size={10} strokeWidth={3} /> Add Tier
+                    </button>
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    {discountRules.map((rule, idx) => (
+                      <div key={idx} className="flex gap-3 items-center bg-slate-50 border border-slate-200 rounded-2xl p-2.5 shadow-sm animate-fade-in">
+                        <div className="relative w-1/2">
+                          <input
+                            type="number" placeholder="Min Qty" value={rule.min_qty}
+                            onChange={e => {
+                              const newRules = [...discountRules];
+                              newRules[idx].min_qty = e.target.value;
+                              setDiscountRules(newRules);
+                            }}
+                            className="w-full pl-3 pr-12 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#2E6F40] transition-colors"
+                          />
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-black text-slate-400 uppercase tracking-wider">{selCatalog?.default_unit || 'UNIT'}s</span>
+                        </div>
+                        <span className="text-[10px] font-black text-slate-400 shrink-0">→</span>
+                        <div className="relative w-1/2">
+                          <input
+                            type="number" placeholder="Discount" value={rule.discount_pct}
+                            onChange={e => {
+                              const newRules = [...discountRules];
+                              newRules[idx].discount_pct = e.target.value;
+                              setDiscountRules(newRules);
+                            }}
+                            className="w-full pl-3 pr-12 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#2E6F40] transition-colors"
+                          />
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400">% OFF</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setDiscountRules(discountRules.filter((_, i) => i !== idx))}
+                          className="text-slate-400 hover:text-red-500 p-2 hover:bg-red-50 rounded-xl transition-all shrink-0 active:scale-90"
+                        >
+                          <X size={14} strokeWidth={2.5} />
+                        </button>
+                      </div>
+                    ))}
+                    {discountRules.length === 0 && (
+                      <div className="border border-dashed border-slate-200 bg-slate-50/50 rounded-2xl p-4 text-center">
+                        <span className="text-[11px] text-slate-400 font-semibold leading-relaxed block">
+                          No bulk discount tiers defined.
+                        </span>
+                        <span className="text-[9px] text-slate-400 font-medium block mt-0.5">
+                          Define volume tiers to encourage buyers to purchase larger quantities.
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -318,11 +406,11 @@ export default function ProductForm() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Quality Grade <span className="text-red-500">*</span></label>
+                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Quality Grade <span className="text-red-500">*</span></label>
                   <div className="relative group">
                     <select
                       name="quality"
-                      className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-black text-slate-700 uppercase tracking-widest focus:outline-none focus:ring-4 focus:ring-[#2E6F40]/10 focus:border-[#2E6F40] transition-all appearance-none cursor-pointer"
+                      className="w-full pl-5 pr-12 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-semibold text-slate-700 focus:outline-none focus:ring-4 focus:ring-[#2E6F40]/10 focus:border-[#2E6F40] transition-all appearance-none cursor-pointer"
                       onChange={handleChange} required value={formData.quality}
                     >
                       <option value="PREMIUM">Premium (High End)</option>
@@ -330,25 +418,35 @@ export default function ProductForm() {
                       <option value="ECONOMY">Economy (Low Cost)</option>
                       <option value="ORGANIC">Organic (Certified)</option>
                     </select>
-                    <ChevronRight size={14} className="absolute right-5 top-1/2 -translate-y-1/2 rotate-90 text-slate-400 pointer-events-none group-focus-within:text-[#2E6F40] transition-colors" strokeWidth={3} />
+                    <ChevronDown size={18} className="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none group-focus-within:text-[#2E6F40] transition-colors" strokeWidth={2.5} />
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Product Imagery</label>
-                  <input
-                    type="file" name="image"
-                    className="w-full px-5 py-[0.85rem] bg-slate-50 border border-slate-200 rounded-2xl text-[10px] font-black text-slate-500 uppercase tracking-widest file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-[9px] file:font-black file:bg-[#2E6F40] file:text-white hover:file:bg-[#255933] cursor-pointer transition-all"
-                    accept="image/*" onChange={handleChange}
-                  />
+                  <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Product Imagery</label>
+                  <div className="relative group">
+                    <label className="flex items-center justify-center gap-3 border-2 border-dashed border-slate-200 rounded-2xl py-3 px-5 cursor-pointer hover:border-[#2E6F40] hover:bg-[#2E6F40]/5 transition-all h-[54px] bg-slate-50">
+                      <ImageIcon size={16} className="text-slate-400" />
+                      <span className="text-xs text-slate-500 font-semibold truncate max-w-[200px]">
+                        {formData.image ? formData.image.name : 'Upload product photo'}
+                      </span>
+                      <input
+                        type="file"
+                        name="image"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleChange}
+                      />
+                    </label>
+                  </div>
                 </div>
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Detailed Manifest & Product Notes</label>
+                <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">Detailed Manifest & Product Notes</label>
                 <textarea
                   name="description"
-                  className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-3xl text-xs font-semibold text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-[#2E6F40]/10 focus:border-[#2E6F40] transition-all resize-none min-h-[140px] leading-relaxed"
+                  className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-3xl text-sm font-semibold text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-4 focus:ring-[#2E6F40]/10 focus:border-[#2E6F40] transition-all resize-none min-h-[140px] leading-relaxed"
                   placeholder="Elaborate on the product conditions, specific variety, or any unique quality markers..."
                   onChange={handleChange} value={formData.description}
                 />

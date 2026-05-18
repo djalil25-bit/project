@@ -85,10 +85,11 @@ function CartPage() {
     } finally { setCartLoading(false); }
   };
 
-  const updateQuantity = async (productId, currentQty, delta, maxStock) => {
+  const updateQuantity = async (productId, currentQty, delta, maxStock, minQty) => {
     const newQty = Math.round(Number(currentQty)) + delta;
     const maxStockNum = Number(maxStock);
-    if (newQty < 1) return removeFromCart(productId);
+    const minQtyNum = Math.max(1, Number(minQty || 1));
+    if (newQty < minQtyNum) return removeFromCart(productId);
     if (newQty > maxStockNum) {
       showMsg('danger', `Cannot exceed available stock (${maxStockNum}).`);
       return;
@@ -259,8 +260,21 @@ function CartPage() {
             ) : (
               cart.items.map(item => {
                 const p = item.product_detail || {};
+                let discountPct = 0;
+                if (p.bulk_discount_rules) {
+                  const rules = [...p.bulk_discount_rules].sort((a, b) => parseFloat(b.min_qty) - parseFloat(a.min_qty));
+                  for (let rule of rules) {
+                    if (parseFloat(item.quantity) >= parseFloat(rule.min_qty)) {
+                      discountPct = parseFloat(rule.discount_pct);
+                      break;
+                    }
+                  }
+                }
                 const price = parseFloat(p.price || 0);
-                const subTotal = item.quantity * price;
+                const finalPrice = price * (1 - (discountPct / 100));
+                const subTotal = item.quantity * finalPrice;
+                const minQtyNum = Math.max(1, parseFloat(p.min_order_quantity || 1));
+
                 return (
                   <div key={item.id} style={{ background: '#fff', borderRadius: '24px', padding: '1.5rem', border: '1px solid #e2e8f0', display: 'grid', gridTemplateColumns: '120px 1fr auto', gap: '2rem', alignItems: 'center', position: 'relative', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.02)', transition: 'transform 0.2s' }} className="hover-lift">
                     <div style={{ width: '120px', height: '120px', borderRadius: '16px', background: '#f8fafc', overflow: 'hidden', border: '1px solid #f1f5f9' }}>
@@ -275,22 +289,23 @@ function CartPage() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                          <span style={{ fontSize: '0.65rem', fontWeight: 900, background: '#f1f5f9', color: '#64748b', padding: '0.2rem 0.5rem', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{p.category_name}</span>
                          <span style={{ fontSize: '0.65rem', fontWeight: 900, background: '#fdf2f8', color: '#db2777', padding: '0.2rem 0.5rem', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Certified Vendor</span>
+                         {discountPct > 0 && <span style={{ fontSize: '0.65rem', fontWeight: 900, background: '#ecfdf5', color: '#059669', padding: '0.2rem 0.5rem', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>-{discountPct}% Wholesale Applied</span>}
                       </div>
                       <h4 style={{ fontSize: '1.25rem', fontWeight: 900, color: '#1e293b', margin: '0 0 0.5rem' }}>{p.productName || p.title}</h4>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: '#64748b', fontSize: '0.85rem', fontWeight: 600 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Building2 size={14} /> {p.farm_name}</div>
                         <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#cbd5e1' }}></div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>{price.toLocaleString()} DZD / {p.unit}</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>{finalPrice.toLocaleString()} DZD / {p.unit}</div>
                       </div>
                     </div>
 
                     <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '1rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#f8fafc', padding: '0.5rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                         <button onClick={() => updateQuantity(item.product, Number(item.quantity), -1, Number(p.stock))} style={{ width: '32px', height: '32px', borderRadius: '8px', border: 'none', background: '#fff', color: '#475569', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}><Minus size={14} /></button>
+                         <button onClick={() => updateQuantity(item.product, Number(item.quantity), -1, Number(p.stock), minQtyNum)} style={{ width: '32px', height: '32px', borderRadius: '8px', border: 'none', background: '#fff', color: '#475569', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}><Minus size={14} /></button>
                          <span style={{ width: '40px', textAlign: 'center', fontWeight: 800, fontSize: '1rem', color: '#1e293b' }}>{Number(item.quantity)}</span>
-                         <button onClick={() => updateQuantity(item.product, Number(item.quantity), 1, Number(p.stock))} style={{ width: '32px', height: '32px', borderRadius: '8px', border: 'none', background: '#fff', color: '#475569', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }} disabled={Number(item.quantity) >= Number(p.stock)}><Plus size={14} /></button>
+                         <button onClick={() => updateQuantity(item.product, Number(item.quantity), 1, Number(p.stock), minQtyNum)} style={{ width: '32px', height: '32px', borderRadius: '8px', border: 'none', background: '#fff', color: '#475569', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }} disabled={Number(item.quantity) >= Number(p.stock)}><Plus size={14} /></button>
                       </div>
-                      <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#1e293b' }}>{subTotal.toLocaleString()} <small style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>DZD</small></div>
+                      <div style={{ fontSize: '1.25rem', fontWeight: 900, color: '#1e293b' }}>{subTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} <small style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>DZD</small></div>
                       <button onClick={() => removeFromCart(item.product)} style={{ border: 'none', background: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.5rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase' }}><Trash2 size={16} /> Remove</button>
                     </div>
                   </div>
