@@ -383,19 +383,20 @@ const MainLayout = () => {
               {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
             </button>
 
-            {/* Messages Inbox Shortcut (All Users) */}
+            {/* Messages Inbox Shortcut (Non-Admin Users Only) */}
+            {user?.role !== 'admin' && (
             <button
               className={`topbar-icon-btn notif-btn`}
               onClick={() => { 
-                navigate(user?.role === 'admin' ? '/admin-dashboard/messages?tab=inbox' : '/messages'); 
+                navigate('/messages'); 
                 setShowNotifDropdown(false); setShowUserMenu(false); setShowLangMenu(false); 
               }}
               title="Messages"
               aria-label="Messages"
             >
               <MessageSquare size={18} />
-              {/* Note: Unread message count badge can be implemented here via an API endpoint */}
             </button>
+            )}
 
             {/* Notifications */}
             <div className="notification-wrapper" ref={notifRef}>

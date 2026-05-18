@@ -14,6 +14,7 @@ from apps.orders.models import Order, OrderItem, OrderStatusChoices
 from apps.logistics.models import DeliveryRequest, DeliveryStatusChoices
 from apps.payments.models import Payment
 from apps.accounts.permissions import IsAdminRole
+from apps.logistics.models import Vehicle, VehicleStatusChoices
 
 class AdminDashboardStatsAPIView(APIView):
     permission_classes = [IsAuthenticated, IsAdminRole]
@@ -30,6 +31,8 @@ class AdminDashboardStatsAPIView(APIView):
         total_farmers = User.objects.filter(role=RoleChoices.FARMER, status=AccountStatusChoices.APPROVED).count()
         total_buyers = User.objects.filter(role=RoleChoices.BUYER, status=AccountStatusChoices.APPROVED).count()
         
+        active_vehicles = Vehicle.objects.filter(status=VehicleStatusChoices.ACTIVE).count()
+
         return Response({
             'pending_users': pending_users,
             'total_users': total_users,
@@ -38,6 +41,7 @@ class AdminDashboardStatsAPIView(APIView):
             'total_revenue': total_revenue,
             'total_farmers': total_farmers,
             'total_buyers': total_buyers,
+            'active_vehicles': active_vehicles,
         })
 
 

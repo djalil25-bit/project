@@ -311,7 +311,7 @@ function CartPage() {
                   <span style={{ color: '#64748b', fontWeight: 600, fontSize: '0.9rem' }}>Gross Asset Value</span>
                   <span style={{ fontWeight: 800, color: '#1e293b' }}>{cartTotal.toLocaleString()} DZD</span>
                 </div>
-                <div style={{ padding: '1rem', background: '#eab308', borderRadius: '16px', color: '#000', marginTop: '0.5rem' }}>
+                <div style={{ padding: '1rem', background: '#0F766E', borderRadius: '16px', color: '#fff', marginTop: '0.5rem' }}>
                   <div style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', marginBottom: '0.25rem', opacity: 0.8 }}>Institutional Transport Quote</div>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
                     <span style={{ fontSize: '1.25rem', fontWeight: 900 }}>
