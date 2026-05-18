@@ -19,7 +19,7 @@ class OrderViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if user.role == 'buyer':
+        if getattr(user, 'role', None) == 'buyer':
             return Order.objects.filter(buyer=user).order_by('-created_at')
         return Order.objects.none()
 

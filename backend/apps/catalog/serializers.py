@@ -3,7 +3,7 @@ from .models import Category, CatalogProduct, Product, Favorite
 from apps.pricing.models import PricePublication
 
 class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
+    class Meta:  # type: ignore
         model = Category
         fields = '__all__'
 
@@ -12,7 +12,7 @@ class CatalogProductSerializer(serializers.ModelSerializer):
     trend = serializers.SerializerMethodField()
     price_change_percentage = serializers.SerializerMethodField()
 
-    class Meta:
+    class Meta:  # type: ignore
         model = CatalogProduct
         fields = '__all__'
 
@@ -70,7 +70,7 @@ class ProductSerializer(serializers.ModelSerializer):
     is_favorite = serializers.SerializerMethodField()
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), required=False)
 
-    class Meta:
+    class Meta:  # type: ignore
         model = Product
         fields = '__all__'
         read_only_fields = ('farmer', 'created_at', 'updated_at', 'is_favorite')
@@ -206,12 +206,12 @@ class ProductSerializer(serializers.ModelSerializer):
 class FavoriteSerializer(serializers.ModelSerializer):
     product_detail = ProductSerializer(source='product', read_only=True)
 
-    class Meta:
+    class Meta:  # type: ignore
         model = Favorite
         fields = ['id', 'user', 'product', 'product_detail', 'created_at']
         read_only_fields = ['user', 'created_at']
 
 class FavoriteCreateSerializer(serializers.ModelSerializer):
-    class Meta:
+    class Meta:  # type: ignore
         model = Favorite
         fields = ['id', 'product']

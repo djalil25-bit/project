@@ -6,6 +6,7 @@ from apps.catalog.models import Product
 class Cart(TimeStampedModel):
     buyer = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='cart')
     objects = models.Manager()
+    items: models.Manager # type: ignore
 
     def __str__(self):
         return f"Cart for {self.buyer.full_name}" # type: ignore

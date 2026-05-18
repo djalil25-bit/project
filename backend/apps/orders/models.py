@@ -69,6 +69,7 @@ class Order(TimeStampedModel):
     buyer_confirmed_at = models.DateTimeField(null=True, blank=True)
     farmer_order_number = models.PositiveIntegerField(null=True, blank=True, db_index=True)
     objects = models.Manager()
+    items: models.Manager # type: ignore
 
     def __str__(self):
         return f"Order #{self.id} by {self.buyer.email} ({self.status})" # type: ignore
