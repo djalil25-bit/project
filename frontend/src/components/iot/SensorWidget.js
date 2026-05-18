@@ -14,17 +14,25 @@ const translateMessage = (msg) => {
   if (!msg) return msg;
   const translations = {
     'MOUVEMENT DÉTECTÉ SUR LA FERME': 'MOVEMENT DETECTED ON FARM',
+    'MOVEMENT DETECTED ON FARM': 'MOVEMENT DETECTED ON FARM',
     'VIBRATION DÉTECTÉE SUR LA FERME': 'VIBRATION DETECTED ON FARM',
     'SOL TROP HUMIDE': 'SOIL TOO WET',
     'PLUIE DÉTECTÉE': 'RAIN DETECTED',
     'NIVEAU DE SON ÉLEVÉ': 'HIGH SOUND LEVEL',
     'MOUVEMENT INTRUS DÉTECTÉ': 'INTRUDER MOVEMENT DETECTED',
     'HUMIDITÉ ÉLEVÉE': 'HIGH HUMIDITY',
-    'TEMPÉRATURE ÉLEVÉE': 'HIGH TEMPERATURE'
+    'TEMPÉRATURE ÉLEVÉE': 'HIGH TEMPERATURE',
+    'BRUIT SUSPECT DÉTECTÉ': 'SUSPICIOUS NOISE DETECTED',
+    'SUSPICIOUS NOISE DETECTED': 'SUSPICIOUS NOISE DETECTED',
   };
   const upperMsg = msg.toUpperCase();
   return translations[upperMsg] || msg;
 };
+
+// Helper: check if a sensor value is actually connected
+function isSensorConnected(val) {
+  return val != null && val !== 'disconnected';
+}
 
 function KpiCard({ icon, value, label, color, bg, text, border, alert, note }) {
   return (
@@ -161,17 +169,23 @@ export default function SensorWidget({ farmId }) {
     ? (latest.soil_moisture < 30 ? '⚠️ Irrigate Now!' : latest.soil_moisture > 80 ? '⚠️ Too Wet!' : null)
     : null;
 
-  // Rain
+  // Rain — handle both new English and legacy French values
   const rainStatus = latest?.rain_status;
-  const rainText = rainStatus === 'sec' ? 'Dry' : rainStatus === 'pluie' ? 'Raining' : '—';
+  const rainText = (rainStatus === 'dry' || rainStatus === 'sec') ? '☀️ Dry'
+    : (rainStatus === 'rain' || rainStatus === 'pluie') ? '🌧️ Raining'
+    : '—';
+
+  // Check if IR/Sound sensors are connected
+  const irConn = isSensorConnected(latest?.ir_status);
+  const soundConn = isSensorConnected(latest?.sound_status);
   
   const miniKpis = [
     { icon: <Thermometer size={18} />, label: 'Temperature', value: latest?.temperature != null ? `${latest.temperature}°C` : '—', text: 'text-orange-700', bg: 'bg-orange-50', border: 'border-orange-100', alert: latest?.temperature > 35 ? 'HEAT RISK' : null },
     { icon: <Droplets size={18} />, label: 'Air Humidity', value: latest?.humidity != null ? `${latest.humidity}%` : '—', text: 'text-blue-700', bg: 'bg-blue-50', border: 'border-blue-100' },
     { icon: <Sprout size={18} />, label: 'Soil Health', value: latest?.soil_moisture != null ? `${latest.soil_moisture}%` : '—', text: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-100', alert: latest?.soil_moisture < 30 ? 'DRY SOIL' : null },
     { icon: <CloudRain size={18} />, label: 'Rain Status', value: rainText, text: 'text-cyan-700', bg: 'bg-cyan-50', border: 'border-cyan-100' },
-    { icon: <ShieldAlert size={18} />, label: 'IR Security', value: latest?.ir_status === 'detected' ? 'ALERT' : 'CLEAR', text: latest?.ir_status === 'detected' ? 'text-red-700' : 'text-slate-700', bg: latest?.ir_status === 'detected' ? 'bg-red-50' : 'bg-slate-50', border: latest?.ir_status === 'detected' ? 'border-red-100' : 'border-slate-100', alert: latest?.ir_status === 'detected' ? 'MOVEMENT' : null },
-    { icon: <Volume2 size={18} />, label: 'Acoustics', value: latest?.sound_status === 'detected' ? 'NOISE' : 'SILENT', text: latest?.sound_status === 'detected' ? 'text-amber-700' : 'text-slate-700', bg: latest?.sound_status === 'detected' ? 'bg-amber-50' : 'bg-slate-50', border: latest?.sound_status === 'detected' ? 'border-amber-100' : 'border-slate-100' },
+    { icon: <ShieldAlert size={18} />, label: 'IR Security', value: !irConn ? 'N/A' : latest.ir_status === 'detected' ? 'ALERT' : 'CLEAR', text: !irConn ? 'text-slate-400' : latest.ir_status === 'detected' ? 'text-red-700' : 'text-slate-700', bg: !irConn ? 'bg-slate-50' : latest.ir_status === 'detected' ? 'bg-red-50' : 'bg-slate-50', border: !irConn ? 'border-slate-100' : latest.ir_status === 'detected' ? 'border-red-100' : 'border-slate-100', alert: irConn && latest.ir_status === 'detected' ? 'MOVEMENT' : null },
+    { icon: <Volume2 size={18} />, label: 'Acoustics', value: !soundConn ? 'N/A' : latest.sound_status === 'detected' ? 'NOISE' : 'SILENT', text: !soundConn ? 'text-slate-400' : latest.sound_status === 'detected' ? 'text-amber-700' : 'text-slate-700', bg: !soundConn ? 'bg-slate-50' : latest.sound_status === 'detected' ? 'bg-amber-50' : 'bg-slate-50', border: !soundConn ? 'border-slate-100' : latest.sound_status === 'detected' ? 'border-amber-100' : 'border-slate-100' },
   ];
 
   return (
