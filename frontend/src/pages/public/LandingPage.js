@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import '../../landing.css';
+import '../../styles/landing.css';
 import {
   Sprout, Truck, BarChart3, ShieldCheck, ArrowRight, CheckCircle,
   Users, Package, Building2, Globe, Leaf, Zap, Cloud, MapPin,

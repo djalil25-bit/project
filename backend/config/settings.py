@@ -152,4 +152,4 @@ SIMPLE_JWT = {
 }
 
 # OTP Verification
-OTP_ENABLED = False
+OTP_ENABLED = True

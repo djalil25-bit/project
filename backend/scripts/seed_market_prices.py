@@ -2,7 +2,11 @@
 Seed script to populate initial market intelligence data.
 Run: python manage.py shell < seed_market_prices.py
 """
-import os, django
+import os
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+, django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 

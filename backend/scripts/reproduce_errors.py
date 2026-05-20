@@ -1,4 +1,8 @@
-﻿import os, django, json
+﻿import os
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+, django, json
 from rest_framework.test import APIClient
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()

@@ -1,4 +1,8 @@
-import os, django
+import os
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
+, django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 from apps.catalog.models import CatalogProduct, Category, Product
